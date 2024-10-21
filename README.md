@@ -1,5 +1,9 @@
 # 💫 About Me:
-🔭 I'm currently working on Game Development<br>👯 I'm looking to collaborate on JavaScript Projects<br>🤝 I'm looking for help with **<span style="color: tomato;">✱</span>**<br>🌱 I'm currently learning JavaScript and Python<br>⚡ Fun fact, I try to know all.
+🌱 Learning JS and Python <br>
+🔭 Game Dev in Progress <br>
+👯 Seeking JS Collaborators <br>
+🤝 Need Help with <span style="color: tomato;">✱</span> <br>
+⚡ Fun Fact: Omnivorous Learner
 
 
 ## 🌐 Socials:
