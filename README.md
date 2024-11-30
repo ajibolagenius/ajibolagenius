@@ -1,9 +1,11 @@
 # 💫 About Me:
-🌱 Learning JS and Python <br>
-🔭 Game Dev in Progress <br>
-👯 Seeking JS Collaborators <br>
-🤝 Need Help with <span style="color: tomato;">✱</span> <br>
-⚡ Fun Fact: Omnivorous Learner
+🌱 C#, JavaScript & Python <br>
+🎨 After Effects, Adobe Illustrator, Figma <br>
+🧰 Rive, Spline, Carrd, Webflow <br>
+🔭 Game Dev in Progress {Unity} <br>
+🤖 Claude, Gemini, Julius, Perplexity, You <br>
+⚡ Fun Fact: Eclectic Learner <br>
+🤝 Need help with <span style="color: tomato;">✱</span> <span style="color: gray;">{everything: all}</span> <br>
 
 
 ## 🌐 Socials:
