@@ -1,10 +1,10 @@
 # 💫 About Me:
-🌱 C#, JavaScript & Python <br>
+🌱 C#, JavaScript and Python <be>
 🎨 After Effects, Adobe Illustrator, Figma <br>
-🧰 Rive, Spline, Carrd, Webflow <br>
-🔭 Game Dev in Progress {Unity} <br>
-🤖 Claude, Gemini, Julius, Perplexity, You <br>
-⚡ Fun Fact: Eclectic Learner <br>
+🧰 Rive, Spline, Carrd, Webflow <be>
+🔭 Game development in progress <be>
+🤖 Claude, Gemini, Julius<br>
+⚡ Fun fact: eclectic learner <br>
 🤝 Need help with <span style="color: tomato;">✱</span> <span style="color: gray;">{everything: all}</span> <br>
 
 
