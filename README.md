@@ -3,7 +3,7 @@
 🎨 After Effects, Adobe Illustrator, Figma <br>
 🧰 Rive, Spline, Carrd, Webflow <br>
 🔭 Game development in progress <br>
-🤖 Claude, Gemini, Julius<br>
+🤖 ChatGPT, Gemini, Julius<br>
 ⚡ Fun fact: eclectic learner <br>
 🤝 Need help with <span style="color: tomato;">✱</span> <span style="color: gray;">{everything: all}</span> <br>
 
