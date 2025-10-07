@@ -1,10 +1,11 @@
 # 💫 About Me:
-🌱 C#, JavaScript and Python <br>
-🎨 After Effects, Adobe Illustrator, Figma <br>
+🌱 C#, JavaScript, Python <br>
+🎨 Adobe Suites, Figma, Affinity Suites <br>
 🧰 Rive, Spline, Carrd, Webflow <br>
-🔭 Game development in progress <br>
-🤖 ChatGPT, Gemini, Julius<br>
-⚡ Fun fact: eclectic learner <br>
+🔭 Learning Game Development <br>
+🤖 ChatGPT, Claude, Gemini, Julius <br>
+🧰 VS Code, Cursor, Kiro, Trae <br>
+⚡ Fun Fact: Versatile Learner <br>
 🤝 Need help with <span style="color: tomato;">✱</span> <span style="color: gray;">{everything: all}</span> <br>
 
 
