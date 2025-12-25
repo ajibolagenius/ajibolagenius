@@ -4,7 +4,7 @@
 🧰 Rive, Spline, Carrd, Webflow <br>
 🔭 Learning Game Development <br>
 🤖 ChatGPT, Claude, Gemini, Julius <br>
-🧰 VS Code, Cursor, Kiro, Trae <br>
+🧰 Antigravity, VS Code, Cursor, Kiro <br>
 ⚡ Fun Fact: Versatile Learner <br>
 🤝 Need help with <span style="color: tomato;">✱</span> <span style="color: gray;">{everything: all}</span> <br>
 
