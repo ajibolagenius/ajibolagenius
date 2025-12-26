@@ -22,7 +22,7 @@ function Nav() {
                 {time}
             </div>
             <h3 className="font16">
-                Based in <br /> London, UK
+                Based in <br /> Nigeria <br /> 🇳🇬
             </h3>
         </nav>
     )
