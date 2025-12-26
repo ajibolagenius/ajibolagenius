@@ -1,0 +1,105 @@
+@import "nav";
+@import "footer";
+
+/* Loader */
+.loader-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100%;
+    background: $black;
+    color: $white;
+    z-index: 99;
+
+    #counter {
+        position: absolute;
+        right: 5%;
+        bottom: 10%;
+        font-size: 9vw;
+        letter-spacing: -0.2vw;
+    }
+
+    .bar {
+        position: absolute;
+        bottom: 6%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        height: 3px;
+        background: $dark;
+        border-radius: 50px;
+        overflow: hidden;
+
+        .bar2 {
+            width: 0%;
+            height: 100%;
+            background: $white;
+            z-index: 2;
+        }
+    }
+}
+
+/* Underline Link */
+.underLineLink {
+    position: relative;
+
+    &::before {
+        content: "";
+        background: $black;
+        width: 0%;
+        height: 1px;
+        position: absolute;
+        bottom: 0;
+        transition: all 0.3s ease-in-out;
+    }
+
+    &:hover {
+        &::before {
+            width: 100%;
+        }
+    }
+}
+
+/* Section */
+section,
+.work,
+.work_heading,
+footer {
+    width: 100%;
+    overflow-x: hidden;
+    padding: 0 35px;
+}
+
+/* Break Points */
+
+@media (max-width: 1440px) {
+    .loader-container {
+        #counter {
+            font-size: 12vw;
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    section,
+    .work,
+    .work_heading,
+    footer {
+        padding: 0 15px;
+    }
+
+    .loader-container {
+        #counter {
+            font-size: 15vw;
+        }
+    }
+}
+
+@media (max-width: 560px) {
+    .loader-container {
+        #counter {
+            font-size: 20vw;
+        }
+    }
+}

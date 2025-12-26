@@ -1,0 +1,54 @@
+nav {
+    position: absolute;
+    width: 100%;
+    padding: 35px 35px;
+    display: flex;
+    justify-content: space-between;
+    z-index: 10;
+
+    .wrapper {
+        display: flex;
+        gap: 15vw;
+    }
+
+    h1 {
+        font-size: 36px;
+        font-family: TTHovesD;
+        letter-spacing: -1.5px;
+    }
+
+    a {
+        font-size: 24px;
+        letter-spacing: -1.5px;
+        font-family: TTHovesD;
+    }
+
+    .clock {
+        font-size: 14px;
+        width: 120px;
+    }
+}
+
+/* Breakpoints */
+@media (max-width: 768px) {
+    nav {
+        padding: 25px 15px;
+        flex-direction: column;
+        gap: 2vw;
+
+        .wrapper {
+            gap: 30vw;
+        }
+
+        h1 {
+            font-size: 24px;
+            letter-spacing: -0.5px;
+        }
+
+        a {
+            font-size: 20px;
+            letter-spacing: -0.5px;
+            padding-bottom: 5px;
+        }
+    }
+}
