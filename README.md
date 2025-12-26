@@ -1,6 +1,6 @@
-# Will Jacks Portfolio - React Version
+# Ajibola Akelebe Portfolio - React Version
 
-This is a React conversion of the Will Jacks portfolio website, originally built with vanilla JavaScript, HTML, and SCSS.
+This is a React conversion of the Ajibola Akelebe portfolio website, originally built with vanilla JavaScript, HTML, and SCSS.
 
 ## 🚀 Getting Started
 
