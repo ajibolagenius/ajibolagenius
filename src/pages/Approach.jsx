@@ -3,16 +3,12 @@ import Loader from '../components/Loader'
 import Nav from '../components/Nav'
 import Footer from '../components/Footer'
 import DevMenu from '../components/DevMenu'
-import { useLenis } from '../hooks/useLenis'
 import { useColorChanger } from '../hooks/useColorChanger'
 import { useAnimations } from '../hooks/useAnimations'
-import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 
 function Approach() {
-    useLenis()
     useColorChanger()
     useAnimations()
-    useKeyboardShortcuts()
 
     return (
         <>
@@ -70,7 +66,6 @@ function Approach() {
 
                 {/* Process */}
                 <section className="about">
-                    {/* Same classes from index.html about => tools section just content change */}
                     <div className="tools" data-textcolor="#e9e9e9" data-bgcolor="#181818">
                         <div className="tools_heading">
                             <p className="font16">Process</p>
