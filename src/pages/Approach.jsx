@@ -2,19 +2,23 @@ import { useEffect } from 'react'
 import Loader from '../components/Loader'
 import Nav from '../components/Nav'
 import Footer from '../components/Footer'
-import { useLocomotiveScroll } from '../hooks/useLocomotiveScroll'
+import DevMenu from '../components/DevMenu'
+import { useLenis } from '../hooks/useLenis'
 import { useColorChanger } from '../hooks/useColorChanger'
 import { useAnimations } from '../hooks/useAnimations'
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 
 function Approach() {
-    const { scrollRef } = useLocomotiveScroll()
+    useLenis()
     useColorChanger()
     useAnimations()
+    useKeyboardShortcuts()
 
     return (
         <>
             <Loader />
-            <div id="main" ref={scrollRef} data-textcolor="#181818" data-bgcolor="#e9e9e9">
+            <DevMenu />
+            <div id="main" data-textcolor="#181818" data-bgcolor="#e9e9e9">
                 <Nav />
 
                 {/* Header */}

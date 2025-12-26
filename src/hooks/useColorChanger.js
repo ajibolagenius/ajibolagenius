@@ -7,7 +7,7 @@ export function useColorChanger() {
     const triggers = []
     let timeoutId
 
-    // Wait for DOM and Locomotive Scroll to be ready
+    // Wait for DOM and Lenis to be ready
     timeoutId = setTimeout(() => {
       const mainElement = document.querySelector('#main')
       if (!mainElement) return
@@ -22,7 +22,7 @@ export function useColorChanger() {
 
         const trigger = ScrollTrigger.create({
           trigger: colorSection,
-          scroller: '#main',
+          scroller: document.body,
           start: 'top 50%',
           onEnter: () => {
             const main = document.querySelector('#main')

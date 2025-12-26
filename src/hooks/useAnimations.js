@@ -51,7 +51,7 @@ export function useAnimations() {
       },
     })
 
-    // Wait for DOM and Locomotive Scroll to be ready for scroll animations
+    // Wait for DOM and Lenis to be ready for scroll animations
     const timeoutId = setTimeout(() => {
       const mainElement = document.querySelector('#main')
       if (!mainElement) return
@@ -65,7 +65,7 @@ export function useAnimations() {
             scrollTrigger: {
               trigger: reveal,
               start: 'top 60%',
-              scroller: '#main',
+              scroller: document.body,
             },
             y: 0,
             skewY: 0,
@@ -88,7 +88,7 @@ export function useAnimations() {
             start: 'top 5%',
             scrub: true,
             pin: true,
-            scroller: '#main',
+            scroller: document.body,
           },
         })
         if (timeline.scrollTrigger) {
