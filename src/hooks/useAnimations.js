@@ -1,43 +1,11 @@
 import { useEffect } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { gsap, ScrollTrigger } from '../utils/gsap'
 
 export function useAnimations() {
   useEffect(() => {
-    // Register ScrollTrigger plugin
-    gsap.registerPlugin(ScrollTrigger)
+    const triggers = []
 
-    // Reveal animations
-    gsap.utils.toArray('.reveal').forEach((reveal) => {
-      const h1 = reveal.querySelector('h1')
-      if (h1) {
-        gsap.to(h1, {
-          scrollTrigger: {
-            trigger: reveal,
-            start: 'top 60%',
-          },
-          y: 0,
-          skewY: 0,
-          ease: 'power2.ease',
-          duration: 0.6,
-        })
-      }
-    })
-
-    // Sticky Scroll for tools heading
-    gsap.utils.toArray('.tools_heading').forEach((heading) => {
-      gsap.timeline({
-        scrollTrigger: {
-          trigger: heading,
-          toggleActions: 'restart complete reverse resume',
-          start: 'top 5%',
-          scrub: true,
-          pin: true,
-        },
-      })
-    })
-
-    // Loader animation
+    // Loader animation - runs immediately
     let counter = { value: 0 }
 
     gsap.to(counter, {
@@ -83,10 +51,65 @@ export function useAnimations() {
       },
     })
 
-    ScrollTrigger.refresh()
+    // Wait for DOM and Locomotive Scroll to be ready for scroll animations
+    const timeoutId = setTimeout(() => {
+      const mainElement = document.querySelector('#main')
+      if (!mainElement) return
+
+      // Reveal animations
+      const revealElements = gsap.utils.toArray('.reveal')
+      revealElements.forEach((reveal) => {
+        const h1 = reveal.querySelector('h1')
+        if (h1) {
+          const trigger = gsap.to(h1, {
+            scrollTrigger: {
+              trigger: reveal,
+              start: 'top 60%',
+              scroller: '#main',
+            },
+            y: 0,
+            skewY: 0,
+            ease: 'power2.ease',
+            duration: 0.6,
+          })
+          if (trigger.scrollTrigger) {
+            triggers.push(trigger.scrollTrigger)
+          }
+        }
+      })
+
+      // Sticky Scroll for tools heading
+      const toolHeadings = gsap.utils.toArray('.tools_heading')
+      toolHeadings.forEach((heading) => {
+        const timeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: heading,
+            toggleActions: 'restart complete reverse resume',
+            start: 'top 5%',
+            scrub: true,
+            pin: true,
+            scroller: '#main',
+          },
+        })
+        if (timeline.scrollTrigger) {
+          triggers.push(timeline.scrollTrigger)
+        }
+      })
+
+      ScrollTrigger.refresh()
+    }, 200)
 
     return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
+      clearTimeout(timeoutId)
+      triggers.forEach((trigger) => {
+        if (trigger) trigger.kill()
+      })
+      // Also kill any remaining triggers
+      ScrollTrigger.getAll().forEach((trigger) => {
+        if (trigger && !triggers.includes(trigger)) {
+          trigger.kill()
+        }
+      })
     }
   }, [])
 }
