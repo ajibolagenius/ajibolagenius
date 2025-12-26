@@ -9,6 +9,7 @@ import { useColorChanger } from '../hooks/useColorChanger'
 import { useAnimations } from '../hooks/useAnimations'
 
 function Home() {
+    useAnimations()
 
     return (
         <>
