@@ -1,7 +1,6 @@
 function About() {
     return (
         <section className="about">
-            {/* About */}
             <div className="reveal">
                 <h1 className="fontLarge">About</h1>
             </div>
@@ -14,7 +13,7 @@ function About() {
                     As a forward-thinking developer with a passion for design, I create immersive digital environments that blend innovation with engaging experiences.
                 </h2>
             </div>
-            {/* Tools */}
+
             <div className="tools" data-textcolor="#e9e9e9" data-bgcolor="#181818">
                 <div className="tools_heading">
                     <p className="font16">Core Tools</p>

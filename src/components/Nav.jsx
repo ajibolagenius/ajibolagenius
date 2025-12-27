@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useClock } from '../hooks/useClock'
 import { X } from '@phosphor-icons/react'
@@ -6,6 +6,70 @@ import { X } from '@phosphor-icons/react'
 function Nav() {
     const time = useClock()
     const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const [isScrolled, setIsScrolled] = useState(false)
+    const [navBackgroundColor, setNavBackgroundColor] = useState('transparent')
+
+    useEffect(() => {
+        const updateNavBackground = () => {
+            const mainElement = document.querySelector('#main')
+            if (mainElement) {
+                const computedStyle = window.getComputedStyle(mainElement)
+                const bgColor = computedStyle.backgroundColor
+                setNavBackgroundColor(bgColor || '#e9e9e9')
+            }
+        }
+
+        const handleScroll = () => {
+            const scrollPosition = window.scrollY || document.documentElement.scrollTop
+            const shouldShowBackground = scrollPosition > 50
+
+            setIsScrolled(shouldShowBackground)
+
+            // Get the computed background color from #main element
+            if (shouldShowBackground) {
+                updateNavBackground()
+            } else {
+                setNavBackgroundColor('transparent')
+            }
+        }
+
+        window.addEventListener('scroll', handleScroll, { passive: true })
+        // Check initial scroll position
+        handleScroll()
+
+        // Monitor color changes on #main element using MutationObserver
+        const mainElement = document.querySelector('#main')
+        if (mainElement) {
+            const observer = new MutationObserver(() => {
+                if (isScrolled) {
+                    updateNavBackground()
+                }
+            })
+
+            observer.observe(mainElement, {
+                attributes: true,
+                attributeFilter: ['style'],
+                subtree: false
+            })
+
+            // Also check periodically in case GSAP changes styles directly
+            const checkColorChange = setInterval(() => {
+                if (isScrolled) {
+                    updateNavBackground()
+                }
+            }, 200) // Check every 200ms for color changes
+
+            return () => {
+                window.removeEventListener('scroll', handleScroll)
+                observer.disconnect()
+                clearInterval(checkColorChange)
+            }
+        }
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll)
+        }
+    }, [isScrolled])
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen)
@@ -24,7 +88,10 @@ function Nav() {
 
     return (
         <>
-            <nav className="nav-container">
+            <nav
+                className={`nav-container ${isScrolled ? 'scrolled' : ''}`}
+                style={isScrolled ? { backgroundColor: navBackgroundColor } : {}}
+            >
                 {/* Left: Logo */}
                 <div className="nav-logo">
                     <Link to="/" onClick={closeMenu}>AJIBOLA.</Link>

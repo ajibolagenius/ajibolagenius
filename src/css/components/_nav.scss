@@ -11,9 +11,16 @@
     color: $black;
     font-family: TTHovesR;
     pointer-events: none;
+    background: transparent;
+    transition: background-color 0.3s ease, backdrop-filter 0.3s ease;
 
     > * {
         pointer-events: auto;
+    }
+
+    &.scrolled {
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
     }
 }
 

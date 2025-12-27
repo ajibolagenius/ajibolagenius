@@ -2,16 +2,14 @@ function Header() {
     return (
         <section className="header">
             <div className="wrapper">
-                <video
-                    autoPlay
-                    muted
-                    loop
-                    src="src/assets/header_img_animation.mp4"
+                <img
+                    src="src/assets/ajibolagenius_avatar.png"
+                    alt="Ajibola Akelebe"
                     className="headerImg"
                     width="auto"
                     height="auto"
-                    preload="none"
-                ></video>
+                    loading="eager"
+                />
                 <div className="text">
                     <p className="fontSmall">
                         <b>Currently available for freelance projects.</b>
@@ -22,7 +20,6 @@ function Header() {
                 </div>
             </div>
 
-            {/* marquee */}
             <div className="marquee">
                 <div className="track">
                     <h1 className="content fontLarge">

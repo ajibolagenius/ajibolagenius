@@ -1,10 +1,8 @@
-import { useEffect } from 'react'
 import Loader from '../components/Loader'
 import Nav from '../components/Nav'
 import Header from '../components/Header'
 import About from '../components/About'
 import Footer from '../components/Footer'
-import { useColorChanger } from '../hooks/useColorChanger'
 import { useAnimations } from '../hooks/useAnimations'
 
 function Home() {
@@ -22,4 +20,5 @@ function Home() {
         </>
     )
 }
+
 export default Home

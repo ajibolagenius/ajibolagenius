@@ -35,10 +35,7 @@ export function useAnimations() {
                 })
             }
 
-            // --- 2. Scroll Animations (Delayed) ---
-            // We use a small delay to ensure the DOM layout is final
             setTimeout(() => {
-                // Reveal Animations
                 const revealElements = gsap.utils.toArray('.reveal')
                 revealElements.forEach((reveal) => {
                     const h1 = reveal.querySelector('h1')
@@ -47,33 +44,33 @@ export function useAnimations() {
                             scrollTrigger: {
                                 trigger: reveal,
                                 start: 'top 60%',
-                                // REMOVED: scroller: '#main' (Let Lenis handle the window scroll)
+                                scroller: document.body,
                             },
                             y: 0,
                             skewY: 0,
                             duration: 0.6,
-                            ease: 'power2.ease' // GSAP will handle this safely
+                            ease: 'power2.ease'
                         })
                     }
                 })
 
-                // Sticky Tools Heading
                 const toolHeadings = gsap.utils.toArray('.tools_heading')
                 toolHeadings.forEach((heading) => {
                     gsap.timeline({
                         scrollTrigger: {
                             trigger: heading,
                             start: 'top 5%',
-                            end: 'bottom top', // Defined an end point for safety
+                            end: 'bottom top',
                             scrub: true,
                             pin: true,
                             toggleActions: 'restart complete reverse resume',
+                            scroller: document.body,
                         },
                     })
                 })
 
                 ScrollTrigger.refresh()
-            }, 500) // Increased delay slightly to be safe
+            }, 500)
         })
 
         // Cleanup: Kills ALL animations created in this scope automatically
