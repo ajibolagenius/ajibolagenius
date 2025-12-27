@@ -3,7 +3,6 @@ import Loader from '../components/Loader'
 import Nav from '../components/Nav'
 import Header from '../components/Header'
 import About from '../components/About'
-import Works from '../components/Works'
 import Footer from '../components/Footer'
 import { useColorChanger } from '../hooks/useColorChanger'
 import { useAnimations } from '../hooks/useAnimations'
@@ -18,7 +17,6 @@ function Home() {
                 <Nav />
                 <Header />
                 <About />
-                <Works />
                 <Footer />
             </div>
         </>

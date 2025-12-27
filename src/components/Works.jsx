@@ -6,25 +6,25 @@ const projects = [
         id: 1,
         name: 'Banking',
         url: 'https://dribbble.com/shots/20032111-Banking-Landing-Page',
-        image: 'src/assets/work1.jpg',
+        image: '/assets/work1.jpg',
     },
     {
         id: 2,
         name: 'Financilux',
         url: 'https://dribbble.com/shots/20003928-Financilux-Web-Site-Design-Landing-Page-Home-Page-UI',
-        image: 'src/assets/work2.png',
+        image: '/assets/work2.png',
     },
     {
         id: 3,
         name: 'Stride',
         url: 'https://dribbble.com/shots/23563739-Staking-Landing-Page',
-        image: 'src/assets/work3.jpg',
+        image: '/assets/work3.jpg',
     },
     {
         id: 4,
         name: 'Wine & Donuts',
         url: 'https://dribbble.com/shots/23611929-Wine-Donuts',
-        image: 'src/assets/work4.png',
+        image: '/assets/work4.png',
     },
 ]
 

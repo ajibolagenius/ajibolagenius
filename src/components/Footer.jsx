@@ -43,7 +43,7 @@ function Footer() {
             <div className="Footer_Social" data-textcolor="#e9e9e9" data-bgcolor="#181818">
                 <div className="footer_wrapper">
                     {/* eye */}
-                    <svg id="svg" ref={svgRef} viewBox="0 0 1000 1000">
+                    {/* <svg id="svg" ref={svgRef} viewBox="0 0 1000 1000">
                         <g id="left-eye">
                             <circle
                                 className="eye-outer"
@@ -68,9 +68,14 @@ function Footer() {
                             />
                             <circle className="eye-inner" cx="680" cy="500" r="20" fill="#181818" />
                         </g>
-                    </svg>
+                    </svg> */}
                     {/* Links */}
-                    {/* <div className="footer_container">
+                    <div className="footer_container">
+                        <div>
+                            <a href="https://www.github.com/ajibolagenius" className="footer_text" target="_blank" rel="noopener noreferrer">
+                                Github
+                            </a>
+                        </div>
                         <div>
                             <a href="https://www.instagram.com/ajibolagenius" className="footer_text" target="_blank" rel="noopener noreferrer">
                                 Instagram
@@ -81,7 +86,7 @@ function Footer() {
                                 Twitter
                             </a>
                         </div>
-                    </div> */}
+                    </div>
                 </div>
             </div>
         </footer>

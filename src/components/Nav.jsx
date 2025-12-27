@@ -1,81 +1,75 @@
-// import { Link } from 'react-router-dom'
-// import { useClock } from '../hooks/useClock'
-
-// function Nav() {
-//     const time = useClock()
-
-//     return (
-//         <nav>
-//             <div className="wrapper">
-//                 <h1>Ajibola Akelebe</h1>
-//                 <div className="links">
-//                     <Link to="/" className="underLineLink">
-//                         Index
-//                     </Link>
-//                     <Link to="/approach" className="underLineLink">
-//                         Approach
-//                     </Link>
-//                 </div>
-//             </div>
-
-//             <div id="MyClockDisplay" className="clock">
-//                 {time}
-//             </div>
-//             <h3 className="font16">
-//                 Based in <br /> Nigeria <br /> 🇳🇬
-//             </h3>
-//         </nav>
-//     )
-// }
-
-// export default Nav
-
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useClock } from '../hooks/useClock'
+import { X } from '@phosphor-icons/react'
 
 function Nav() {
-    // Use your existing hook to get the time
-    const { time } = useClock()
+    const time = useClock()
+    const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen)
+        // Prevent body scroll when menu is open
+        if (!isMenuOpen) {
+            document.body.style.overflow = 'hidden'
+        } else {
+            document.body.style.overflow = ''
+        }
+    }
+
+    const closeMenu = () => {
+        setIsMenuOpen(false)
+        document.body.style.overflow = ''
+    }
 
     return (
-        <nav className="fixed top-0 left-0 w-full z-50 flex justify-between items-start px-5 py-6 md:px-10 text-[#e9e9e9] mix-blend-difference font-[TTHovesRegular]">
-
-            {/* Left: Logo */}
-            <div className="logo font-[TTHovesDemiBold] text-xl leading-none">
-                <Link to="/">AJIBOLA.</Link>
-            </div>
-
-            {/* Center: Navigation Links (Hidden on Mobile) */}
-            <div className="hidden md:flex gap-8 text-sm uppercase tracking-widest">
-                <Link to="/approach" className="hover:opacity-50 transition-opacity">Approach</Link>
-                <Link to="/portfolio" className="hover:opacity-50 transition-opacity">Work</Link>
-                <Link to="/resume" className="hover:opacity-50 transition-opacity">Resume</Link>
-                <Link to="/courses" className="hover:opacity-50 transition-opacity">Courses</Link>
-                <Link to="/contact" className="hover:opacity-50 transition-opacity">Contact</Link>
-            </div>
-
-            {/* Right: Location & Clock */}
-            <div className="flex flex-col items-end text-right text-xs uppercase tracking-widest leading-relaxed">
-                <div className="flex gap-2">
-                    <span className="opacity-50">🇳🇬 </span>
-                    <span>Nigeria</span>
+        <>
+            <nav className="nav-container">
+                {/* Left: Logo */}
+                <div className="nav-logo">
+                    <Link to="/" onClick={closeMenu}>AJIBOLA.</Link>
                 </div>
-                <div className="flex gap-2">
-                    <span className="opacity-50">GMT</span>
-                    <span>+1</span>
+
+                {/* Center: Navigation Links (Hidden on Mobile) */}
+                <div className="nav-links">
+                    <Link to="/approach" className="nav-link">Approach</Link>
+                    <Link to="/portfolio" className="nav-link">Work</Link>
+                    <Link to="/resume" className="nav-link">Resume</Link>
+                    <Link to="/courses" className="nav-link">Courses</Link>
+                    <Link to="/contact" className="nav-link">Contact</Link>
                 </div>
-                <div className="mt-1 font-mono">
-                    {time}
+
+                {/* Right: Location & Clock */}
+                <div className="nav-info">
+                    <div className="nav-info-item">
+                        <span>Based in Nigeria</span>
+                    </div>
+                    <div className="nav-clock">
+                        {time}
+                    </div>
+                </div>
+
+                {/* Mobile Menu Trigger (Visible only on mobile) */}
+                <button
+                    className={`nav-menu-button ${isMenuOpen ? 'menu-open' : ''}`}
+                    onClick={toggleMenu}
+                    aria-label="Toggle menu"
+                >
+                    {isMenuOpen ? <X size={20} weight="duotone" color="#e9e9e9" /> : 'Menu'}
+                </button>
+            </nav>
+
+            {/* Mobile Menu Overlay */}
+            <div className={`mobile-menu-overlay ${isMenuOpen ? 'active' : ''}`}>
+                <div className="mobile-menu-content">
+                    <Link to="/approach" className="mobile-menu-link" onClick={closeMenu}>Approach</Link>
+                    <Link to="/portfolio" className="mobile-menu-link" onClick={closeMenu}>Work</Link>
+                    <Link to="/resume" className="mobile-menu-link" onClick={closeMenu}>Resume</Link>
+                    <Link to="/courses" className="mobile-menu-link" onClick={closeMenu}>Courses</Link>
+                    <Link to="/contact" className="mobile-menu-link" onClick={closeMenu}>Contact</Link>
                 </div>
             </div>
-
-            {/* Mobile Menu Trigger (Visible only on mobile) */}
-            <div className="md:hidden absolute top-6 right-5 cursor-pointer">
-                Menu
-            </div>
-
-        </nav>
+        </>
     )
 }
 
