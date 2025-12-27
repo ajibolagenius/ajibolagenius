@@ -6,25 +6,25 @@ const projects = [
         id: 1,
         name: 'Banking',
         url: 'https://dribbble.com/shots/20032111-Banking-Landing-Page',
-        image: '/assets/work1.jpg',
+        image: 'src/assets/work1.jpg',
     },
     {
         id: 2,
         name: 'Financilux',
         url: 'https://dribbble.com/shots/20003928-Financilux-Web-Site-Design-Landing-Page-Home-Page-UI',
-        image: '/assets/work2.png',
+        image: 'src/assets/work2.png',
     },
     {
         id: 3,
         name: 'Stride',
         url: 'https://dribbble.com/shots/23563739-Staking-Landing-Page',
-        image: '/assets/work3.jpg',
+        image: 'src/assets/work3.jpg',
     },
     {
         id: 4,
         name: 'Wine & Donuts',
         url: 'https://dribbble.com/shots/23611929-Wine-Donuts',
-        image: '/assets/work4.png',
+        image: 'src/assets/work4.png',
     },
 ]
 
@@ -45,11 +45,7 @@ function Works() {
                 {/* paragraph */}
                 <div className="txt">
                     <p className="font16">
-                        Discover a showcase of impactful projects where my UI/UX design and front-end development
-                        expertise converge to elevate user experiences. These works highlight my journey from
-                        conceptual design to flawless execution, demonstrating a commitment to creating engaging,
-                        efficient, and aesthetically pleasing digital solutions that resonate with users and address
-                        real-world challenges.
+                        Explore a collection of impactful projects where my UI/UX design and front-end development skills come together to enhance user experiences. These projects showcase my progression from initial concepts to polished implementation, reflecting a dedication to developing engaging, efficient, and visually appealing digital solutions that connect with users and solve genuine problems.
                     </p>
                 </div>
             </div>

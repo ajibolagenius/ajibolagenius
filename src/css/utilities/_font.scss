@@ -1,13 +1,17 @@
-@mixin font-face($font-family, $font-path) {
+@mixin font-face($font-family, $font-path, $font-weight: normal, $font-style: normal) {
     @font-face {
         font-family: $font-family;
-        src: url(../../fonts/#{$font-path});
+        src: url(../../fonts/#{$font-path}) format('opentype');
+        font-weight: $font-weight;
+        font-style: $font-style;
+        font-display: swap;
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
     }
 }
 
-@include font-face(TTHovesD, "TTHovesDemiBold.otf");
-@include font-face(TTHovesM, "TTHovesMedium.otf");
-@include font-face(TTHovesR, "TTHovesRegular.otf");
+@include font-face(TTHovesD, "TTHovesDemiBold.otf", 600);
+@include font-face(TTHovesM, "TTHovesMedium.otf", 500);
+@include font-face(TTHovesR, "TTHovesRegular.otf", 400);
 
 .fontLarge {
     font-size: 9vw;

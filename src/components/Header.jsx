@@ -2,21 +2,22 @@ function Header() {
     return (
         <section className="header">
             <div className="wrapper">
-          <video
-            autoPlay
-            muted
-            loop
-            src="/assets/header_img_animation.mp4"
-            className="headerImg"
-            width="auto"
-            height="auto"
-            preload="none"
-          ></video>
+                <video
+                    autoPlay
+                    muted
+                    loop
+                    src="src/assets/header_img_animation.mp4"
+                    className="headerImg"
+                    width="auto"
+                    height="auto"
+                    preload="none"
+                ></video>
                 <div className="text">
-                    <p className="font16">Currently availbale for freelance projects</p>
+                    <p className="fontSmall">
+                        <b>Currently available for freelance projects.</b>
+                    </p>
                     <p className="font16">
-                        Developer and designer fueled by the rich cultural tapestry of Queens, operating as a solo
-                        innovator to create unforgettable experiences.
+                        An independent developer and designer inspired by the diverse cultural heritage of Atra and Terra, dedicated to crafting memorable experiences.
                     </p>
                 </div>
             </div>
@@ -25,10 +26,8 @@ function Header() {
             <div className="marquee">
                 <div className="track">
                     <h1 className="content fontLarge">
-                        &nbsp; UIUX Designer — Frontend Developer — UIUX Designer — Frontend Developer — UIUX Designer —
-                        Frontend Developer — UIUX Designer — Frontend Developer — UIUX Designer — Frontend Developer —
-                        UIUX Designer — Frontend Developer — UIUX Designer — Frontend Developer — UIUX Designer —
-                        Frontend Developer —
+                        Design ⚬ Engineering — Design ⚬ Engineering — Design ⚬ Engineering — Design ⚬ Engineering — Design ⚬ Engineering — Design ⚬ Engineering — Design ⚬ Engineering — Design ⚬
+                        Engineering —
                     </h1>
                 </div>
             </div>

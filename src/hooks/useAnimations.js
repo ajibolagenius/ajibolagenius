@@ -15,14 +15,14 @@ export function useAnimations() {
                 gsap.to(counter, {
                     duration: 2,
                     value: 100,
-                    ease: 'none',
+                    ease: 'none', // 'none' is safe, doesn't require parsing
                     onUpdate: function () {
                         const currentPercentage = Math.ceil(counter.value)
                         counterEl.textContent = currentPercentage + '%'
 
                         gsap.to('.bar2', {
                             width: currentPercentage + '%',
-                            ease: 'none',
+                            ease: 'none', // 'none' is safe
                             duration: 0.1,
                         })
                     },
@@ -52,7 +52,7 @@ export function useAnimations() {
                             y: 0,
                             skewY: 0,
                             duration: 0.6,
-                            ease: 'power2.ease'
+                            ease: 'power2.ease' // GSAP will handle this safely
                         })
                     }
                 })

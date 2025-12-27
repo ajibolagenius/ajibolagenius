@@ -19,35 +19,22 @@ function Footer() {
                 {/* footer inner */}
                 <div className="footer_inner">
                     <p className="font16">
-                        Currently availbale <br /> for freelance projects
+                        <b>Currently availbale <br />for freelance projects.</b>
                     </p>
                     <div className="footer_col">
                         <p className="font16">
-                            Based in <br /> London, UK
+                            Based in <br /> Nigeria 🇳🇬
                         </p>
                         <h3 className="fontSmall">
-                            For any collaborative endeavors or inquiries, I warmly invite you to connect with me!
-                            <a href="mailto:hello@willjacks.com" className="underLineLink">
-                                hello@willjacks.com
+                            For any collaborative ventures or enquiries, I warmly invite you to get in touch with me!
+                            <a href="mailto:ajiboladolapogenius@gmail.com" className="underLineLink">
+                                ajiboladolapogenius@gmail.com
                             </a>
                         </h3>
                     </div>
                     <div className="footer_col2">
-                        <p className="font16">© All rights reserved.</p>
-                        <div className="footer_inner_links">
-                            <a href="https://www.behance.net" className="underLineLink" target="_blank" rel="noopener noreferrer">
-                                Behance
-                            </a>
-                            <a href="https://dribbble.com" className="underLineLink" target="_blank" rel="noopener noreferrer">
-                                Dribble
-                            </a>
-                            <a href="https://contra.com" className="underLineLink" target="_blank" rel="noopener noreferrer">
-                                Contra
-                            </a>
-                            <a href="https://www.pinterest.com" className="underLineLink" target="_blank" rel="noopener noreferrer">
-                                Pinterest
-                            </a>
-                        </div>
+                        <p className="font16">© {new Date().getFullYear()} All rights reserved.</p>
+                        {/* Social links */}
                     </div>
                 </div>
             </div>
@@ -83,26 +70,18 @@ function Footer() {
                         </g>
                     </svg>
                     {/* Links */}
-                    <div className="footer_container">
+                    {/* <div className="footer_container">
                         <div>
-                            <a href="https://www.instagram.com" className="footer_text" target="_blank" rel="noopener noreferrer">
+                            <a href="https://www.instagram.com/ajibolagenius" className="footer_text" target="_blank" rel="noopener noreferrer">
                                 Instagram
                             </a>
                         </div>
                         <div>
-                            <a href="https://www.facebook.com" className="footer_text" target="_blank" rel="noopener noreferrer">
-                                Facebook
-                            </a>
-                            <a href="https://twitter.com" className="footer_text" target="_blank" rel="noopener noreferrer">
+                            <a href="https://twitter.com/ajibolagenius" className="footer_text" target="_blank" rel="noopener noreferrer">
                                 Twitter
                             </a>
                         </div>
-                        <div>
-                            <a href="https://www.linkedin.com" className="footer_text" target="_blank" rel="noopener noreferrer">
-                                LinkedIn
-                            </a>
-                        </div>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </footer>
