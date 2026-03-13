@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { fetchProjects } from '../../services/api';
 import { projects as fallbackProjects } from '../../data/mock';
@@ -52,7 +52,7 @@ const ProjectCard = ({ project, index, visible }) => {
   );
 };
 
-const Projects = () => {
+const Projects = ({ featuredOnly = false }) => {
   const [visible, setVisible] = useState(false);
   const [filter, setFilter] = useState('all');
   const [projects, setProjects] = useState([]);
@@ -74,9 +74,11 @@ const Projects = () => {
   }, []);
 
   const featured = projects.filter(p => p.featured);
-  const filteredProjects = filter === 'all'
-    ? featured.length > 0 ? featured : projects.slice(0, 3)
-    : projects.filter((p) => p.type === filter);
+  const displayProjects = featuredOnly
+    ? (featured.length > 0 ? featured.slice(0, 3) : projects.slice(0, 3))
+    : (filter === 'all'
+      ? (featured.length > 0 ? featured : projects.slice(0, 3))
+      : projects.filter((p) => p.type === filter));
 
   const filters = [
     { label: 'Featured', value: 'all' },
@@ -89,33 +91,47 @@ const Projects = () => {
       <div className="max-w-[1160px] mx-auto px-8">
         <div className="flex items-center gap-2 mb-3">
           <div className="w-5 h-px bg-[var(--sungold)]" />
-          <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--sungold)]">02 — Selected Work</span>
+          <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--sungold)]">
+            {featuredOnly ? '02 — Featured Work' : '02 — Selected Work'}
+          </span>
         </div>
         <h2 className="font-display font-extrabold leading-[1.1] tracking-[-0.02em] mb-3 text-[var(--white)]" style={{ fontSize: 'clamp(28px, 4vw, 42px)' }}>
-          Selected Projects
+          {featuredOnly ? 'Featured Projects' : 'Selected Projects'}
         </h2>
         <p className="font-body text-[15px] leading-[1.7] mb-8 max-w-[520px] text-[var(--muted)]">
-          A selection of products and experiments I've built — from social platforms to creative coding explorations.
+          A selection of products and experiments I&apos;ve built — from social platforms to creative coding explorations.
         </p>
-        <div className="flex gap-2 mb-10">
-          {filters.map((f) => (
-            <button key={f.value} onClick={() => setFilter(f.value)}
-              className="font-mono text-[11px] tracking-[0.1em] uppercase px-4 py-2 cursor-pointer transition-all duration-200 rounded-none"
-              style={{
-                background: filter === f.value ? 'rgba(232,160,32,0.15)' : 'transparent',
-                color: filter === f.value ? 'var(--sungold)' : 'var(--subtle)',
-                border: `1px solid ${filter === f.value ? 'rgba(232,160,32,0.3)' : 'var(--border)'}`
-              }}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
+        {!featuredOnly && (
+          <div className="flex gap-2 mb-10">
+            {filters.map((f) => (
+              <button key={f.value} onClick={() => setFilter(f.value)}
+                className="font-mono text-[11px] tracking-[0.1em] uppercase px-4 py-2 cursor-pointer transition-all duration-200 rounded-none"
+                style={{
+                  background: filter === f.value ? 'rgba(232,160,32,0.15)' : 'transparent',
+                  color: filter === f.value ? 'var(--sungold)' : 'var(--subtle)',
+                  border: `1px solid ${filter === f.value ? 'rgba(232,160,32,0.3)' : 'var(--border)'}`
+                }}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProjects.map((project, i) => (
+          {displayProjects.map((project, i) => (
             <ProjectCard key={project.slug || project.id} project={project} index={i} visible={visible} />
           ))}
         </div>
+        {featuredOnly && (
+          <div className="mt-10 flex justify-start">
+            <Link
+              to="/work"
+              className="inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] border border-[var(--border-md)] text-[var(--white)] no-underline transition-all duration-200 btn-ghost hover:border-[var(--border-hi)] hover:bg-[var(--elevated)]"
+            >
+              View all projects →
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );

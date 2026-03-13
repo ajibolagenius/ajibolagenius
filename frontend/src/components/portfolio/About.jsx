@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { aboutData, skills } from '../../data/mock';
+import { aboutData, skills, homeAboutSnapshot } from '../../data/mock';
 // About section uses static data from mock - will integrate with backend personal-info if needed
 
 const KenteDivider = () => (
   <div className="kente-divider" />
 );
 
-const About = () => {
+const About = ({ snapshot = false }) => {
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
+  const bodyCopy = snapshot ? homeAboutSnapshot : aboutData.body;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -50,13 +51,16 @@ const About = () => {
             {aboutData.headline}
           </h2>
 
-          {/* Description */}
+          {/* Description — snapshot: 2–3 sentences on Home (design-system Site Map) */}
           <p
-            className="font-body text-[15px] leading-[1.7] mb-10 max-w-[520px] text-[var(--muted)]"
+            className="font-body text-[15px] leading-[1.7] max-w-[520px] text-[var(--muted)]"
+            style={{ marginBottom: snapshot ? 24 : 40 }}
           >
-            {aboutData.body}
+            {bodyCopy}
           </p>
 
+          {!snapshot && (
+          <>
           {/* Stats grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
             {aboutData.stats.map((stat, i) => (
@@ -102,6 +106,8 @@ const About = () => {
               </div>
             ))}
           </div>
+          </>
+          )}
         </div>
       </div>
     </section>
