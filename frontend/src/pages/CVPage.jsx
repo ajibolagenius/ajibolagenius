@@ -4,6 +4,7 @@ import { fetchTimeline } from '../services/api';
 import { timeline as fbTimeline, skills, cvData } from '../data/mock';
 import { techStackForCV } from '../data/techStack';
 import Badge from '../components/portfolio/Badge';
+import { BADGE_VARIANTS } from '../constants';
 
 const ACCENT_COLORS = {
   sungold: { bg: 'var(--sungold)', ring: 'rgba(232,160,32,0.2)' },
@@ -11,8 +12,6 @@ const ACCENT_COLORS = {
   stardust: { bg: 'var(--stardust)', ring: 'rgba(28,184,212,0.2)' },
   terracotta: { bg: 'var(--terracotta)', ring: 'rgba(201,75,45,0.2)' }
 };
-
-const BADGE_VARIANTS = ['gold', 'cosmic', 'cyan', 'terra'];
 
 /** PDF URL for download - set in env as VITE_CV_PDF_URL or override in cvData */
 const getPdfUrl = () => import.meta.env?.VITE_CV_PDF_URL || (typeof cvData?.pdfUrl === 'string' ? cvData.pdfUrl : '#');

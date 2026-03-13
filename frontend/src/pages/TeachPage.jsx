@@ -3,6 +3,7 @@ import { MessageSquare, Quote, ChevronDown, ChevronUp } from 'lucide-react';
 import { fetchCourses, fetchTestimonials, fetchPersonalInfo } from '../services/api';
 import { courses as fbCourses, testimonials as fbTestimonials, faqItems, personalInfo as fbInfo } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
+import SectionKicker from '../components/portfolio/SectionKicker';
 
 /** Badge variant and accent color per index — same length so badge and border/button stay aligned (warm/cool alternating). */
 const COURSE_ACCENTS = [
@@ -127,12 +128,7 @@ const TeachPage = () => {
       {/* Teaching Philosophy Header */}
       <section className="pt-12 pb-8 md:pt-20 md:pb-10 border-b border-[var(--border)]">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-5 h-px bg-[var(--sungold)]" />
-            <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--sungold)]">
-              Teach
-            </span>
-          </div>
+          <SectionKicker label="Teach" accent="sungold" />
           <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-4 text-[var(--white)]" style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}>
             Courses & Mentorship
           </h1>

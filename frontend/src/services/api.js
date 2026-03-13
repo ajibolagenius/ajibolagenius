@@ -6,8 +6,23 @@ const API = `${BACKEND_URL}/api`;
 const api = axios.create({
   baseURL: API,
   timeout: 10000,
-  headers: { 'Content-Type': 'application/json' }
+  headers: { 'Content-Type': 'application/json' },
 });
+
+// Single place for 4xx/5xx — reject so callers can .catch() and use fallback (e.g. mock data)
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response) {
+      const { status } = err.response;
+      if (status >= 400 && status < 500) console.warn('[API] Client error:', status, err.config?.url);
+      else if (status >= 500) console.error('[API] Server error:', status, err.config?.url);
+    } else if (err.code === 'ECONNABORTED') {
+      console.warn('[API] Request timeout:', err.config?.url);
+    }
+    return Promise.reject(err);
+  }
+);
 
 // Public endpoints
 export const fetchPersonalInfo = () => api.get('/personal-info').then(r => r.data);

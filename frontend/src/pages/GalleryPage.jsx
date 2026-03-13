@@ -3,8 +3,15 @@ import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchGallery } from '../services/api';
 import { galleryItems as fbGallery } from '../data/mock';
+import SectionKicker from '../components/portfolio/SectionKicker';
+import FilterButtons from '../components/portfolio/FilterButtons';
 
-const FILTER_TYPES = ['All', 'UI', '3D', 'Graphic'];
+const FILTER_OPTIONS = [
+  { label: 'All', value: 'All' },
+  { label: 'UI', value: 'UI' },
+  { label: '3D', value: '3D' },
+  { label: 'Graphic', value: 'Graphic' },
+];
 
 /** Masonry-style heights for grid variety */
 const MASONRY_HEIGHTS = [200, 260, 180, 300, 220, 240, 280, 200, 320, 190, 250, 270];
@@ -25,12 +32,7 @@ const GalleryPage = () => {
     <>
       <section className="pt-12 pb-8 md:pt-20 md:pb-10 border-b border-[var(--border)]">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-5 h-px bg-[var(--sungold)]" />
-            <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--sungold)]">
-              Gallery
-            </span>
-          </div>
+          <SectionKicker label="Gallery" accent="sungold" />
           <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-4 text-[var(--white)]" style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}>
             Visual Archive
           </h1>
@@ -42,24 +44,8 @@ const GalleryPage = () => {
 
       <section className="py-12 md:py-16">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="flex items-center gap-2 mb-8">
-            <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--subtle)]">Type</span>
-            <div className="flex gap-2 flex-wrap">
-              {FILTER_TYPES.map(t => (
-                <button
-                  key={t}
-                  onClick={() => setFilter(t)}
-                  className="font-mono text-[11px] tracking-[0.1em] uppercase px-4 py-2 cursor-pointer transition-all duration-200 rounded-none"
-                  style={{
-                    background: filter === t ? 'rgba(232,160,32,0.15)' : 'transparent',
-                    color: filter === t ? 'var(--sungold)' : 'var(--subtle)',
-                    border: `1px solid ${filter === t ? 'rgba(232,160,32,0.3)' : 'var(--border)'}`
-                  }}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
+          <div className="mb-8">
+            <FilterButtons options={FILTER_OPTIONS} value={filter} onChange={setFilter} label="Type" />
           </div>
 
           <motion.div

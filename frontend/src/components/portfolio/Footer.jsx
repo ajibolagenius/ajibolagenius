@@ -4,12 +4,12 @@ import { Github, Twitter, Linkedin } from 'lucide-react';
 import { personalInfo, navLinks } from '../../data/mock';
 import { footerStackNames } from '../../data/techStack';
 import Badge from './Badge';
+import { BADGE_VARIANTS } from '../../constants';
 
 /**
  * Footer — Design System layout.
  * Deep bg, border-top, minified: brand · tagline · social | nav links | stack badges; copyright row.
  */
-const BADGE_VARIANTS = ['gold', 'cosmic', 'cyan', 'terra'];
 
 const SOCIAL_ICONS = [
   { Icon: Github, href: personalInfo.social?.github, label: 'GitHub' },

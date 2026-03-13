@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { navLinks } from '../../data/mock';
+import { NAV_HEIGHT } from '../../constants';
 
 /**
  * Header / Nav — Design System §08 Nav
@@ -11,7 +12,6 @@ import { navLinks } from '../../data/mock';
  * Version: mono 11px, subtle, elevated bg, sharp, border.
  * Scroll progress bar: fixed top, 2px, --sungold, width % by scroll, z-999.
  */
-const NAV_HEIGHT = 56;
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);

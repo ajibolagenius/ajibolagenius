@@ -4,8 +4,7 @@ import { ArrowLeft, Clock } from 'lucide-react';
 import { fetchBlogPost } from '../services/api';
 import { blogPosts as fbPosts } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
-
-const BADGE_VARIANTS = ['gold', 'cosmic', 'cyan', 'terra'];
+import { BADGE_VARIANTS } from '../constants';
 
 /** Render body text: paragraphs (split by \n\n) and simple numbered lists (lines like "1. ...") */
 function ArticleBody({ body }) {

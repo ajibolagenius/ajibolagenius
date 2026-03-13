@@ -1,5 +1,64 @@
-// Mock data for Ajibola Akelebe Portfolio
-// All data will be replaced by backend API calls later
+/**
+ * Mock data for Ajibola Akelebe Portfolio.
+ * Replaced by backend API calls; shapes should match docs/contracts.md.
+ *
+ * @typedef {Object} PersonalInfo
+ * @property {string} name
+ * @property {string} tagline
+ * @property {string} taglineSuffix
+ * @property {string} description
+ * @property {string} role
+ * @property {string} email
+ * @property {string} location
+ * @property {string} availability
+ * @property {{ github?: string, twitter?: string, linkedin?: string, whatsapp?: string }} social
+ *
+ * @typedef {Object} Project
+ * @property {string} id
+ * @property {string} [slug]
+ * @property {string} name
+ * @property {string} category
+ * @property {string} [label]
+ * @property {string} description
+ * @property {string[]} tags
+ * @property {'dev'|'design'} [type]
+ * @property {boolean} [featured]
+ * @property {string} [liveUrl]
+ * @property {string} [githubUrl]
+ * @property {string} [problem]
+ * @property {string} [solution]
+ * @property {string} [role]
+ * @property {string} [duration]
+ * @property {string} [year]
+ * @property {Array<string|{url:string}>} [screenshots]
+ * @property {{ name: string, role: string }[]} [techDetails]
+ *
+ * @typedef {Object} Course
+ * @property {string} id
+ * @property {string} name
+ * @property {string} duration
+ * @property {string} price
+ * @property {string} badge
+ * @property {string} description
+ * @property {string[]} [curriculum]
+ *
+ * @typedef {Object} BlogPost
+ * @property {string} id
+ * @property {string} [slug]
+ * @property {string} title
+ * @property {string} date
+ * @property {string[]} tags
+ * @property {string} category
+ * @property {string} excerpt
+ * @property {string} body
+ * @property {string} [readTime]
+ *
+ * @typedef {Object} GalleryItem
+ * @property {string} id
+ * @property {string} title
+ * @property {string} type
+ * @property {string} color
+ */
 
 export const personalInfo = {
     name: "Ajibola Akelebe",

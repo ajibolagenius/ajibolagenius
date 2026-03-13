@@ -4,8 +4,9 @@ import { Clock, ArrowRight } from 'lucide-react';
 import { fetchBlogPosts, subscribeNewsletter } from '../services/api';
 import { blogPosts as fbPosts } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
-
-const BADGE_VARIANTS = ['gold', 'cosmic', 'cyan', 'terra'];
+import SectionKicker from '../components/portfolio/SectionKicker';
+import FilterButtons from '../components/portfolio/FilterButtons';
+import { BADGE_VARIANTS } from '../constants';
 
 const WritingPage = () => {
   const navigate = useNavigate();
@@ -19,7 +20,8 @@ const WritingPage = () => {
   }, []);
 
   const displayPosts = posts.length > 0 ? posts : fbPosts;
-  const categories = ['All', ...[...new Set(displayPosts.map(p => p.category).filter(Boolean))].sort()];
+  const categoryList = ['All', ...[...new Set(displayPosts.map(p => p.category).filter(Boolean))].sort()];
+  const categoryOptions = categoryList.map((c) => ({ label: c, value: c }));
   const filtered = filter === 'All' ? displayPosts : displayPosts.filter(p => p.category === filter);
   const featured = displayPosts[0];
   const listPosts = filtered.filter(p => (p.slug || p.id) !== (featured?.slug || featured?.id));
@@ -50,12 +52,7 @@ const WritingPage = () => {
       {/* Page header */}
       <section className="pt-12 pb-8 md:pt-20 md:pb-10 border-b border-[var(--border)]">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-5 h-px bg-[var(--sungold)]" />
-            <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--sungold)]">
-              Writing
-            </span>
-          </div>
+          <SectionKicker label="Writing" accent="sungold" />
           <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-4 text-[var(--white)]" style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}>
             Blog & Thoughts
           </h1>
@@ -101,25 +98,7 @@ const WritingPage = () => {
       {/* Category filter + Post list with tags */}
       <section className="py-12 md:py-16 border-b border-[var(--border)]">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--subtle)]">Category</span>
-            <div className="flex gap-2 flex-wrap">
-              {categories.map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setFilter(cat)}
-                  className="font-mono text-[11px] tracking-[0.1em] uppercase px-4 py-2 cursor-pointer transition-all duration-200 rounded-none"
-                  style={{
-                    background: filter === cat ? 'rgba(232,160,32,0.15)' : 'transparent',
-                    color: filter === cat ? 'var(--sungold)' : 'var(--subtle)',
-                    border: `1px solid ${filter === cat ? 'rgba(232,160,32,0.3)' : 'var(--border)'}`
-                  }}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
+          <FilterButtons options={categoryOptions} value={filter} onChange={setFilter} label="Category" />
 
           <div className="flex flex-col gap-4">
             {listPosts.length === 0 && featured && filter !== 'All' && (

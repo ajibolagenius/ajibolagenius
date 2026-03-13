@@ -4,6 +4,9 @@ import { ArrowUpRight, ExternalLink } from 'lucide-react';
 import { fetchProjects } from '../services/api';
 import { projects as fallbackProjects } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
+import SectionKicker from '../components/portfolio/SectionKicker';
+import FilterButtons from '../components/portfolio/FilterButtons';
+import { BADGE_VARIANTS } from '../constants';
 
 const ProjectCard = ({ project }) => {
   const [hovered, setHovered] = useState(false);
@@ -152,10 +155,10 @@ const WorkPage = () => {
     ? projects
     : projects.filter(p => p.type === filter);
   const featuredForSpotlight = projects.find(p => p.featured);
-  const filters = [
+  const filterOptions = [
     { label: 'All', value: 'all' },
     { label: 'Dev', value: 'dev' },
-    { label: 'Design', value: 'design' }
+    { label: 'Design', value: 'design' },
   ];
 
   const handleViewCaseStudy = (slug) => {
@@ -164,14 +167,9 @@ const WorkPage = () => {
 
   return (
     <>
-      <section className="pt-12 pb-8 md:pt-20 md:pb-10" style={{ borderBottom: '1px solid var(--border)' }}>
+      <section className="pt-12 pb-8 md:pt-20 md:pb-10 border-b border-[var(--border)]">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-5 h-px bg-[var(--sungold)]" />
-            <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--sungold)]">
-              Projects
-            </span>
-          </div>
+          <SectionKicker label="Projects" accent="sungold" />
           <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-4 text-[var(--white)]" style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}>
             Selected Work
           </h1>
@@ -189,27 +187,7 @@ const WorkPage = () => {
             </div>
           )}
 
-          <div className="flex items-center gap-2 mb-4">
-            <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--subtle)]">
-              Filter
-            </span>
-            <div className="flex gap-2 flex-wrap">
-              {filters.map((f) => (
-                <button
-                  key={f.value}
-                  onClick={() => setFilter(f.value)}
-                  className="font-mono text-[11px] tracking-[0.1em] uppercase px-4 py-2 cursor-pointer transition-all duration-200 rounded-none"
-                  style={{
-                    background: filter === f.value ? 'rgba(232,160,32,0.15)' : 'transparent',
-                    color: filter === f.value ? 'var(--sungold)' : 'var(--subtle)',
-                    border: `1px solid ${filter === f.value ? 'rgba(232,160,32,0.3)' : 'var(--border)'}`
-                  }}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
-          </div>
+          <FilterButtons options={filterOptions} value={filter} onChange={setFilter} label="Filter" />
 
           {loading ? (
             <div className="font-mono text-[13px] py-20 text-center text-[var(--subtle)]">

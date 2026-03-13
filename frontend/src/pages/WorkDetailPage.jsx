@@ -4,8 +4,7 @@ import { ArrowLeft, ExternalLink, Github } from 'lucide-react';
 import { fetchProject } from '../services/api';
 import { projects as fallbackProjects } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
-
-const BADGE_VARIANTS = ['gold', 'cosmic', 'cyan', 'terra'];
+import { BADGE_VARIANTS } from '../constants';
 
 const WorkDetailPage = () => {
   const { slug } = useParams();
