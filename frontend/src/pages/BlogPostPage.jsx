@@ -3,6 +3,49 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock } from 'lucide-react';
 import { fetchBlogPost } from '../services/api';
 import { blogPosts as fbPosts } from '../data/mock';
+import Badge from '../components/portfolio/Badge';
+
+const BADGE_VARIANTS = ['gold', 'cosmic', 'cyan', 'terra'];
+
+/** Render body text: paragraphs (split by \n\n) and simple numbered lists (lines like "1. ...") */
+function ArticleBody({ body }) {
+  if (!body || typeof body !== 'string') return null;
+
+  const blocks = body.split(/\n\n+/);
+  const elements = [];
+
+  blocks.forEach((block, i) => {
+    const trimmed = block.trim();
+    if (!trimmed) return;
+
+    const lines = trimmed.split('\n');
+    const isNumberedList = lines.length >= 1 && lines.every(line => /^\d+\.\s+/.test(line.trim()));
+
+    if (isNumberedList) {
+      elements.push(
+        <ul key={i} className="list-none pl-0 my-6 space-y-2">
+          {lines.map((line, j) => {
+            const text = line.replace(/^\d+\.\s+/, '').trim();
+            return (
+              <li key={j} className="flex items-start gap-2 font-body text-[15px] leading-[1.8] text-[var(--muted)]">
+                <span className="text-[var(--sungold)] font-mono text-[12px] mt-0.5">{j + 1}.</span>
+                <span>{text}</span>
+              </li>
+            );
+          })}
+        </ul>
+      );
+    } else {
+      elements.push(
+        <p key={i} className="font-body text-[15px] leading-[1.8] mb-6 text-[var(--muted)]">
+          {trimmed}
+        </p>
+      );
+    }
+  });
+
+  return <div className="article-body">{elements}</div>;
+}
 
 const BlogPostPage = () => {
   const { slug } = useParams();
@@ -20,41 +63,98 @@ const BlogPostPage = () => {
       });
   }, [slug]);
 
-  if (loading) return <div className="py-32 text-center font-mono text-[13px]" style={{ color: 'rgba(242,239,232,0.3)' }}>Loading...</div>;
-  if (!post) return (
-    <section className="py-16 md:py-32"><div className="max-w-[1160px] mx-auto px-4 md:px-8 text-center">
-      <h1 className="font-display text-[36px] font-extrabold mb-4">Post not found</h1>
-      <button onClick={() => navigate('/writing')} className="font-display text-[13px] font-semibold px-[22px] py-[11px] cursor-pointer" style={{ background: '#E8A020', color: '#07070F', border: 'none', borderRadius: 0 }}>Back to Blog</button>
-    </div></section>
-  );
+  if (loading) {
+    return (
+      <div className="py-32 text-center font-mono text-[13px] text-[var(--subtle)]">
+        Loading…
+      </div>
+    );
+  }
+
+  if (!post) {
+    return (
+      <section className="py-16 md:py-32">
+        <div className="max-w-[720px] mx-auto px-4 md:px-8 text-center">
+          <h1 className="font-display text-[36px] font-extrabold mb-4 text-[var(--white)]">Post not found</h1>
+          <button
+            onClick={() => navigate('/writing')}
+            className="btn-primary font-display text-[13px] font-semibold px-[22px] py-[11px] cursor-pointer bg-[var(--sungold)] text-[var(--void)] border-0 rounded-none"
+          >
+            Back to Blog
+          </button>
+        </div>
+      </section>
+    );
+  }
 
   const readTime = post.read_time || post.readTime;
 
   return (
     <>
-      <section className="pt-12 pb-8 md:pt-16 md:pb-10" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      {/* Post title + meta + tags / category */}
+      <section className="pt-12 pb-8 md:pt-16 md:pb-10 border-b border-[var(--border)]">
         <div className="max-w-[720px] mx-auto px-4 md:px-8">
-          <button onClick={() => navigate('/writing')} className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.08em] uppercase mb-10 cursor-pointer bg-transparent border-none transition-colors duration-200 hover:text-[#E8A020]" style={{ color: 'rgba(242,239,232,0.55)' }}><ArrowLeft size={14} /> Back to Writing</button>
-          <div className="flex items-center gap-3 mb-4">{post.tags.map((tag, j) => <span key={j} className="font-mono text-[10px] px-2 py-[2px]" style={{ background: 'rgba(232,160,32,0.15)', color: '#E8A020', border: '1px solid rgba(232,160,32,0.3)', borderRadius: 0 }}>{tag}</span>)}</div>
-          <h1 className="font-display font-extrabold leading-[1.1] tracking-[-0.02em] mb-4" style={{ fontSize: 'clamp(28px, 5vw, 48px)' }}>{post.title}</h1>
-          <div className="flex items-center gap-4 mb-6">
-            <span className="font-mono text-[11px]" style={{ color: 'rgba(242,239,232,0.3)' }}>{post.date}</span>
-            <span className="flex items-center gap-1 font-mono text-[11px]" style={{ color: 'rgba(242,239,232,0.3)' }}><Clock size={11} /> {readTime}</span>
+          <div className="mb-10">
+            <button
+              onClick={() => navigate('/writing')}
+              className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.08em] uppercase cursor-pointer bg-transparent border-none text-[var(--muted)] hover:text-[var(--sungold)] transition-colors"
+            >
+              <ArrowLeft size={14} /> Back to Writing
+            </button>
           </div>
-          <p className="font-body text-[16px] leading-[1.7] mb-8" style={{ color: 'rgba(242,239,232,0.65)' }}>{post.excerpt}</p>
+
+          {post.category && (
+            <Badge variant="cosmic" className="mb-4 block w-fit">
+              {post.category}
+            </Badge>
+          )}
+
+          <h1 className="font-display font-extrabold leading-[1.1] tracking-[-0.02em] mb-4 text-[var(--white)]" style={{ fontSize: 'clamp(28px, 5vw, 48px)' }}>
+            {post.title}
+          </h1>
+
+          <div className="flex flex-wrap items-center gap-4 mb-6 font-mono text-[11px] text-[var(--subtle)]">
+            <span>{post.date}</span>
+            {readTime && (
+              <span className="flex items-center gap-1">
+                <Clock size={11} /> {readTime}
+              </span>
+            )}
+          </div>
+
+          {(post.tags || []).length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {post.tags.map((tag, j) => (
+                <Badge key={j} variant={BADGE_VARIANTS[j % BADGE_VARIANTS.length]}>
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
       </section>
-      <section className="py-12">
+
+      {/* Article body */}
+      <section className="py-12 md:py-16">
         <div className="max-w-[720px] mx-auto px-4 md:px-8">
-          {post.body.split('\n\n').map((paragraph, i) => (
-            <p key={i} className="font-body text-[15px] leading-[1.8] mb-6" style={{ color: 'rgba(242,239,232,0.6)' }}>{paragraph}</p>
-          ))}
+          {post.excerpt && (
+            <p className="font-body text-[16px] leading-[1.7] mb-10 text-[var(--muted)]">
+              {post.excerpt}
+            </p>
+          )}
+          <ArticleBody body={post.body} />
         </div>
       </section>
-      <section className="pb-20">
+
+      {/* Footer CTA */}
+      <section className="py-12 border-t border-[var(--border)]">
         <div className="max-w-[720px] mx-auto px-4 md:px-8">
-          <div className="w-full h-[1px] mb-8" style={{ background: 'rgba(255,255,255,0.06)' }} />
-          <button onClick={() => navigate('/writing')} className="inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[11px] cursor-pointer" style={{ background: 'transparent', color: '#F2EFE8', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 0 }}><ArrowLeft size={14} /> All Articles</button>
+          <button
+            onClick={() => navigate('/writing')}
+            className="btn-ghost inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[11px] cursor-pointer bg-transparent text-[var(--white)] border border-[var(--border-md)] rounded-none"
+          >
+            <ArrowLeft size={14} /> All Articles
+          </button>
         </div>
       </section>
     </>

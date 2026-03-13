@@ -3,6 +3,9 @@ import { Send, MessageSquare, MapPin, Mail, Github, Twitter, Linkedin } from 'lu
 import { submitContact, fetchPersonalInfo } from '../services/api';
 import { personalInfo as fbInfo } from '../data/mock';
 
+const INPUT_CLASS =
+  'w-full bg-[var(--elevated)] border border-[var(--border-md)] px-4 py-[10px] font-body text-[14px] text-[var(--white)] placeholder:text-[var(--subtle)] outline-none transition-all duration-200 rounded-none focus:border-[var(--sungold)] focus:shadow-[var(--shadow-sharp-ring)]';
+
 const ContactPage = () => {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
@@ -17,73 +20,168 @@ const ContactPage = () => {
     e.preventDefault();
     try {
       const res = await submitContact(formData);
-      setResponseMsg(res.message);
+      setResponseMsg(res.message || 'Message sent.');
       setSubmitted(true);
-      setTimeout(() => { setSubmitted(false); setResponseMsg(''); setFormData({ name: '', email: '', subject: '', message: '' }); }, 3000);
+      setTimeout(() => {
+        setSubmitted(false);
+        setResponseMsg('');
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      }, 3000);
     } catch {
       setResponseMsg('Something went wrong. Please try again.');
       setTimeout(() => setResponseMsg(''), 3000);
     }
   };
 
-  const inputStyle = { width: '100%', background: '#17172E', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 0, padding: '12px 14px', color: '#F2EFE8', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', outline: 'none', transition: 'border-color 0.2s, box-shadow 0.2s' };
-  const handleFocus = (e) => { e.target.style.borderColor = '#E8A020'; e.target.style.boxShadow = '0 0 0 3px rgba(232,160,32,0.1)'; };
-  const handleBlur = (e) => { e.target.style.borderColor = 'rgba(255,255,255,0.12)'; e.target.style.boxShadow = 'none'; };
-
   const social = info.social || fbInfo.social;
   const socialLinks = [
-    { icon: Github, label: 'GitHub', href: social.github, color: '#F2EFE8' },
-    { icon: Twitter, label: 'Twitter / X', href: social.twitter, color: '#1CB8D4' },
-    { icon: Linkedin, label: 'LinkedIn', href: social.linkedin, color: '#5B4FD8' },
-    { icon: MessageSquare, label: 'WhatsApp', href: social.whatsapp, color: '#E8A020' }
-  ];
+    { icon: Github, label: 'GitHub', href: social.github },
+    { icon: Twitter, label: 'Twitter / X', href: social.twitter },
+    { icon: Linkedin, label: 'LinkedIn', href: social.linkedin },
+    { icon: MessageSquare, label: 'WhatsApp', href: social.whatsapp }
+  ].filter(l => l.href);
 
   return (
     <>
-      <section className="pt-12 pb-8 md:pt-20 md:pb-10" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <section className="pt-12 pb-8 md:pt-20 md:pb-10 border-b border-[var(--border)]">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="flex items-center gap-2 mb-3"><div className="w-6 h-[1px]" style={{ background: '#E8A020' }} /><span className="font-mono text-[11px] tracking-[0.2em] uppercase" style={{ color: '#E8A020' }}>Contact</span></div>
-          <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-4" style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}>Let's Build Something</h1>
-          <p className="font-body text-[17px] leading-[1.7] max-w-[560px]" style={{ color: 'rgba(242,239,232,0.55)' }}>Got a project in mind, want to enrol in a course, or just want to connect? I'd love to hear from you.</p>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-5 h-px bg-[var(--sungold)]" />
+            <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--sungold)]">
+              Contact
+            </span>
+          </div>
+          <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-4 text-[var(--white)]" style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}>
+            Let&apos;s Build Something
+          </h1>
+          <p className="font-body text-[17px] leading-[1.7] max-w-[560px] text-[var(--muted)]">
+            Got a project in mind, want to enrol in a course, or just want to connect? I&apos;d love to hear from you.
+          </p>
         </div>
       </section>
+
       <section className="py-12 md:py-16">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-12">
+            {/* Contact form */}
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div><label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: 'rgba(242,239,232,0.3)' }}>Name</label><input type="text" placeholder="Your name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} required /></div>
-                <div><label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: 'rgba(242,239,232,0.3)' }}>Email</label><input type="email" placeholder="your@email.com" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} required /></div>
+                <div>
+                  <label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">Name</label>
+                  <input
+                    type="text"
+                    placeholder="Your name"
+                    value={formData.name}
+                    onChange={e => setFormData({ ...formData, name: e.target.value })}
+                    className={INPUT_CLASS}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">Email</label>
+                  <input
+                    type="email"
+                    placeholder="your@email.com"
+                    value={formData.email}
+                    onChange={e => setFormData({ ...formData, email: e.target.value })}
+                    className={INPUT_CLASS}
+                    required
+                  />
+                </div>
               </div>
-              <div><label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: 'rgba(242,239,232,0.3)' }}>Subject</label><input type="text" placeholder="What's this about?" value={formData.subject} onChange={e => setFormData({...formData, subject: e.target.value})} style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} required /></div>
-              <div><label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: 'rgba(242,239,232,0.3)' }}>Message</label><textarea rows={7} placeholder="Tell me about your project, question, or idea..." value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} style={{...inputStyle, resize: 'vertical', minHeight: '160px'}} onFocus={handleFocus} onBlur={handleBlur} required /></div>
-              <button type="submit" className="inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[12px] border-none cursor-pointer transition-all duration-200 self-start" style={{ background: submitted ? '#111126' : '#E8A020', color: submitted ? '#E8A020' : '#07070F', borderRadius: 0, border: submitted ? '1px solid rgba(232,160,32,0.3)' : 'none' }}>
+              <div>
+                <label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">Subject</label>
+                <input
+                  type="text"
+                  placeholder="What's this about?"
+                  value={formData.subject}
+                  onChange={e => setFormData({ ...formData, subject: e.target.value })}
+                  className={INPUT_CLASS}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">Message</label>
+                <textarea
+                  rows={6}
+                  placeholder="Tell me about your project, question, or idea..."
+                  value={formData.message}
+                  onChange={e => setFormData({ ...formData, message: e.target.value })}
+                  className={`${INPUT_CLASS} resize-y min-h-[160px]`}
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[12px] border-0 cursor-pointer self-start rounded-none transition-all duration-200"
+                style={{
+                  background: submitted ? 'var(--surface)' : 'var(--sungold)',
+                  color: submitted ? 'var(--sungold)' : 'var(--void)',
+                  border: submitted ? '1px solid rgba(232,160,32,0.3)' : 'none'
+                }}
+              >
                 {submitted ? 'Message Sent!' : 'Send Message'} <Send size={14} />
               </button>
-              {responseMsg && <p className="font-mono text-[12px]" style={{ color: '#E8A020' }}>{responseMsg}</p>}
+              {responseMsg && <p className="font-mono text-[12px] text-[var(--sungold)]">{responseMsg}</p>}
             </form>
-            <div className="flex flex-col gap-4">
-              <div className="p-5" style={{ background: '#111126', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 0 }}>
-                <div className="flex items-center gap-3 mb-3"><Mail size={16} style={{ color: '#E8A020' }} /><span className="font-mono text-[11px] tracking-[0.1em] uppercase" style={{ color: 'rgba(242,239,232,0.3)' }}>Email</span></div>
-                <a href={`mailto:${info.email}`} className="font-body text-[14px] no-underline hover:text-[#E8A020]" style={{ color: '#F2EFE8' }}>{info.email}</a>
+
+            {/* Right column: Availability, Social grid, Email, Location, WhatsApp quick link */}
+            <div className="flex flex-col gap-5">
+              {/* Availability status */}
+              <div className="p-5 flex items-center gap-3 bg-[var(--warm-glow)] border border-[rgba(232,160,32,0.2)]">
+                <div className="w-2 h-2 bg-[var(--sungold)] shrink-0" style={{ boxShadow: '0 0 8px rgba(232,160,32,0.5)' }} />
+                <span className="font-mono text-[11px] tracking-[0.08em] text-[var(--sungold)]">
+                  {info.availability || 'Available for projects'}
+                </span>
               </div>
-              <div className="p-5" style={{ background: '#111126', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 0 }}>
-                <div className="flex items-center gap-3 mb-3"><MapPin size={16} style={{ color: '#1CB8D4' }} /><span className="font-mono text-[11px] tracking-[0.1em] uppercase" style={{ color: 'rgba(242,239,232,0.3)' }}>Location</span></div>
-                <p className="font-body text-[14px]" style={{ color: '#F2EFE8' }}>{info.location}</p>
+
+              {/* Social links grid */}
+              <div>
+                <span className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-3 text-[var(--subtle)]">Social</span>
+                <div className="grid grid-cols-2 gap-3">
+                  {socialLinks.map((link, i) => (
+                    <a
+                      key={i}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-4 flex items-center gap-3 no-underline bg-[var(--surface)] border border-[var(--border)] transition-all duration-200 hover:border-[rgba(232,160,32,0.25)] hover:bg-[var(--elevated)]"
+                    >
+                      <link.icon size={18} className="text-[var(--sungold)] shrink-0" />
+                      <span className="font-mono text-[11px] text-[var(--muted)]">{link.label}</span>
+                    </a>
+                  ))}
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                {socialLinks.map((link, i) => (
-                  <a key={i} href={link.href} target="_blank" rel="noopener noreferrer" className="p-4 flex items-center gap-3 no-underline transition-all duration-200 hover:bg-[#17172E]" style={{ background: '#111126', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 0 }}>
-                    <link.icon size={16} style={{ color: link.color }} /><span className="font-mono text-[11px]" style={{ color: 'rgba(242,239,232,0.55)' }}>{link.label}</span>
-                  </a>
-                ))}
+
+              {/* Email */}
+              <div className="p-5 bg-[var(--surface)] border border-[var(--border)]">
+                <div className="flex items-center gap-2 mb-2">
+                  <Mail size={16} className="text-[var(--sungold)]" />
+                  <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--subtle)]">Email</span>
+                </div>
+                <a href={`mailto:${info.email}`} className="font-body text-[14px] text-[var(--white)] no-underline hover:text-[var(--sungold)] transition-colors">
+                  {info.email}
+                </a>
               </div>
-              <div className="p-4 flex items-center gap-3" style={{ background: 'rgba(232,160,32,0.08)', border: '1px solid rgba(232,160,32,0.2)', borderRadius: 0 }}>
-                <div className="w-2 h-2" style={{ background: '#E8A020', borderRadius: 0, boxShadow: '0 0 8px rgba(232,160,32,0.5)' }} />
-                <span className="font-mono text-[11px] tracking-[0.08em]" style={{ color: '#E8A020' }}>{info.availability}</span>
+
+              {/* Location */}
+              <div className="p-5 bg-[var(--surface)] border border-[var(--border)]">
+                <div className="flex items-center gap-2 mb-2">
+                  <MapPin size={16} className="text-[var(--stardust)]" />
+                  <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--subtle)]">Location</span>
+                </div>
+                <p className="font-body text-[14px] text-[var(--white)]">{info.location}</p>
               </div>
-              <a href={social.whatsapp} target="_blank" rel="noopener noreferrer" className="p-4 flex items-center justify-center gap-2 no-underline" style={{ background: '#5B4FD8', borderRadius: 0 }}>
-                <MessageSquare size={14} style={{ color: '#F2EFE8' }} /><span className="font-display text-[13px] font-semibold" style={{ color: '#F2EFE8' }}>Quick WhatsApp Message</span>
+
+              {/* WhatsApp quick link */}
+              <a
+                href={social.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary flex items-center justify-center gap-2 font-display text-[13px] font-semibold px-5 py-4 no-underline bg-[var(--sungold)] text-[var(--void)] border-0 rounded-none transition-all duration-200 hover:shadow-[var(--shadow-sharp-gold)]"
+              >
+                <MessageSquare size={18} /> WhatsApp quick link
               </a>
             </div>
           </div>

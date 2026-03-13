@@ -1,11 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Github, Twitter } from 'lucide-react';
+import { Github, Twitter, Linkedin } from 'lucide-react';
 import { personalInfo, navLinks } from '../../data/mock';
 import { footerStackNames } from '../../data/techStack';
 import Badge from './Badge';
 
-const badgeVariants = ['gold', 'cosmic', 'cyan', 'terra'];
+/**
+ * Footer — Design System layout.
+ * Deep bg, border-top, minified: brand · tagline · social | nav links | stack badges; copyright row.
+ */
+const BADGE_VARIANTS = ['gold', 'cosmic', 'cyan', 'terra'];
+
+const SOCIAL_ICONS = [
+  { Icon: Github, href: personalInfo.social?.github, label: 'GitHub' },
+  { Icon: Twitter, href: personalInfo.social?.twitter, label: 'Twitter' },
+  { Icon: Linkedin, href: personalInfo.social?.linkedin, label: 'LinkedIn' },
+].filter(({ href }) => href);
 
 const Footer = () => {
   return (
@@ -16,22 +26,36 @@ const Footer = () => {
             <span className="font-display text-[15px] font-bold tracking-[0.08em] uppercase text-[var(--sungold)]">
               Ajibola Akelebe.
             </span>
-            <span className="text-[var(--border)]">·</span>
+            <span className="text-[var(--border)]" aria-hidden>·</span>
             <p className="font-body text-[13px] text-[var(--muted)]">
               Design & Engineering, No boundaries.
             </p>
-            <span className="text-[var(--border)]">·</span>
-            <div className="flex gap-3">
-              <a href={personalInfo.social.github} target="_blank" rel="noopener noreferrer" className="text-[var(--subtle)] hover:text-[var(--sungold)] transition-colors" aria-label="GitHub"><Github size={14} /></a>
-              <a href={personalInfo.social.twitter} target="_blank" rel="noopener noreferrer" className="text-[var(--subtle)] hover:text-[var(--sungold)] transition-colors" aria-label="Twitter"><Twitter size={14} /></a>
-            </div>
+            {SOCIAL_ICONS.length > 0 && (
+              <>
+                <span className="text-[var(--border)]" aria-hidden>·</span>
+                <div className="flex gap-3">
+                  {SOCIAL_ICONS.map(({ Icon, href, label }) => (
+                    <a
+                      key={label}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[var(--subtle)] hover:text-[var(--sungold)] transition-colors duration-200"
+                      aria-label={label}
+                    >
+                      <Icon size={14} />
+                    </a>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             {navLinks.map(({ label, href }) => (
               <Link
                 key={href}
                 to={href}
-                className="font-mono text-[11px] text-[var(--muted)] hover:text-[var(--sungold)] transition-colors"
+                className="font-mono text-[11px] text-[var(--muted)] hover:text-[var(--sungold)] transition-colors duration-200"
               >
                 {label}
               </Link>
@@ -39,7 +63,7 @@ const Footer = () => {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {footerStackNames.map((name, i) => (
-              <Badge key={name} variant={badgeVariants[i % badgeVariants.length]}>
+              <Badge key={name} variant={BADGE_VARIANTS[i % BADGE_VARIANTS.length]}>
                 {name}
               </Badge>
             ))}
