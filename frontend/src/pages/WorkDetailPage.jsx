@@ -3,6 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ExternalLink, Github } from 'lucide-react';
 import { fetchProject } from '../services/api';
 import { projects as fallbackProjects } from '../data/mock';
+import Badge from '../components/portfolio/Badge';
+
+const BADGE_VARIANTS = ['gold', 'cosmic', 'cyan', 'terra'];
 
 const WorkDetailPage = () => {
   const { slug } = useParams();
@@ -21,82 +24,202 @@ const WorkDetailPage = () => {
       });
   }, [slug]);
 
-  if (loading) return <div className="py-32 text-center font-mono text-[13px]" style={{ color: 'rgba(242,239,232,0.3)' }}>Loading...</div>;
-  if (error || !project) return (
-    <section className="py-16 md:py-32"><div className="max-w-[1160px] mx-auto px-4 md:px-8 text-center">
-      <h1 className="font-display text-[36px] font-extrabold mb-4">Project not found</h1>
-      <button onClick={() => navigate('/work')} className="font-display text-[13px] font-semibold px-[22px] py-[11px] cursor-pointer" style={{ background: '#E8A020', color: '#07070F', border: 'none', borderRadius: 0 }}>Back to Projects</button>
-    </div></section>
-  );
+  if (loading) {
+    return (
+      <div className="py-32 text-center font-mono text-[13px] text-[var(--subtle)]">
+        Loading…
+      </div>
+    );
+  }
 
-  const roleTitleField = project.role_title || project.role || '';
+  if (error || !project) {
+    return (
+      <section className="py-16 md:py-32">
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8 text-center">
+          <h1 className="font-display text-[36px] font-extrabold mb-4 text-[var(--white)]">Project not found</h1>
+          <button
+            onClick={() => navigate('/work')}
+            className="btn-primary font-display text-[13px] font-semibold px-[22px] py-[11px] cursor-pointer bg-[var(--sungold)] text-[var(--void)] border-0 rounded-none"
+          >
+            Back to Projects
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  const roleTitle = project.role_title || project.role || '';
   const techDetails = project.tech_details || project.techDetails || [];
   const liveUrl = project.live_url || project.liveUrl || '#';
   const githubUrl = project.github_url || project.githubUrl || '#';
+  const screenshots = project.screenshots || [];
+  const heroImage = screenshots[0];
 
   return (
     <>
-      <section className="pt-12 pb-8 md:pt-16 md:pb-12" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      {/* Hero image / 3D preview */}
+      <section className="relative border-b border-[var(--border)]">
+        <button
+          onClick={() => navigate('/work')}
+          className="absolute top-4 left-4 z-10 inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.08em] uppercase cursor-pointer bg-[var(--void)]/80 border border-[var(--border)] px-3 py-2 text-[var(--muted)] hover:text-[var(--sungold)] transition-colors"
+        >
+          <ArrowLeft size={14} /> Back to Projects
+        </button>
+        <div
+          className="min-h-[280px] md:min-h-[360px] flex items-center justify-center bg-[var(--surface)]"
+          style={{
+            backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 12px)'
+          }}
+        >
+          {heroImage ? (
+            <img
+              src={typeof heroImage === 'string' ? heroImage : heroImage.url}
+              alt={project.name}
+              className="w-full h-full object-cover min-h-[280px] md:min-h-[360px]"
+            />
+          ) : (
+            <span className="font-display text-[13px] tracking-[0.2em] uppercase text-[var(--subtle)]">
+              {project.label || project.name}
+            </span>
+          )}
+        </div>
+      </section>
+
+      {/* Title, description, meta, tech badges, Live + GitHub */}
+      <section className="pt-8 pb-10 md:pt-12 md:pb-14 border-b border-[var(--border)]">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <button onClick={() => navigate('/work')} className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.08em] uppercase mb-10 cursor-pointer bg-transparent border-none transition-colors duration-200 hover:text-[#E8A020]" style={{ color: 'rgba(242,239,232,0.55)' }}>
-            <ArrowLeft size={14} /> Back to Projects
-          </button>
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-12">
-            <div>
-              <div className="font-mono text-[10px] tracking-[0.12em] uppercase mb-3" style={{ color: '#E8A020' }}>{project.category}</div>
-              <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.02em] mb-4" style={{ fontSize: 'clamp(32px, 5vw, 56px)' }}>{project.name}</h1>
-              <p className="font-body text-[17px] leading-[1.7] mb-8" style={{ color: 'rgba(242,239,232,0.55)' }}>{project.description}</p>
-              <div className="flex gap-3 flex-wrap">
-                <a href={liveUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[11px] no-underline" style={{ background: '#E8A020', color: '#07070F', borderRadius: 0 }}>
-                  View Live <ExternalLink size={14} />
-                </a>
-                <a href={githubUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[11px] no-underline" style={{ background: 'transparent', color: '#F2EFE8', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 0 }}>
-                  <Github size={14} /> Source Code
-                </a>
+          <div className="font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--sungold)]">
+            {project.category}
+          </div>
+          <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.02em] mb-4 text-[var(--white)]" style={{ fontSize: 'clamp(28px, 4.5vw, 48px)' }}>
+            {project.name}
+          </h1>
+          <p className="font-body text-[17px] leading-[1.7] mb-6 text-[var(--muted)] max-w-[720px]">
+            {project.description}
+          </p>
+
+          <div className="flex flex-wrap items-center gap-3 mb-8">
+            <a
+              href={liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] no-underline bg-[var(--sungold)] text-[var(--void)] border-0 rounded-none"
+            >
+              View Live <ExternalLink size={14} />
+            </a>
+            <a
+              href={githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-ghost inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] no-underline bg-transparent text-[var(--white)] border border-[var(--border-md)] rounded-none"
+            >
+              <Github size={14} /> Source Code
+            </a>
+          </div>
+
+          <div className="flex flex-wrap gap-2 mb-8">
+            {(project.tags || []).map((tag, j) => (
+              <Badge key={j} variant={BADGE_VARIANTS[j % BADGE_VARIANTS.length]}>
+                {tag}
+              </Badge>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              { label: 'Role', value: roleTitle },
+              { label: 'Duration', value: project.duration },
+              { label: 'Year', value: project.year }
+            ].filter(m => m.value).map((meta, i) => (
+              <div key={i} className="p-4 bg-[var(--surface)] border border-[var(--border)]">
+                <div className="font-mono text-[10px] tracking-[0.12em] uppercase mb-1 text-[var(--subtle)]">{meta.label}</div>
+                <div className="font-display text-[14px] font-semibold text-[var(--white)]">{meta.value}</div>
               </div>
-            </div>
-            <div className="flex flex-col gap-4">
-              {[{ label: 'Role', value: roleTitleField }, { label: 'Duration', value: project.duration }, { label: 'Year', value: project.year }].map((meta, i) => (
-                <div key={i} className="p-4" style={{ background: '#111126', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 0 }}>
-                  <div className="font-mono text-[10px] tracking-[0.12em] uppercase mb-1" style={{ color: 'rgba(242,239,232,0.3)' }}>{meta.label}</div>
-                  <div className="font-display text-[14px] font-semibold" style={{ color: '#F2EFE8' }}>{meta.value}</div>
-                </div>
-              ))}
-              <div className="p-4" style={{ background: '#111126', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 0 }}>
-                <div className="font-mono text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: 'rgba(242,239,232,0.3)' }}>Stack</div>
-                <div className="flex gap-2 flex-wrap">
-                  {project.tags.map((tag, j) => (
-                    <span key={j} className="font-mono text-[10px] px-2 py-[3px]" style={{ background: '#1E1E3A', color: '#E8A020', border: '1px solid rgba(232,160,32,0.2)', borderRadius: 0 }}>{tag}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
-      <section className="py-12 md:py-16">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div>
-              <div className="flex items-center gap-2 mb-4"><div className="w-6 h-[1px]" style={{ background: '#C94B2D' }} /><span className="font-mono text-[11px] tracking-[0.2em] uppercase" style={{ color: '#C94B2D' }}>The Problem</span></div>
-              <p className="font-body text-[15px] leading-[1.7]" style={{ color: 'rgba(242,239,232,0.55)' }}>{project.problem}</p>
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-4"><div className="w-6 h-[1px]" style={{ background: '#E8A020' }} /><span className="font-mono text-[11px] tracking-[0.2em] uppercase" style={{ color: '#E8A020' }}>The Solution</span></div>
-              <p className="font-body text-[15px] leading-[1.7]" style={{ color: 'rgba(242,239,232,0.55)' }}>{project.solution}</p>
+
+      {/* Problem + Solution narrative */}
+      {(project.problem || project.solution) && (
+        <section className="py-12 md:py-16 border-b border-[var(--border)]">
+          <div className="max-w-[1160px] mx-auto px-4 md:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12">
+              {project.problem && (
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-6 h-px bg-[var(--terracotta)]" />
+                    <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[#E07060]">The Problem</span>
+                  </div>
+                  <p className="font-body text-[15px] leading-[1.7] text-[var(--muted)]">{project.problem}</p>
+                </div>
+              )}
+              {project.solution && (
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-6 h-px bg-[var(--sungold)]" />
+                    <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--sungold)]">The Solution</span>
+                  </div>
+                  <p className="font-body text-[15px] leading-[1.7] text-[var(--muted)]">{project.solution}</p>
+                </div>
+              )}
             </div>
           </div>
-          {techDetails.length > 0 && (
-            <div className="mt-16">
-              <div className="flex items-center gap-2 mb-6"><div className="w-6 h-[1px]" style={{ background: '#1CB8D4' }} /><span className="font-mono text-[11px] tracking-[0.2em] uppercase" style={{ color: '#1CB8D4' }}>Technical Architecture</span></div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {techDetails.map((tech, i) => (
-                  <div key={i} className="p-5" style={{ background: '#111126', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 0 }}>
-                    <div className="font-display text-[15px] font-bold mb-1" style={{ color: '#F2EFE8' }}>{tech.name}</div>
-                    <div className="font-mono text-[11px]" style={{ color: 'rgba(242,239,232,0.4)' }}>{tech.role}</div>
-                  </div>
-                ))}
-              </div>
+        </section>
+      )}
+
+      {/* Technical Architecture — tech stack badges + role */}
+      {techDetails.length > 0 && (
+        <section className="py-12 md:py-16 border-b border-[var(--border)]">
+          <div className="max-w-[1160px] mx-auto px-4 md:px-8">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-6 h-px bg-[var(--stardust)]" />
+              <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--stardust)]">Technical Architecture</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {techDetails.map((tech, i) => (
+                <div key={i} className="p-5 bg-[var(--surface)] border border-[var(--border)]">
+                  <Badge variant={BADGE_VARIANTS[i % BADGE_VARIANTS.length]} className="mb-2">
+                    {tech.name}
+                  </Badge>
+                  <div className="font-mono text-[11px] text-[var(--subtle)]">{tech.role}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Screenshots gallery */}
+      <section className="py-12 md:py-16">
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="w-6 h-px bg-[var(--violet)]" />
+            <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--violet)]">Screenshots</span>
+          </div>
+          {screenshots.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {screenshots.map((shot, i) => (
+                <div key={i} className="border border-[var(--border)] overflow-hidden bg-[var(--elevated)]">
+                  <img
+                    src={typeof shot === 'string' ? shot : shot.url}
+                    alt={`${project.name} screenshot ${i + 1}`}
+                    className="w-full aspect-video object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="aspect-video flex items-center justify-center bg-[var(--surface)] border border-[var(--border)]"
+                  style={{ backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 12px)' }}
+                >
+                  <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--subtle)]">Screenshot {i}</span>
+                </div>
+              ))}
             </div>
           )}
         </div>
