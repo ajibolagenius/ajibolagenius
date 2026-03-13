@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Send, MessageSquare, MapPin, Mail, Github, Twitter, Linkedin } from 'lucide-react';
 import { submitContact, fetchPersonalInfo } from '../services/api';
 import { personalInfo as fbInfo } from '../data/mock';
-import { KenteDivider } from '../components/portfolio/About';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
@@ -41,16 +40,15 @@ const ContactPage = () => {
 
   return (
     <>
-      <section className="pt-20 pb-10" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="max-w-[1160px] mx-auto px-8">
+      <section className="pt-12 pb-8 md:pt-20 md:pb-10" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="flex items-center gap-2 mb-3"><div className="w-6 h-[1px]" style={{ background: '#E8A020' }} /><span className="font-mono text-[11px] tracking-[0.2em] uppercase" style={{ color: '#E8A020' }}>Contact</span></div>
           <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-4" style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}>Let's Build Something</h1>
           <p className="font-body text-[17px] leading-[1.7] max-w-[560px]" style={{ color: 'rgba(242,239,232,0.55)' }}>Got a project in mind, want to enrol in a course, or just want to connect? I'd love to hear from you.</p>
         </div>
       </section>
-      <KenteDivider />
-      <section className="py-16">
-        <div className="max-w-[1160px] mx-auto px-8">
+      <section className="py-12 md:py-16">
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-12">
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

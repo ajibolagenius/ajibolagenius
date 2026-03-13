@@ -1,4 +1,4 @@
-// Mock data for AjibolaAkelebe Portfolio
+// Mock data for Ajibola Akelebe Portfolio
 // All data will be replaced by backend API calls later
 
 export const personalInfo = {
@@ -30,12 +30,12 @@ export const tickerItems = [
 
 /** Design-system.html Tone of Voice: 2-sentence body for About snapshot on Home */
 export const homeAboutSnapshot =
-  "Developer and designer based in Nigeria, building for a global audience. I teach what I know and ship what I learn.";
+    "Developer and designer based in Nigeria, building for a global audience. I teach what I know and ship what I learn.";
 
 export const aboutData = {
-  headline: "I build things that work and things that feel right.",
-  body: "Developer and designer based in Nigeria, building for a global audience. I teach what I know and ship what I learn. My work sits at the intersection of African identity and modern technology — fusing cultural depth with technical precision.",
-  stats: [
+    headline: "I build things that work and things that feel right.",
+    body: "Developer and designer based in Nigeria, building for a global audience. I teach what I know and ship what I learn. My work sits at the intersection of African identity and modern technology — fusing cultural depth with technical precision.",
+    stats: [
         { label: "Projects Shipped", value: "5+" },
         { label: "Courses Created", value: "9" },
         { label: "Students Taught", value: "200+" },

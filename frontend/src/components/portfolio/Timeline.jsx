@@ -28,8 +28,8 @@ const Timeline = () => {
   }, []);
 
   return (
-    <section id="timeline" ref={sectionRef} className="py-20 border-b border-[var(--border)]">
-      <div className="max-w-[1160px] mx-auto px-8">
+    <section id="timeline" ref={sectionRef} className="py-12 md:py-20 border-b border-[var(--border)]">
+      <div className="max-w-[1160px] mx-auto px-4 md:px-8">
         <div className="flex items-center gap-2 mb-3"><div className="w-5 h-px bg-[var(--sungold)]" /><span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--sungold)]">04 — Experience</span></div>
         <h2 className="font-display font-extrabold leading-[1.1] tracking-[-0.02em] mb-3 text-[var(--white)]" style={{ fontSize: 'clamp(28px, 4vw, 42px)' }}>Journey So Far</h2>
         <p className="font-body text-[15px] leading-[1.7] mb-12 max-w-[520px] text-[var(--muted)]">A timeline of key milestones in my career — from learning to building to teaching.</p>

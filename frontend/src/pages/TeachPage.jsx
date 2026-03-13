@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { ExternalLink, ChevronDown, ChevronUp, MessageSquare, Quote } from 'lucide-react';
 import { fetchCourses, fetchTestimonials, fetchPersonalInfo } from '../services/api';
 import { courses as fbCourses, testimonials as fbTestimonials, faqItems, personalInfo as fbInfo } from '../data/mock';
-import { KenteDivider } from '../components/portfolio/About';
 
 const CourseCard = ({ course, whatsapp }) => {
   const [hovered, setHovered] = useState(false);
@@ -69,23 +68,22 @@ const TeachPage = () => {
 
   return (
     <>
-      <section className="pt-20 pb-10" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="max-w-[1160px] mx-auto px-8">
+      <section className="pt-12 pb-8 md:pt-20 md:pb-10" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="flex items-center gap-2 mb-3"><div className="w-6 h-[1px]" style={{ background: '#E8A020' }} /><span className="font-mono text-[11px] tracking-[0.2em] uppercase" style={{ color: '#E8A020' }}>Teach</span></div>
           <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-4" style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}>Courses & Mentorship</h1>
           <p className="font-body text-[17px] leading-[1.7] max-w-[560px] mb-6" style={{ color: 'rgba(242,239,232,0.55)' }}>I teach what I know and share what I learn. Remote courses designed for the Nigerian developer ready to level up.</p>
           <p className="font-mono text-[11px] tracking-[0.08em]" style={{ color: 'rgba(242,239,232,0.3)' }}>// {courses.length} courses · 200+ students · Remote delivery</p>
         </div>
       </section>
-      <KenteDivider />
-      <section className="py-16">
-        <div className="max-w-[1160px] mx-auto px-8">
+      <section className="py-12 md:py-16">
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="flex items-center gap-2 mb-8"><div className="w-6 h-[1px]" style={{ background: '#1CB8D4' }} /><span className="font-mono text-[11px] tracking-[0.2em] uppercase" style={{ color: '#1CB8D4' }}>All Courses</span></div>
           <div className="grid grid-cols-1 gap-4">{courses.map((c) => <CourseCard key={c.slug || c.id} course={c} whatsapp={whatsapp} />)}</div>
         </div>
       </section>
-      <section className="py-16" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="max-w-[1160px] mx-auto px-8">
+      <section className="py-12 md:py-16" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="flex items-center gap-2 mb-8"><div className="w-6 h-[1px]" style={{ background: '#8B72F0' }} /><span className="font-mono text-[11px] tracking-[0.2em] uppercase" style={{ color: '#8B72F0' }}>What Students Say</span></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {testimonials.map((t, i) => (
@@ -98,8 +96,8 @@ const TeachPage = () => {
           </div>
         </div>
       </section>
-      <section className="py-16" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="max-w-[1160px] mx-auto px-8">
+      <section className="py-12 md:py-16" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="flex items-center gap-2 mb-3"><div className="w-6 h-[1px]" style={{ background: '#E8A020' }} /><span className="font-mono text-[11px] tracking-[0.2em] uppercase" style={{ color: '#E8A020' }}>FAQ</span></div>
           <h2 className="font-display font-extrabold leading-[1.1] tracking-[-0.02em] mb-8" style={{ fontSize: 'clamp(24px, 3vw, 36px)' }}>Frequently Asked Questions</h2>
           <div className="max-w-[720px] flex flex-col gap-3">{faqItems.map((item, i) => <FaqItem key={i} item={item} />)}</div>

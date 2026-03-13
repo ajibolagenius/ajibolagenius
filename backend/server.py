@@ -9,43 +9,64 @@ from pathlib import Path
 from datetime import datetime
 
 from models import (
-    PersonalInfo, Project, ProjectCreate, Course, CourseCreate,
-    BlogPost, BlogPostCreate, GalleryItem, GalleryItemCreate,
-    TimelineEntry, TimelineEntryCreate, Testimonial, TestimonialCreate,
-    ContactMessage, ContactMessageCreate, NewsletterSubscriber, NewsletterSubscribe,
-    generate_id
+    PersonalInfo,
+    Project,
+    ProjectCreate,
+    Course,
+    CourseCreate,
+    BlogPost,
+    BlogPostCreate,
+    GalleryItem,
+    GalleryItemCreate,
+    TimelineEntry,
+    TimelineEntryCreate,
+    Testimonial,
+    TestimonialCreate,
+    ContactMessage,
+    ContactMessageCreate,
+    NewsletterSubscriber,
+    NewsletterSubscribe,
+    generate_id,
 )
 from seed_data import (
-    PERSONAL_INFO, PROJECTS, COURSES, BLOG_POSTS,
-    GALLERY_ITEMS, TIMELINE_ENTRIES, TESTIMONIALS
+    PERSONAL_INFO,
+    PROJECTS,
+    COURSES,
+    BLOG_POSTS,
+    GALLERY_ITEMS,
+    TIMELINE_ENTRIES,
+    TESTIMONIALS,
 )
 
 ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
+load_dotenv(ROOT_DIR / ".env")
 
 # MongoDB connection
-mongo_url = os.environ.get('MONGO_URL')
+mongo_url = os.environ.get("MONGO_URL")
 if not mongo_url:
     raise RuntimeError(
         "MONGO_URL is not set. Create backend/.env with MONGO_URL=mongodb://localhost:27017 (or your MongoDB connection string)."
     )
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ.get('DB_NAME', 'portfolio')]
+db = client[os.environ.get("DB_NAME", "portfolio")]
 
 # Create the main app
-app = FastAPI(title="AjibolaAkelebe Portfolio API")
+app = FastAPI(title="Ajibola Akelebe Portfolio API")
 
 # Create routers
 api_router = APIRouter(prefix="/api")
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
 # ========================================
 # SEED ENDPOINT
 # ========================================
+
 
 @api_router.post("/seed")
 async def seed_database():
@@ -120,9 +141,10 @@ async def seed_database():
 # PUBLIC ENDPOINTS
 # ========================================
 
+
 @api_router.get("/")
 async def root():
-    return {"message": "AjibolaAkelebe Portfolio API v1.0"}
+    return {"message": "Ajibola Akelebe Portfolio API v1.0"}
 
 
 @api_router.get("/personal-info")
@@ -208,10 +230,7 @@ async def get_testimonials():
 @api_router.post("/contact")
 async def submit_contact(data: ContactMessageCreate):
     msg = ContactMessage(
-        name=data.name,
-        email=data.email,
-        subject=data.subject,
-        message=data.message
+        name=data.name, email=data.email, subject=data.subject, message=data.message
     )
     await db.contact_messages.insert_one(msg.dict())
     return {"status": "ok", "message": "Message received! I'll get back to you soon."}
@@ -232,6 +251,7 @@ async def subscribe_newsletter(data: NewsletterSubscribe):
 # ADMIN ENDPOINTS
 # ========================================
 
+
 # ---- Projects CRUD ----
 @api_router.post("/admin/projects")
 async def create_project(data: ProjectCreate):
@@ -243,8 +263,7 @@ async def create_project(data: ProjectCreate):
 @api_router.put("/admin/projects/{project_id}")
 async def update_project(project_id: str, data: ProjectCreate):
     result = await db.projects.update_one(
-        {"id": project_id},
-        {"$set": {**data.dict(), "updated_at": datetime.utcnow()}}
+        {"id": project_id}, {"$set": {**data.dict(), "updated_at": datetime.utcnow()}}
     )
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -270,8 +289,7 @@ async def create_course(data: CourseCreate):
 @api_router.put("/admin/courses/{course_id}")
 async def update_course(course_id: str, data: CourseCreate):
     result = await db.courses.update_one(
-        {"id": course_id},
-        {"$set": {**data.dict(), "updated_at": datetime.utcnow()}}
+        {"id": course_id}, {"$set": {**data.dict(), "updated_at": datetime.utcnow()}}
     )
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Course not found")
@@ -297,8 +315,7 @@ async def create_blog_post(data: BlogPostCreate):
 @api_router.put("/admin/blog-posts/{post_id}")
 async def update_blog_post(post_id: str, data: BlogPostCreate):
     result = await db.blog_posts.update_one(
-        {"id": post_id},
-        {"$set": {**data.dict(), "updated_at": datetime.utcnow()}}
+        {"id": post_id}, {"$set": {**data.dict(), "updated_at": datetime.utcnow()}}
     )
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Post not found")
@@ -324,8 +341,7 @@ async def create_gallery_item(data: GalleryItemCreate):
 @api_router.put("/admin/gallery/{item_id}")
 async def update_gallery_item(item_id: str, data: GalleryItemCreate):
     result = await db.gallery_items.update_one(
-        {"id": item_id},
-        {"$set": {**data.dict(), "updated_at": datetime.utcnow()}}
+        {"id": item_id}, {"$set": {**data.dict(), "updated_at": datetime.utcnow()}}
     )
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Gallery item not found")
@@ -351,8 +367,7 @@ async def create_timeline_entry(data: TimelineEntryCreate):
 @api_router.put("/admin/timeline/{entry_id}")
 async def update_timeline_entry(entry_id: str, data: TimelineEntryCreate):
     result = await db.timeline_entries.update_one(
-        {"id": entry_id},
-        {"$set": {**data.dict(), "updated_at": datetime.utcnow()}}
+        {"id": entry_id}, {"$set": {**data.dict(), "updated_at": datetime.utcnow()}}
     )
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Timeline entry not found")
@@ -379,7 +394,7 @@ async def create_testimonial(data: TestimonialCreate):
 async def update_testimonial(testimonial_id: str, data: TestimonialCreate):
     result = await db.testimonials.update_one(
         {"id": testimonial_id},
-        {"$set": {**data.dict(), "updated_at": datetime.utcnow()}}
+        {"$set": {**data.dict(), "updated_at": datetime.utcnow()}},
     )
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Testimonial not found")
@@ -404,13 +419,21 @@ async def update_personal_info(data: PersonalInfo):
 # ---- Admin: Read submissions ----
 @api_router.get("/admin/contact-messages")
 async def get_contact_messages():
-    docs = await db.contact_messages.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    docs = (
+        await db.contact_messages.find({}, {"_id": 0})
+        .sort("created_at", -1)
+        .to_list(500)
+    )
     return docs
 
 
 @api_router.get("/admin/newsletter-subscribers")
 async def get_newsletter_subscribers():
-    docs = await db.newsletter_subscribers.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    docs = (
+        await db.newsletter_subscribers.find({}, {"_id": 0})
+        .sort("created_at", -1)
+        .to_list(1000)
+    )
     return docs
 
 
@@ -438,17 +461,29 @@ async def startup_event():
             logger.info("Database empty — auto-seeding...")
             await db.personal_info.insert_one(PERSONAL_INFO)
             for p in PROJECTS:
-                await db.projects.insert_one({**p, "id": generate_id(), "created_at": datetime.utcnow()})
+                await db.projects.insert_one(
+                    {**p, "id": generate_id(), "created_at": datetime.utcnow()}
+                )
             for c in COURSES:
-                await db.courses.insert_one({**c, "id": generate_id(), "created_at": datetime.utcnow()})
+                await db.courses.insert_one(
+                    {**c, "id": generate_id(), "created_at": datetime.utcnow()}
+                )
             for bp in BLOG_POSTS:
-                await db.blog_posts.insert_one({**bp, "id": generate_id(), "created_at": datetime.utcnow()})
+                await db.blog_posts.insert_one(
+                    {**bp, "id": generate_id(), "created_at": datetime.utcnow()}
+                )
             for g in GALLERY_ITEMS:
-                await db.gallery_items.insert_one({**g, "id": generate_id(), "created_at": datetime.utcnow()})
+                await db.gallery_items.insert_one(
+                    {**g, "id": generate_id(), "created_at": datetime.utcnow()}
+                )
             for t in TIMELINE_ENTRIES:
-                await db.timeline_entries.insert_one({**t, "id": generate_id(), "created_at": datetime.utcnow()})
+                await db.timeline_entries.insert_one(
+                    {**t, "id": generate_id(), "created_at": datetime.utcnow()}
+                )
             for t in TESTIMONIALS:
-                await db.testimonials.insert_one({**t, "id": generate_id(), "created_at": datetime.utcnow()})
+                await db.testimonials.insert_one(
+                    {**t, "id": generate_id(), "created_at": datetime.utcnow()}
+                )
             logger.info("Auto-seed complete!")
         else:
             logger.info(f"Database has {count} projects — skipping seed.")

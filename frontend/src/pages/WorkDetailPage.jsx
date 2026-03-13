@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ExternalLink, Github } from 'lucide-react';
 import { fetchProject } from '../services/api';
 import { projects as fallbackProjects } from '../data/mock';
-import { KenteDivider } from '../components/portfolio/About';
 
 const WorkDetailPage = () => {
   const { slug } = useParams();
@@ -24,7 +23,7 @@ const WorkDetailPage = () => {
 
   if (loading) return <div className="py-32 text-center font-mono text-[13px]" style={{ color: 'rgba(242,239,232,0.3)' }}>Loading...</div>;
   if (error || !project) return (
-    <section className="py-32"><div className="max-w-[1160px] mx-auto px-8 text-center">
+    <section className="py-16 md:py-32"><div className="max-w-[1160px] mx-auto px-4 md:px-8 text-center">
       <h1 className="font-display text-[36px] font-extrabold mb-4">Project not found</h1>
       <button onClick={() => navigate('/work')} className="font-display text-[13px] font-semibold px-[22px] py-[11px] cursor-pointer" style={{ background: '#E8A020', color: '#07070F', border: 'none', borderRadius: 0 }}>Back to Projects</button>
     </div></section>
@@ -37,8 +36,8 @@ const WorkDetailPage = () => {
 
   return (
     <>
-      <section className="pt-16 pb-12" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="max-w-[1160px] mx-auto px-8">
+      <section className="pt-12 pb-8 md:pt-16 md:pb-12" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <button onClick={() => navigate('/work')} className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.08em] uppercase mb-10 cursor-pointer bg-transparent border-none transition-colors duration-200 hover:text-[#E8A020]" style={{ color: 'rgba(242,239,232,0.55)' }}>
             <ArrowLeft size={14} /> Back to Projects
           </button>
@@ -75,9 +74,8 @@ const WorkDetailPage = () => {
           </div>
         </div>
       </section>
-      <KenteDivider />
-      <section className="py-16">
-        <div className="max-w-[1160px] mx-auto px-8">
+      <section className="py-12 md:py-16">
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div>
               <div className="flex items-center gap-2 mb-4"><div className="w-6 h-[1px]" style={{ background: '#C94B2D' }} /><span className="font-mono text-[11px] tracking-[0.2em] uppercase" style={{ color: '#C94B2D' }}>The Problem</span></div>

@@ -2,8 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, MessageSquare, MapPin, Mail } from 'lucide-react';
 import { submitContact, fetchPersonalInfo } from '../../services/api';
 import { personalInfo as fbInfo } from '../../data/mock';
-import { KenteDivider } from './About';
-
 const Contact = () => {
   const [visible, setVisible] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -39,9 +37,8 @@ const Contact = () => {
   const social = info.social || fbInfo.social;
 
   return (
-    <section id="contact" ref={sectionRef} className="py-20">
-      <KenteDivider />
-      <div className="max-w-[1160px] mx-auto px-8 pt-20">
+    <section id="contact" ref={sectionRef} className="py-12 md:py-20">
+      <div className="max-w-[1160px] mx-auto px-4 md:px-8 pt-12 md:pt-20">
         <div className="transition-all duration-700" style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(24px)' }}>
           <div className="flex items-center gap-2 mb-3"><div className="w-5 h-px bg-[var(--sungold)]" /><span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--sungold)]">05 — Contact</span></div>
           <h2 className="font-display font-extrabold leading-[1.1] tracking-[-0.02em] mb-3 text-[var(--white)]" style={{ fontSize: 'clamp(28px, 4vw, 42px)' }}>Let's Build Something</h2>

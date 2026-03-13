@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+// Mobile-first: default = small screens; sm:640, md:768, lg:1024, xl:1280
 module.exports = {
     darkMode: ["class"],
     content: [

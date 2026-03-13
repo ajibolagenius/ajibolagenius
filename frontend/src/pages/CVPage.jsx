@@ -3,8 +3,6 @@ import { Download, Briefcase, GraduationCap, Award, Wrench } from 'lucide-react'
 import { fetchTimeline } from '../services/api';
 import { timeline as fbTimeline, skills, cvData } from '../data/mock';
 import { techStackForCV } from '../data/techStack';
-import { KenteDivider } from '../components/portfolio/About';
-
 const accentColors = {
   sungold: { bg: '#E8A020', shadow: 'rgba(232,160,32,0.2)' },
   nebula: { bg: '#5B4FD8', shadow: 'rgba(91,79,216,0.2)' },
@@ -29,17 +27,16 @@ const CVPage = () => {
 
   return (
     <>
-      <section className="pt-20 pb-10" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="max-w-[1160px] mx-auto px-8">
+      <section className="pt-12 pb-8 md:pt-20 md:pb-10" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="flex items-center gap-2 mb-3"><div className="w-6 h-[1px]" style={{ background: '#E8A020' }} /><span className="font-mono text-[11px] tracking-[0.2em] uppercase" style={{ color: '#E8A020' }}>CV / Resumé</span></div>
           <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-4" style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}>Experience & Skills</h1>
           <p className="font-body text-[17px] leading-[1.7] max-w-[560px] mb-8" style={{ color: 'rgba(242,239,232,0.55)' }}>A detailed overview of my journey, skills, tools, and qualifications.</p>
           <button className="inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[11px] border-none cursor-pointer" style={{ background: '#E8A020', color: '#07070F', borderRadius: 0 }}><Download size={14} /> Download PDF</button>
         </div>
       </section>
-      <KenteDivider />
-      <section className="py-16" ref={ref}>
-        <div className="max-w-[1160px] mx-auto px-8">
+      <section className="py-12 md:py-16" ref={ref}>
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-16">
             <div>
               <div className="flex items-center gap-3 mb-8"><Briefcase size={16} style={{ color: '#E8A020' }} /><span className="font-mono text-[11px] tracking-[0.2em] uppercase" style={{ color: '#E8A020' }}>Experience Timeline</span></div>

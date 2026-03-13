@@ -54,7 +54,7 @@ const Hero = () => {
           style={{ background: 'var(--warm-glow)', borderRadius: 0 }}
         />
 
-        <div className="max-w-[1160px] mx-auto px-8 relative z-10 w-full">
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8 relative z-10 w-full">
           <div
             className="transition-all duration-1000"
             style={{
@@ -71,7 +71,7 @@ const Hero = () => {
             </div>
 
             <h1
-              className="font-display font-extrabold leading-[0.95] tracking-[-0.03em] mb-6 text-[clamp(48px,8vw,96px)]"
+              className="hero-h1 font-display font-extrabold leading-[0.95] tracking-[-0.03em] mb-6"
             >
               <span className="text-[var(--sungold)] block">
                 {data.tagline || data.tagline_suffix}

@@ -2,10 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { aboutData, skills, homeAboutSnapshot } from '../../data/mock';
 // About section uses static data from mock - will integrate with backend personal-info if needed
 
-const KenteDivider = () => (
-  <div className="kente-divider" />
-);
-
 const About = ({ snapshot = false }) => {
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -24,10 +20,9 @@ const About = ({ snapshot = false }) => {
     <section
       id="about"
       ref={sectionRef}
-      className="py-20 border-b border-[var(--border)]"
+      className="py-12 md:py-20 border-b border-[var(--border)]"
     >
-      <KenteDivider />
-      <div className="max-w-[1160px] mx-auto px-8 pt-20">
+      <div className="max-w-[1160px] mx-auto px-4 md:px-8 pt-12 md:pt-20">
         <div
           className="transition-all duration-700"
           style={{
@@ -114,5 +109,4 @@ const About = ({ snapshot = false }) => {
   );
 };
 
-export { KenteDivider };
 export default About;

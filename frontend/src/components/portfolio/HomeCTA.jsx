@@ -8,8 +8,8 @@ import { MessageCircle, BookOpen } from 'lucide-react';
  */
 const HomeCTA = () => {
   return (
-    <section id="cta" className="py-20 border-b border-[var(--border)]">
-      <div className="max-w-[1160px] mx-auto px-8">
+    <section id="cta" className="py-12 md:py-20 border-b border-[var(--border)]">
+      <div className="max-w-[1160px] mx-auto px-4 md:px-8">
         <div className="flex items-center gap-2 mb-3">
           <div className="w-5 h-px bg-[var(--sungold)]" />
           <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--sungold)]">

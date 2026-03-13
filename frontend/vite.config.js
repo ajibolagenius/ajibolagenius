@@ -13,6 +13,10 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, 'src'),
     },
+    dedupe: ['react', 'react-dom', 'react/jsx-runtime'],
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'three', '@react-three/fiber', '@react-three/drei'],
   },
   server: {
     port: 3000,

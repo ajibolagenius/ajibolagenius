@@ -2,8 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { fetchCourses } from '../../services/api';
 import { courses as fbCourses } from '../../data/mock';
-import { KenteDivider } from './About';
-
 const CourseCard = ({ course, index, visible }) => {
   const [hovered, setHovered] = useState(false);
 
@@ -93,10 +91,9 @@ const Courses = () => {
     <section
       id="courses"
       ref={sectionRef}
-      className="py-20 border-b border-[var(--border)]"
+      className="py-12 md:py-20 border-b border-[var(--border)]"
     >
-      <KenteDivider />
-      <div className="max-w-[1160px] mx-auto px-8 pt-20">
+      <div className="max-w-[1160px] mx-auto px-4 md:px-8 pt-12 md:pt-20">
         {/* Section kicker */}
         <div className="flex items-center gap-2 mb-3">
           <div className="w-5 h-px bg-[var(--sungold)]" />

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Clock, ArrowRight } from 'lucide-react';
 import { fetchBlogPosts, subscribeNewsletter } from '../services/api';
 import { blogPosts as fbPosts } from '../data/mock';
-import { KenteDivider } from '../components/portfolio/About';
 
 const WritingPage = () => {
   const navigate = useNavigate();
@@ -37,16 +36,15 @@ const WritingPage = () => {
 
   return (
     <>
-      <section className="pt-20 pb-10" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="max-w-[1160px] mx-auto px-8">
+      <section className="pt-12 pb-8 md:pt-20 md:pb-10" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="flex items-center gap-2 mb-3"><div className="w-6 h-[1px]" style={{ background: '#E8A020' }} /><span className="font-mono text-[11px] tracking-[0.2em] uppercase" style={{ color: '#E8A020' }}>Writing</span></div>
           <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-4" style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}>Blog & Thoughts</h1>
           <p className="font-body text-[17px] leading-[1.7] max-w-[560px]" style={{ color: 'rgba(242,239,232,0.55)' }}>Writing about design, development, teaching, and the intersection of African identity and technology.</p>
         </div>
       </section>
-      <KenteDivider />
-      <section className="py-16">
-        <div className="max-w-[1160px] mx-auto px-8">
+      <section className="py-12 md:py-16">
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="p-8 cursor-pointer transition-all duration-300 hover:border-[rgba(232,160,32,0.25)]" style={{ background: '#111126', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 0 }} onClick={() => navigate(`/writing/${featured.slug || featured.id}`)}>
             <span className="font-mono text-[10px] font-bold tracking-[0.1em] uppercase px-[10px] py-[4px] mb-4 inline-block" style={{ background: 'rgba(232,160,32,0.15)', color: '#E8A020', border: '1px solid rgba(232,160,32,0.3)', borderRadius: 0 }}>◆ Featured</span>
             <h2 className="font-display text-[28px] font-extrabold leading-[1.15] mb-3" style={{ color: '#F2EFE8' }}>{featured.title}</h2>
@@ -59,7 +57,7 @@ const WritingPage = () => {
         </div>
       </section>
       <section className="pb-20">
-        <div className="max-w-[1160px] mx-auto px-8">
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="flex gap-2 mb-8 flex-wrap">
             {categories.map(cat => (
               <button key={cat} onClick={() => setFilter(cat)} className="font-mono text-[11px] tracking-[0.1em] uppercase px-4 py-2 cursor-pointer transition-all duration-200" style={{ background: filter === cat ? 'rgba(232,160,32,0.15)' : 'transparent', color: filter === cat ? '#E8A020' : 'rgba(242,239,232,0.3)', border: `1px solid ${filter === cat ? 'rgba(232,160,32,0.3)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 0 }}>{cat}</button>

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { fetchGallery } from '../services/api';
 import { galleryItems as fbGallery } from '../data/mock';
-import { KenteDivider } from '../components/portfolio/About';
 
 const GalleryPage = () => {
   const [filter, setFilter] = useState('All');
@@ -18,16 +17,15 @@ const GalleryPage = () => {
 
   return (
     <>
-      <section className="pt-20 pb-10" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="max-w-[1160px] mx-auto px-8">
+      <section className="pt-12 pb-8 md:pt-20 md:pb-10" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="flex items-center gap-2 mb-3"><div className="w-6 h-[1px]" style={{ background: '#E8A020' }} /><span className="font-mono text-[11px] tracking-[0.2em] uppercase" style={{ color: '#E8A020' }}>Gallery</span></div>
           <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-4" style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}>Visual Archive</h1>
           <p className="font-body text-[17px] leading-[1.7] max-w-[560px]" style={{ color: 'rgba(242,239,232,0.55)' }}>A collection of UI designs, 3D experiments, and graphic work.</p>
         </div>
       </section>
-      <KenteDivider />
-      <section className="py-16">
-        <div className="max-w-[1160px] mx-auto px-8">
+      <section className="py-12 md:py-16">
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="flex gap-2 mb-10">
             {types.map(t => (
               <button key={t} onClick={() => setFilter(t)} className="font-mono text-[11px] tracking-[0.1em] uppercase px-4 py-2 cursor-pointer transition-all duration-200" style={{ background: filter === t ? 'rgba(232,160,32,0.15)' : 'transparent', color: filter === t ? '#E8A020' : 'rgba(242,239,232,0.3)', border: `1px solid ${filter === t ? 'rgba(232,160,32,0.3)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 0 }}>{t}</button>
