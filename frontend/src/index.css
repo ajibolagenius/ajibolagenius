@@ -214,6 +214,48 @@ body::before {
 }
 
 /* ============================================
+   Badges (Design System §06 — colorful variants)
+   Space Mono 10px, 700, uppercase, letter-spacing 0.1em, 4px 10px, sharp
+   ============================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: var(--r-sharp);
+}
+
+.badge-gold {
+  background: rgba(232, 160, 32, 0.15);
+  color: var(--sungold);
+  border: 1px solid rgba(232, 160, 32, 0.3);
+}
+
+.badge-cosmic {
+  background: rgba(91, 79, 216, 0.18);
+  color: var(--violet);
+  border: 1px solid rgba(91, 79, 216, 0.3);
+}
+
+.badge-cyan {
+  background: rgba(28, 184, 212, 0.15);
+  color: var(--stardust);
+  border: 1px solid rgba(28, 184, 212, 0.3);
+}
+
+.badge-terra {
+  background: rgba(201, 75, 45, 0.15);
+  color: #E07060;
+  border: 1px solid rgba(201, 75, 45, 0.3);
+}
+
+/* ============================================
    Link Styles
    ============================================ */
 

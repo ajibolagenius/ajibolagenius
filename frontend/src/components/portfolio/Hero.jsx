@@ -39,22 +39,23 @@ const Hero = () => {
   const data = info || fallbackInfo;
 
   return (
-    <>
-      <section
-        ref={heroRef}
-        className="relative min-h-screen flex items-center overflow-hidden"
-      >
-        {/* Hero orbs — flat tint rectangles, blur 80px (Design System §08: no radial) */}
-        <div
-          className="absolute pointer-events-none w-[400px] h-[400px] -top-[80px] -right-[80px] blur-[80px]"
-          style={{ background: 'var(--cosmic-glow)', borderRadius: 0 }}
-        />
-        <div
-          className="absolute pointer-events-none w-[320px] h-[320px] bottom-0 -left-[40px] blur-[80px]"
-          style={{ background: 'var(--warm-glow)', borderRadius: 0 }}
-        />
+    <section
+      ref={heroRef}
+      className="relative min-h-screen flex flex-col overflow-hidden"
+    >
+      {/* Hero orbs — flat tint rectangles, blur 80px (Design System §08: no radial) */}
+      <div
+        className="absolute pointer-events-none w-[400px] h-[400px] -top-[80px] -right-[80px] blur-[80px]"
+        style={{ background: 'var(--cosmic-glow)', borderRadius: 0 }}
+      />
+      <div
+        className="absolute pointer-events-none w-[320px] h-[320px] bottom-0 -left-[40px] blur-[80px]"
+        style={{ background: 'var(--warm-glow)', borderRadius: 0 }}
+      />
 
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8 relative z-10 w-full">
+      {/* Main hero content — flex-1 so ticker stays in first viewport */}
+      <div className="flex-1 flex items-center relative z-10">
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8 w-full">
           <div
             className="transition-all duration-1000"
             style={{
@@ -107,9 +108,13 @@ const Hero = () => {
             </div>
           </div>
         </div>
-      </section>
-      <Ticker />
-    </>
+      </div>
+
+      {/* Ticker anchored to bottom of first viewport */}
+      <div className="relative z-10 flex-shrink-0">
+        <Ticker />
+      </div>
+    </section>
   );
 };
 

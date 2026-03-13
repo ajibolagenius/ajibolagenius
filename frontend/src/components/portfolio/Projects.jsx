@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { fetchProjects } from '../../services/api';
 import { projects as fallbackProjects } from '../../data/mock';
+import Badge from './Badge';
 
 const ProjectCard = ({ project, index, visible }) => {
   const [hovered, setHovered] = useState(false);
@@ -29,6 +30,11 @@ const ProjectCard = ({ project, index, visible }) => {
         <span className="font-display text-[11px] tracking-[0.15em] uppercase text-[var(--subtle)]">
           {project.label}
         </span>
+        {project.featured && (
+          <span className="absolute top-3 right-3">
+            <Badge variant="gold">◆ Featured</Badge>
+          </span>
+        )}
       </div>
       <div className="p-5">
         <div className="font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--sungold)]">{project.category}</div>
