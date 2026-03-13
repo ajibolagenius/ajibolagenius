@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, Depends
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -7,6 +7,15 @@ import os
 import logging
 from pathlib import Path
 from datetime import datetime
+
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / ".env")
+
+from auth import (
+    verify_admin,
+    create_access_token,
+    get_current_admin,
+)
 
 from models import (
     PersonalInfo,
@@ -38,9 +47,6 @@ from seed_data import (
     TESTIMONIALS,
 )
 
-ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / ".env")
-
 # MongoDB connection
 mongo_url = os.environ.get("MONGO_URL")
 if not mongo_url:
@@ -55,6 +61,7 @@ app = FastAPI(title="Ajibola Akelebe Portfolio API")
 
 # Create routers
 api_router = APIRouter(prefix="/api")
+admin_router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(get_current_admin)])
 
 # Configure logging
 logging.basicConfig(
@@ -145,6 +152,26 @@ async def seed_database():
 @api_router.get("/")
 async def root():
     return {"message": "Ajibola Akelebe Portfolio API v1.0"}
+
+
+# ========================================
+# AUTH (login, no protection)
+# ========================================
+
+from pydantic import BaseModel as PydanticBaseModel
+
+
+class LoginRequest(PydanticBaseModel):
+    email: str
+    password: str
+
+
+@api_router.post("/auth/login")
+async def login(data: LoginRequest):
+    if not verify_admin(data.email, data.password):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    access_token = create_access_token(data.email.strip().lower())
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
 @api_router.get("/personal-info")
@@ -248,19 +275,19 @@ async def subscribe_newsletter(data: NewsletterSubscribe):
 
 
 # ========================================
-# ADMIN ENDPOINTS
+# ADMIN ENDPOINTS (all protected by get_current_admin)
 # ========================================
 
 
 # ---- Projects CRUD ----
-@api_router.post("/admin/projects")
+@admin_router.post("/projects")
 async def create_project(data: ProjectCreate):
     project = Project(**data.dict())
     await db.projects.insert_one(project.dict())
     return project.dict()
 
 
-@api_router.put("/admin/projects/{project_id}")
+@admin_router.put("/projects/{project_id}")
 async def update_project(project_id: str, data: ProjectCreate):
     result = await db.projects.update_one(
         {"id": project_id}, {"$set": {**data.dict(), "updated_at": datetime.utcnow()}}
@@ -270,7 +297,7 @@ async def update_project(project_id: str, data: ProjectCreate):
     return {"status": "ok", "id": project_id}
 
 
-@api_router.delete("/admin/projects/{project_id}")
+@admin_router.delete("/projects/{project_id}")
 async def delete_project(project_id: str):
     result = await db.projects.delete_one({"id": project_id})
     if result.deleted_count == 0:
@@ -279,14 +306,14 @@ async def delete_project(project_id: str):
 
 
 # ---- Courses CRUD ----
-@api_router.post("/admin/courses")
+@admin_router.post("/courses")
 async def create_course(data: CourseCreate):
     course = Course(**data.dict())
     await db.courses.insert_one(course.dict())
     return course.dict()
 
 
-@api_router.put("/admin/courses/{course_id}")
+@admin_router.put("/courses/{course_id}")
 async def update_course(course_id: str, data: CourseCreate):
     result = await db.courses.update_one(
         {"id": course_id}, {"$set": {**data.dict(), "updated_at": datetime.utcnow()}}
@@ -296,7 +323,7 @@ async def update_course(course_id: str, data: CourseCreate):
     return {"status": "ok", "id": course_id}
 
 
-@api_router.delete("/admin/courses/{course_id}")
+@admin_router.delete("/courses/{course_id}")
 async def delete_course(course_id: str):
     result = await db.courses.delete_one({"id": course_id})
     if result.deleted_count == 0:
@@ -305,14 +332,14 @@ async def delete_course(course_id: str):
 
 
 # ---- Blog Posts CRUD ----
-@api_router.post("/admin/blog-posts")
+@admin_router.post("/blog-posts")
 async def create_blog_post(data: BlogPostCreate):
     post = BlogPost(**data.dict())
     await db.blog_posts.insert_one(post.dict())
     return post.dict()
 
 
-@api_router.put("/admin/blog-posts/{post_id}")
+@admin_router.put("/blog-posts/{post_id}")
 async def update_blog_post(post_id: str, data: BlogPostCreate):
     result = await db.blog_posts.update_one(
         {"id": post_id}, {"$set": {**data.dict(), "updated_at": datetime.utcnow()}}
@@ -322,7 +349,7 @@ async def update_blog_post(post_id: str, data: BlogPostCreate):
     return {"status": "ok", "id": post_id}
 
 
-@api_router.delete("/admin/blog-posts/{post_id}")
+@admin_router.delete("/blog-posts/{post_id}")
 async def delete_blog_post(post_id: str):
     result = await db.blog_posts.delete_one({"id": post_id})
     if result.deleted_count == 0:
@@ -331,14 +358,14 @@ async def delete_blog_post(post_id: str):
 
 
 # ---- Gallery CRUD ----
-@api_router.post("/admin/gallery")
+@admin_router.post("/gallery")
 async def create_gallery_item(data: GalleryItemCreate):
     item = GalleryItem(**data.dict())
     await db.gallery_items.insert_one(item.dict())
     return item.dict()
 
 
-@api_router.put("/admin/gallery/{item_id}")
+@admin_router.put("/gallery/{item_id}")
 async def update_gallery_item(item_id: str, data: GalleryItemCreate):
     result = await db.gallery_items.update_one(
         {"id": item_id}, {"$set": {**data.dict(), "updated_at": datetime.utcnow()}}
@@ -348,7 +375,7 @@ async def update_gallery_item(item_id: str, data: GalleryItemCreate):
     return {"status": "ok", "id": item_id}
 
 
-@api_router.delete("/admin/gallery/{item_id}")
+@admin_router.delete("/gallery/{item_id}")
 async def delete_gallery_item(item_id: str):
     result = await db.gallery_items.delete_one({"id": item_id})
     if result.deleted_count == 0:
@@ -357,14 +384,14 @@ async def delete_gallery_item(item_id: str):
 
 
 # ---- Timeline CRUD ----
-@api_router.post("/admin/timeline")
+@admin_router.post("/timeline")
 async def create_timeline_entry(data: TimelineEntryCreate):
     entry = TimelineEntry(**data.dict())
     await db.timeline_entries.insert_one(entry.dict())
     return entry.dict()
 
 
-@api_router.put("/admin/timeline/{entry_id}")
+@admin_router.put("/timeline/{entry_id}")
 async def update_timeline_entry(entry_id: str, data: TimelineEntryCreate):
     result = await db.timeline_entries.update_one(
         {"id": entry_id}, {"$set": {**data.dict(), "updated_at": datetime.utcnow()}}
@@ -374,7 +401,7 @@ async def update_timeline_entry(entry_id: str, data: TimelineEntryCreate):
     return {"status": "ok", "id": entry_id}
 
 
-@api_router.delete("/admin/timeline/{entry_id}")
+@admin_router.delete("/timeline/{entry_id}")
 async def delete_timeline_entry(entry_id: str):
     result = await db.timeline_entries.delete_one({"id": entry_id})
     if result.deleted_count == 0:
@@ -383,14 +410,14 @@ async def delete_timeline_entry(entry_id: str):
 
 
 # ---- Testimonials CRUD ----
-@api_router.post("/admin/testimonials")
+@admin_router.post("/testimonials")
 async def create_testimonial(data: TestimonialCreate):
     testimonial = Testimonial(**data.dict())
     await db.testimonials.insert_one(testimonial.dict())
     return testimonial.dict()
 
 
-@api_router.put("/admin/testimonials/{testimonial_id}")
+@admin_router.put("/testimonials/{testimonial_id}")
 async def update_testimonial(testimonial_id: str, data: TestimonialCreate):
     result = await db.testimonials.update_one(
         {"id": testimonial_id},
@@ -401,7 +428,7 @@ async def update_testimonial(testimonial_id: str, data: TestimonialCreate):
     return {"status": "ok", "id": testimonial_id}
 
 
-@api_router.delete("/admin/testimonials/{testimonial_id}")
+@admin_router.delete("/testimonials/{testimonial_id}")
 async def delete_testimonial(testimonial_id: str):
     result = await db.testimonials.delete_one({"id": testimonial_id})
     if result.deleted_count == 0:
@@ -410,14 +437,14 @@ async def delete_testimonial(testimonial_id: str):
 
 
 # ---- Admin: Personal Info ----
-@api_router.put("/admin/personal-info")
+@admin_router.put("/personal-info")
 async def update_personal_info(data: PersonalInfo):
     await db.personal_info.update_one({}, {"$set": data.dict()}, upsert=True)
     return {"status": "ok"}
 
 
 # ---- Admin: Read submissions ----
-@api_router.get("/admin/contact-messages")
+@admin_router.get("/contact-messages")
 async def get_contact_messages():
     docs = (
         await db.contact_messages.find({}, {"_id": 0})
@@ -427,7 +454,7 @@ async def get_contact_messages():
     return docs
 
 
-@api_router.get("/admin/newsletter-subscribers")
+@admin_router.get("/newsletter-subscribers")
 async def get_newsletter_subscribers():
     docs = (
         await db.newsletter_subscribers.find({}, {"_id": 0})
@@ -442,6 +469,7 @@ async def get_newsletter_subscribers():
 # ========================================
 
 app.include_router(api_router)
+app.include_router(admin_router, prefix="/api")
 
 app.add_middleware(
     CORSMiddleware,
