@@ -47,7 +47,7 @@ const Navbar = () => {
     <>
       {/* Scroll progress bar — Design System §08 */}
       <div
-        className="fixed top-0 left-0 right-0 h-0.5 bg-[var(--sungold)] z-[999] pointer-events-none"
+        className="scroll-bar fixed top-0 left-0 right-0 h-0.5 bg-[var(--sungold)] z-[999] pointer-events-none"
         style={{ width: `${scrollPct}%` }}
         aria-hidden
       />
