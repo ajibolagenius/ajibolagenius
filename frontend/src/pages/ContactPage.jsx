@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Send, MessageSquare, MapPin, Mail, Github, Twitter, Linkedin } from 'lucide-react';
 import { submitContact, fetchPersonalInfo } from '../services/api';
 import { personalInfo as fbInfo } from '../data/mock';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 const INPUT_CLASS =
   'w-full bg-[var(--elevated)] border border-[var(--border-md)] px-4 py-[10px] font-body text-[14px] text-[var(--white)] placeholder:text-[var(--subtle)] outline-none transition-all duration-200 rounded-none focus:border-[var(--sungold)] focus:shadow-[var(--shadow-sharp-ring)]';
@@ -34,6 +35,13 @@ const ContactPage = () => {
   };
 
   const social = info.social || fbInfo.social;
+
+  usePageMeta({
+    title: 'Contact',
+    description: 'Get in touch — design and engineering inquiries, collaboration, or just say hello.',
+    canonical: '/contact',
+  });
+
   const socialLinks = [
     { icon: Github, label: 'GitHub', href: social.github },
     { icon: Twitter, label: 'Twitter / X', href: social.twitter },

@@ -7,6 +7,7 @@ import Badge from '../components/portfolio/Badge';
 import SectionKicker from '../components/portfolio/SectionKicker';
 import FilterButtons from '../components/portfolio/FilterButtons';
 import { BADGE_VARIANTS } from '../constants';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 const WritingPage = () => {
   const navigate = useNavigate();
@@ -46,6 +47,12 @@ const WritingPage = () => {
       </div>
     );
   }
+
+  usePageMeta({
+    title: 'Blog & Thoughts',
+    description: 'Writing about design, development, teaching, and the intersection of African identity and technology.',
+    canonical: '/writing',
+  });
 
   return (
     <>

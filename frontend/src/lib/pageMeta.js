@@ -1,0 +1,99 @@
+/**
+ * Dynamic page meta and Open Graph — design system brand.
+ * Single source for site name and default description; updates document and meta tags.
+ */
+
+const SITE_NAME = 'Ajibola Akelebe';
+const DEFAULT_TITLE = `${SITE_NAME} — Design & Engineering`;
+const DEFAULT_DESCRIPTION = 'Developer and designer based in Nigeria, building for a global audience. I teach what I know and ship what I learn.';
+const DEFAULT_IMAGE = '/og-image.png';
+const OG_TYPE_WEBSITE = 'website';
+const OG_TYPE_ARTICLE = 'article';
+
+/** Base URL for absolute canonical and og:image (set VITE_SITE_URL in production). */
+export function getBaseUrl() {
+  if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SITE_URL) {
+    return import.meta.env.VITE_SITE_URL.replace(/\/$/, '');
+  }
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return 'https://ajibolagenius.pro';
+}
+
+const META_KEYS = {
+  description: { name: 'description', attr: 'content' },
+  ogTitle: { property: 'og:title', attr: 'content' },
+  ogDescription: { property: 'og:description', attr: 'content' },
+  ogImage: { property: 'og:image', attr: 'content' },
+  ogUrl: { property: 'og:url', attr: 'content' },
+  ogType: { property: 'og:type', attr: 'content' },
+  twitterCard: { name: 'twitter:card', attr: 'content' },
+  twitterTitle: { name: 'twitter:title', attr: 'content' },
+  twitterDescription: { name: 'twitter:description', attr: 'content' },
+  twitterImage: { name: 'twitter:image', attr: 'content' },
+};
+
+function ensureMeta(nameOrProperty, _attr, content) {
+  const isProperty = nameOrProperty.startsWith('og:');
+  const selector = isProperty
+    ? `meta[property="${nameOrProperty}"]`
+    : `meta[name="${nameOrProperty}"]`;
+  let el = document.querySelector(selector);
+  if (!el) {
+    el = document.createElement('meta');
+    if (isProperty) el.setAttribute('property', nameOrProperty);
+    else el.setAttribute('name', nameOrProperty);
+    document.head.appendChild(el);
+  }
+  el.setAttribute('content', content || '');
+}
+
+function setCanonical(href) {
+  let el = document.querySelector('link[rel="canonical"]');
+  if (!el) {
+    el = document.createElement('link');
+    el.setAttribute('rel', 'canonical');
+    document.head.appendChild(el);
+  }
+  el.setAttribute('href', href || getBaseUrl());
+}
+
+/**
+ * Update document title and meta tags. Call from usePageMeta or when head must be set imperatively.
+ * @param {{
+ *   title?: string;
+ *   description?: string;
+ *   image?: string;
+ *   canonical?: string;
+ *   ogType?: 'website' | 'article';
+ * }} opts
+ */
+export function setPageMeta(opts = {}) {
+  const base = getBaseUrl();
+  const title = opts.title ? `${opts.title} — ${SITE_NAME}` : DEFAULT_TITLE;
+  const description = opts.description ?? DEFAULT_DESCRIPTION;
+  const image = opts.image?.startsWith('http') ? opts.image : `${base}${(opts.image || DEFAULT_IMAGE).replace(/^\//, '/')}`;
+  const canonical = opts.canonical ? `${base}${opts.canonical.startsWith('/') ? '' : '/'}${opts.canonical}` : base;
+  const ogType = opts.ogType ?? OG_TYPE_WEBSITE;
+
+  document.title = title;
+  ensureMeta('description', 'content', description);
+  ensureMeta('og:title', 'content', title);
+  ensureMeta('og:description', 'content', description);
+  ensureMeta('og:image', 'content', image);
+  ensureMeta('og:url', 'content', canonical);
+  ensureMeta('og:type', 'content', ogType);
+  ensureMeta('twitter:card', 'content', 'summary_large_image');
+  ensureMeta('twitter:title', 'content', title);
+  ensureMeta('twitter:description', 'content', description);
+  ensureMeta('twitter:image', 'content', image);
+  setCanonical(canonical);
+}
+
+/** Restore default meta (e.g. on route leave). */
+export function resetPageMeta() {
+  setPageMeta({});
+}
+
+export { SITE_NAME, DEFAULT_TITLE, DEFAULT_DESCRIPTION, DEFAULT_IMAGE, OG_TYPE_WEBSITE, OG_TYPE_ARTICLE };

@@ -5,6 +5,7 @@ import { fetchBlogPost } from '../services/api';
 import { blogPosts as fbPosts } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../constants';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 /** Render body text: paragraphs (split by \n\n) and simple numbered lists (lines like "1. ...") */
 function ArticleBody({ body }) {
@@ -69,6 +70,17 @@ const BlogPostPage = () => {
       </div>
     );
   }
+
+  usePageMeta(
+    post
+      ? {
+          title: post.title,
+          description: post.excerpt || post.description || 'Article by Ajibola Akelebe.',
+          canonical: `/writing/${post.slug || slug}`,
+          ogType: 'article',
+        }
+      : { title: 'Article', description: 'Article by Ajibola Akelebe.', canonical: slug ? `/writing/${slug}` : '/writing' }
+  );
 
   if (!post) {
     return (

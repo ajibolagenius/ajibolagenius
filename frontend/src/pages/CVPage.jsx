@@ -5,6 +5,7 @@ import { timeline as fbTimeline, skills, cvData } from '../data/mock';
 import { techStackForCV } from '../data/techStack';
 import Badge from '../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../constants';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 const ACCENT_COLORS = {
   sungold: { bg: 'var(--sungold)', ring: 'rgba(232,160,32,0.2)' },
@@ -35,6 +36,12 @@ const CVPage = () => {
   }, []);
 
   const displayTimeline = timeline.length > 0 ? timeline : fbTimeline;
+
+  usePageMeta({
+    title: 'CV',
+    description: 'Experience, education, and skills — design and engineering.',
+    canonical: '/cv',
+  });
 
   return (
     <>

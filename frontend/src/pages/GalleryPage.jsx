@@ -5,6 +5,7 @@ import { fetchGallery } from '../services/api';
 import { galleryItems as fbGallery } from '../data/mock';
 import SectionKicker from '../components/portfolio/SectionKicker';
 import FilterButtons from '../components/portfolio/FilterButtons';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 const FILTER_OPTIONS = [
   { label: 'All', value: 'All' },
@@ -27,6 +28,12 @@ const GalleryPage = () => {
 
   const displayItems = items.length > 0 ? items : fbGallery;
   const filtered = filter === 'All' ? displayItems : displayItems.filter(g => g.type === filter);
+
+  usePageMeta({
+    title: 'Visual Archive',
+    description: 'A collection of UI designs, 3D experiments, and graphic work.',
+    canonical: '/gallery',
+  });
 
   return (
     <>

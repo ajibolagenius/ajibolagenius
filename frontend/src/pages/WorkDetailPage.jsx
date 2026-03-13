@@ -5,6 +5,7 @@ import { fetchProject } from '../services/api';
 import { projects as fallbackProjects } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../constants';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 const WorkDetailPage = () => {
   const { slug } = useParams();
@@ -22,6 +23,17 @@ const WorkDetailPage = () => {
         setLoading(false);
       });
   }, [slug]);
+
+  usePageMeta(
+    project
+      ? {
+          title: project.name,
+          description: typeof project.description === 'string' ? project.description : 'Project by Ajibola Akelebe.',
+          image: (project.screenshots && project.screenshots[0]) ? (typeof project.screenshots[0] === 'string' ? project.screenshots[0] : project.screenshots[0].url) : undefined,
+          canonical: `/work/${project.slug || slug}`,
+        }
+      : { title: 'Project', description: 'Project by Ajibola Akelebe.', canonical: slug ? `/work/${slug}` : '/work' }
+  );
 
   if (loading) {
     return (

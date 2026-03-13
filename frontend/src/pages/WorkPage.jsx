@@ -7,6 +7,7 @@ import Badge from '../components/portfolio/Badge';
 import SectionKicker from '../components/portfolio/SectionKicker';
 import FilterButtons from '../components/portfolio/FilterButtons';
 import { BADGE_VARIANTS } from '../constants';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 const ProjectCard = ({ project }) => {
   const [hovered, setHovered] = useState(false);
@@ -164,6 +165,12 @@ const WorkPage = () => {
   const handleViewCaseStudy = (slug) => {
     navigate(`/work/${slug}`);
   };
+
+  usePageMeta({
+    title: 'Selected Work',
+    description: 'A collection of products and experiments — from social platforms to creative coding explorations.',
+    canonical: '/work',
+  });
 
   return (
     <>

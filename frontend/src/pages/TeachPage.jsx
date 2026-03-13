@@ -4,6 +4,7 @@ import { fetchCourses, fetchTestimonials, fetchPersonalInfo } from '../services/
 import { courses as fbCourses, testimonials as fbTestimonials, faqItems, personalInfo as fbInfo } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
 import SectionKicker from '../components/portfolio/SectionKicker';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 /** Badge variant and accent color per index — same length so badge and border/button stay aligned (warm/cool alternating). */
 const COURSE_ACCENTS = [
@@ -122,6 +123,12 @@ const TeachPage = () => {
   }, []);
 
   const displayCourses = courses.length > 0 ? courses : fbCourses;
+
+  usePageMeta({
+    title: 'Courses & Mentorship',
+    description: 'I teach what I know and share what I learn. Remote courses designed for the Nigerian developer ready to level up.',
+    canonical: '/teach',
+  });
 
   return (
     <>
