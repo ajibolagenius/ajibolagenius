@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Github, Twitter, Linkedin } from 'lucide-react';
+import { Github, Twitter } from 'lucide-react';
 import { personalInfo, navLinks } from '../../data/mock';
 import { footerStackNames } from '../../data/techStack';
 import Badge from './Badge';
@@ -24,7 +24,6 @@ const Footer = () => {
             <div className="flex gap-3">
               <a href={personalInfo.social.github} target="_blank" rel="noopener noreferrer" className="text-[var(--subtle)] hover:text-[var(--sungold)] transition-colors" aria-label="GitHub"><Github size={14} /></a>
               <a href={personalInfo.social.twitter} target="_blank" rel="noopener noreferrer" className="text-[var(--subtle)] hover:text-[var(--sungold)] transition-colors" aria-label="Twitter"><Twitter size={14} /></a>
-              <a href={personalInfo.social.linkedin} target="_blank" rel="noopener noreferrer" className="text-[var(--subtle)] hover:text-[var(--sungold)] transition-colors" aria-label="LinkedIn"><Linkedin size={14} /></a>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">

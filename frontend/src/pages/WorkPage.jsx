@@ -114,6 +114,10 @@ const FeaturedSpotlight = ({ project, onView }) => {
           <button
             type="button"
             className="btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] border-0 cursor-pointer transition-all duration-200 bg-[var(--sungold)] text-[var(--void)] w-fit"
+            onClick={(e) => {
+              e.stopPropagation();
+              onView(project.slug || project.id);
+            }}
           >
             View case study
             <ExternalLink size={14} />
