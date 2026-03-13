@@ -11,6 +11,7 @@ const Layout = ({ children }) => {
         href="#main-content"
         className="skip-link"
         onClick={(e) => {
+          e.preventDefault();
           mainRef.current?.focus();
         }}
       >
