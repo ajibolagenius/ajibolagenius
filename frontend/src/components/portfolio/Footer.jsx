@@ -9,7 +9,7 @@ const Footer = () => {
       <div className="max-w-[1160px] mx-auto px-8 pt-4">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <span className="font-display text-2xl font-extrabold tracking-[0.08em] uppercase block mb-2 bg-clip-text text-transparent bg-gradient-to-br from-[var(--sungold)] to-[var(--violet)]">
+            <span className="font-display text-2xl font-extrabold tracking-[0.08em] uppercase block mb-2 text-[var(--sungold)]">
               AjibolaAkelebe.
             </span>
             <p className="font-body text-[13px] text-[var(--subtle)]">

@@ -33,7 +33,7 @@ const Contact = () => {
   };
 
   const inputStyle = { width: '100%', background: 'var(--elevated)', border: '1px solid var(--border-md)', borderRadius: 0, padding: '10px 14px', color: 'var(--white)', fontFamily: 'var(--font-body)', fontSize: '14px', outline: 'none', transition: 'border-color 0.2s, box-shadow 0.2s' };
-  const handleFocus = (e) => { e.target.style.borderColor = 'var(--sungold)'; e.target.style.boxShadow = '0 0 0 3px rgba(232,160,32,0.1)'; };
+  const handleFocus = (e) => { e.target.style.borderColor = 'var(--sungold)'; e.target.style.boxShadow = 'var(--shadow-sharp-ring)'; };
   const handleBlur = (e) => { e.target.style.borderColor = 'var(--border-md)'; e.target.style.boxShadow = 'none'; };
 
   const social = info.social || fbInfo.social;
@@ -53,7 +53,7 @@ const Contact = () => {
                 <div><label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">Email</label><input type="email" placeholder="your@email.com" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} required /></div>
               </div>
               <div><label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">Message</label><textarea rows={5} placeholder="Tell me about your project or what you need..." value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} style={{...inputStyle, resize: 'vertical', minHeight: '120px'}} onFocus={handleFocus} onBlur={handleBlur} required /></div>
-              <button type="submit" className="inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[11px] border-none cursor-pointer transition-all duration-200 self-start rounded-none bg-[var(--sungold)] text-[var(--void)] hover:shadow-[0_8px_32px_rgba(232,160,32,0.35)]" style={{ background: submitted ? 'var(--surface)' : undefined, color: submitted ? 'var(--sungold)' : undefined, border: submitted ? '1px solid rgba(232,160,32,0.3)' : undefined }}>
+              <button type="submit" className="btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[11px] border-none cursor-pointer transition-all duration-200 self-start rounded-none bg-[var(--sungold)] text-[var(--void)]" style={{ background: submitted ? 'var(--surface)' : undefined, color: submitted ? 'var(--sungold)' : undefined, border: submitted ? '1px solid rgba(232,160,32,0.3)' : undefined }}>
                 {submitted ? 'Message Sent!' : 'Send Message'} <Send size={14} />
               </button>
               {responseMsg && <p className="font-mono text-[12px] text-[var(--sungold)]">{responseMsg}</p>}

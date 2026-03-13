@@ -36,10 +36,10 @@ const Navbar = () => {
       }}
     >
       <div className="max-w-[1160px] mx-auto w-full h-full flex items-center justify-between">
-        {/* Logo — gradient per design system */}
+        {/* Logo — Syne 13px 700, uppercase, letter-spacing 0.15em, --sungold (Design System §08 Nav) */}
         <a
           href="/"
-          className="font-display text-[13px] font-bold tracking-[0.15em] uppercase no-underline bg-clip-text text-transparent bg-gradient-to-br from-[var(--sungold)] to-[var(--violet)]"
+          className="font-display text-[13px] font-bold tracking-[0.15em] uppercase no-underline text-[var(--sungold)]"
           onClick={(e) => {
             e.preventDefault();
             navigate('/');

@@ -34,12 +34,12 @@ const Timeline = () => {
         <h2 className="font-display font-extrabold leading-[1.1] tracking-[-0.02em] mb-3 text-[var(--white)]" style={{ fontSize: 'clamp(28px, 4vw, 42px)' }}>Journey So Far</h2>
         <p className="font-body text-[15px] leading-[1.7] mb-12 max-w-[520px] text-[var(--muted)]">A timeline of key milestones in my career — from learning to building to teaching.</p>
         <div className="relative pl-7">
-          <div className="absolute left-0 top-0 w-[2px] transition-all duration-1000 bg-[var(--sungold)]" style={{ height: visible ? '100%' : '0%' }} />
+          <div className="absolute left-[6px] top-0 w-px transition-all duration-1000 bg-[var(--sungold)]" style={{ height: visible ? '100%' : '0%' }} />
           {timeline.map((item, i) => {
             const accent = accentColors[item.accent] || accentColors.sungold;
             return (
               <div key={i} className="relative mb-8 last:mb-0 transition-all duration-600" style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(20px)', transitionDelay: `${i * 150}ms` }}>
-                <div className="absolute -left-[25px] top-[5px] w-[10px] h-[10px] rounded-none border-2 border-[var(--void)]" style={{ background: accent.bg, boxShadow: `0 0 0 3px ${accent.shadow}` }} />
+                <div className="absolute -left-[27px] top-[5px] w-[10px] h-[10px] rounded-none border-2 border-[var(--void)]" style={{ background: accent.bg, boxShadow: 'var(--shadow-sharp-ring)' }} />
                 <div className="font-mono text-[11px] mb-1 text-[var(--stardust)]">{item.year}</div>
                 <h3 className="font-display text-[15px] font-semibold mb-1 text-[var(--white)]">{item.title}</h3>
                 <p className="font-body text-[13px] leading-[1.6] text-[var(--muted)]">{item.body}</p>

@@ -44,21 +44,14 @@ const Hero = () => {
         ref={heroRef}
         className="relative min-h-screen flex items-center overflow-hidden"
       >
-        {/* Hero orb 1 — nebula (top right) */}
+        {/* Hero orbs — flat tint rectangles, blur 80px (Design System §08: no radial) */}
         <div
-          className="absolute pointer-events-none w-[600px] h-[600px] -top-[100px] -right-[100px] blur-[80px]"
-          style={{
-            background: 'radial-gradient(circle, rgba(91,79,216,0.25) 0%, transparent 70%)',
-            borderRadius: 0
-          }}
+          className="absolute pointer-events-none w-[400px] h-[400px] -top-[80px] -right-[80px] blur-[80px]"
+          style={{ background: 'var(--cosmic-glow)', borderRadius: 0 }}
         />
-        {/* Hero orb 2 — sungold (bottom left) */}
         <div
-          className="absolute pointer-events-none w-[400px] h-[400px] bottom-0 -left-[50px] blur-[80px]"
-          style={{
-            background: 'radial-gradient(circle, rgba(232,160,32,0.15) 0%, transparent 70%)',
-            borderRadius: 0
-          }}
+          className="absolute pointer-events-none w-[320px] h-[320px] bottom-0 -left-[40px] blur-[80px]"
+          style={{ background: 'var(--warm-glow)', borderRadius: 0 }}
         />
 
         <div className="max-w-[1160px] mx-auto px-8 relative z-10 w-full">
@@ -83,10 +76,7 @@ const Hero = () => {
               <span className="text-[var(--sungold)] block">
                 {data.tagline || data.tagline_suffix}
               </span>
-              <span
-                className="block bg-clip-text text-transparent"
-                style={{ backgroundImage: 'linear-gradient(135deg, var(--stardust) 0%, var(--violet) 50%, var(--sungold) 100%)' }}
-              >
+              <span className="block text-[var(--violet)]">
                 {data.tagline_suffix || data.taglineSuffix}
               </span>
             </h1>

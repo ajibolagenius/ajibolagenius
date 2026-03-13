@@ -112,7 +112,8 @@ body {
   overflow-x: hidden;
 }
 
-/* — Geometric grid background (Design System) — */
+/* — Geometric grid background (Design System §08 Background) — */
+/* 40×40px grid, 1px lines rgba(232,160,32,0.03) */
 body::before {
   content: '';
   position: fixed;
@@ -121,6 +122,7 @@ body::before {
     linear-gradient(rgba(232, 160, 32, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(232, 160, 32, 0.03) 1px, transparent 1px);
   background-size: 40px 40px;
+  background-position: 0 0;
   pointer-events: none;
   z-index: 0;
 }
@@ -224,10 +226,11 @@ a {
    Kente Divider — SVG-based, 6px
    ============================================ */
 
+/* Kente Divider: sungold 12px, terracotta 12px, void 6px, nebula 12px, void 6px (Design System §08) */
 .kente-divider {
   height: 6px;
   width: 100%;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='6'%3E%3Crect width='12' height='6' fill='%23E8A020'/%3E%3Crect x='12' width='12' height='6' fill='%23C94B2D'/%3E%3Crect x='24' width='12' height='6' fill='%2307070F'/%3E%3Crect x='36' width='12' height='6' fill='%235B4FD8'/%3E%3C/svg%3E") repeat-x;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='3'%3E%3Crect x='0' width='12' height='6' fill='%23E8A020'/%3E%3Crect x='12' width='12' height='6' fill='%23C94B2D'/%3E%3Crect x='24' width='6' height='6' fill='%2307070F'/%3E%3Crect x='30' width='12' height='6' fill='%235B4FD8'/%3E%3Crect x='42' width='6' height='6' fill='%2307070F'/%3E%3C/svg%3E") repeat-x;
   background-size: 48px 6px;
   border-radius: 0;
 }
@@ -242,12 +245,42 @@ a {
 }
 
 /* ============================================
+   Wrapper (Design System §04: max-width 1160px, padding sp-8)
+   ============================================ */
+
+.wrapper {
+  max-width: 1160px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--sp-8);
+  padding-right: var(--sp-8);
+}
+
+/* ============================================
+   Reduced motion (Design System §07)
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================
    Responsive
    ============================================ */
 
 @media (max-width: 768px) {
-  .max-w-\[1160px\] {
-    padding-left: 20px;
-    padding-right: 20px;
+  .max-w-\[1160px\],
+  .wrapper {
+    padding-left: var(--sp-5);
+    padding-right: var(--sp-5);
   }
 }

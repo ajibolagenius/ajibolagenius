@@ -16,7 +16,7 @@ const ProjectCard = ({ project, index, visible }) => {
         opacity: visible ? 1 : 0,
         transform: visible ? `translateY(${hovered ? '-4px' : '0px'})` : 'translateY(30px)',
         transitionDelay: visible ? `${index * 120}ms` : '0ms',
-        boxShadow: hovered ? '0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(232,160,32,0.1)' : 'none'
+        boxShadow: hovered ? 'var(--shadow-sharp-lg), 0 0 0 1px rgba(232,160,32,0.2)' : 'none'
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}

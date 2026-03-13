@@ -12,6 +12,12 @@ module.exports = {
   			body: ['var(--font-body)', 'sans-serif'],
   			mono: ['var(--font-mono)', 'monospace'],
   		},
+  		maxWidth: {
+  			'wrapper': '1160px',
+  		},
+  		spacing: {
+  			'18': '72px',
+  		},
   		borderRadius: {
   			DEFAULT: 'var(--r-sharp)',
   			none: 'var(--r-none)',
@@ -22,7 +28,24 @@ module.exports = {
   			'2xl': 'var(--r-xl)',
   			full: 'var(--r-full)',
   		},
+  		boxShadow: {
+  			'sharp-sm': 'var(--shadow-sharp-sm)',
+  			'sharp-md': 'var(--shadow-sharp-md)',
+  			'sharp-lg': 'var(--shadow-sharp-lg)',
+  			'sharp-gold': 'var(--shadow-sharp-gold)',
+  			'sharp-cosmic': 'var(--shadow-sharp-cosmic)',
+  			'sharp-ring': 'var(--shadow-sharp-ring)',
+  		},
   		colors: {
+  			void: 'var(--void)',
+  			sungold: 'var(--sungold)',
+  			nebula: 'var(--nebula)',
+  			violet: 'var(--violet)',
+  			stardust: 'var(--stardust)',
+  			surface: 'var(--surface)',
+  			elevated: 'var(--elevated)',
+  			overlay: 'var(--overlay)',
+  			deep: 'var(--deep)',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
