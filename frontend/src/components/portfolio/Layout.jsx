@@ -10,7 +10,10 @@ const Layout = ({ children }) => {
       <a
         href="#main-content"
         className="skip-link"
-        onClick={() => mainRef.current?.focus()}
+        onClick={(e) => {
+          e.preventDefault();
+          mainRef.current?.focus();
+        }}
       >
         Skip to content
       </a>
