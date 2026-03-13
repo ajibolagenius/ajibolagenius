@@ -17,10 +17,12 @@ export const personalInfo = {
   }
 };
 
+/** Ticker strip — aligned with design system stack (Three.js, GSAP, Framer Motion) and brand */
 export const tickerItems = [
   "Afrofuturism × Dark Cosmic",
   "Design + Engineering",
   "Three.js · GSAP · Framer Motion",
+  "Next.js · React · Tailwind",
   "DON_GENIUS",
   "From Nigeria, For the World",
   "9 Courses · 5 Projects · 1 Gallery"

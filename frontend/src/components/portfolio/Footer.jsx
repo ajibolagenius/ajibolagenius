@@ -1,6 +1,7 @@
 import React from 'react';
 import { Github, Twitter, Linkedin } from 'lucide-react';
 import { personalInfo } from '../../data/mock';
+import { footerStackNames } from '../../data/techStack';
 
 const Footer = () => {
   return (
@@ -50,7 +51,7 @@ const Footer = () => {
               Built with craft
             </p>
             <p className="font-mono text-[11px] text-[var(--dim)]">
-              React · Tailwind · GSAP · Three.js
+              {footerStackNames.join(' · ')}
             </p>
             <p className="font-mono text-[10px] mt-3 text-[var(--dim)]">
               © 2024 AjibolaAkelebe. All rights reserved.

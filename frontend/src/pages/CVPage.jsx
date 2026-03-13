@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Download, Briefcase, GraduationCap, Award, Wrench } from 'lucide-react';
 import { fetchTimeline } from '../services/api';
 import { timeline as fbTimeline, skills, cvData } from '../data/mock';
+import { techStackForCV } from '../data/techStack';
 import { KenteDivider } from '../components/portfolio/About';
 
 const accentColors = {
@@ -97,11 +98,11 @@ const CVPage = () => {
               </div>
               <div>
                 <div className="flex items-center gap-3 mb-6"><Wrench size={14} style={{ color: '#E8A020' }} /><span className="font-mono text-[11px] tracking-[0.2em] uppercase" style={{ color: '#E8A020' }}>Tools & Stack</span></div>
-                <div className="grid grid-cols-2 gap-3">
-                  {cvData.tools.map((tool, i) => (
-                    <div key={i} className="p-3" style={{ background: '#111126', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 0 }}>
-                      <div className="font-display text-[13px] font-semibold" style={{ color: '#F2EFE8' }}>{tool.name}</div>
-                      <div className="font-mono text-[10px]" style={{ color: 'rgba(242,239,232,0.3)' }}>{tool.category}</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {techStackForCV.map((tool, i) => (
+                    <div key={i} className="p-3" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 0 }}>
+                      <div className="font-display text-[13px] font-semibold text-[var(--white)]">{tool.name}</div>
+                      <div className="font-mono text-[10px] text-[var(--subtle)]">{tool.category}</div>
                     </div>
                   ))}
                 </div>
