@@ -4,15 +4,19 @@ import { fetchCourses, fetchTestimonials, fetchPersonalInfo } from '../services/
 import { courses as fbCourses, testimonials as fbTestimonials, faqItems, personalInfo as fbInfo } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
 
-const BADGE_VARIANTS = ['gold', 'cosmic', 'cyan', 'terra'];
-
-/** Design-system accent colors for alternating course card left border (Afro warm + Cosmic cool) */
-const CARD_BORDER_COLORS = ['var(--sungold)', 'var(--nebula)', 'var(--stardust)', 'var(--terracotta)', 'var(--violet)'];
+/** Badge variant and accent color per index — same length so badge and border/button stay aligned (warm/cool alternating). */
+const COURSE_ACCENTS = [
+  { badge: 'gold', color: 'var(--sungold)' },
+  { badge: 'cosmic', color: 'var(--nebula)' },
+  { badge: 'cyan', color: 'var(--stardust)' },
+  { badge: 'terra', color: 'var(--terracotta)' }
+];
 
 const CourseCard = ({ course, whatsapp, index = 0 }) => {
   const [hovered, setHovered] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const accentColor = CARD_BORDER_COLORS[index % CARD_BORDER_COLORS.length];
+  const accent = COURSE_ACCENTS[index % COURSE_ACCENTS.length];
+  const accentColor = accent.color;
 
   return (
     <div
@@ -29,7 +33,7 @@ const CourseCard = ({ course, whatsapp, index = 0 }) => {
         onClick={() => setExpanded(!expanded)}
       >
         <div>
-          <Badge variant={BADGE_VARIANTS[index % BADGE_VARIANTS.length]} className="mb-2">
+          <Badge variant={accent.badge} className="mb-2">
             {course.badge}
           </Badge>
           <h3 className="font-display text-[15px] font-semibold mb-1 text-[var(--white)]">
