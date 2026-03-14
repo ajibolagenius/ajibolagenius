@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MessageCircle, BookOpen } from 'lucide-react';
+import { track } from '../../services/analytics';
 
 /**
  * Home page CTA — design-system.html Site Map: "CTA — contact / courses"
@@ -25,6 +26,7 @@ const HomeCTA = () => {
         <div className="flex flex-wrap gap-3">
           <Link
             to="/contact"
+            onClick={() => track('cta_click', { cta: 'contact', page: 'home' })}
             className="btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] border-0 cursor-pointer no-underline transition-all duration-200 bg-[var(--sungold)] text-[var(--void)]"
           >
             <MessageCircle size={14} />
@@ -32,6 +34,7 @@ const HomeCTA = () => {
           </Link>
           <Link
             to="/teach"
+            onClick={() => track('cta_click', { cta: 'courses', page: 'home' })}
             className="btn-cosmic inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] border-0 cursor-pointer no-underline transition-all duration-200 bg-[var(--nebula)] text-[var(--white)]"
           >
             <BookOpen size={14} />

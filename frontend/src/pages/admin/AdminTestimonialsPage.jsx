@@ -13,7 +13,7 @@ import { Quote, Pencil, Trash2 } from 'lucide-react';
 
 const ADMIN_PAGE_SIZE = 12;
 
-const emptyItem = () => ({ name: '', role: '', text: '' });
+const emptyItem = () => ({ name: '', role: '', text: '', approved: true });
 
 function truncate(str, max = 80) {
   if (!str || str.length <= max) return str;
@@ -49,7 +49,7 @@ export default function AdminTestimonialsPage() {
   };
   const openEdit = (p) => {
     setEditing(p);
-    setForm({ name: p.name ?? '', role: p.role ?? '', text: p.text ?? '' });
+    setForm({ name: p.name ?? '', role: p.role ?? '', text: p.text ?? '', approved: p.approved !== false });
     setDialogOpen(true);
   };
   const openDelete = (p) => {
@@ -123,9 +123,16 @@ export default function AdminTestimonialsPage() {
                 <p className="font-body text-[13px] leading-[1.6] text-[var(--muted)] mb-4 line-clamp-3">
                   &ldquo;{truncate(t.text, 120)}&rdquo;
                 </p>
-                <div className="mb-4">
-                  <p className="font-display text-[13px] font-semibold text-[var(--white)]">{t.name}</p>
-                  <p className="font-mono text-[10px] text-[var(--sungold)]">{t.role}</p>
+                <div className="mb-4 flex items-center justify-between gap-2">
+                  <div>
+                    <p className="font-display text-[13px] font-semibold text-[var(--white)]">{t.name}</p>
+                    <p className="font-mono text-[10px] text-[var(--sungold)]">{t.role}</p>
+                  </div>
+                  <span
+                    className={`font-mono text-[10px] px-2 py-0.5 shrink-0 ${t.approved !== false ? 'bg-[var(--nebula)]/20 text-[var(--nebula)]' : 'bg-[var(--muted)]/20 text-[var(--muted)]'}`}
+                  >
+                    {t.approved !== false ? 'Approved' : 'Pending'}
+                  </span>
                 </div>
                 <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
@@ -195,6 +202,18 @@ export default function AdminTestimonialsPage() {
                 placeholder="Student or client quote…"
                 className="bg-[var(--elevated)] border-[var(--border-md)]"
               />
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="testimonial-approved"
+                checked={form.approved !== false}
+                onChange={(e) => update('approved', e.target.checked)}
+                className="rounded border-[var(--border-md)] bg-[var(--elevated)] text-[var(--sungold)] focus:ring-[var(--sungold)]"
+              />
+              <Label htmlFor="testimonial-approved" className="font-body text-[13px] cursor-pointer">
+                Approved (show on Teach page)
+              </Label>
             </div>
           </div>
           <DialogFooter>

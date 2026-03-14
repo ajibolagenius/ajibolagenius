@@ -70,6 +70,18 @@ export default function AdminLayout() {
         </div>
         <nav className="flex-1 p-3 overflow-auto">
           <NavLink
+            to="/admin/analytics"
+            className={({ isActive }) =>
+              `block px-3 py-2 font-mono text-[12px] tracking-[0.06em] mb-2 transition-all duration-200 ${
+                isActive
+                  ? 'bg-[var(--sungold)]/15 text-[var(--sungold)] border-l-2 border-[var(--sungold)]'
+                  : 'text-[var(--muted)] hover:text-[var(--white)] hover:bg-[var(--elevated)] border-l-2 border-transparent'
+              }`
+            }
+          >
+            Analytics
+          </NavLink>
+          <NavLink
             to="/admin"
             end
             className={({ isActive }) =>

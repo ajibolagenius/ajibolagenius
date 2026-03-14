@@ -211,6 +211,32 @@ export const adminEndpoints = {
       recent_subscribers: subsRes.data ?? [],
     };
   },
+  /** Fetch raw created_at for messages and subscribers in the last N days (for analytics charts). */
+  analyticsTimeSeries: async (days = 30) => {
+    const since = new Date();
+    since.setDate(since.getDate() - Math.min(Math.max(Number(days) || 30, 7), 90));
+    const iso = since.toISOString();
+    const [messagesRes, subsRes] = await Promise.all([
+      supabase.from('contact_messages').select('created_at').gte('created_at', iso),
+      supabase.from('newsletter_subscribers').select('created_at').gte('created_at', iso),
+    ]);
+    if (messagesRes.error) throw messagesRes.error;
+    if (subsRes.error) throw subsRes.error;
+    return { messages: messagesRes.data ?? [], subscribers: subsRes.data ?? [] };
+  },
+  /** User activity events (auth only). Returns events in the last N days for admin charts. */
+  analyticsEvents: async (days = 30) => {
+    const since = new Date();
+    since.setDate(since.getDate() - Math.min(Math.max(Number(days) || 30, 1), 90));
+    const { data, error } = await supabase
+      .from('analytics_events')
+      .select('id, event_type, path, payload, created_at')
+      .gte('created_at', since.toISOString())
+      .order('created_at', { ascending: false })
+      .limit(5000);
+    if (error) throw error;
+    return data ?? [];
+  },
 };
 
 export default adminEndpoints;

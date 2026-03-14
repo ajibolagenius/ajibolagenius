@@ -6,6 +6,7 @@ import { blogPosts as fbPosts } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { track } from '../services/analytics';
 
 /** Detect if body is HTML from WYSIWYG (e.g. starts with <p> or contains tags). */
 function isHtmlBody(body) {
@@ -134,6 +135,12 @@ const BlogPostPage = () => {
         setLoading(false);
       });
   }, [slug]);
+
+  useEffect(() => {
+    if (post?.slug || post?.title) {
+      track('blog_post_view', { slug: post.slug || slug, title: post.title, path: `/writing/${post.slug || slug}` });
+    }
+  }, [post?.slug, post?.title, slug]);
 
   usePageMeta(
     post

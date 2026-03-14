@@ -26,6 +26,7 @@ const quickLinks = [
   { path: '/admin/newsletter', label: 'Newsletter', desc: 'Subscribers' },
 ];
 
+
 function formatDate(iso) {
   if (!iso) return '—';
   try {
@@ -107,6 +108,13 @@ export default function AdminDashboard() {
                   <p className="font-body text-[13px] text-[var(--muted)] mt-1">{desc}</p>
                 </Link>
               ))}
+              <Link
+                to="/admin/analytics"
+                className="block p-4 border border-[var(--border)] bg-[var(--surface)] transition-all duration-200 hover:border-[rgba(232,160,32,0.25)] hover:shadow-[var(--shadow-sharp-lg)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
+              >
+                <span className="font-display font-semibold text-[15px] text-[var(--white)]">Analytics</span>
+                <p className="font-body text-[13px] text-[var(--muted)] mt-1">Charts & engagement</p>
+              </Link>
             </div>
           </section>
 

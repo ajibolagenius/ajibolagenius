@@ -7,6 +7,7 @@ import { projects as fbProjects } from '../data/mock';
 import { courses as fbCourses } from '../data/mock';
 import SectionKicker from '../components/portfolio/SectionKicker';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { track } from '../services/analytics';
 
 function matchQuery(str, q) {
   if (!str || typeof str !== 'string') return false;
@@ -84,6 +85,7 @@ export default function SearchPage() {
     e.preventDefault();
     const v = (e.target?.query?.value || query).trim();
     setSearchParams(v ? { q: v } : {});
+    if (v) track('search', { query: v });
   };
 
   usePageMeta({

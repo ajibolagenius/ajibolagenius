@@ -65,7 +65,7 @@ export const fetchCertifications = () =>
   supabase.from('certifications').select('*').order('order', { ascending: true }).then(handleResponse);
 
 export const fetchTestimonials = () =>
-  supabase.from('testimonials').select('*').then(handleResponse);
+  supabase.from('testimonials').select('*').eq('approved', true).then(handleResponse);
 
 // Public write (contact form, newsletter — anon insert)
 export const submitContact = async (data) => {

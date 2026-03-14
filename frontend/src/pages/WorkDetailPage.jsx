@@ -7,6 +7,7 @@ import Badge from '../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
 import OptimizedImage from '../components/portfolio/OptimizedImage';
+import { track } from '../services/analytics';
 
 const WorkDetailPage = () => {
   const { slug } = useParams();
@@ -36,6 +37,12 @@ const WorkDetailPage = () => {
         setLoading(false);
       });
   }, [slug]);
+
+  useEffect(() => {
+    if (project?.slug || project?.name) {
+      track('project_view', { slug: project.slug, title: project.name, path: `/work/${project.slug}` });
+    }
+  }, [project?.slug, project?.name]);
 
   useEffect(() => {
     if (!lightboxOpen) return;

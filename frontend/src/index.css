@@ -76,6 +76,13 @@
   --shadow-sharp-cosmic: 0 4px 0 rgba(91, 79, 216, 0.35);
   --shadow-sharp-ring: 0 0 0 3px rgba(232, 160, 32, 0.2);
 
+  /* — Chart colours (analytics, design system palette) — */
+  --chart-1: 38 92% 51%;   /* sungold */
+  --chart-2: 258 54% 55%; /* nebula */
+  --chart-3: 191 78% 48%; /* stardust */
+  --chart-4: 10 65% 48%;  /* terracotta */
+  --chart-5: 258 80% 67%; /* violet */
+
   /* — Semantic (theme-invariant or nav) — */
   --on-sungold: #07070F;
   --nav-bg: rgba(7, 7, 15, 0.85);

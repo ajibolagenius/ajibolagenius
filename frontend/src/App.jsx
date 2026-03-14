@@ -29,6 +29,7 @@ const AdminTestimonialsPage = lazy(() => import('./pages/admin/AdminTestimonials
 const AdminPersonalInfoPage = lazy(() => import('./pages/admin/AdminPersonalInfoPage'));
 const AdminMessagesPage = lazy(() => import('./pages/admin/AdminMessagesPage'));
 const AdminNewsletterPage = lazy(() => import('./pages/admin/AdminNewsletterPage'));
+const AdminAnalyticsPage = lazy(() => import('./pages/admin/AdminAnalyticsPage'));
 
 const adminFallback = (
   <div className="py-32 text-center font-mono text-[13px] text-[var(--subtle)]">Loading…</div>
@@ -52,6 +53,7 @@ function App() {
               <Route path="personal-info" element={<Suspense fallback={adminFallback}><AdminPersonalInfoPage /></Suspense>} />
               <Route path="messages" element={<Suspense fallback={adminFallback}><AdminMessagesPage /></Suspense>} />
               <Route path="newsletter" element={<Suspense fallback={adminFallback}><AdminNewsletterPage /></Suspense>} />
+              <Route path="analytics" element={<Suspense fallback={adminFallback}><AdminAnalyticsPage /></Suspense>} />
             </Route>
 
             <Route path="/" element={<Layout><ErrorBoundary><Outlet /></ErrorBoundary></Layout>}>
