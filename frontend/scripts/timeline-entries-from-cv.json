@@ -1,0 +1,58 @@
+[
+  {
+    "year": "2023 – 2025",
+    "title": "Part-Time Tutor (Web Development) – Aptech Computer Education",
+    "body": "Developed and delivered comprehensive, hands-on curricula for HTML, CSS, and JavaScript fundamentals, enabling students to grasp core web-development concepts.\n\nMentored learners and provided feedback to support their growth in programming and design.",
+    "accent": "sungold",
+    "order": 0
+  },
+  {
+    "year": "2020 – 2023",
+    "title": "Lead Designer & Software Developer – Fidia Creatives Inc.",
+    "body": "Led end-to-end development of brand design and strategy, establishing a consistent visual language across all company assets.\n\nCollaborated with cross-functional teams to translate business objectives into impactful design solutions, enhancing brand recognition and market presence.\n\nOversaw a dynamic design team and managed relationships with outsourced resources and vendors, optimising workflow efficiency.\n\nDirected the conceptualisation and execution of various design initiatives, delivering high-quality visual assets that met client specifications and project deadlines.",
+    "accent": "nebula",
+    "order": 1
+  },
+  {
+    "year": "2020 – 2021",
+    "title": "Lead Designer – Cavemen Agency",
+    "body": "Oversaw brand identity and marketing visuals for multiple clients.\n\nDirected design initiatives and optimised workflows for a creative team, ensuring consistent, high-quality delivery under tight deadlines.\n\nManaged design resources and vendors to maintain high-quality deliverables.",
+    "accent": "stardust",
+    "order": 2
+  },
+  {
+    "year": "2021",
+    "title": "Visual Designer (Contract) – Quru Lab",
+    "body": "Designed visuals for social media, presentations, and product demos.\n\nDeveloped print and digital media assets to support product launches and marketing campaigns.\n\nBuilt and managed design standards, delivery processes, and team coordination.",
+    "accent": "terracotta",
+    "order": 3
+  },
+  {
+    "year": "2020",
+    "title": "Visual Designer/IT – Kuwego Global",
+    "body": "Defined overall product design strategy and long-term creative goals for the team.\n\nBuilt and led a design team while managing outsourced vendors and resources, establishing design standards and delivery processes.",
+    "accent": "sungold",
+    "order": 4
+  },
+  {
+    "year": "2019 – 2020",
+    "title": "Graphic/Brand Designer – Imagine Cinemas",
+    "body": "Created graphics for social media, demos, and presentations, contributing to brand redesign and marketing campaigns.\n\nLed design efforts and managed outsourced resources to ensure consistent delivery of visual assets.",
+    "accent": "nebula",
+    "order": 5
+  },
+  {
+    "year": "2019/2020",
+    "title": "Graphic Designer – EasyFarm Hub",
+    "body": "Designed print and digital visuals for marketing campaigns and supported outsourcing vendors to ensure brand consistency.\n\nEstablished design standards, delivery requirements, and overall design process facilitation.",
+    "accent": "stardust",
+    "order": 6
+  },
+  {
+    "year": "2019",
+    "title": "Graphic/Visual Designer (Volunteer) – Google Business Group Abeokuta",
+    "body": "Created branded visuals for community events and campaigns, promoting digital literacy and entrepreneurship.",
+    "accent": "terracotta",
+    "order": 7
+  }
+]

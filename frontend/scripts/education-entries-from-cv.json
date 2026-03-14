@@ -1,0 +1,30 @@
+[
+  {
+    "year": "2025",
+    "degree": "Advanced Diploma in Software Engineering (ADSE)",
+    "school": "APTECH Computer Education, Abeokuta, Nigeria",
+    "description": "Graduation: 2025.",
+    "order": 0
+  },
+  {
+    "year": "2024",
+    "degree": "B.Sc. in Agricultural Science",
+    "school": "Federal University of Agriculture, Abeokuta, Nigeria",
+    "description": "Graduation: 2024.",
+    "order": 1
+  },
+  {
+    "year": "2015",
+    "degree": "Diploma in Computer Engineering",
+    "school": "Moshood Abiola Polytechnic, Ojere, Nigeria",
+    "description": "Graduation: 2015.",
+    "order": 2
+  },
+  {
+    "year": "2016 – Present",
+    "degree": "Mechatronics Engineering (In Progress)",
+    "school": "Federal University of Agriculture, Abeokuta, Nigeria",
+    "description": "Ongoing.",
+    "order": 3
+  }
+]

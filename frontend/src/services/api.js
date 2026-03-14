@@ -58,6 +58,9 @@ export const fetchGallery = () =>
 export const fetchTimeline = () =>
   supabase.from('timeline_entries').select('*').order('order', { ascending: true }).then(handleResponse);
 
+export const fetchEducation = () =>
+  supabase.from('education_entries').select('*').order('order', { ascending: true }).then(handleResponse);
+
 export const fetchTestimonials = () =>
   supabase.from('testimonials').select('*').then(handleResponse);
 

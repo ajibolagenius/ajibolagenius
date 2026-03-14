@@ -23,6 +23,7 @@ const tableConfig = {
   gallery: { table: 'gallery_items' },
   courses: { table: 'courses' },
   timeline: { table: 'timeline_entries', order: { column: 'order', ascending: true } },
+  education: { table: 'education_entries', order: { column: 'order', ascending: true } },
   testimonials: { table: 'testimonials' },
 };
 
@@ -119,6 +120,12 @@ export const adminEndpoints = {
     update: (id, d) => update(tableConfig.timeline.table, id, d),
     delete: (id) => remove(tableConfig.timeline.table, id).then(() => ({ status: 'ok' })),
   },
+  education: {
+    list: () => list(tableConfig.education.table, tableConfig.education.order),
+    create: (d) => create(tableConfig.education.table, d),
+    update: (id, d) => update(tableConfig.education.table, id, d),
+    delete: (id) => remove(tableConfig.education.table, id).then(() => ({ status: 'ok' })),
+  },
   testimonials: {
     list: () => list(tableConfig.testimonials.table),
     create: (d) => create(tableConfig.testimonials.table, d),
@@ -160,6 +167,7 @@ export const adminEndpoints = {
       'gallery',
       'courses',
       'timeline',
+      'education',
       'testimonials',
       'contact_messages',
       'newsletter_subscribers',
@@ -170,6 +178,7 @@ export const adminEndpoints = {
       'gallery_items',
       'courses',
       'timeline_entries',
+      'education_entries',
       'testimonials',
       'contact_messages',
       'newsletter_subscribers',

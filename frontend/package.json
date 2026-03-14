@@ -67,7 +67,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "seed:courses": "node scripts/seed-courses.js",
-    "seed:testimonials": "node scripts/seed-testimonials.js"
+    "seed:testimonials": "node scripts/seed-testimonials.js",
+    "seed:timeline": "node scripts/seed-timeline.js",
+    "seed:education": "node scripts/seed-education.js",
+    "seed:cv": "node scripts/seed-timeline.js && node scripts/seed-education.js"
   },
   "browserslist": {
     "production": [

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Download, Briefcase, GraduationCap, Award, Wrench } from 'lucide-react';
-import { fetchTimeline } from '../services/api';
+import { fetchTimeline, fetchEducation } from '../services/api';
 import { timeline as fbTimeline, skills, cvData } from '../data/mock';
 import { techStackForCV } from '../data/techStack';
 import Badge from '../components/portfolio/Badge';
@@ -22,6 +22,7 @@ const CVPage = () => {
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
   const { data: timeline } = useRealtimeQuery('timeline_entries', fetchTimeline, fbTimeline);
+  const { data: education } = useRealtimeQuery('education_entries', fetchEducation, cvData.education);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -33,6 +34,7 @@ const CVPage = () => {
   }, []);
 
   const displayTimeline = Array.isArray(timeline) && timeline.length > 0 ? timeline : fbTimeline;
+  const displayEducation = Array.isArray(education) && education.length > 0 ? education : cvData.education;
 
   usePageMeta({
     title: 'CV',
@@ -119,8 +121,8 @@ const CVPage = () => {
                   </span>
                 </div>
                 <div className="flex flex-col gap-3">
-                  {cvData.education.map((edu, i) => (
-                    <div key={i} className="p-5 bg-[var(--surface)] border border-[var(--border)]">
+                  {displayEducation.map((edu, i) => (
+                    <div key={edu.id ?? i} className="p-5 bg-[var(--surface)] border border-[var(--border)]">
                       <div className="font-mono text-[11px] mb-1 text-[var(--stardust)]">{edu.year}</div>
                       <h3 className="font-display text-[15px] font-semibold mb-1 text-[var(--white)]">{edu.degree}</h3>
                       <p className="font-body text-[13px] text-[var(--muted)]">{edu.school}</p>
