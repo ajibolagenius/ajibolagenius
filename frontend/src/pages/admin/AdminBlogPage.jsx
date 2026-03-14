@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useId } from 'react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../components/ui/alert-dialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import ListPagination from '../../components/portfolio/ListPagination';
@@ -36,6 +36,7 @@ export default function AdminBlogPage() {
   const [form, setForm] = useState(emptyPost());
   const [saving, setSaving] = useState(false);
   const [toDelete, setToDelete] = useState(null);
+  const dialogDescriptionId = useId();
 
   const load = () => {
     setLoading(true);
@@ -127,8 +128,11 @@ export default function AdminBlogPage() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto border-[var(--border)] bg-[var(--surface)] text-[var(--white)]">
-          <DialogHeader><DialogTitle>{editing ? 'Edit post' : 'New post'}</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto border-[var(--border)] bg-[var(--surface)] text-[var(--white)]" aria-describedby={dialogDescriptionId}>
+          <DialogHeader>
+            <DialogTitle>{editing ? 'Edit post' : 'New post'}</DialogTitle>
+            <DialogDescription id={dialogDescriptionId} className="sr-only">Form to create or edit a blog post: title, slug, excerpt, body, date, and read time.</DialogDescription>
+          </DialogHeader>
           <div className="grid gap-4 py-4" role="form" aria-label={editing ? 'Edit post' : 'New post'}>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
