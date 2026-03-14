@@ -21,7 +21,8 @@ import {
   AlertDialogTitle,
 } from '../../components/ui/alert-dialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
-import { adminEndpoints } from '../../services/adminApi';
+import { adminEndpoints, uploadProjectScreenshot } from '../../services/adminApi';
+import { ImagePlus, Trash2 } from 'lucide-react';
 
 const emptyProject = () => ({
   slug: '',
@@ -40,6 +41,7 @@ const emptyProject = () => ({
   duration: '',
   year: '',
   tech_details: [],
+  screenshots: [],
 });
 
 function parseTechDetails(s) {
@@ -64,6 +66,9 @@ export default function AdminProjectsPage() {
   const [form, setForm] = useState(emptyProject());
   const [saving, setSaving] = useState(false);
   const [toDelete, setToDelete] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const fileInputRef = React.useRef(null);
 
   const load = () => {
     setLoading(true);
@@ -80,10 +85,14 @@ export default function AdminProjectsPage() {
 
   const openEdit = (p) => {
     setEditing(p);
+    const screenshots = Array.isArray(p.screenshots)
+      ? p.screenshots.map((s) => (typeof s === 'string' ? s : s?.url)).filter(Boolean)
+      : [];
     setForm({
       ...p,
       tags: Array.isArray(p.tags) ? p.tags.join(', ') : '',
       tech_details: formatTechDetails(p.tech_details),
+      screenshots,
     });
     setDialogOpen(true);
   };
@@ -98,6 +107,7 @@ export default function AdminProjectsPage() {
       ...form,
       tags: typeof form.tags === 'string' ? form.tags.split(',').map((t) => t.trim()).filter(Boolean) : form.tags,
       tech_details: parseTechDetails(form.tech_details),
+      screenshots: Array.isArray(form.screenshots) ? form.screenshots : [],
     };
     setSaving(true);
     try {
@@ -128,6 +138,34 @@ export default function AdminProjectsPage() {
   };
 
   const update = (key, value) => setForm((f) => ({ ...f, [key]: value }));
+
+  const handleScreenshotUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !editing?.id) return;
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowed.includes(file.type)) {
+      setUploadError('Use JPEG, PNG, WebP or GIF.');
+      return;
+    }
+    setUploadError(null);
+    setUploading(true);
+    try {
+      const url = await uploadProjectScreenshot(editing.id, file);
+      setForm((f) => ({ ...f, screenshots: [...(f.screenshots || []), url] }));
+    } catch (err) {
+      setUploadError(err.message || 'Upload failed.');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const removeScreenshot = (index) => {
+    setForm((f) => ({
+      ...f,
+      screenshots: (f.screenshots || []).filter((_, i) => i !== index),
+    }));
+  };
 
   return (
     <div>
@@ -265,6 +303,61 @@ export default function AdminProjectsPage() {
                 <Label htmlFor="proj-tech-details">Tech details (one per line: name|role)</Label>
                 <Textarea id="proj-tech-details" value={form.tech_details} onChange={(e) => update('tech_details', e.target.value)} rows={4} placeholder={"Next.js|Framework\nTailwind|Styling"} className="bg-[var(--elevated)] border-[var(--border-md)] font-mono text-sm" />
               </div>
+            </fieldset>
+
+            <fieldset className="grid gap-4 border-0 p-0 m-0">
+              <legend className="flex items-center gap-2 mb-2 font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--sungold)]">
+                <span className="w-5 h-px bg-[var(--sungold)]" aria-hidden /> Screenshots
+              </legend>
+              <p className="font-mono text-[11px] text-[var(--subtle)]">First image = hero on work/[slug]; all shown in Screenshots section.</p>
+              {editing?.id ? (
+                <>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    onChange={handleScreenshotUpload}
+                    className="hidden"
+                    aria-label="Upload screenshot"
+                  />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="border-[var(--border-md)] text-[var(--white)]"
+                    >
+                      <ImagePlus className="w-4 h-4 mr-1" aria-hidden />
+                      {uploading ? 'Uploading…' : 'Add image'}
+                    </Button>
+                    {uploadError && <span className="font-mono text-[11px] text-[var(--terracotta)]">{uploadError}</span>}
+                  </div>
+                  {(form.screenshots || []).length > 0 && (
+                    <ul className="grid grid-cols-2 sm:grid-cols-3 gap-2 list-none p-0 m-0">
+                      {(form.screenshots || []).map((url, i) => (
+                        <li key={url} className="relative group border border-[var(--border)] bg-[var(--elevated)] overflow-hidden aspect-video">
+                          <img src={url} alt="" className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => removeScreenshot(i)}
+                            className="absolute top-1 right-1 p-1 rounded-none bg-[var(--void)]/90 text-[var(--terracotta)] hover:bg-[var(--terracotta)] hover:text-white transition-colors"
+                            aria-label={`Remove screenshot ${i + 1}`}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                          {i === 0 && (
+                            <span className="absolute bottom-1 left-1 font-mono text-[9px] px-1.5 py-0.5 bg-[var(--void)]/90 text-[var(--sungold)]">Hero</span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </>
+              ) : (
+                <p className="font-mono text-[11px] text-[var(--muted)]">Save the project first, then edit to add screenshots.</p>
+              )}
             </fieldset>
           </div>
           <DialogFooter>

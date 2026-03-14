@@ -47,6 +47,28 @@ function remove(tableName, id) {
   return supabase.from(tableName).delete().eq('id', id).then(handleResponse);
 }
 
+const PROJECT_SCREENSHOTS_BUCKET = 'project-screenshots';
+
+/**
+ * Upload a project screenshot to Storage. Returns the public URL.
+ * Use when editing an existing project (projectId required for path).
+ * @param {string} projectId - Project UUID
+ * @param {File} file - Image file (jpeg, png, webp, gif)
+ * @returns {Promise<string>} Public URL of the uploaded file
+ */
+export async function uploadProjectScreenshot(projectId, file) {
+  const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+  const name = `${crypto.randomUUID()}.${ext}`;
+  const path = `${projectId}/${name}`;
+  const { error } = await supabase.storage.from(PROJECT_SCREENSHOTS_BUCKET).upload(path, file, {
+    cacheControl: '3600',
+    upsert: false,
+  });
+  if (error) throw error;
+  const { data } = supabase.storage.from(PROJECT_SCREENSHOTS_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
 export const adminEndpoints = {
   projects: {
     list: () => list(tableConfig.projects.table, tableConfig.projects.order),
