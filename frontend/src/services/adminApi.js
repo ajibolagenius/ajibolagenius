@@ -48,6 +48,7 @@ function remove(tableName, id) {
 }
 
 const PROJECT_SCREENSHOTS_BUCKET = 'project-screenshots';
+const GALLERY_MEDIA_BUCKET = 'gallery-media';
 
 /**
  * Upload a project screenshot to Storage. Returns the public URL.
@@ -66,6 +67,24 @@ export async function uploadProjectScreenshot(projectId, file) {
   });
   if (error) throw error;
   const { data } = supabase.storage.from(PROJECT_SCREENSHOTS_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+/**
+ * Upload gallery media (image or video) to Storage. Returns the public URL.
+ * @param {File} file - Image (jpeg, png, webp, gif) or video (mp4, webm, quicktime)
+ * @returns {Promise<string>} Public URL of the uploaded file
+ */
+export async function uploadGalleryMedia(file) {
+  const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+  const name = `${crypto.randomUUID()}.${ext}`;
+  const path = name;
+  const { error } = await supabase.storage.from(GALLERY_MEDIA_BUCKET).upload(path, file, {
+    cacheControl: '3600',
+    upsert: false,
+  });
+  if (error) throw error;
+  const { data } = supabase.storage.from(GALLERY_MEDIA_BUCKET).getPublicUrl(path);
   return data.publicUrl;
 }
 
