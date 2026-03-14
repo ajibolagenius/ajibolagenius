@@ -55,7 +55,7 @@ export default function AdminTimelinePage() {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-        <AdminPageHeader kicker="Content" title="Timeline (CV)" subtitle="Resumé and experience entries." />
+        <AdminPageHeader kicker="Content" title="Timeline (CV)" subtitle="Shown on Home timeline and CV page. Lower order = higher in list." />
         <Button onClick={openCreate} className="self-start sm:self-center h-11 font-display font-semibold text-[13px] bg-[var(--sungold)] text-[var(--void)] rounded-none hover:shadow-[var(--shadow-sharp-gold)] hover:-translate-y-0.5">Add entry</Button>
       </div>
       {loading ? <p className="text-[var(--muted)] font-mono text-sm">Loading…</p> : (
@@ -90,11 +90,11 @@ export default function AdminTimelinePage() {
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2"><Label>Year</Label><Input value={form.year} onChange={(e) => update('year', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-              <div className="space-y-2"><Label>Order</Label><Input type="number" value={form.order} onChange={(e) => update('order', parseInt(e.target.value, 10) || 0)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+              <div className="space-y-2"><Label>Order</Label><Input type="number" value={form.order} onChange={(e) => update('order', parseInt(e.target.value, 10) || 0)} placeholder="0 = first" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             </div>
             <div className="space-y-2"><Label>Title</Label><Input value={form.title} onChange={(e) => update('title', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             <div className="space-y-2"><Label>Body</Label><Textarea value={form.body} onChange={(e) => update('body', e.target.value)} rows={4} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-            <div className="space-y-2"><Label>Accent</Label><Input value={form.accent} onChange={(e) => update('accent', e.target.value)} placeholder="sungold, nebula, stardust, terracotta" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+            <div className="space-y-2"><Label>Accent (theme color)</Label><Input value={form.accent} onChange={(e) => update('accent', e.target.value)} placeholder="sungold, nebula, stardust, terracotta" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>

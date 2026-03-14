@@ -55,7 +55,7 @@ export default function AdminTestimonialsPage() {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-        <AdminPageHeader kicker="Content" title="Testimonials" subtitle="Student and client quotes." />
+        <AdminPageHeader kicker="Content" title="Testimonials" subtitle="Shown on Teach page." />
         <Button onClick={openCreate} className="self-start sm:self-center h-11 font-display font-semibold text-[13px] bg-[var(--sungold)] text-[var(--void)] rounded-none hover:shadow-[var(--shadow-sharp-gold)] hover:-translate-y-0.5">Add</Button>
       </div>
       {loading ? <p className="text-[var(--muted)] font-mono text-sm">Loading…</p> : (
@@ -92,7 +92,7 @@ export default function AdminTestimonialsPage() {
               <div className="space-y-2"><Label>Name</Label><Input value={form.name} onChange={(e) => update('name', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
               <div className="space-y-2"><Label>Role</Label><Input value={form.role} onChange={(e) => update('role', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             </div>
-            <div className="space-y-2"><Label>Text</Label><Textarea value={form.text} onChange={(e) => update('text', e.target.value)} rows={4} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+            <div className="space-y-2"><Label>Quote text</Label><Textarea value={form.text} onChange={(e) => update('text', e.target.value)} rows={4} placeholder="Student or client quote" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>

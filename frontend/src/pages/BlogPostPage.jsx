@@ -63,14 +63,6 @@ const BlogPostPage = () => {
       });
   }, [slug]);
 
-  if (loading) {
-    return (
-      <div className="py-32 text-center font-mono text-[13px] text-[var(--subtle)]">
-        Loading…
-      </div>
-    );
-  }
-
   usePageMeta(
     post
       ? {
@@ -81,6 +73,14 @@ const BlogPostPage = () => {
         }
       : { title: 'Article', description: 'Article by Ajibola Akelebe.', canonical: slug ? `/writing/${slug}` : '/writing' }
   );
+
+  if (loading) {
+    return (
+      <div className="py-32 text-center font-mono text-[13px] text-[var(--subtle)]">
+        Loading…
+      </div>
+    );
+  }
 
   if (!post) {
     return (

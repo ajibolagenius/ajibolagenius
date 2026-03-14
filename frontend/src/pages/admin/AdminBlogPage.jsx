@@ -60,7 +60,7 @@ export default function AdminBlogPage() {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-        <AdminPageHeader kicker="Content" title="Blog posts" subtitle="Articles and writing." />
+        <AdminPageHeader kicker="Content" title="Blog posts" subtitle="Shown on Writing list and article page (/writing/[slug])." />
         <Button onClick={openCreate} className="self-start sm:self-center h-11 font-display font-semibold text-[13px] bg-[var(--sungold)] text-[var(--void)] rounded-none hover:shadow-[var(--shadow-sharp-gold)] hover:-translate-y-0.5">Add post</Button>
       </div>
       {loading ? <p className="text-[var(--muted)] font-mono text-sm">Loading…</p> : (
@@ -94,14 +94,14 @@ export default function AdminBlogPage() {
           <DialogHeader><DialogTitle>{editing ? 'Edit post' : 'New post'}</DialogTitle></DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Slug</Label><Input value={form.slug} onChange={(e) => update('slug', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+              <div className="space-y-2"><Label>Slug</Label><Input value={form.slug} onChange={(e) => update('slug', e.target.value)} placeholder="e.g. my-post → /writing/my-post" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
               <div className="space-y-2"><Label>Date</Label><Input value={form.date} onChange={(e) => update('date', e.target.value)} placeholder="YYYY-MM-DD" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             </div>
             <div className="space-y-2"><Label>Title</Label><Input value={form.title} onChange={(e) => update('title', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-            <div className="space-y-2"><Label>Category</Label><Input value={form.category} onChange={(e) => update('category', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-            <div className="space-y-2"><Label>Tags (comma)</Label><Input value={form.tags} onChange={(e) => update('tags', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-            <div className="space-y-2"><Label>Excerpt</Label><Textarea value={form.excerpt} onChange={(e) => update('excerpt', e.target.value)} rows={2} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-            <div className="space-y-2"><Label>Body</Label><Textarea value={form.body} onChange={(e) => update('body', e.target.value)} rows={8} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+            <div className="space-y-2"><Label>Category</Label><Input value={form.category} onChange={(e) => update('category', e.target.value)} placeholder="e.g. Engineering" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+            <div className="space-y-2"><Label>Tags (comma-separated)</Label><Input value={form.tags} onChange={(e) => update('tags', e.target.value)} placeholder="React, Next.js" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+            <div className="space-y-2"><Label>Excerpt</Label><Textarea value={form.excerpt} onChange={(e) => update('excerpt', e.target.value)} rows={2} placeholder="Short summary for listing and meta" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+            <div className="space-y-2"><Label>Body</Label><Textarea value={form.body} onChange={(e) => update('body', e.target.value)} rows={8} placeholder="Paragraphs separated by blank lines. Numbered lists as 1. Item" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             <div className="space-y-2"><Label>Read time</Label><Input value={form.read_time} onChange={(e) => update('read_time', e.target.value)} placeholder="5 min" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
           </div>
           <DialogFooter>

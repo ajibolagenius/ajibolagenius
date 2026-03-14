@@ -34,14 +34,14 @@ export default function AdminPersonalInfoPage() {
 
   return (
     <div>
-      <AdminPageHeader kicker="Settings" title="Personal info" subtitle="Site hero, tagline, and social links." />
+      <AdminPageHeader kicker="Settings" title="Personal info" subtitle="Hero headline (tagline + suffix), Contact page, and Teach WhatsApp link." />
       <div className="max-w-2xl space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2"><Label>Name</Label><Input value={form.name} onChange={(e) => update('name', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
           <div className="space-y-2"><Label>Email</Label><Input type="email" value={form.email} onChange={(e) => update('email', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
         </div>
-        <div className="space-y-2"><Label>Tagline</Label><Input value={form.tagline} onChange={(e) => update('tagline', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-        <div className="space-y-2"><Label>Tagline suffix</Label><Input value={form.tagline_suffix} onChange={(e) => update('tagline_suffix', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+        <div className="space-y-2"><Label>Tagline (hero line 1)</Label><Input value={form.tagline} onChange={(e) => update('tagline', e.target.value)} placeholder="e.g. Design & Engineering," className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+        <div className="space-y-2"><Label>Tagline suffix (hero line 2)</Label><Input value={form.tagline_suffix} onChange={(e) => update('tagline_suffix', e.target.value)} placeholder="e.g. No boundaries." className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
         <div className="space-y-2"><Label>Role (subtitle)</Label><Input value={form.role} onChange={(e) => update('role', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
         <div className="space-y-2"><Label>Description</Label><Textarea value={form.description} onChange={(e) => update('description', e.target.value)} rows={3} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
         <div className="grid grid-cols-2 gap-4">
@@ -54,7 +54,7 @@ export default function AdminPersonalInfoPage() {
             {['github', 'twitter', 'linkedin', 'whatsapp'].map((key) => (
               <div key={key} className="space-y-2">
                 <Label className="capitalize">{key}</Label>
-                <Input value={form.social?.[key] || ''} onChange={(e) => updateSocial(key, e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                <Input value={form.social?.[key] || ''} onChange={(e) => updateSocial(key, e.target.value)} placeholder={key === 'whatsapp' ? 'https://wa.me/234...' : undefined} className="bg-[var(--elevated)] border-[var(--border-md)]" />
               </div>
             ))}
           </div>

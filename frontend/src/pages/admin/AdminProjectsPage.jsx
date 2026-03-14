@@ -132,7 +132,7 @@ export default function AdminProjectsPage() {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-        <AdminPageHeader kicker="Content" title="Projects" subtitle="Work and case studies." />
+        <AdminPageHeader kicker="Content" title="Projects" subtitle="Shown on Home, Work list, and project detail (/work/[slug])." />
         <Button
           onClick={openCreate}
           className="self-start sm:self-center h-11 font-display font-semibold text-[13px] tracking-[0.04em] bg-[var(--sungold)] text-[var(--void)] rounded-none hover:shadow-[var(--shadow-sharp-gold)] hover:-translate-y-0.5 transition-all duration-200"
@@ -176,10 +176,14 @@ export default function AdminProjectsPage() {
             <DialogTitle>{editing ? 'Edit project' : 'New project'}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-5 h-px bg-[var(--sungold)]" aria-hidden />
+              <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--sungold)]">Card & listing</span>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Slug</Label>
-                <Input value={form.slug} onChange={(e) => update('slug', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                <Input value={form.slug} onChange={(e) => update('slug', e.target.value)} placeholder="e.g. my-project → /work/my-project" className="bg-[var(--elevated)] border-[var(--border-md)]" />
               </div>
               <div className="space-y-2">
                 <Label>Label</Label>
@@ -205,12 +209,16 @@ export default function AdminProjectsPage() {
               </div>
               <div className="space-y-2">
                 <Label>Type</Label>
-                <Input value={form.type} onChange={(e) => update('type', e.target.value)} placeholder="dev or design" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                <Input value={form.type} onChange={(e) => update('type', e.target.value)} placeholder="dev or design (Work filter)" className="bg-[var(--elevated)] border-[var(--border-md)]" />
               </div>
             </div>
             <div className="flex items-center gap-2">
               <input type="checkbox" id="featured" checked={form.featured} onChange={(e) => update('featured', e.target.checked)} className="rounded border-[var(--border-md)]" />
               <Label htmlFor="featured">Featured</Label>
+            </div>
+            <div className="flex items-center gap-2 mt-4 mb-1">
+              <div className="w-5 h-px bg-[var(--sungold)]" aria-hidden />
+              <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--sungold)]">Links</span>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -222,9 +230,13 @@ export default function AdminProjectsPage() {
                 <Input value={form.github_url} onChange={(e) => update('github_url', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" />
               </div>
             </div>
+            <div className="flex items-center gap-2 mt-4 mb-1">
+              <div className="w-5 h-px bg-[var(--sungold)]" aria-hidden />
+              <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--sungold)]">Detail page</span>
+            </div>
             <div className="space-y-2">
               <Label>Role title</Label>
-              <Input value={form.role_title} onChange={(e) => update('role_title', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" />
+              <Input value={form.role_title} onChange={(e) => update('role_title', e.target.value)} placeholder="e.g. Lead Developer & Designer" className="bg-[var(--elevated)] border-[var(--border-md)]" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -246,7 +258,7 @@ export default function AdminProjectsPage() {
             </div>
             <div className="space-y-2">
               <Label>Tech details (one per line: name|role)</Label>
-              <Textarea value={form.tech_details} onChange={(e) => update('tech_details', e.target.value)} rows={4} placeholder="Next.js|Framework" className="bg-[var(--elevated)] border-[var(--border-md)] font-mono text-sm" />
+              <Textarea value={form.tech_details} onChange={(e) => update('tech_details', e.target.value)} rows={4} placeholder={"Next.js|Framework\nTailwind|Styling"} className="bg-[var(--elevated)] border-[var(--border-md)] font-mono text-sm" />
             </div>
           </div>
           <DialogFooter>

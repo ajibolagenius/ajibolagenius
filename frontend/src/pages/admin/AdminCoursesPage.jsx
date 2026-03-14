@@ -63,7 +63,7 @@ export default function AdminCoursesPage() {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-        <AdminPageHeader kicker="Content" title="Courses" subtitle="Teach section and mentorship." />
+        <AdminPageHeader kicker="Content" title="Courses" subtitle="Shown on Teach page and home Courses section. Enroll links use WhatsApp from Personal info." />
         <Button onClick={openCreate} className="self-start sm:self-center h-11 font-display font-semibold text-[13px] bg-[var(--sungold)] text-[var(--void)] rounded-none hover:shadow-[var(--shadow-sharp-gold)] hover:-translate-y-0.5">Add course</Button>
       </div>
       {loading ? <p className="text-[var(--muted)] font-mono text-sm">Loading…</p> : (
@@ -97,8 +97,8 @@ export default function AdminCoursesPage() {
           <DialogHeader><DialogTitle>{editing ? 'Edit course' : 'New course'}</DialogTitle></DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Slug</Label><Input value={form.slug} onChange={(e) => update('slug', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-              <div className="space-y-2"><Label>Badge</Label><Input value={form.badge} onChange={(e) => update('badge', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+              <div className="space-y-2"><Label>Slug</Label><Input value={form.slug} onChange={(e) => update('slug', e.target.value)} placeholder="e.g. nextjs-basics" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+              <div className="space-y-2"><Label>Badge</Label><Input value={form.badge} onChange={(e) => update('badge', e.target.value)} placeholder="e.g. 2 Weeks" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             </div>
             <div className="space-y-2"><Label>Name</Label><Input value={form.name} onChange={(e) => update('name', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             <div className="grid grid-cols-2 gap-4">
@@ -106,7 +106,7 @@ export default function AdminCoursesPage() {
               <div className="space-y-2"><Label>Price</Label><Input value={form.price} onChange={(e) => update('price', e.target.value)} placeholder="₦100K" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             </div>
             <div className="space-y-2"><Label>Description</Label><Textarea value={form.description} onChange={(e) => update('description', e.target.value)} rows={2} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-            <div className="space-y-2"><Label>Curriculum (one per line)</Label><Textarea value={Array.isArray(form.curriculum) ? form.curriculum.join('\n') : (form.curriculum || '')} onChange={(e) => update('curriculum', e.target.value)} rows={6} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+            <div className="space-y-2"><Label>Curriculum (one topic per line)</Label><Textarea value={Array.isArray(form.curriculum) ? form.curriculum.join('\n') : (form.curriculum || '')} onChange={(e) => update('curriculum', e.target.value)} rows={6} placeholder={"Module 1: Intro\nModule 2: Build"} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
