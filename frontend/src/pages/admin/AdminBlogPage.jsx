@@ -129,9 +129,9 @@ export default function AdminBlogPage() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto border-[var(--border)] bg-[var(--surface)] text-[var(--white)]" aria-describedby={dialogDescriptionId}>
+          <DialogDescription id={dialogDescriptionId} className="sr-only">Form to create or edit a blog post: title, slug, excerpt, body, date, and read time.</DialogDescription>
           <DialogHeader>
             <DialogTitle>{editing ? 'Edit post' : 'New post'}</DialogTitle>
-            <DialogDescription id={dialogDescriptionId} className="sr-only">Form to create or edit a blog post: title, slug, excerpt, body, date, and read time.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4" role="form" aria-label={editing ? 'Edit post' : 'New post'}>
             <div className="grid grid-cols-2 gap-4">

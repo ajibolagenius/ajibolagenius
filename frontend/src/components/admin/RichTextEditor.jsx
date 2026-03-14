@@ -13,9 +13,10 @@ const modules = {
   ],
 };
 
+/* Quill 2: "list" covers both ordered and bullet; there is no separate "bullet" format. */
 const formats = [
   'header', 'bold', 'italic', 'underline', 'strike',
-  'list', 'bullet', 'blockquote', 'link',
+  'list', 'blockquote', 'link',
 ];
 
 /**

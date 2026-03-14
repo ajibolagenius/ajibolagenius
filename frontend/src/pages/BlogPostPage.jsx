@@ -16,7 +16,7 @@ function isHtmlBody(body) {
 
 /** Prose styles for WYSIWYG HTML output (headings, lists, blockquote, links). */
 const articleProseClass = [
-  'article-body font-body text-[15px] leading-[1.8] text-[var(--muted)]',
+  'article-body font-body text-[15px] leading-[1.8] text-[var(--muted)] max-w-full break-words',
   '[&_h1]:font-display [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-[var(--white)] [&_h1]:mt-8 [&_h1]:mb-4',
   '[&_h2]:font-display [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-[var(--white)] [&_h2]:mt-6 [&_h2]:mb-3',
   '[&_h3]:font-display [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-[var(--white)] [&_h3]:mt-4 [&_h3]:mb-2',
@@ -25,6 +25,7 @@ const articleProseClass = [
   '[&_ol]:list-none [&_ol]:pl-0 [&_ol]:my-6 [&_ol]:space-y-2 [&_ol]:[&_li]:flex [&_ol]:[&_li]:items-start [&_ol]:[&_li]:gap-2',
   '[&_blockquote]:border-l-4 [&_blockquote]:border-[var(--sungold)] [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-[var(--subtle)] [&_blockquote]:my-6',
   '[&_a]:text-[var(--sungold)] [&_a]:underline [&_a]:hover:no-underline',
+  '[&_pre]:max-w-full [&_pre]:overflow-x-auto [&_code]:break-words',
 ].join(' ');
 
 /** Render body: HTML from WYSIWYG or plain text (paragraphs + numbered lists). */
@@ -73,7 +74,7 @@ function ArticleBody({ body }) {
     }
   });
 
-  return <div className="article-body">{elements}</div>;
+  return <div className="article-body max-w-full break-words">{elements}</div>;
 }
 
 const BlogPostPage = () => {
