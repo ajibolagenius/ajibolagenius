@@ -22,7 +22,7 @@ I build products and teach people how to build them. Based in Nigeria, building 
 
 ## 📋 Slide 2 — The short version
 
-| | |
+| Topic | Description |
 |:--|:--|
 | **🎯 What I do** | Ship products (social platforms, voice apps, design systems) and run remote courses for individuals ready to level up. |
 | **💡 How I think** | Start with *why*, not just *what*. Projects beat theory. Community outlasts the course. |
@@ -57,7 +57,7 @@ The portfolio is the proof: real products, real constraints, real users — ofte
   <a href="https://github.com/ajibolagenius"><img src="https://img.shields.io/badge/GitHub-ajibolagenius-181717?style=flat-square&logo=github" alt="GitHub" /></a>
 </p>
 
-| | |
+| Link | Where |
 |:--|:--|
 | **🌐 Portfolio** | [ajibolagenius.pro](https://ajibolagenius.pro) *(or see pinned repos)* |
 | **🐦 Twitter** | [@ajibolagenius](https://twitter.com/ajibolagenius) |
