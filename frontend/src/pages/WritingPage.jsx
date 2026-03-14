@@ -34,11 +34,13 @@ const WritingPage = () => {
   const { data: posts, loading: postsLoading, error: postsError, refetch: refetchPosts } = useRealtimeQuery('blog_posts', fetchBlogPosts, fbPosts);
 
   const displayPosts = (Array.isArray(posts) && posts.length > 0) ? posts : fbPosts;
-  const categoryList = ['All', ...[...new Set(displayPosts.map(p => p.category).filter(Boolean))].sort()];
+  const categoryList = ['All', ...[...new Set(displayPosts.map(p => (p.category || '').trim()).filter(Boolean))].sort()];
   const categoryOptions = categoryList.map((c) => ({ label: c, value: c }));
-  const filtered = filter === 'All' ? displayPosts : displayPosts.filter(p => p.category === filter);
-  const featured = displayPosts[0];
-  const listPostsUnsorted = filtered.filter(p => (p.slug || p.id) !== (featured?.slug || featured?.id));
+  const filtered = filter === 'All' ? displayPosts : displayPosts.filter(p => (p.category || '').trim() === filter);
+  const featured = filter === 'All' ? displayPosts[0] : (filtered[0] ?? null);
+  const listPostsUnsorted = filter === 'All'
+    ? displayPosts.filter(p => (p.slug || p.id) !== (featured?.slug || featured?.id))
+    : filtered.slice(1);
 
   const listPosts = useMemo(() => {
     const comp = sortBy === 'date-desc' ? byDate('date', 'desc')

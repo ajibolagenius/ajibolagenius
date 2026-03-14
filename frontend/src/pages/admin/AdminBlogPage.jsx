@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo, useId } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../components/ui/alert-dialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
@@ -12,6 +13,20 @@ import RichTextEditor from '../../components/admin/RichTextEditor';
 import { adminEndpoints } from '../../services/adminApi';
 
 const ADMIN_PAGE_SIZE = 10;
+
+const BLOG_CATEGORIES = [
+  'Design',
+  'Education',
+  'Engineering',
+  'Technical',
+  'Opinion',
+  'Tutorial',
+  'Case Study',
+  'News',
+];
+
+/** Radix Select reserves empty string for "clear"; use sentinel for "None" and map to ''. */
+const CATEGORY_NONE = '__none__';
 
 const emptyPost = () => ({ slug: '', title: '', date: '', tags: [], category: '', excerpt: '', body: '', read_time: '' });
 
@@ -36,7 +51,6 @@ export default function AdminBlogPage() {
   const [form, setForm] = useState(emptyPost());
   const [saving, setSaving] = useState(false);
   const [toDelete, setToDelete] = useState(null);
-  const dialogDescriptionId = useId();
 
   const load = () => {
     setLoading(true);
@@ -128,8 +142,8 @@ export default function AdminBlogPage() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto border-[var(--border)] bg-[var(--surface)] text-[var(--white)]" aria-describedby={dialogDescriptionId}>
-          <DialogDescription id={dialogDescriptionId} className="sr-only">Form to create or edit a blog post: title, slug, excerpt, body, date, and read time.</DialogDescription>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto border-[var(--border)] bg-[var(--surface)] text-[var(--white)]">
+          <DialogDescription className="sr-only">Form to create or edit a blog post: title, slug, excerpt, body, date, and read time.</DialogDescription>
           <DialogHeader>
             <DialogTitle>{editing ? 'Edit post' : 'New post'}</DialogTitle>
           </DialogHeader>
@@ -151,7 +165,19 @@ export default function AdminBlogPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="blog-category">Category</Label>
-              <Input id="blog-category" value={form.category} onChange={(e) => update('category', e.target.value)} placeholder="e.g. Engineering" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+              <Select value={form.category || CATEGORY_NONE} onValueChange={(v) => update('category', v === CATEGORY_NONE ? '' : v)}>
+                <SelectTrigger id="blog-category" className="bg-[var(--elevated)] border-[var(--border-md)] text-[var(--white)]">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent className="border-[var(--border)] bg-[var(--surface)]">
+                  <SelectItem value={CATEGORY_NONE} className="text-[var(--muted)] focus:bg-[var(--elevated)] focus:text-[var(--white)]">— None —</SelectItem>
+                  {[...BLOG_CATEGORIES, ...(form.category && !BLOG_CATEGORIES.includes(form.category) ? [form.category] : [])].map((c) => (
+                    <SelectItem key={c} value={c} className="text-[var(--white)] focus:bg-[var(--elevated)] focus:text-[var(--white)]">
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="blog-tags">Tags</Label>

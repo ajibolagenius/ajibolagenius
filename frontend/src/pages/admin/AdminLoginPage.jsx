@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -17,10 +17,11 @@ export default function AdminLoginPage() {
   const location = useLocation();
   const from = location.state?.from?.pathname || '/admin';
 
-  if (isAuthenticated) {
-    navigate(from, { replace: true });
-    return null;
-  }
+  useEffect(() => {
+    if (isAuthenticated) navigate(from, { replace: true });
+  }, [isAuthenticated, from, navigate]);
+
+  if (isAuthenticated) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
