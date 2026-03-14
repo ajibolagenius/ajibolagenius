@@ -11,7 +11,7 @@ function formatDate(createdAt) {
   if (!createdAt) return '—';
   try {
     const d = new Date(createdAt);
-    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   } catch {
     return '—';
   }
@@ -38,7 +38,7 @@ export default function AdminMessagesPage() {
     navigator.clipboard?.writeText(email)?.then(() => {
       setCopiedId(id);
       setTimeout(() => setCopiedId(null), 2000);
-    }).catch(() => {});
+    })?.catch(() => {});
   };
 
   const toggleExpand = (id) => setExpandedId((prev) => (prev === id ? null : id));
