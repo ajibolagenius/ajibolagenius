@@ -67,7 +67,7 @@ export default function AdminNewsletterPage() {
     navigator.clipboard?.writeText(email)?.then(() => {
       setCopiedId(id);
       setTimeout(() => setCopiedId(null), 2000);
-    }).catch(() => {});
+    })?.catch(() => {});
   };
 
   const handleExport = () => {

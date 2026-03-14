@@ -11,23 +11,41 @@ const INPUT_CLASS =
 const ContactPage = () => {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [responseMsg, setResponseMsg] = useState('');
+  const [isError, setIsError] = useState(false);
   const { data: info } = useRealtimeQuery('personal_info', fetchPersonalInfo, fbInfo);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const trimmed = {
+      name: (formData.name || '').trim(),
+      email: (formData.email || '').trim(),
+      subject: (formData.subject || '').trim(),
+      message: (formData.message || '').trim(),
+    };
+    if (!trimmed.name || !trimmed.email || !trimmed.subject || !trimmed.message) return;
+    setIsSubmitting(true);
+    setResponseMsg('');
+    setIsError(false);
     try {
-      const res = await submitContact(formData);
-      setResponseMsg(res.message || 'Message sent.');
+      const res = await submitContact(trimmed);
+      setResponseMsg(res?.message || 'Message sent.');
       setSubmitted(true);
+      setFormData({ name: '', email: '', subject: '', message: '' });
       setTimeout(() => {
         setSubmitted(false);
         setResponseMsg('');
-        setFormData({ name: '', email: '', subject: '', message: '' });
-      }, 3000);
-    } catch {
-      setResponseMsg('Something went wrong. Please try again.');
-      setTimeout(() => setResponseMsg(''), 3000);
+      }, 5000);
+    } catch (err) {
+      setResponseMsg(err?.message || 'Something went wrong. Please try again.');
+      setIsError(true);
+      setTimeout(() => {
+        setResponseMsg('');
+        setIsError(false);
+      }, 5000);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -70,65 +88,80 @@ const ContactPage = () => {
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-12">
             {/* Contact form */}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5" aria-label="Contact form">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">Name</label>
+                  <label htmlFor="contact-name" className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">Name</label>
                   <input
+                    id="contact-name"
                     type="text"
                     placeholder="Your name"
                     value={formData.name}
                     onChange={e => setFormData({ ...formData, name: e.target.value })}
                     className={INPUT_CLASS}
                     required
+                    disabled={isSubmitting}
+                    aria-describedby={responseMsg ? 'contact-status' : undefined}
                   />
                 </div>
                 <div>
-                  <label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">Email</label>
+                  <label htmlFor="contact-email" className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">Email</label>
                   <input
+                    id="contact-email"
                     type="email"
                     placeholder="your@email.com"
                     value={formData.email}
                     onChange={e => setFormData({ ...formData, email: e.target.value })}
                     className={INPUT_CLASS}
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
               </div>
               <div>
-                <label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">Subject</label>
+                <label htmlFor="contact-subject" className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">Subject</label>
                 <input
+                  id="contact-subject"
                   type="text"
                   placeholder="What's this about?"
                   value={formData.subject}
                   onChange={e => setFormData({ ...formData, subject: e.target.value })}
                   className={INPUT_CLASS}
                   required
+                  disabled={isSubmitting}
                 />
               </div>
               <div>
-                <label className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">Message</label>
+                <label htmlFor="contact-message" className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">Message</label>
                 <textarea
+                  id="contact-message"
                   rows={6}
                   placeholder="Tell me about your project, question, or idea..."
                   value={formData.message}
                   onChange={e => setFormData({ ...formData, message: e.target.value })}
                   className={`${INPUT_CLASS} resize-y min-h-[160px]`}
                   required
+                  disabled={isSubmitting}
                 />
               </div>
               <button
                 type="submit"
-                className="btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[12px] border-0 cursor-pointer self-start rounded-none transition-all duration-200"
+                disabled={isSubmitting}
+                className="btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[12px] border-0 cursor-pointer self-start rounded-none transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
                 style={{
                   background: submitted ? 'var(--surface)' : 'var(--sungold)',
                   color: submitted ? 'var(--sungold)' : 'var(--void)',
                   border: submitted ? '1px solid rgba(232,160,32,0.3)' : 'none'
                 }}
+                aria-busy={isSubmitting}
               >
-                {submitted ? 'Message Sent!' : 'Send Message'} <Send size={14} />
+                {isSubmitting ? 'Sending…' : submitted ? 'Message Sent!' : 'Send Message'} <Send size={14} />
               </button>
-              {responseMsg && <p className="font-mono text-[12px] text-[var(--sungold)]">{responseMsg}</p>}
+              {responseMsg && (
+                <p id="contact-status" role="status" aria-live="polite" className={`font-mono text-[12px] ${isError ? 'text-red-400' : 'text-[var(--sungold)]'}`}>
+                  {responseMsg}
+                </p>
+              )}
             </form>
 
             {/* Right column: Availability, Social grid, Email, Location, WhatsApp quick link */}
