@@ -3,6 +3,7 @@ import { Menu, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { navLinks } from '../../data/mock';
 import { NAV_HEIGHT } from '../../constants';
+import ThemeToggle from './ThemeToggle';
 
 /**
  * Header / Nav — Design System §08 Nav
@@ -56,7 +57,7 @@ const Navbar = () => {
         className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between transition-all duration-300 border-b border-[var(--border)] backdrop-blur-[20px] px-4 md:px-8"
         style={{
           height: `${NAV_HEIGHT}px`,
-          background: scrolled ? 'rgba(7,7,15,0.92)' : 'rgba(7,7,15,0.85)',
+          background: scrolled ? 'var(--nav-bg-scrolled)' : 'var(--nav-bg)',
           WebkitBackdropFilter: 'blur(20px)',
         }}
       >
@@ -90,8 +91,11 @@ const Navbar = () => {
             ))}
           </ul>
 
-          <span className="hidden md:inline-block font-mono text-[11px] px-[10px] py-[3px] text-[var(--subtle)] bg-[var(--elevated)] border border-[var(--border)] rounded-none">
-            v1.0
+          <span className="hidden md:inline-flex md:items-center md:gap-2">
+            <ThemeToggle />
+            <span className="font-mono text-[11px] px-[10px] py-[3px] text-[var(--subtle)] bg-[var(--elevated)] border border-[var(--border)] rounded-none">
+              v1.0
+            </span>
           </span>
 
           <button
@@ -106,8 +110,8 @@ const Navbar = () => {
 
         {mobileOpen && (
           <div
-            className="md:hidden absolute left-0 right-0 py-6 px-4 bg-[rgba(7,7,15,0.97)] backdrop-blur-[20px] border-b border-[var(--border)]"
-            style={{ top: `${NAV_HEIGHT}px` }}
+            className="md:hidden absolute left-0 right-0 py-6 px-4 backdrop-blur-[20px] border-b border-[var(--border)]"
+            style={{ top: `${NAV_HEIGHT}px`, background: 'var(--nav-mobile-bg)' }}
           >
             <ul className="list-none m-0 p-0 flex flex-col gap-4">
               {navLinks.map((link) => (
@@ -125,6 +129,10 @@ const Navbar = () => {
                 </li>
               ))}
             </ul>
+            <div className="flex items-center gap-3 mt-6 pt-4 border-t border-[var(--border)]">
+              <span className="font-mono text-[11px] tracking-[0.08em] text-[var(--muted)]">Theme</span>
+              <ThemeToggle />
+            </div>
           </div>
         )}
       </nav>

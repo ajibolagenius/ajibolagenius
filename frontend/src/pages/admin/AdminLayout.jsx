@@ -1,5 +1,6 @@
 import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import ThemeToggle from '../../components/portfolio/ThemeToggle';
 
 const contentNav = [
   { to: '/admin/projects', label: 'Projects' },
@@ -85,6 +86,10 @@ export default function AdminLayout() {
           <NavGroup title="Settings" items={settingsNav} />
         </nav>
         <div className="p-3 border-t border-[var(--border)] space-y-0.5">
+          <div className="flex items-center gap-2 px-3 py-2">
+            <ThemeToggle />
+            <span className="font-mono text-[11px] text-[var(--subtle)]">Theme</span>
+          </div>
           <a
             href="/"
             target="_blank"

@@ -112,7 +112,7 @@ const GalleryPage = () => {
           <motion.div
             key="lightbox"
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8"
-            style={{ background: 'rgba(7,7,15,0.92)', backdropFilter: 'blur(20px)' }}
+            style={{ background: 'var(--modal-backdrop)', backdropFilter: 'blur(20px)' }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

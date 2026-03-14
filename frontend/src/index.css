@@ -76,6 +76,14 @@
   --shadow-sharp-cosmic: 0 4px 0 rgba(91, 79, 216, 0.35);
   --shadow-sharp-ring: 0 0 0 3px rgba(232, 160, 32, 0.2);
 
+  /* — Semantic (theme-invariant or nav) — */
+  --on-sungold: #07070F;
+  --nav-bg: rgba(7, 7, 15, 0.85);
+  --nav-bg-scrolled: rgba(7, 7, 15, 0.92);
+  --nav-mobile-bg: rgba(7, 7, 15, 0.97);
+  --modal-backdrop: rgba(7, 7, 15, 0.92);
+  --grid-line: rgba(232, 160, 32, 0.03);
+
   /* — Easing — */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
@@ -85,6 +93,44 @@
   --background: 0 0% 3%;
   --foreground: 40 15% 93%;
   --radius: 0;
+}
+
+/* ============================================
+   Light Mode — Design System 02b
+   Same identity; inverted surfaces and text.
+   ============================================ */
+
+html.light {
+  --void: #FAF9F7;
+  --deep: #F0EDE8;
+  --surface: #FFFFFF;
+  --elevated: #F5F3EF;
+  --overlay: #EBE8E3;
+
+  --border: rgba(12, 12, 26, 0.08);
+  --border-md: rgba(12, 12, 26, 0.14);
+  --border-hi: rgba(12, 12, 26, 0.25);
+
+  --white: #0C0C1A;
+  --muted: rgba(12, 12, 26, 0.6);
+  --subtle: rgba(12, 12, 26, 0.4);
+  --dim: rgba(12, 12, 26, 0.12);
+
+  --shadow-sharp-sm: 0 2px 0 rgba(0, 0, 0, 0.08);
+  --shadow-sharp-md: 0 4px 0 rgba(0, 0, 0, 0.1);
+  --shadow-sharp-lg: 0 6px 0 rgba(0, 0, 0, 0.12);
+  --shadow-sharp-gold: 0 4px 0 rgba(232, 160, 32, 0.35);
+  --shadow-sharp-cosmic: 0 4px 0 rgba(91, 79, 216, 0.35);
+  --shadow-sharp-ring: 0 0 0 3px rgba(232, 160, 32, 0.25);
+
+  --nav-bg: rgba(250, 249, 247, 0.85);
+  --nav-bg-scrolled: rgba(250, 249, 247, 0.95);
+  --nav-mobile-bg: rgba(250, 249, 247, 0.98);
+  --modal-backdrop: rgba(7, 7, 15, 0.88);
+  --grid-line: rgba(12, 12, 26, 0.06);
+
+  --background: 40 20% 98%;
+  --foreground: 240 20% 5%;
 }
 
 /* ============================================
@@ -113,14 +159,13 @@ body {
 }
 
 /* — Geometric grid background (Design System §08 Background) — */
-/* 40×40px grid, 1px lines rgba(232,160,32,0.03) */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(rgba(232, 160, 32, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(232, 160, 32, 0.03) 1px, transparent 1px);
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
   background-size: 40px 40px;
   background-position: 0 0;
   pointer-events: none;
@@ -140,7 +185,7 @@ body::before {
   font-family: var(--font-display);
   font-size: 13px;
   font-weight: 600;
-  color: var(--void);
+  color: var(--on-sungold);
   background: var(--sungold);
   border: none;
   text-decoration: none;
@@ -177,7 +222,7 @@ a:focus-visible {
 
 ::selection {
   background: rgba(232, 160, 32, 0.3);
-  color: var(--white);
+  color: var(--on-sungold);
 }
 
 /* ============================================
@@ -199,6 +244,14 @@ a:focus-visible {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--elevated);
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: var(--border-hi);
+}
+
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: var(--subtle);
 }
 
 /* ============================================

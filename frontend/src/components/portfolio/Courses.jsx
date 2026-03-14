@@ -9,9 +9,9 @@ const CourseCard = ({ course, index, visible }) => {
     <div
       className="grid grid-cols-[1fr_auto] items-center gap-4 p-5 cursor-pointer transition-all duration-200"
       style={{
-        background: hovered ? '#17172E' : '#111126',
-        border: '1px solid rgba(255,255,255,0.06)',
-        borderLeft: '3px solid #E8A020',
+        background: hovered ? 'var(--elevated)' : 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderLeft: '3px solid var(--sungold)',
         borderRadius: 0,
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(20px)',
