@@ -1,5 +1,6 @@
 /**
  * User activity tracking: sends events to Supabase (in-house admin charts) and PostHog (sessions, funnels).
+ * Every event is persisted to the analytics_events table for backup and retrieval; admin can export from /admin/analytics.
  * Call from public site only; do not track /admin paths.
  */
 import { supabase } from '../lib/supabase';

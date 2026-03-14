@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { Download } from 'lucide-react';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -15,6 +16,7 @@ import {
   Legend,
   CartesianGrid,
 } from 'recharts';
+import { Button } from '../../components/ui/button';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import { adminEndpoints } from '../../services/adminApi';
 
@@ -112,6 +114,47 @@ function formatEventTime(iso) {
   }
 }
 
+function escapeCsvCell(v) {
+  if (v == null) return '';
+  const s = String(v);
+  return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+function exportActivityCSV(events) {
+  const header = 'created_at,event_type,path,payload';
+  const rows = events.map((e) => {
+    const createdAt = e.created_at || '';
+    const type = escapeCsvCell(e.event_type);
+    const path = escapeCsvCell(e.path);
+    const payload = escapeCsvCell(typeof e.payload === 'object' ? JSON.stringify(e.payload) : e.payload);
+    return `${createdAt},${type},${path},${payload}`;
+  });
+  return [header, ...rows].join('\n');
+}
+
+function exportActivityJSON(events) {
+  return JSON.stringify(
+    events.map((e) => ({
+      created_at: e.created_at,
+      event_type: e.event_type,
+      path: e.path,
+      payload: e.payload,
+    })),
+    null,
+    2
+  );
+}
+
+function downloadFile(content, filename, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 const CONTENT_KEYS = [
   { key: 'projects', label: 'Projects', accent: 'sungold' },
   { key: 'blog_posts', label: 'Blog posts', accent: 'nebula' },
@@ -199,6 +242,20 @@ export default function AdminAnalyticsPage() {
 
   const totalMessages = timeSeries.messages.length;
   const totalSubscribers = timeSeries.subscribers.length;
+
+  const handleExportCSV = () => {
+    if (activityEvents.length === 0) return;
+    const csv = exportActivityCSV(activityEvents);
+    const filename = `analytics-events-${rangeDays}d-${new Date().toISOString().slice(0, 10)}.csv`;
+    downloadFile(csv, filename, 'text/csv;charset=utf-8');
+  };
+
+  const handleExportJSON = () => {
+    if (activityEvents.length === 0) return;
+    const json = exportActivityJSON(activityEvents);
+    const filename = `analytics-events-${rangeDays}d-${new Date().toISOString().slice(0, 10)}.json`;
+    downloadFile(json, filename, 'application/json');
+  };
 
   if (loading) {
     return (
@@ -413,11 +470,35 @@ export default function AdminAnalyticsPage() {
 
       {/* User activity */}
       <section className="mb-10">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-6 h-px bg-[var(--violet)]" aria-hidden />
-          <h2 className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--violet)]">
-            User activity
-          </h2>
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-px bg-[var(--violet)]" aria-hidden />
+            <h2 className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--violet)]">
+              User activity
+            </h2>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-[var(--border)] text-[var(--white)]"
+              onClick={handleExportCSV}
+              disabled={activityEvents.length === 0}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export CSV
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-[var(--border)] text-[var(--white)]"
+              onClick={handleExportJSON}
+              disabled={activityEvents.length === 0}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export JSON
+            </Button>
+          </div>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <div className="border border-[var(--border)] bg-[var(--surface)] p-4 md:p-6">
