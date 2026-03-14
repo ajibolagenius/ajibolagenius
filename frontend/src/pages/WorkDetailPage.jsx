@@ -13,6 +13,18 @@ const WorkDetailPage = () => {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  const screenshotsLength = project
+    ? (project.screenshots || []).map((s) => (typeof s === 'string' ? s : s?.url)).filter(Boolean).length
+    : 0;
+  const goPrev = useCallback(() => {
+    setLightboxIndex((i) => (i <= 0 ? screenshotsLength - 1 : i - 1));
+  }, [screenshotsLength]);
+  const goNext = useCallback(() => {
+    setLightboxIndex((i) => (i >= screenshotsLength - 1 ? 0 : i + 1));
+  }, [screenshotsLength]);
 
   useEffect(() => {
     fetchProject(slug)
@@ -23,6 +35,26 @@ const WorkDetailPage = () => {
         setLoading(false);
       });
   }, [slug]);
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setLightboxOpen(false);
+      if (e.key === 'ArrowLeft') goPrev();
+      if (e.key === 'ArrowRight') goNext();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lightboxOpen, goPrev, goNext]);
+
+  useEffect(() => {
+    if (screenshotsLength === 0) {
+      setLightboxOpen(false);
+      setLightboxIndex(0);
+      return;
+    }
+    setLightboxIndex((i) => Math.min(i, Math.max(0, screenshotsLength - 1)));
+  }, [screenshotsLength]);
 
   usePageMeta(
     project
@@ -65,25 +97,7 @@ const WorkDetailPage = () => {
   const githubUrl = project.github_url || project.githubUrl || '#';
   const screenshots = (project.screenshots || []).map((s) => (typeof s === 'string' ? s : s?.url)).filter(Boolean);
   const heroImage = screenshots[0];
-
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxIndex, setLightboxIndex] = useState(0);
-  const goPrev = useCallback(() => {
-    setLightboxIndex((i) => (i <= 0 ? screenshots.length - 1 : i - 1));
-  }, [screenshots.length]);
-  const goNext = useCallback(() => {
-    setLightboxIndex((i) => (i >= screenshots.length - 1 ? 0 : i + 1));
-  }, [screenshots.length]);
-  useEffect(() => {
-    if (!lightboxOpen) return;
-    const onKey = (e) => {
-      if (e.key === 'Escape') setLightboxOpen(false);
-      if (e.key === 'ArrowLeft') goPrev();
-      if (e.key === 'ArrowRight') goNext();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [lightboxOpen, goPrev, goNext]);
+  const lightboxSafeIndex = screenshots.length > 0 ? Math.min(lightboxIndex, screenshots.length - 1) : 0;
 
   return (
     <>
@@ -123,7 +137,7 @@ const WorkDetailPage = () => {
       </section>
 
       {/* Lightbox */}
-      {lightboxOpen && screenshots.length > 0 && (
+      {lightboxOpen && screenshots.length > 0 && screenshots[lightboxSafeIndex] && (
         <div
           className="fixed inset-0 z-[1000] flex items-center justify-center bg-[var(--void)]/95"
           role="dialog"
@@ -160,13 +174,13 @@ const WorkDetailPage = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={screenshots[lightboxIndex]}
-              alt={`${project.name} screenshot ${lightboxIndex + 1}`}
+              src={screenshots[lightboxSafeIndex]}
+              alt={`${project.name} screenshot ${lightboxSafeIndex + 1}`}
               className="max-w-full max-h-[90vh] w-auto h-auto object-contain"
             />
           </div>
           <span className="absolute bottom-4 left-1/2 -translate-x-1/2 font-mono text-[11px] text-[var(--subtle)]">
-            {lightboxIndex + 1} / {screenshots.length}
+            {lightboxSafeIndex + 1} / {screenshots.length}
           </span>
         </div>
       )}
