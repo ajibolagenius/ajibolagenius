@@ -9,6 +9,8 @@ import FilterButtons from '../components/portfolio/FilterButtons';
 import SortSelect from '../components/portfolio/SortSelect';
 import { BADGE_VARIANTS } from '../constants';
 import { byString, byDate, applySort } from '../lib/sortHelpers';
+import { paginate } from '../lib/paginate';
+import ListPagination from '../components/portfolio/ListPagination';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { DataLoadingSkeleton, DataErrorBanner } from '../components/portfolio/DataStateMessage';
@@ -20,10 +22,13 @@ const WRITING_SORT_OPTIONS = [
   { value: 'title-desc', label: 'Title Z–A' },
 ];
 
+const WRITING_PAGE_SIZE = 9;
+
 const WritingPage = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('All');
   const [sortBy, setSortBy] = useState('date-desc');
+  const [page, setPage] = useState(1);
   const [nlEmail, setNlEmail] = useState('');
   const [nlMsg, setNlMsg] = useState('');
   const { data: posts, loading: postsLoading, error: postsError, refetch: refetchPosts } = useRealtimeQuery('blog_posts', fetchBlogPosts, fbPosts);
@@ -42,6 +47,11 @@ const WritingPage = () => {
       : byString('title', 'desc');
     return applySort(listPostsUnsorted, comp);
   }, [listPostsUnsorted, sortBy]);
+
+  const { items: paginatedPosts, totalPages, start, end, total } = useMemo(
+    () => paginate(listPosts, page, WRITING_PAGE_SIZE),
+    [listPosts, page]
+  );
 
   const handleSubscribe = async (e) => {
     e.preventDefault();
@@ -123,8 +133,8 @@ const WritingPage = () => {
       <section className="py-12 md:py-16 border-b border-[var(--border)]">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="flex flex-wrap items-center gap-4 mb-6">
-            <FilterButtons options={categoryOptions} value={filter} onChange={setFilter} label="Category" />
-            <SortSelect options={WRITING_SORT_OPTIONS} value={sortBy} onChange={setSortBy} label="Sort" />
+            <FilterButtons options={categoryOptions} value={filter} onChange={(v) => { setFilter(v); setPage(1); }} label="Category" />
+            <SortSelect options={WRITING_SORT_OPTIONS} value={sortBy} onChange={(v) => { setSortBy(v); setPage(1); }} label="Sort" />
           </div>
 
           <div className="flex flex-col gap-4">
@@ -134,7 +144,7 @@ const WritingPage = () => {
             {listPosts.length === 0 && !featured && (
               <p className="font-body text-[15px] text-[var(--muted)]">No posts yet.</p>
             )}
-            {listPosts.map(post => (
+            {paginatedPosts.map(post => (
               <div
                 key={post.slug || post.id}
                 className="p-6 cursor-pointer transition-all duration-200 border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--elevated)] hover:border-[rgba(232,160,32,0.2)]"
@@ -167,6 +177,15 @@ const WritingPage = () => {
               </div>
             ))}
           </div>
+
+          {listPosts.length > 0 && (
+            <ListPagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              range={{ start, end, total }}
+            />
+          )}
         </div>
       </section>
 

@@ -7,9 +7,38 @@ import Badge from '../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
 
-/** Render body text: paragraphs (split by \n\n) and simple numbered lists (lines like "1. ...") */
+/** Detect if body is HTML from WYSIWYG (e.g. starts with <p> or contains tags). */
+function isHtmlBody(body) {
+  if (!body || typeof body !== 'string') return false;
+  const t = body.trim();
+  return t.startsWith('<') || /<[a-z][\s\S]*>/i.test(t);
+}
+
+/** Prose styles for WYSIWYG HTML output (headings, lists, blockquote, links). */
+const articleProseClass = [
+  'article-body font-body text-[15px] leading-[1.8] text-[var(--muted)]',
+  '[&_h1]:font-display [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-[var(--white)] [&_h1]:mt-8 [&_h1]:mb-4',
+  '[&_h2]:font-display [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-[var(--white)] [&_h2]:mt-6 [&_h2]:mb-3',
+  '[&_h3]:font-display [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-[var(--white)] [&_h3]:mt-4 [&_h3]:mb-2',
+  '[&_p]:mb-6',
+  '[&_ul]:list-none [&_ul]:pl-0 [&_ul]:my-6 [&_ul]:space-y-2 [&_ul]:[&_li]:flex [&_ul]:[&_li]:items-start [&_ul]:[&_li]:gap-2',
+  '[&_ol]:list-none [&_ol]:pl-0 [&_ol]:my-6 [&_ol]:space-y-2 [&_ol]:[&_li]:flex [&_ol]:[&_li]:items-start [&_ol]:[&_li]:gap-2',
+  '[&_blockquote]:border-l-4 [&_blockquote]:border-[var(--sungold)] [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-[var(--subtle)] [&_blockquote]:my-6',
+  '[&_a]:text-[var(--sungold)] [&_a]:underline [&_a]:hover:no-underline',
+].join(' ');
+
+/** Render body: HTML from WYSIWYG or plain text (paragraphs + numbered lists). */
 function ArticleBody({ body }) {
   if (!body || typeof body !== 'string') return null;
+
+  if (isHtmlBody(body)) {
+    return (
+      <div
+        className={articleProseClass}
+        dangerouslySetInnerHTML={{ __html: body }}
+      />
+    );
+  }
 
   const blocks = body.split(/\n\n+/);
   const elements = [];
@@ -149,9 +178,11 @@ const BlogPostPage = () => {
       <section className="py-12 md:py-16">
         <div className="max-w-[720px] mx-auto px-4 md:px-8">
           {post.excerpt && (
-            <p className="font-body text-[16px] leading-[1.7] mb-10 text-[var(--muted)]">
-              {post.excerpt}
-            </p>
+            <div className="mb-10 pl-4 border-l-4 border-[var(--sungold)]">
+              <p className="font-body text-[17px] leading-[1.75] text-[var(--white)] font-medium">
+                {post.excerpt}
+              </p>
+            </div>
           )}
           <ArticleBody body={post.body} />
         </div>

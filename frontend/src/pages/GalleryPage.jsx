@@ -10,6 +10,8 @@ import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { DataErrorBanner, DataLoadingSkeleton } from '../components/portfolio/DataStateMessage';
 import { byString, applySort } from '../lib/sortHelpers';
+import { paginate } from '../lib/paginate';
+import ListPagination from '../components/portfolio/ListPagination';
 
 const FILTER_OPTIONS = [
   { label: 'All', value: 'All' },
@@ -26,9 +28,12 @@ const GALLERY_SORT_OPTIONS = [
 /** Masonry-style heights for grid variety */
 const MASONRY_HEIGHTS = [200, 260, 180, 300, 220, 240, 280, 200, 320, 190, 250, 270];
 
+const GALLERY_PAGE_SIZE = 12;
+
 const GalleryPage = () => {
   const [filter, setFilter] = useState('All');
   const [sortBy, setSortBy] = useState('title-asc');
+  const [page, setPage] = useState(1);
   const [lightbox, setLightbox] = useState(null);
   const { data, loading, error, refetch } = useRealtimeQuery('gallery_items', fetchGallery, fbGallery);
   const displayItems = Array.isArray(data) && data.length > 0 ? data : fbGallery;
@@ -37,6 +42,11 @@ const GalleryPage = () => {
     const comp = sortBy === 'title-desc' ? byString('title', 'desc') : byString('title', 'asc');
     return applySort(filteredByType, comp);
   }, [filteredByType, sortBy]);
+
+  const { items: paginatedItems, totalPages, start, end, total } = useMemo(
+    () => paginate(filtered, page, GALLERY_PAGE_SIZE),
+    [filtered, page]
+  );
 
   usePageMeta({
     title: 'Visual Archive',
@@ -61,8 +71,8 @@ const GalleryPage = () => {
       <section className="py-12 md:py-16">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="flex flex-wrap items-center gap-4 mb-8">
-            <FilterButtons options={FILTER_OPTIONS} value={filter} onChange={setFilter} label="Type" />
-            <SortSelect options={GALLERY_SORT_OPTIONS} value={sortBy} onChange={setSortBy} label="Sort" />
+            <FilterButtons options={FILTER_OPTIONS} value={filter} onChange={(v) => { setFilter(v); setPage(1); }} label="Type" />
+            <SortSelect options={GALLERY_SORT_OPTIONS} value={sortBy} onChange={(v) => { setSortBy(v); setPage(1); }} label="Sort" />
           </div>
           {error && <DataErrorBanner error={error} onRetry={refetch} className="mb-6" />}
           {loading && displayItems.length === 0 ? (
@@ -73,8 +83,8 @@ const GalleryPage = () => {
             className="columns-1 sm:columns-2 lg:columns-3 gap-4"
             initial={false}
           >
-            {filtered.map((item, i) => {
-              const h = MASONRY_HEIGHTS[i % MASONRY_HEIGHTS.length];
+            {paginatedItems.map((item, i) => {
+              const h = MASONRY_HEIGHTS[(start + i) % MASONRY_HEIGHTS.length];
               return (
                 <motion.div
                   key={item.id}
@@ -117,6 +127,14 @@ const GalleryPage = () => {
               );
             })}
           </motion.div>
+          )}
+          {!loading && filtered.length > 0 && (
+            <ListPagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              range={{ start, end, total }}
+            />
           )}
         </div>
       </section>

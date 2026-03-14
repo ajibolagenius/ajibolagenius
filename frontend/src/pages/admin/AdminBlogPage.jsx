@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -6,12 +6,29 @@ import { Textarea } from '../../components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../components/ui/alert-dialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
+import ListPagination from '../../components/portfolio/ListPagination';
+import { paginate } from '../../lib/paginate';
+import RichTextEditor from '../../components/admin/RichTextEditor';
 import { adminEndpoints } from '../../services/adminApi';
+
+const ADMIN_PAGE_SIZE = 10;
 
 const emptyPost = () => ({ slug: '', title: '', date: '', tags: [], category: '', excerpt: '', body: '', read_time: '' });
 
+/** Words per minute for read time; ~200 is average. */
+const WPM = 200;
+/** Strip HTML tags and count words; return "N min" for body content. */
+function computeReadTime(body) {
+  if (!body || typeof body !== 'string') return '1 min';
+  const text = body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const words = text ? text.split(' ').filter(Boolean).length : 0;
+  const mins = Math.max(1, Math.ceil(words / WPM));
+  return `${mins} min`;
+}
+
 export default function AdminBlogPage() {
   const [list, setList] = useState([]);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -26,6 +43,11 @@ export default function AdminBlogPage() {
   };
   useEffect(load, []);
 
+  const { items: paginatedList, totalPages, start, end, total } = useMemo(
+    () => paginate(list, page, ADMIN_PAGE_SIZE),
+    [list, page]
+  );
+
   const openCreate = () => { setEditing(null); setForm(emptyPost()); setDialogOpen(true); };
   const openEdit = (p) => {
     setEditing(p);
@@ -35,7 +57,12 @@ export default function AdminBlogPage() {
   const openDelete = (p) => { setToDelete(p); setDeleteOpen(true); };
 
   const handleSave = async () => {
-    const payload = { ...form, tags: typeof form.tags === 'string' ? form.tags.split(',').map((t) => t.trim()).filter(Boolean) : form.tags };
+    const readTime = computeReadTime(form.body);
+    const payload = {
+      ...form,
+      tags: typeof form.tags === 'string' ? form.tags.split(',').map((t) => t.trim()).filter(Boolean) : form.tags,
+      read_time: readTime,
+    };
     setSaving(true);
     try {
       if (editing) await adminEndpoints.blogPosts.update(editing.id, payload);
@@ -55,7 +82,13 @@ export default function AdminBlogPage() {
     } catch (e) { console.error(e); }
   };
 
-  const update = (key, value) => setForm((f) => ({ ...f, [key]: value }));
+  const update = (key, value) => {
+    setForm((f) => {
+      const next = { ...f, [key]: value };
+      if (key === 'body') next.read_time = computeReadTime(value);
+      return next;
+    });
+  };
 
   return (
     <div>
@@ -74,7 +107,7 @@ export default function AdminBlogPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
-              {list.map((p) => (
+              {paginatedList.map((p) => (
                 <tr key={p.id} className="bg-[var(--elevated)]/50 hover:bg-[var(--elevated)]">
                   <td className="px-4 py-3 font-body text-sm text-[var(--white)]">{p.title}</td>
                   <td className="px-4 py-3 font-mono text-[12px] text-[var(--muted)]">{p.date}</td>
@@ -89,6 +122,10 @@ export default function AdminBlogPage() {
         </div>
       )}
 
+      {list.length > 0 && (
+        <ListPagination page={page} totalPages={totalPages} onPageChange={setPage} range={{ start, end, total }} />
+      )}
+
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto border-[var(--border)] bg-[var(--surface)] text-[var(--white)]">
           <DialogHeader><DialogTitle>{editing ? 'Edit post' : 'New post'}</DialogTitle></DialogHeader>
@@ -98,11 +135,12 @@ export default function AdminBlogPage() {
                 <Label htmlFor="blog-slug">Slug</Label>
                 <Input id="blog-slug" value={form.slug} onChange={(e) => update('slug', e.target.value)} placeholder="e.g. my-post → /writing/my-post" className="bg-[var(--elevated)] border-[var(--border-md)]" />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="blog-date">Date</Label>
+<div className="space-y-2">
+              <Label htmlFor="blog-date">Date</Label>
                 <Input id="blog-date" type="date" value={form.date} onChange={(e) => update('date', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" />
               </div>
             </div>
+            <p className="font-mono text-[11px] text-[var(--subtle)]">The newest post (by date) is shown as featured on /writing. No separate featured field.</p>
             <div className="space-y-2">
               <Label htmlFor="blog-title">Title</Label>
               <Input id="blog-title" value={form.title} onChange={(e) => update('title', e.target.value)} placeholder="e.g. How I Built X" className="bg-[var(--elevated)] border-[var(--border-md)]" />
@@ -122,11 +160,17 @@ export default function AdminBlogPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="blog-body">Body</Label>
-              <Textarea id="blog-body" value={form.body} onChange={(e) => update('body', e.target.value)} rows={8} placeholder="Paragraphs separated by blank lines. Numbered lists as 1. Item" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+              <RichTextEditor
+                id="blog-body"
+                value={form.body}
+                onChange={(v) => update('body', v)}
+                placeholder="Write your article…"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="blog-read-time">Read time</Label>
-              <Input id="blog-read-time" value={form.read_time} onChange={(e) => update('read_time', e.target.value)} placeholder="5 min" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+              <Input id="blog-read-time" value={form.read_time || computeReadTime(form.body)} readOnly className="bg-[var(--elevated)] border-[var(--border-md)] cursor-default opacity-90" aria-describedby="blog-read-time-hint" />
+              <span id="blog-read-time-hint" className="font-mono text-[11px] text-[var(--subtle)]">Auto-calculated from body (~200 words/min).</span>
             </div>
           </div>
           <DialogFooter>

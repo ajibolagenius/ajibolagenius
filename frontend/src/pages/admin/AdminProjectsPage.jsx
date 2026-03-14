@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -21,8 +21,12 @@ import {
   AlertDialogTitle,
 } from '../../components/ui/alert-dialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
+import ListPagination from '../../components/portfolio/ListPagination';
+import { paginate } from '../../lib/paginate';
 import { adminEndpoints, uploadProjectScreenshot } from '../../services/adminApi';
 import { ImagePlus, Trash2 } from 'lucide-react';
+
+const ADMIN_PAGE_SIZE = 10;
 
 const emptyProject = () => ({
   slug: '',
@@ -59,6 +63,7 @@ function formatTechDetails(arr) {
 
 export default function AdminProjectsPage() {
   const [list, setList] = useState([]);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -76,6 +81,11 @@ export default function AdminProjectsPage() {
   };
 
   useEffect(load, []);
+
+  const { items: paginatedList, totalPages, start, end, total } = useMemo(
+    () => paginate(list, page, ADMIN_PAGE_SIZE),
+    [list, page]
+  );
 
   const openCreate = () => {
     setEditing(null);
@@ -194,7 +204,7 @@ export default function AdminProjectsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
-              {list.map((p) => (
+              {paginatedList.map((p) => (
                 <tr key={p.id} className="bg-[var(--elevated)]/50 hover:bg-[var(--elevated)]">
                   <td className="px-4 py-3 font-mono text-[12px] text-[var(--white)]">{p.label}</td>
                   <td className="px-4 py-3 font-body text-sm text-[var(--white)]">{p.name}</td>
@@ -208,6 +218,15 @@ export default function AdminProjectsPage() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {list.length > 0 && (
+        <ListPagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          range={{ start, end, total }}
+        />
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

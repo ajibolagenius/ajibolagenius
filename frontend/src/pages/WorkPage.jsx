@@ -9,6 +9,8 @@ import FilterButtons from '../components/portfolio/FilterButtons';
 import SortSelect from '../components/portfolio/SortSelect';
 import { BADGE_VARIANTS } from '../constants';
 import { byString, byDate, applySort } from '../lib/sortHelpers';
+import { paginate } from '../lib/paginate';
+import ListPagination from '../components/portfolio/ListPagination';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { DataLoadingSkeleton, DataErrorBanner } from '../components/portfolio/DataStateMessage';
@@ -168,9 +170,12 @@ const WORK_SORT_OPTIONS = [
   { value: 'name-desc', label: 'Name Z–A' },
 ];
 
+const WORK_PAGE_SIZE = 9;
+
 const WorkPage = () => {
   const [filter, setFilter] = useState('all');
   const [sortBy, setSortBy] = useState('year-desc');
+  const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const { data, loading, error, refetch } = useRealtimeQuery('projects', fetchProjects, fallbackProjects);
   const projects = Array.isArray(data) ? data : fallbackProjects;
@@ -186,6 +191,11 @@ const WorkPage = () => {
       : byString('name', 'desc');
     return applySort(filteredProjects, comp);
   }, [filteredProjects, sortBy]);
+
+  const { items: paginatedProjects, totalPages, start, end, total } = useMemo(
+    () => paginate(sortedProjects, page, WORK_PAGE_SIZE),
+    [sortedProjects, page]
+  );
 
   const featuredForSpotlight = projects.find(p => p.featured);
   const filterOptions = [
@@ -227,8 +237,8 @@ const WorkPage = () => {
           )}
 
           <div className="flex flex-wrap items-center gap-4 mb-6">
-            <FilterButtons options={filterOptions} value={filter} onChange={setFilter} label="Filter" />
-            <SortSelect options={WORK_SORT_OPTIONS} value={sortBy} onChange={setSortBy} label="Sort" />
+            <FilterButtons options={filterOptions} value={filter} onChange={(v) => { setFilter(v); setPage(1); }} label="Filter" />
+            <SortSelect options={WORK_SORT_OPTIONS} value={sortBy} onChange={(v) => { setSortBy(v); setPage(1); }} label="Sort" />
           </div>
 
           {error && <DataErrorBanner error={error} onRetry={refetch} className="mb-6" />}
@@ -236,7 +246,7 @@ const WorkPage = () => {
             <DataLoadingSkeleton lines={6} className="py-8 mb-6" />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sortedProjects.map((project) => (
+              {paginatedProjects.map((project) => (
                 <ProjectCard key={project.slug || project.id} project={project} />
               ))}
             </div>
@@ -246,6 +256,15 @@ const WorkPage = () => {
             <div className="font-body text-[15px] py-12 text-center text-[var(--muted)]">
               No projects in this category yet.
             </div>
+          )}
+
+          {!loading && sortedProjects.length > 0 && (
+            <ListPagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              range={{ start, end, total }}
+            />
           )}
         </div>
       </section>

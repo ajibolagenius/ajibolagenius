@@ -8,6 +8,8 @@ import SortSelect from '../components/portfolio/SortSelect';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { byString, byPrice, applySort } from '../lib/sortHelpers';
+import { paginate } from '../lib/paginate';
+import ListPagination from '../components/portfolio/ListPagination';
 
 /** Badge variant and accent color per index — same length so badge and border/button stay aligned (warm/cool alternating). */
 const COURSE_ACCENTS = [
@@ -128,6 +130,7 @@ const TeachPage = () => {
   const whatsapp = personalInfo?.social?.whatsapp || fbInfo.social.whatsapp;
 
   const [sortBy, setSortBy] = useState('name-asc');
+  const [page, setPage] = useState(1);
   const sortedCourses = useMemo(() => {
     const comp = sortBy === 'name-asc' ? byString('name', 'asc')
       : sortBy === 'name-desc' ? byString('name', 'desc')
@@ -135,6 +138,11 @@ const TeachPage = () => {
       : byPrice('price', 'desc');
     return applySort(displayCourses, comp);
   }, [displayCourses, sortBy]);
+
+  const { items: paginatedCourses, totalPages, start, end, total } = useMemo(
+    () => paginate(sortedCourses, page, 9),
+    [sortedCourses, page]
+  );
 
   usePageMeta({
     title: 'Courses & Mentorship',
@@ -173,13 +181,21 @@ const TeachPage = () => {
                 All Courses
               </span>
             </div>
-            <SortSelect options={TEACH_SORT_OPTIONS} value={sortBy} onChange={setSortBy} label="Sort" />
+            <SortSelect options={TEACH_SORT_OPTIONS} value={sortBy} onChange={(v) => { setSortBy(v); setPage(1); }} label="Sort" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {sortedCourses.map((c, i) => (
-              <CourseCard key={c.slug || c.id} course={c} whatsapp={whatsapp} index={i} />
+            {paginatedCourses.map((c, i) => (
+              <CourseCard key={c.slug || c.id} course={c} whatsapp={whatsapp} index={start + i} />
             ))}
           </div>
+          {sortedCourses.length > 0 && (
+            <ListPagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              range={{ start, end, total }}
+            />
+          )}
         </div>
       </section>
 

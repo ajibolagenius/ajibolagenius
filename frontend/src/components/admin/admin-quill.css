@@ -1,0 +1,33 @@
+/* Dark theme overrides for Quill in admin */
+.admin-quill[data-quill-dark] .ql-toolbar.ql-snow,
+.admin-quill[data-quill-dark] .ql-container.ql-snow {
+  border-color: var(--border-md);
+  background: var(--elevated);
+}
+.admin-quill[data-quill-dark] .ql-toolbar.ql-snow {
+  border-bottom: 1px solid var(--border-md);
+}
+.admin-quill[data-quill-dark] .ql-editor {
+  min-height: 200px;
+  color: var(--white);
+  font-family: inherit;
+}
+.admin-quill[data-quill-dark] .ql-editor.ql-blank::before {
+  color: var(--subtle);
+  font-style: normal;
+}
+.admin-quill[data-quill-dark] .ql-snow .ql-stroke {
+  stroke: var(--border-md);
+}
+.admin-quill[data-quill-dark] .ql-snow .ql-fill,
+.admin-quill[data-quill-dark] .ql-snow .ql-picker {
+  color: var(--muted);
+}
+.admin-quill[data-quill-dark] .ql-snow .ql-picker-label:hover,
+.admin-quill[data-quill-dark] .ql-snow button:hover .ql-stroke {
+  stroke: var(--sungold);
+}
+.admin-quill[data-quill-dark] .ql-snow .ql-toolbar button:hover .ql-fill,
+.admin-quill[data-quill-dark] .ql-snow .ql-picker-label.ql-active {
+  color: var(--sungold);
+}
