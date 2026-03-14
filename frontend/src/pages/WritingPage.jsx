@@ -9,13 +9,14 @@ import FilterButtons from '../components/portfolio/FilterButtons';
 import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
+import { DataLoadingSkeleton, DataErrorBanner } from '../components/portfolio/DataStateMessage';
 
 const WritingPage = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('All');
   const [nlEmail, setNlEmail] = useState('');
   const [nlMsg, setNlMsg] = useState('');
-  const { data: posts } = useRealtimeQuery('blog_posts', fetchBlogPosts, fbPosts);
+  const { data: posts, loading: postsLoading, error: postsError, refetch: refetchPosts } = useRealtimeQuery('blog_posts', fetchBlogPosts, fbPosts);
 
   const displayPosts = (Array.isArray(posts) && posts.length > 0) ? posts : fbPosts;
   const categoryList = ['All', ...[...new Set(displayPosts.map(p => p.category).filter(Boolean))].sort()];
@@ -37,10 +38,10 @@ const WritingPage = () => {
     setTimeout(() => setNlMsg(''), 4000);
   };
 
-  if (displayPosts.length === 0) {
+  if (postsLoading && displayPosts.length === 0) {
     return (
-      <div className="py-32 text-center font-mono text-[13px] text-[var(--subtle)]">
-        Loading…
+      <div className="py-32 px-4 max-w-[1160px] mx-auto">
+        <DataLoadingSkeleton lines={8} />
       </div>
     );
   }
@@ -66,6 +67,7 @@ const WritingPage = () => {
         </div>
       </section>
 
+      {postsError && <DataErrorBanner error={postsError} onRetry={refetchPosts} className="max-w-[1160px] mx-auto px-4 md:px-8 mb-6" />}
       {/* Featured post hero */}
       {featured && (
         <section className="py-12 md:py-16 border-b border-[var(--border)]">

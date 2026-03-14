@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MessageSquare, Quote, ChevronDown, ChevronUp } from 'lucide-react';
 import { fetchCourses, fetchTestimonials, fetchPersonalInfo } from '../services/api';
 import { courses as fbCourses, testimonials as fbTestimonials, faqItems, personalInfo as fbInfo } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
 import SectionKicker from '../components/portfolio/SectionKicker';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 
 /** Badge variant and accent color per index — same length so badge and border/button stay aligned (warm/cool alternating). */
 const COURSE_ACCENTS = [
@@ -109,20 +110,13 @@ const FaqItem = ({ item, open, onToggle }) => (
 );
 
 const TeachPage = () => {
-  const [courses, setCourses] = useState([]);
-  const [testimonials, setTestimonials] = useState([]);
-  const [whatsapp, setWhatsapp] = useState('#');
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
-
-  useEffect(() => {
-    fetchCourses().then(setCourses).catch(() => setCourses(fbCourses));
-    fetchTestimonials().then(setTestimonials).catch(() => setTestimonials(fbTestimonials));
-    fetchPersonalInfo()
-      .then(info => setWhatsapp(info.social?.whatsapp || fbInfo.social.whatsapp))
-      .catch(() => setWhatsapp(fbInfo.social.whatsapp));
-  }, []);
-
-  const displayCourses = courses.length > 0 ? courses : fbCourses;
+  const { data: courses } = useRealtimeQuery('courses', fetchCourses, fbCourses);
+  const { data: testimonials } = useRealtimeQuery('testimonials', fetchTestimonials, fbTestimonials);
+  const { data: personalInfo } = useRealtimeQuery('personal_info', fetchPersonalInfo, fbInfo);
+  const displayCourses = Array.isArray(courses) && courses.length > 0 ? courses : fbCourses;
+  const displayTestimonials = Array.isArray(testimonials) && testimonials.length > 0 ? testimonials : fbTestimonials;
+  const whatsapp = personalInfo?.social?.whatsapp || fbInfo.social.whatsapp;
 
   usePageMeta({
     title: 'Courses & Mentorship',
@@ -204,7 +198,7 @@ const TeachPage = () => {
             </span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {(testimonials.length > 0 ? testimonials : fbTestimonials).map((t, i) => (
+            {displayTestimonials.map((t, i) => (
               <div key={i} className="p-6 bg-[var(--surface)] border border-[var(--border)]">
                 <Quote size={20} className="mb-4 text-[var(--sungold)] opacity-60" />
                 <p className="font-body text-[13px] leading-[1.7] mb-5 text-[var(--muted)]">

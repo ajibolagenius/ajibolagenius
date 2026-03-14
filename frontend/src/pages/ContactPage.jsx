@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Send, MessageSquare, MapPin, Mail, Github, Twitter, Linkedin } from 'lucide-react';
 import { submitContact, fetchPersonalInfo } from '../services/api';
 import { personalInfo as fbInfo } from '../data/mock';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 
 const INPUT_CLASS =
   'w-full bg-[var(--elevated)] border border-[var(--border-md)] px-4 py-[10px] font-body text-[14px] text-[var(--white)] placeholder:text-[var(--subtle)] outline-none transition-all duration-200 rounded-none focus:border-[var(--sungold)] focus:shadow-[var(--shadow-sharp-ring)]';
@@ -11,11 +12,7 @@ const ContactPage = () => {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [responseMsg, setResponseMsg] = useState('');
-  const [info, setInfo] = useState(fbInfo);
-
-  useEffect(() => {
-    fetchPersonalInfo().then(data => setInfo(data)).catch(() => {});
-  }, []);
+  const { data: info } = useRealtimeQuery('personal_info', fetchPersonalInfo, fbInfo);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,7 +31,8 @@ const ContactPage = () => {
     }
   };
 
-  const social = info.social || fbInfo.social;
+  const data = info || fbInfo;
+  const social = data.social || fbInfo.social;
 
   usePageMeta({
     title: 'Contact',
@@ -139,7 +137,7 @@ const ContactPage = () => {
               <div className="p-5 flex items-center gap-3 bg-[var(--warm-glow)] border border-[rgba(232,160,32,0.2)]">
                 <div className="w-2 h-2 bg-[var(--sungold)] shrink-0" style={{ boxShadow: '0 0 8px rgba(232,160,32,0.5)' }} />
                 <span className="font-mono text-[11px] tracking-[0.08em] text-[var(--sungold)]">
-                  {info.availability || 'Available for projects'}
+                  {data.availability || 'Available for projects'}
                 </span>
               </div>
 
@@ -168,8 +166,8 @@ const ContactPage = () => {
                   <Mail size={16} className="text-[var(--sungold)]" />
                   <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--subtle)]">Email</span>
                 </div>
-                <a href={`mailto:${info.email}`} className="font-body text-[14px] text-[var(--white)] no-underline hover:text-[var(--sungold)] transition-colors">
-                  {info.email}
+                <a href={`mailto:${data.email}`} className="font-body text-[14px] text-[var(--white)] no-underline hover:text-[var(--sungold)] transition-colors">
+                  {data.email}
                 </a>
               </div>
 
@@ -179,7 +177,7 @@ const ContactPage = () => {
                   <MapPin size={16} className="text-[var(--stardust)]" />
                   <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--subtle)]">Location</span>
                 </div>
-                <p className="font-body text-[14px] text-[var(--white)]">{info.location}</p>
+                <p className="font-body text-[14px] text-[var(--white)]">{data.location}</p>
               </div>
 
               {/* WhatsApp quick link */}

@@ -6,6 +6,7 @@ import { techStackForCV } from '../data/techStack';
 import Badge from '../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 
 const ACCENT_COLORS = {
   sungold: { bg: 'var(--sungold)', ring: 'rgba(232,160,32,0.2)' },
@@ -19,12 +20,8 @@ const getPdfUrl = () => import.meta.env?.VITE_CV_PDF_URL || (typeof cvData?.pdfU
 
 const CVPage = () => {
   const [visible, setVisible] = useState(false);
-  const [timeline, setTimeline] = useState([]);
   const sectionRef = useRef(null);
-
-  useEffect(() => {
-    fetchTimeline().then(setTimeline).catch(() => setTimeline(fbTimeline));
-  }, []);
+  const { data: timeline } = useRealtimeQuery('timeline_entries', fetchTimeline, fbTimeline);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -35,7 +32,7 @@ const CVPage = () => {
     return () => observer.disconnect();
   }, []);
 
-  const displayTimeline = timeline.length > 0 ? timeline : fbTimeline;
+  const displayTimeline = Array.isArray(timeline) && timeline.length > 0 ? timeline : fbTimeline;
 
   usePageMeta({
     title: 'CV',

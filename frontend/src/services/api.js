@@ -1,3 +1,7 @@
+/**
+ * Public API for portfolio data and forms.
+ * All reads/writes go through Supabase; falls back to mock data when fetch fails (handled by callers).
+ */
 import { supabase } from '../lib/supabase';
 
 function handleResponse({ data, error }) {
@@ -13,7 +17,7 @@ function handleResponse({ data, error }) {
   return data;
 }
 
-// Public read
+// Public read (portfolio content, no auth)
 export const fetchPersonalInfo = () =>
   supabase.from('personal_info').select('*').eq('id', 1).single().then(handleResponse);
 
@@ -41,7 +45,7 @@ export const fetchTimeline = () =>
 export const fetchTestimonials = () =>
   supabase.from('testimonials').select('*').then(handleResponse);
 
-// Public write
+// Public write (contact form, newsletter — anon insert)
 export const submitContact = async (data) => {
   const r = await supabase
     .from('contact_messages')

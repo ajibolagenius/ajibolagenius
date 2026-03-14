@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { fetchTimeline } from '../../services/api';
 import { timeline as fbTimeline } from '../../data/mock';
+import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
 
 const accentColors = {
   sungold: { bg: '#E8A020', shadow: 'rgba(232,160,32,0.2)' },
@@ -11,12 +12,9 @@ const accentColors = {
 
 const Timeline = () => {
   const [visible, setVisible] = useState(false);
-  const [timeline, setTimeline] = useState([]);
   const sectionRef = useRef(null);
-
-  useEffect(() => {
-    fetchTimeline().then(setTimeline).catch(() => setTimeline(fbTimeline));
-  }, []);
+  const { data } = useRealtimeQuery('timeline_entries', fetchTimeline, fbTimeline);
+  const timeline = Array.isArray(data) ? data : fbTimeline;
 
   useEffect(() => {
     const observer = new IntersectionObserver(

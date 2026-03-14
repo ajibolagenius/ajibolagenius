@@ -9,6 +9,7 @@ import FilterButtons from '../components/portfolio/FilterButtons';
 import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
+import { DataLoadingSkeleton, DataErrorBanner } from '../components/portfolio/DataStateMessage';
 
 const ProjectCard = ({ project }) => {
   const [hovered, setHovered] = useState(false);
@@ -144,7 +145,7 @@ const FeaturedSpotlight = ({ project, onView }) => {
 const WorkPage = () => {
   const [filter, setFilter] = useState('all');
   const navigate = useNavigate();
-  const { data, loading } = useRealtimeQuery('projects', fetchProjects, fallbackProjects);
+  const { data, loading, error, refetch } = useRealtimeQuery('projects', fetchProjects, fallbackProjects);
   const projects = Array.isArray(data) ? data : fallbackProjects;
 
   const filteredProjects = filter === 'all'
@@ -191,10 +192,9 @@ const WorkPage = () => {
 
           <FilterButtons options={filterOptions} value={filter} onChange={setFilter} label="Filter" />
 
-          {loading ? (
-            <div className="font-mono text-[13px] py-20 text-center text-[var(--subtle)]">
-              Loading projects…
-            </div>
+          {error && <DataErrorBanner error={error} onRetry={refetch} className="mb-6" />}
+          {loading && projects.length === 0 ? (
+            <DataLoadingSkeleton lines={6} className="py-8 mb-6" />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProjects.map((project) => (

@@ -8,7 +8,7 @@ import React from 'react';
  * @param {string} [label] - Optional label before buttons (e.g. "Filter", "Category", "Type")
  */
 const FilterButtons = ({ options, value, onChange, label }) => (
-  <div className="flex items-center gap-2 flex-wrap">
+  <div className="flex items-center gap-2 flex-wrap" role="group" aria-label={label || 'Filter options'}>
     {label && (
       <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--subtle)]">
         {label}
@@ -19,8 +19,9 @@ const FilterButtons = ({ options, value, onChange, label }) => (
         <button
           key={opt.value}
           type="button"
+          aria-pressed={value === opt.value}
           onClick={() => onChange(opt.value)}
-          className="font-mono text-[11px] tracking-[0.1em] uppercase px-4 py-2 cursor-pointer transition-all duration-200 rounded-none"
+          className="font-mono text-[11px] tracking-[0.1em] uppercase px-4 py-2 cursor-pointer transition-all duration-200 rounded-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
           style={{
             background: value === opt.value ? 'rgba(232,160,32,0.15)' : 'transparent',
             color: value === opt.value ? 'var(--sungold)' : 'var(--subtle)',

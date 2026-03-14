@@ -1,3 +1,7 @@
+/**
+ * Admin API — CRUD and stats using Supabase with authenticated session.
+ * Requires user to be signed in via Supabase Auth; RLS enforces access.
+ */
 import { supabase } from '../lib/supabase';
 
 function handleResponse({ data, error }) {

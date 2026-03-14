@@ -4,6 +4,7 @@ import { ArrowUpRight } from 'lucide-react';
 import { fetchProjects } from '../../services/api';
 import { projects as fallbackProjects } from '../../data/mock';
 import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
+import { DataLoadingSkeleton, DataErrorBanner } from './DataStateMessage';
 import Badge from './Badge';
 
 const ProjectCard = ({ project, index, visible }) => {
@@ -63,7 +64,7 @@ const Projects = ({ featuredOnly = false }) => {
   const [visible, setVisible] = useState(false);
   const [filter, setFilter] = useState('all');
   const sectionRef = useRef(null);
-  const { data, loading } = useRealtimeQuery('projects', fetchProjects, fallbackProjects);
+  const { data, loading, error, refetch } = useRealtimeQuery('projects', fetchProjects, fallbackProjects);
   const projects = Array.isArray(data) ? data : fallbackProjects;
 
   useEffect(() => {
@@ -104,10 +105,14 @@ const Projects = ({ featuredOnly = false }) => {
           A selection of products and experiments I&apos;ve built — from social platforms to creative coding explorations.
         </p>
         {!featuredOnly && (
-          <div className="flex gap-2 mb-10">
+          <div className="flex gap-2 mb-10" role="group" aria-label="Filter by type">
             {filters.map((f) => (
-              <button key={f.value} onClick={() => setFilter(f.value)}
-                className="font-mono text-[11px] tracking-[0.1em] uppercase px-4 py-2 cursor-pointer transition-all duration-200 rounded-none"
+              <button
+                key={f.value}
+                type="button"
+                onClick={() => setFilter(f.value)}
+                aria-pressed={filter === f.value}
+                className="font-mono text-[11px] tracking-[0.1em] uppercase px-4 py-2 cursor-pointer transition-all duration-200 rounded-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
                 style={{
                   background: filter === f.value ? 'rgba(232,160,32,0.15)' : 'transparent',
                   color: filter === f.value ? 'var(--sungold)' : 'var(--subtle)',
@@ -119,11 +124,16 @@ const Projects = ({ featuredOnly = false }) => {
             ))}
           </div>
         )}
+        {error && <DataErrorBanner error={error} onRetry={refetch} className="mb-6" />}
+        {loading && projects.length === 0 ? (
+          <DataLoadingSkeleton lines={6} className="mb-6" />
+        ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {displayProjects.map((project, i) => (
             <ProjectCard key={project.slug || project.id} project={project} index={i} visible={visible} />
           ))}
         </div>
+        )}
         {featuredOnly && (
           <div className="mt-10 flex justify-start">
             <Link

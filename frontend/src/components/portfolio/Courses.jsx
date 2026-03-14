@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { fetchCourses } from '../../services/api';
 import { courses as fbCourses } from '../../data/mock';
+import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
 const CourseCard = ({ course, index, visible }) => {
   const [hovered, setHovered] = useState(false);
 
@@ -69,14 +70,9 @@ const CourseCard = ({ course, index, visible }) => {
 
 const Courses = () => {
   const [visible, setVisible] = useState(false);
-  const [courses, setCourses] = useState([]);
   const sectionRef = useRef(null);
-
-  useEffect(() => {
-    fetchCourses()
-      .then(data => setCourses(data.slice(0, 6)))
-      .catch(() => setCourses(fbCourses.slice(0, 6)));
-  }, []);
+  const { data } = useRealtimeQuery('courses', fetchCourses, fbCourses);
+  const courses = Array.isArray(data) ? data.slice(0, 6) : fbCourses.slice(0, 6);
 
   useEffect(() => {
     const observer = new IntersectionObserver(

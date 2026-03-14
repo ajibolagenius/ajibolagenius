@@ -2,16 +2,17 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, MessageSquare, MapPin, Mail } from 'lucide-react';
 import { submitContact, fetchPersonalInfo } from '../../services/api';
 import { personalInfo as fbInfo } from '../../data/mock';
+import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
+
 const Contact = () => {
   const [visible, setVisible] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [responseMsg, setResponseMsg] = useState('');
-  const [info, setInfo] = useState(fbInfo);
   const sectionRef = useRef(null);
+  const { data: info } = useRealtimeQuery('personal_info', fetchPersonalInfo, fbInfo);
 
   useEffect(() => {
-    fetchPersonalInfo().then(setInfo).catch(() => {});
     const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.1 });
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
@@ -34,7 +35,7 @@ const Contact = () => {
   const handleFocus = (e) => { e.target.style.borderColor = 'var(--sungold)'; e.target.style.boxShadow = 'var(--shadow-sharp-ring)'; };
   const handleBlur = (e) => { e.target.style.borderColor = 'var(--border-md)'; e.target.style.boxShadow = 'none'; };
 
-  const social = info.social || fbInfo.social;
+  const social = (info || fbInfo).social || fbInfo.social;
 
   return (
     <section id="contact" ref={sectionRef} className="py-12 md:py-20">

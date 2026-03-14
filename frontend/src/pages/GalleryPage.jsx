@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchGallery } from '../services/api';
@@ -6,6 +6,8 @@ import { galleryItems as fbGallery } from '../data/mock';
 import SectionKicker from '../components/portfolio/SectionKicker';
 import FilterButtons from '../components/portfolio/FilterButtons';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
+import { DataErrorBanner, DataLoadingSkeleton } from '../components/portfolio/DataStateMessage';
 
 const FILTER_OPTIONS = [
   { label: 'All', value: 'All' },
@@ -20,13 +22,8 @@ const MASONRY_HEIGHTS = [200, 260, 180, 300, 220, 240, 280, 200, 320, 190, 250, 
 const GalleryPage = () => {
   const [filter, setFilter] = useState('All');
   const [lightbox, setLightbox] = useState(null);
-  const [items, setItems] = useState([]);
-
-  useEffect(() => {
-    fetchGallery().then(setItems).catch(() => setItems(fbGallery));
-  }, []);
-
-  const displayItems = items.length > 0 ? items : fbGallery;
+  const { data, loading, error, refetch } = useRealtimeQuery('gallery_items', fetchGallery, fbGallery);
+  const displayItems = Array.isArray(data) && data.length > 0 ? data : fbGallery;
   const filtered = filter === 'All' ? displayItems : displayItems.filter(g => g.type === filter);
 
   usePageMeta({
@@ -54,7 +51,10 @@ const GalleryPage = () => {
           <div className="mb-8">
             <FilterButtons options={FILTER_OPTIONS} value={filter} onChange={setFilter} label="Type" />
           </div>
-
+          {error && <DataErrorBanner error={error} onRetry={refetch} className="mb-6" />}
+          {loading && displayItems.length === 0 ? (
+            <DataLoadingSkeleton lines={8} className="mb-6" />
+          ) : (
           <motion.div
             layout
             className="columns-1 sm:columns-2 lg:columns-3 gap-4"
@@ -104,6 +104,7 @@ const GalleryPage = () => {
               );
             })}
           </motion.div>
+          )}
         </div>
       </section>
 
