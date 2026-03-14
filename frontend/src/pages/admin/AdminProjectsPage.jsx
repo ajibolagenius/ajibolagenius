@@ -75,6 +75,7 @@ export default function AdminProjectsPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
   const fileInputRef = React.useRef(null);
+  const [search, setSearch] = useState('');
 
   const load = () => {
     setLoading(true);
@@ -83,9 +84,22 @@ export default function AdminProjectsPage() {
 
   useEffect(load, []);
 
+  const filteredList = useMemo(() => {
+    if (!search.trim()) return list;
+    const q = search.trim().toLowerCase();
+    return list.filter(
+      (p) =>
+        (p.name || '').toLowerCase().includes(q) ||
+        (p.slug || '').toLowerCase().includes(q) ||
+        (p.category || '').toLowerCase().includes(q) ||
+        (p.label || '').toLowerCase().includes(q) ||
+        (p.description || '').toLowerCase().includes(q)
+    );
+  }, [list, search]);
+
   const { items: paginatedList, totalPages, start, end, total } = useMemo(
-    () => paginate(list, page, ADMIN_PAGE_SIZE),
-    [list, page]
+    () => paginate(filteredList, page, ADMIN_PAGE_SIZE),
+    [filteredList, page]
   );
 
   const openCreate = () => {
@@ -191,6 +205,16 @@ export default function AdminProjectsPage() {
           Add project
         </Button>
       </div>
+      {!loading && (
+        <Input
+          type="search"
+          placeholder="Search by name, slug, category, label…"
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          className="max-w-sm mb-4 bg-[var(--elevated)] border-[var(--border-md)] font-mono text-[13px]"
+          aria-label="Search projects"
+        />
+      )}
       {loading ? (
         <p className="text-[var(--muted)] font-mono text-sm">Loading…</p>
       ) : (
@@ -221,7 +245,7 @@ export default function AdminProjectsPage() {
         </div>
       )}
 
-      {list.length > 0 && (
+      {filteredList.length > 0 && (
         <ListPagination
           page={page}
           totalPages={totalPages}

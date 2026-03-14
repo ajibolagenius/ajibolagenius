@@ -24,6 +24,7 @@ const tableConfig = {
   courses: { table: 'courses' },
   timeline: { table: 'timeline_entries', order: { column: 'order', ascending: true } },
   education: { table: 'education_entries', order: { column: 'order', ascending: true } },
+  certifications: { table: 'certifications', order: { column: 'order', ascending: true } },
   testimonials: { table: 'testimonials' },
 };
 
@@ -126,6 +127,12 @@ export const adminEndpoints = {
     update: (id, d) => update(tableConfig.education.table, id, d),
     delete: (id) => remove(tableConfig.education.table, id).then(() => ({ status: 'ok' })),
   },
+  certifications: {
+    list: () => list(tableConfig.certifications.table, tableConfig.certifications.order),
+    create: (d) => create(tableConfig.certifications.table, d),
+    update: (id, d) => update(tableConfig.certifications.table, id, d),
+    delete: (id) => remove(tableConfig.certifications.table, id).then(() => ({ status: 'ok' })),
+  },
   testimonials: {
     list: () => list(tableConfig.testimonials.table),
     create: (d) => create(tableConfig.testimonials.table, d),
@@ -168,6 +175,7 @@ export const adminEndpoints = {
       'courses',
       'timeline',
       'education',
+      'certifications',
       'testimonials',
       'contact_messages',
       'newsletter_subscribers',
@@ -179,6 +187,7 @@ export const adminEndpoints = {
       'courses',
       'timeline_entries',
       'education_entries',
+      'certifications',
       'testimonials',
       'contact_messages',
       'newsletter_subscribers',

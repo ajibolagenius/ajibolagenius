@@ -39,10 +39,10 @@ export const fetchCourses = () =>
   supabase.from('courses').select('*').then(handleResponse);
 
 export const fetchBlogPosts = () =>
-  supabase.from('blog_posts').select('*').order('date', { ascending: false }).then(handleResponse);
+  supabase.from('blog_posts').select('*').eq('published', true).order('date', { ascending: false }).then(handleResponse);
 
 export const fetchBlogPost = (slug) =>
-  supabase.from('blog_posts').select('*').eq('slug', slug).maybeSingle().then((r) => {
+  supabase.from('blog_posts').select('*').eq('slug', slug).eq('published', true).maybeSingle().then((r) => {
     if (r.error) return handleResponse(r);
     if (r.data === null) {
       const e = new Error('Post not found');
@@ -60,6 +60,9 @@ export const fetchTimeline = () =>
 
 export const fetchEducation = () =>
   supabase.from('education_entries').select('*').order('order', { ascending: true }).then(handleResponse);
+
+export const fetchCertifications = () =>
+  supabase.from('certifications').select('*').order('order', { ascending: true }).then(handleResponse);
 
 export const fetchTestimonials = () =>
   supabase.from('testimonials').select('*').then(handleResponse);

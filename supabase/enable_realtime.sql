@@ -9,4 +9,5 @@ alter publication supabase_realtime add table courses;
 alter publication supabase_realtime add table gallery_items;
 alter publication supabase_realtime add table timeline_entries;
 alter publication supabase_realtime add table education_entries;
+alter publication supabase_realtime add table certifications;
 alter publication supabase_realtime add table testimonials;

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Download, Briefcase, GraduationCap, Award, Wrench } from 'lucide-react';
-import { fetchTimeline, fetchEducation } from '../services/api';
+import { fetchTimeline, fetchEducation, fetchCertifications } from '../services/api';
 import { timeline as fbTimeline, skills, cvData } from '../data/mock';
 import { techStackForCV } from '../data/techStack';
 import Badge from '../components/portfolio/Badge';
@@ -23,6 +23,7 @@ const CVPage = () => {
   const sectionRef = useRef(null);
   const { data: timeline } = useRealtimeQuery('timeline_entries', fetchTimeline, fbTimeline);
   const { data: education } = useRealtimeQuery('education_entries', fetchEducation, cvData.education);
+  const { data: certifications } = useRealtimeQuery('certifications', fetchCertifications, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -35,6 +36,9 @@ const CVPage = () => {
 
   const displayTimeline = Array.isArray(timeline) && timeline.length > 0 ? timeline : fbTimeline;
   const displayEducation = Array.isArray(education) && education.length > 0 ? education : cvData.education;
+  const displayCertifications = Array.isArray(certifications) && certifications.length > 0
+    ? certifications.map((c) => (typeof c === 'string' ? c : c.title))
+    : cvData.certifications;
 
   usePageMeta({
     title: 'CV',
@@ -142,7 +146,7 @@ const CVPage = () => {
                   </span>
                 </div>
                 <div className="flex flex-col gap-2">
-                  {cvData.certifications.map((cert, i) => (
+                  {displayCertifications.map((cert, i) => (
                     <div key={i} className="flex items-center gap-3 p-3 bg-[var(--surface)] border border-[var(--border)]">
                       <span className="w-1.5 h-1.5 flex-shrink-0 bg-[var(--sungold)]" />
                       <span className="font-body text-[13px] text-[var(--muted)]">{cert}</span>

@@ -97,7 +97,8 @@ const BlogPostPage = () => {
     post
       ? {
           title: post.title,
-          description: post.excerpt || post.description || 'Article by Ajibola Akelebe.',
+          description: post.meta_description || post.excerpt || post.description || 'Article by Ajibola Akelebe.',
+          image: post.og_image || undefined,
           canonical: `/writing/${post.slug || slug}`,
           ogType: 'article',
         }

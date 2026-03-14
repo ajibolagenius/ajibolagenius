@@ -14,6 +14,7 @@ const ADMIN_PAGE_SIZE = 10;
 
 const emptyEntry = () => ({ year: '', title: '', body: '', accent: 'sungold', order: 0 });
 const emptyEduEntry = () => ({ year: '', degree: '', school: '', description: '', order: 0 });
+const emptyCertEntry = () => ({ title: '', order: 0 });
 
 export default function AdminTimelinePage() {
   const [list, setList] = useState([]);
@@ -36,6 +37,16 @@ export default function AdminTimelinePage() {
   const [eduSaving, setEduSaving] = useState(false);
   const [toDeleteEdu, setToDeleteEdu] = useState(null);
 
+  const [certList, setCertList] = useState([]);
+  const [certPage, setCertPage] = useState(1);
+  const [certLoading, setCertLoading] = useState(true);
+  const [certDialogOpen, setCertDialogOpen] = useState(false);
+  const [certDeleteOpen, setCertDeleteOpen] = useState(false);
+  const [editingCert, setEditingCert] = useState(null);
+  const [certForm, setCertForm] = useState(emptyCertEntry());
+  const [certSaving, setCertSaving] = useState(false);
+  const [toDeleteCert, setToDeleteCert] = useState(null);
+
   const load = () => {
     setLoading(true);
     adminEndpoints.timeline.list().then(setList).catch(() => setList([])).finally(() => setLoading(false));
@@ -44,8 +55,13 @@ export default function AdminTimelinePage() {
     setEduLoading(true);
     adminEndpoints.education.list().then(setEduList).catch(() => setEduList([])).finally(() => setEduLoading(false));
   };
+  const loadCert = () => {
+    setCertLoading(true);
+    adminEndpoints.certifications.list().then(setCertList).catch(() => setCertList([])).finally(() => setCertLoading(false));
+  };
   useEffect(load, []);
   useEffect(loadEdu, []);
+  useEffect(loadCert, []);
 
   const { items: paginatedList, totalPages, start, end, total } = useMemo(
     () => paginate(list, page, ADMIN_PAGE_SIZE),
@@ -55,6 +71,10 @@ export default function AdminTimelinePage() {
     () => paginate(eduList, eduPage, ADMIN_PAGE_SIZE),
     [eduList, eduPage]
   );
+  const { items: paginatedCertList, totalPages: certTotalPages, start: certStart, end: certEnd, total: certTotal } = useMemo(
+    () => paginate(certList, certPage, ADMIN_PAGE_SIZE),
+    [certList, certPage]
+  );
 
   const openCreate = () => { setEditing(null); setForm(emptyEntry()); setDialogOpen(true); };
   const openEdit = (p) => { setEditing(p); setForm({ year: p.year, title: p.title, body: p.body, accent: p.accent || 'sungold', order: p.order ?? 0 }); setDialogOpen(true); };
@@ -63,6 +83,10 @@ export default function AdminTimelinePage() {
   const openCreateEdu = () => { setEditingEdu(null); setEduForm(emptyEduEntry()); setEduDialogOpen(true); };
   const openEditEdu = (p) => { setEditingEdu(p); setEduForm({ year: p.year, degree: p.degree, school: p.school, description: p.description ?? '', order: p.order ?? 0 }); setEduDialogOpen(true); };
   const openDeleteEdu = (p) => { setToDeleteEdu(p); setEduDeleteOpen(true); };
+
+  const openCreateCert = () => { setEditingCert(null); setCertForm(emptyCertEntry()); setCertDialogOpen(true); };
+  const openEditCert = (p) => { setEditingCert(p); setCertForm({ title: p.title ?? '', order: p.order ?? 0 }); setCertDialogOpen(true); };
+  const openDeleteCert = (p) => { setToDeleteCert(p); setCertDeleteOpen(true); };
 
   const handleSave = async () => {
     setSaving(true);
@@ -104,8 +128,29 @@ export default function AdminTimelinePage() {
     } catch (e) { console.error(e); }
   };
 
+  const handleSaveCert = async () => {
+    setCertSaving(true);
+    try {
+      if (editingCert) await adminEndpoints.certifications.update(editingCert.id, certForm);
+      else await adminEndpoints.certifications.create(certForm);
+      setCertDialogOpen(false);
+      loadCert();
+    } catch (e) { console.error(e); } finally { setCertSaving(false); }
+  };
+
+  const handleDeleteCert = async () => {
+    if (!toDeleteCert) return;
+    try {
+      await adminEndpoints.certifications.delete(toDeleteCert.id);
+      setCertDeleteOpen(false);
+      setToDeleteCert(null);
+      loadCert();
+    } catch (e) { console.error(e); }
+  };
+
   const update = (key, value) => setForm((f) => ({ ...f, [key]: value }));
   const updateEdu = (key, value) => setEduForm((f) => ({ ...f, [key]: value }));
+  const updateCert = (key, value) => setCertForm((f) => ({ ...f, [key]: value }));
 
   return (
     <div>
@@ -182,6 +227,46 @@ export default function AdminTimelinePage() {
         )}
         {eduList.length > 0 && (
           <ListPagination page={eduPage} totalPages={eduTotalPages} onPageChange={setEduPage} range={{ start: eduStart, end: eduEnd, total: eduTotal }} />
+        )}
+      </div>
+
+      {/* Certifications section */}
+      <div className="mt-16 pt-12 border-t border-[var(--border)]">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
+          <h2 className="font-display text-[18px] font-bold text-[var(--white)]">Certifications</h2>
+          <Button onClick={openCreateCert} variant="outline" className="self-start sm:self-center h-11 font-display font-semibold text-[13px] border-[var(--border)] text-[var(--white)] rounded-none">Add entry</Button>
+        </div>
+        {certLoading ? <p className="text-[var(--muted)] font-mono text-sm">Loading…</p> : (
+          <div className="border border-[var(--border)] overflow-hidden">
+            <table className="w-full text-left">
+              <thead className="bg-[var(--surface)] border-b border-[var(--border)]">
+                <tr>
+                  <th className="px-4 py-3 font-mono text-[11px] text-[var(--subtle)] uppercase">Order</th>
+                  <th className="px-4 py-3 font-mono text-[11px] text-[var(--subtle)] uppercase">Title</th>
+                  <th className="px-4 py-3 font-mono text-[11px] text-[var(--subtle)] uppercase w-28">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border)]">
+                {paginatedCertList.length === 0 ? (
+                  <tr><td colSpan={3} className="px-4 py-8 text-center text-[var(--muted)] font-mono text-sm">No certifications yet.</td></tr>
+                ) : (
+                  paginatedCertList.map((p) => (
+                    <tr key={p.id} className="bg-[var(--elevated)]/50 hover:bg-[var(--elevated)]">
+                      <td className="px-4 py-3 font-mono text-[12px] text-[var(--sungold)]">{p.order}</td>
+                      <td className="px-4 py-3 font-body text-sm text-[var(--white)]">{p.title}</td>
+                      <td className="px-4 py-3 flex gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => openEditCert(p)}>Edit</Button>
+                        <Button variant="ghost" size="sm" className="text-[var(--terracotta)]" onClick={() => openDeleteCert(p)}>Delete</Button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {certList.length > 0 && (
+          <ListPagination page={certPage} totalPages={certTotalPages} onPageChange={setCertPage} range={{ start: certStart, end: certEnd, total: certTotal }} />
         )}
       </div>
 
@@ -275,6 +360,41 @@ export default function AdminTimelinePage() {
           <AlertDialogFooter>
             <AlertDialogCancel className="border-[var(--border)] text-[var(--white)]">Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteEdu} className="bg-[var(--terracotta)] text-white">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Dialog open={certDialogOpen} onOpenChange={setCertDialogOpen}>
+        <DialogContent className="border-[var(--border)] bg-[var(--surface)] text-[var(--white)]">
+          <DialogHeader><DialogTitle>{editingCert ? 'Edit certification' : 'New certification'}</DialogTitle></DialogHeader>
+          <div className="grid gap-4 py-4" role="form" aria-label={editingCert ? 'Edit certification' : 'New certification'}>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="cert-order">Order</Label>
+                <Input id="cert-order" type="number" value={certForm.order} onChange={(e) => updateCert('order', parseInt(e.target.value, 10) || 0)} placeholder="0 = first" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cert-title">Title</Label>
+                <Input id="cert-title" value={certForm.title} onChange={(e) => updateCert('title', e.target.value)} placeholder="e.g. Meta Front-End Developer Certificate" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCertDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveCert} disabled={certSaving} className="bg-[var(--sungold)] text-[var(--void)]">{certSaving ? 'Saving…' : 'Save'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={certDeleteOpen} onOpenChange={setCertDeleteOpen}>
+        <AlertDialogContent className="border-[var(--border)] bg-[var(--surface)]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-[var(--white)]">Delete certification?</AlertDialogTitle>
+            <AlertDialogDescription className="text-[var(--muted)]">{toDeleteCert?.title} will be removed.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-[var(--border)] text-[var(--white)]">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteCert} className="bg-[var(--terracotta)] text-white">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
