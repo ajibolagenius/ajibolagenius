@@ -20,10 +20,10 @@ const WorkDetailPage = () => {
     ? (project.screenshots || []).map((s) => (typeof s === 'string' ? s : s?.url)).filter(Boolean).length
     : 0;
   const goPrev = useCallback(() => {
-    setLightboxIndex((i) => (i <= 0 ? screenshotsLength - 1 : i - 1));
+    setLightboxIndex((i) => (screenshotsLength <= 0 ? 0 : (i <= 0 ? screenshotsLength - 1 : i - 1)));
   }, [screenshotsLength]);
   const goNext = useCallback(() => {
-    setLightboxIndex((i) => (i >= screenshotsLength - 1 ? 0 : i + 1));
+    setLightboxIndex((i) => (screenshotsLength <= 0 ? 0 : (i >= screenshotsLength - 1 ? 0 : i + 1)));
   }, [screenshotsLength]);
 
   useEffect(() => {
