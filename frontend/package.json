@@ -65,7 +65,8 @@
     "dev": "vite",
     "start": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "seed:courses": "node scripts/seed-courses.js"
   },
   "browserslist": {
     "production": [
