@@ -32,12 +32,11 @@ function create(tableName, payload) {
   return supabase.from(tableName).insert(payload).select().single().then(handleResponse);
 }
 
-function update(tableName, id, payload) {
+async function update(tableName, id, payload) {
   const { id: _id, created_at: _ca, ...rest } = payload ?? {};
-  return supabase.from(tableName).update(rest).eq('id', id).select().then((r) => {
-    handleResponse(r);
-    return { status: 'ok', id };
-  });
+  const r = await supabase.from(tableName).update(rest).eq('id', id).select();
+  handleResponse(r);
+  return { status: 'ok', id };
 }
 
 function remove(tableName, id) {
@@ -141,10 +140,12 @@ export const adminEndpoints = {
       supabase.from('contact_messages').select('*').order('created_at', { ascending: false }).limit(5),
       supabase.from('newsletter_subscribers').select('*').order('created_at', { ascending: false }).limit(5),
     ]);
+    if (messagesRes.error) throw messagesRes.error;
+    if (subsRes.error) throw subsRes.error;
     return {
       counts,
-      recent_messages: handleResponse(messagesRes) ?? [],
-      recent_subscribers: handleResponse(subsRes) ?? [],
+      recent_messages: messagesRes.data ?? [],
+      recent_subscribers: subsRes.data ?? [],
     };
   },
 };

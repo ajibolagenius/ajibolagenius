@@ -42,11 +42,13 @@ export const fetchTestimonials = () =>
   supabase.from('testimonials').select('*').then(handleResponse);
 
 // Public write
-export const submitContact = (data) =>
-  supabase.from('contact_messages').insert({ name: data.name, email: data.email, subject: data.subject ?? '', message: data.message }).then((r) => {
-    handleResponse(r);
-    return { status: 'ok', message: "Message received! I'll get back to you soon." };
-  });
+export const submitContact = async (data) => {
+  const r = await supabase
+    .from('contact_messages')
+    .insert({ name: data.name, email: data.email, subject: data.subject ?? '', message: data.message });
+  handleResponse(r);
+  return { status: 'ok', message: "Message received! I'll get back to you soon." };
+};
 
 export const subscribeNewsletter = async (email) => {
   const { data, error } = await supabase.from('newsletter_subscribers').insert({ email }).select();
