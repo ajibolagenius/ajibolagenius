@@ -2,7 +2,7 @@
 
 This is the face of the portfolio — the thing visitors see. It had to feel like it came from somewhere: Afrofuturism meets dark cosmic depth, sharp geometry, and a design system that doesn’t hide behind generic templates.
 
-The frontend is where the story gets told: hero and ticker, work and case studies, courses, writing, gallery, CV, and contact. It talks to the API when it’s there and falls back to mock data when it’s not, so you can run it alone or with the backend.
+The frontend is where the story gets told: hero and ticker, work and case studies, courses, writing, gallery, CV, and contact. Data and auth use Supabase; without it configured, the app falls back to mock data.
 
 ---
 
