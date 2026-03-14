@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchGallery } from '../services/api';
 import { galleryItems as fbGallery } from '../data/mock';
 import SectionKicker from '../components/portfolio/SectionKicker';
 import FilterButtons from '../components/portfolio/FilterButtons';
+import SortSelect from '../components/portfolio/SortSelect';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { DataErrorBanner, DataLoadingSkeleton } from '../components/portfolio/DataStateMessage';
+import { byString, applySort } from '../lib/sortHelpers';
 
 const FILTER_OPTIONS = [
   { label: 'All', value: 'All' },
@@ -16,15 +18,25 @@ const FILTER_OPTIONS = [
   { label: 'Graphic', value: 'Graphic' },
 ];
 
+const GALLERY_SORT_OPTIONS = [
+  { value: 'title-asc', label: 'Title A–Z' },
+  { value: 'title-desc', label: 'Title Z–A' },
+];
+
 /** Masonry-style heights for grid variety */
 const MASONRY_HEIGHTS = [200, 260, 180, 300, 220, 240, 280, 200, 320, 190, 250, 270];
 
 const GalleryPage = () => {
   const [filter, setFilter] = useState('All');
+  const [sortBy, setSortBy] = useState('title-asc');
   const [lightbox, setLightbox] = useState(null);
   const { data, loading, error, refetch } = useRealtimeQuery('gallery_items', fetchGallery, fbGallery);
   const displayItems = Array.isArray(data) && data.length > 0 ? data : fbGallery;
-  const filtered = filter === 'All' ? displayItems : displayItems.filter(g => g.type === filter);
+  const filteredByType = filter === 'All' ? displayItems : displayItems.filter(g => g.type === filter);
+  const filtered = useMemo(() => {
+    const comp = sortBy === 'title-desc' ? byString('title', 'desc') : byString('title', 'asc');
+    return applySort(filteredByType, comp);
+  }, [filteredByType, sortBy]);
 
   usePageMeta({
     title: 'Visual Archive',
@@ -48,8 +60,9 @@ const GalleryPage = () => {
 
       <section className="py-12 md:py-16">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="mb-8">
+          <div className="flex flex-wrap items-center gap-4 mb-8">
             <FilterButtons options={FILTER_OPTIONS} value={filter} onChange={setFilter} label="Type" />
+            <SortSelect options={GALLERY_SORT_OPTIONS} value={sortBy} onChange={setSortBy} label="Sort" />
           </div>
           {error && <DataErrorBanner error={error} onRetry={refetch} className="mb-6" />}
           {loading && displayItems.length === 0 ? (

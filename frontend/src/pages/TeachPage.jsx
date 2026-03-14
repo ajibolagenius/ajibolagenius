@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { MessageSquare, Quote, ChevronDown, ChevronUp } from 'lucide-react';
 import { fetchCourses, fetchTestimonials, fetchPersonalInfo } from '../services/api';
 import { courses as fbCourses, testimonials as fbTestimonials, faqItems, personalInfo as fbInfo } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
 import SectionKicker from '../components/portfolio/SectionKicker';
+import SortSelect from '../components/portfolio/SortSelect';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
+import { byString, byPrice, applySort } from '../lib/sortHelpers';
 
 /** Badge variant and accent color per index — same length so badge and border/button stay aligned (warm/cool alternating). */
 const COURSE_ACCENTS = [
@@ -13,6 +15,13 @@ const COURSE_ACCENTS = [
   { badge: 'cosmic', color: 'var(--nebula)' },
   { badge: 'cyan', color: 'var(--stardust)' },
   { badge: 'terra', color: 'var(--terracotta)' }
+];
+
+const TEACH_SORT_OPTIONS = [
+  { value: 'name-asc', label: 'Name A–Z' },
+  { value: 'name-desc', label: 'Name Z–A' },
+  { value: 'price-asc', label: 'Price low–high' },
+  { value: 'price-desc', label: 'Price high–low' },
 ];
 
 const CourseCard = ({ course, whatsapp, index = 0 }) => {
@@ -118,6 +127,15 @@ const TeachPage = () => {
   const displayTestimonials = Array.isArray(testimonials) && testimonials.length > 0 ? testimonials : fbTestimonials;
   const whatsapp = personalInfo?.social?.whatsapp || fbInfo.social.whatsapp;
 
+  const [sortBy, setSortBy] = useState('name-asc');
+  const sortedCourses = useMemo(() => {
+    const comp = sortBy === 'name-asc' ? byString('name', 'asc')
+      : sortBy === 'name-desc' ? byString('name', 'desc')
+      : sortBy === 'price-asc' ? byPrice('price', 'asc')
+      : byPrice('price', 'desc');
+    return applySort(displayCourses, comp);
+  }, [displayCourses, sortBy]);
+
   usePageMeta({
     title: 'Courses & Mentorship',
     description: 'I teach what I know and share what I learn. Remote courses designed for the Nigerian developer ready to level up.',
@@ -148,14 +166,17 @@ const TeachPage = () => {
       {/* Course grid (9 courses) */}
       <section className="py-12 md:py-16 border-b border-[var(--border)]">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="flex items-center gap-2 mb-8">
-            <div className="w-6 h-px bg-[var(--stardust)]" />
-            <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--stardust)]">
-              All Courses
-            </span>
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-px bg-[var(--stardust)]" />
+              <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--stardust)]">
+                All Courses
+              </span>
+            </div>
+            <SortSelect options={TEACH_SORT_OPTIONS} value={sortBy} onChange={setSortBy} label="Sort" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {displayCourses.map((c, i) => (
+            {sortedCourses.map((c, i) => (
               <CourseCard key={c.slug || c.id} course={c} whatsapp={whatsapp} index={i} />
             ))}
           </div>

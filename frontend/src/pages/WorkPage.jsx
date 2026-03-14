@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowUpRight, ExternalLink } from 'lucide-react';
 import { fetchProjects } from '../services/api';
@@ -6,14 +6,22 @@ import { projects as fallbackProjects } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
 import SectionKicker from '../components/portfolio/SectionKicker';
 import FilterButtons from '../components/portfolio/FilterButtons';
+import SortSelect from '../components/portfolio/SortSelect';
 import { BADGE_VARIANTS } from '../constants';
+import { byString, byDate, applySort } from '../lib/sortHelpers';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { DataLoadingSkeleton, DataErrorBanner } from '../components/portfolio/DataStateMessage';
 
+const getHeroUrl = (project) => {
+  const first = project.screenshots?.[0];
+  return first ? (typeof first === 'string' ? first : first.url) : null;
+};
+
 const ProjectCard = ({ project }) => {
   const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
+  const heroUrl = getHeroUrl(project);
 
   return (
     <div
@@ -27,15 +35,20 @@ const ProjectCard = ({ project }) => {
       onMouseLeave={() => setHovered(false)}
       onClick={() => navigate(`/work/${project.slug || project.id}`)}
     >
-      <div
-        className="h-[200px] flex items-center justify-center relative overflow-hidden bg-[var(--surface)]"
-        style={{ backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 12px)' }}
-      >
-        <span className="font-display text-[13px] tracking-[0.15em] uppercase text-[var(--subtle)]">
-          {project.label}
+      <div className="h-[200px] flex items-center justify-center relative overflow-hidden bg-[var(--surface)]">
+        {heroUrl ? (
+          <img src={heroUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+        ) : (
+          <div
+            className="absolute inset-0 opacity-40"
+            style={{ backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 12px)' }}
+          />
+        )}
+        <span className="relative z-10 font-display text-[13px] tracking-[0.15em] uppercase px-3 py-1.5 bg-[var(--void)]/85 text-[var(--white)] border border-[var(--border)]">
+          {project.label || project.name}
         </span>
         {project.featured && (
-          <span className="absolute top-4 right-4">
+          <span className="absolute top-4 right-4 z-10">
             <Badge variant="gold">◆ Featured</Badge>
           </span>
         )}
@@ -52,7 +65,7 @@ const ProjectCard = ({ project }) => {
         </p>
         <div className="flex items-center justify-between">
           <div className="flex gap-2 flex-wrap">
-            {project.tags.map((tag, j) => (
+            {(project.tags || []).map((tag, j) => (
               <span
                 key={j}
                 className="font-mono text-[10px] px-2 py-[3px] bg-[var(--overlay)] text-[var(--subtle)] border border-[var(--border)] rounded-none"
@@ -76,6 +89,7 @@ const FeaturedSpotlight = ({ project, onView }) => {
   const [hovered, setHovered] = useState(false);
   const problem = project.problem || '';
   const excerpt = problem.length > 120 ? problem.slice(0, 120) + '…' : problem;
+  const heroUrl = getHeroUrl(project);
 
   return (
     <div
@@ -108,7 +122,7 @@ const FeaturedSpotlight = ({ project, onView }) => {
             </p>
           )}
           <div className="flex flex-wrap gap-2 mb-6">
-            {project.tags.slice(0, 4).map((tag, j) => (
+            {(project.tags || []).slice(0, 4).map((tag, j) => (
               <span
                 key={j}
                 className="font-mono text-[10px] px-2 py-[3px] bg-[var(--overlay)] text-[var(--subtle)] border border-[var(--border)] rounded-none"
@@ -129,12 +143,17 @@ const FeaturedSpotlight = ({ project, onView }) => {
             <ExternalLink size={14} />
           </button>
         </div>
-        <div
-          className="min-h-[240px] lg:min-h-[320px] flex items-center justify-center bg-[var(--elevated)]"
-          style={{ backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 12px)' }}
-        >
-          <span className="font-display text-[11px] tracking-[0.15em] uppercase text-[var(--subtle)]">
-            {project.label}
+        <div className="min-h-[240px] lg:min-h-[320px] flex items-center justify-center relative overflow-hidden bg-[var(--elevated)]">
+          {heroUrl ? (
+            <img src={heroUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+          ) : (
+            <div
+              className="absolute inset-0 opacity-40"
+              style={{ backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 12px)' }}
+            />
+          )}
+          <span className="relative z-10 font-display text-[11px] tracking-[0.15em] uppercase px-3 py-1.5 bg-[var(--void)]/85 text-[var(--white)] border border-[var(--border)]">
+            {project.label || project.name}
           </span>
         </div>
       </div>
@@ -142,8 +161,16 @@ const FeaturedSpotlight = ({ project, onView }) => {
   );
 };
 
+const WORK_SORT_OPTIONS = [
+  { value: 'year-desc', label: 'Newest first' },
+  { value: 'year-asc', label: 'Oldest first' },
+  { value: 'name-asc', label: 'Name A–Z' },
+  { value: 'name-desc', label: 'Name Z–A' },
+];
+
 const WorkPage = () => {
   const [filter, setFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('year-desc');
   const navigate = useNavigate();
   const { data, loading, error, refetch } = useRealtimeQuery('projects', fetchProjects, fallbackProjects);
   const projects = Array.isArray(data) ? data : fallbackProjects;
@@ -151,6 +178,15 @@ const WorkPage = () => {
   const filteredProjects = filter === 'all'
     ? projects
     : projects.filter(p => p.type === filter);
+
+  const sortedProjects = useMemo(() => {
+    const comp = sortBy === 'year-desc' ? byDate('year', 'desc')
+      : sortBy === 'year-asc' ? byDate('year', 'asc')
+      : sortBy === 'name-asc' ? byString('name', 'asc')
+      : byString('name', 'desc');
+    return applySort(filteredProjects, comp);
+  }, [filteredProjects, sortBy]);
+
   const featuredForSpotlight = projects.find(p => p.featured);
   const filterOptions = [
     { label: 'All', value: 'all' },
@@ -190,20 +226,23 @@ const WorkPage = () => {
             </div>
           )}
 
-          <FilterButtons options={filterOptions} value={filter} onChange={setFilter} label="Filter" />
+          <div className="flex flex-wrap items-center gap-4 mb-6">
+            <FilterButtons options={filterOptions} value={filter} onChange={setFilter} label="Filter" />
+            <SortSelect options={WORK_SORT_OPTIONS} value={sortBy} onChange={setSortBy} label="Sort" />
+          </div>
 
           {error && <DataErrorBanner error={error} onRetry={refetch} className="mb-6" />}
           {loading && projects.length === 0 ? (
             <DataLoadingSkeleton lines={6} className="py-8 mb-6" />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProjects.map((project) => (
+              {sortedProjects.map((project) => (
                 <ProjectCard key={project.slug || project.id} project={project} />
               ))}
             </div>
           )}
 
-          {!loading && filteredProjects.length === 0 && (
+          {!loading && sortedProjects.length === 0 && (
             <div className="font-body text-[15px] py-12 text-center text-[var(--muted)]">
               No projects in this category yet.
             </div>

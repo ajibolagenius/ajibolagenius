@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ExternalLink, Github } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink, Github, X } from 'lucide-react';
 import { fetchProject } from '../services/api';
 import { projects as fallbackProjects } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
@@ -63,8 +63,27 @@ const WorkDetailPage = () => {
   const techDetails = project.tech_details || project.techDetails || [];
   const liveUrl = project.live_url || project.liveUrl || '#';
   const githubUrl = project.github_url || project.githubUrl || '#';
-  const screenshots = project.screenshots || [];
+  const screenshots = (project.screenshots || []).map((s) => (typeof s === 'string' ? s : s?.url)).filter(Boolean);
   const heroImage = screenshots[0];
+
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const goPrev = useCallback(() => {
+    setLightboxIndex((i) => (i <= 0 ? screenshots.length - 1 : i - 1));
+  }, [screenshots.length]);
+  const goNext = useCallback(() => {
+    setLightboxIndex((i) => (i >= screenshots.length - 1 ? 0 : i + 1));
+  }, [screenshots.length]);
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setLightboxOpen(false);
+      if (e.key === 'ArrowLeft') goPrev();
+      if (e.key === 'ArrowRight') goNext();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lightboxOpen, goPrev, goNext]);
 
   return (
     <>
@@ -79,15 +98,22 @@ const WorkDetailPage = () => {
         <div
           className="min-h-[280px] md:min-h-[360px] flex items-center justify-center bg-[var(--surface)]"
           style={{
-            backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 12px)'
+            backgroundImage: heroImage ? undefined : 'repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 12px)'
           }}
         >
           {heroImage ? (
-            <img
-              src={typeof heroImage === 'string' ? heroImage : heroImage.url}
-              alt={project.name}
-              className="w-full h-full object-cover min-h-[280px] md:min-h-[360px]"
-            />
+            <button
+              type="button"
+              onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }}
+              className="w-full h-full min-h-[280px] md:min-h-[360px] block cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2"
+              aria-label="Open image in lightbox"
+            >
+              <img
+                src={heroImage}
+                alt={project.name}
+                className="w-full h-full object-cover min-h-[280px] md:min-h-[360px]"
+              />
+            </button>
           ) : (
             <span className="font-display text-[13px] tracking-[0.2em] uppercase text-[var(--subtle)]">
               {project.label || project.name}
@@ -95,6 +121,55 @@ const WorkDetailPage = () => {
           )}
         </div>
       </section>
+
+      {/* Lightbox */}
+      {lightboxOpen && screenshots.length > 0 && (
+        <div
+          className="fixed inset-0 z-[1000] flex items-center justify-center bg-[var(--void)]/95"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Image gallery"
+          onClick={() => setLightboxOpen(false)}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxOpen(false)}
+            className="absolute top-4 right-4 z-10 p-2 text-[var(--white)] hover:text-[var(--sungold)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] rounded-none"
+            aria-label="Close lightbox"
+          >
+            <X size={24} />
+          </button>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); goPrev(); }}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-2 text-[var(--white)] hover:text-[var(--sungold)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] rounded-none"
+            aria-label="Previous image"
+          >
+            <ChevronLeft size={32} />
+          </button>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); goNext(); }}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-2 text-[var(--white)] hover:text-[var(--sungold)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] rounded-none"
+            aria-label="Next image"
+          >
+            <ChevronRight size={32} />
+          </button>
+          <div
+            className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={screenshots[lightboxIndex]}
+              alt={`${project.name} screenshot ${lightboxIndex + 1}`}
+              className="max-w-full max-h-[90vh] w-auto h-auto object-contain"
+            />
+          </div>
+          <span className="absolute bottom-4 left-1/2 -translate-x-1/2 font-mono text-[11px] text-[var(--subtle)]">
+            {lightboxIndex + 1} / {screenshots.length}
+          </span>
+        </div>
+      )}
 
       {/* Title, description, meta, tech badges, Live + GitHub */}
       <section className="pt-8 pb-10 md:pt-12 md:pb-14 border-b border-[var(--border)]">
@@ -210,14 +285,20 @@ const WorkDetailPage = () => {
           </div>
           {screenshots.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {screenshots.map((shot, i) => (
-                <div key={i} className="border border-[var(--border)] overflow-hidden bg-[var(--elevated)]">
+              {screenshots.map((url, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => { setLightboxIndex(i); setLightboxOpen(true); }}
+                  className="border border-[var(--border)] overflow-hidden bg-[var(--elevated)] text-left cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2"
+                  aria-label={`View screenshot ${i + 1}`}
+                >
                   <img
-                    src={typeof shot === 'string' ? shot : shot.url}
+                    src={url}
                     alt={`${project.name} screenshot ${i + 1}`}
                     className="w-full aspect-video object-cover"
                   />
-                </div>
+                </button>
               ))}
             </div>
           ) : (

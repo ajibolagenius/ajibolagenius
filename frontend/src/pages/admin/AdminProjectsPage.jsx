@@ -40,7 +40,7 @@ const emptyProject = () => ({
   role_title: '',
   duration: '',
   year: '',
-  tech_details: [],
+  tech_details: '',
   screenshots: [],
 });
 
@@ -80,11 +80,13 @@ export default function AdminProjectsPage() {
   const openCreate = () => {
     setEditing(null);
     setForm(emptyProject());
+    setUploadError(null);
     setDialogOpen(true);
   };
 
   const openEdit = (p) => {
     setEditing(p);
+    setUploadError(null);
     const screenshots = Array.isArray(p.screenshots)
       ? p.screenshots.map((s) => (typeof s === 'string' ? s : s?.url)).filter(Boolean)
       : [];

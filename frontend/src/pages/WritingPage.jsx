@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, ArrowRight } from 'lucide-react';
 import { fetchBlogPosts, subscribeNewsletter } from '../services/api';
@@ -6,14 +6,24 @@ import { blogPosts as fbPosts } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
 import SectionKicker from '../components/portfolio/SectionKicker';
 import FilterButtons from '../components/portfolio/FilterButtons';
+import SortSelect from '../components/portfolio/SortSelect';
 import { BADGE_VARIANTS } from '../constants';
+import { byString, byDate, applySort } from '../lib/sortHelpers';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { DataLoadingSkeleton, DataErrorBanner } from '../components/portfolio/DataStateMessage';
 
+const WRITING_SORT_OPTIONS = [
+  { value: 'date-desc', label: 'Newest first' },
+  { value: 'date-asc', label: 'Oldest first' },
+  { value: 'title-asc', label: 'Title A–Z' },
+  { value: 'title-desc', label: 'Title Z–A' },
+];
+
 const WritingPage = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('All');
+  const [sortBy, setSortBy] = useState('date-desc');
   const [nlEmail, setNlEmail] = useState('');
   const [nlMsg, setNlMsg] = useState('');
   const { data: posts, loading: postsLoading, error: postsError, refetch: refetchPosts } = useRealtimeQuery('blog_posts', fetchBlogPosts, fbPosts);
@@ -23,7 +33,15 @@ const WritingPage = () => {
   const categoryOptions = categoryList.map((c) => ({ label: c, value: c }));
   const filtered = filter === 'All' ? displayPosts : displayPosts.filter(p => p.category === filter);
   const featured = displayPosts[0];
-  const listPosts = filtered.filter(p => (p.slug || p.id) !== (featured?.slug || featured?.id));
+  const listPostsUnsorted = filtered.filter(p => (p.slug || p.id) !== (featured?.slug || featured?.id));
+
+  const listPosts = useMemo(() => {
+    const comp = sortBy === 'date-desc' ? byDate('date', 'desc')
+      : sortBy === 'date-asc' ? byDate('date', 'asc')
+      : sortBy === 'title-asc' ? byString('title', 'asc')
+      : byString('title', 'desc');
+    return applySort(listPostsUnsorted, comp);
+  }, [listPostsUnsorted, sortBy]);
 
   const handleSubscribe = async (e) => {
     e.preventDefault();
@@ -104,7 +122,10 @@ const WritingPage = () => {
       {/* Category filter + Post list with tags */}
       <section className="py-12 md:py-16 border-b border-[var(--border)]">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <FilterButtons options={categoryOptions} value={filter} onChange={setFilter} label="Category" />
+          <div className="flex flex-wrap items-center gap-4 mb-6">
+            <FilterButtons options={categoryOptions} value={filter} onChange={setFilter} label="Category" />
+            <SortSelect options={WRITING_SORT_OPTIONS} value={sortBy} onChange={setSortBy} label="Sort" />
+          </div>
 
           <div className="flex flex-col gap-4">
             {listPosts.length === 0 && featured && filter !== 'All' && (
