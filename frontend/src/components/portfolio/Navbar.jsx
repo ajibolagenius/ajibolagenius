@@ -28,7 +28,7 @@ const Navbar = () => {
       setScrollPct(docHeight > 0 ? (window.scrollY / docHeight) * 100 : 0);
     };
     handleScroll();
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
