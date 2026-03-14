@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Mail, Copy, Check } from 'lucide-react';
+import { Mail, Copy, Check, Download } from 'lucide-react';
+import { Button } from '../../components/ui/button';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import ListPagination from '../../components/portfolio/ListPagination';
 import { paginate } from '../../lib/paginate';
@@ -15,6 +16,35 @@ function formatDate(createdAt) {
   } catch {
     return '—';
   }
+}
+
+function formatDateISO(createdAt) {
+  if (!createdAt) return '';
+  try {
+    return new Date(createdAt).toISOString();
+  } catch {
+    return '';
+  }
+}
+
+function exportSubscribersCSV(subscribers) {
+  const header = 'email,subscribed_at';
+  const rows = subscribers.map((s) => {
+    const email = (s.email || '').replace(/"/g, '""');
+    const date = formatDateISO(s.created_at);
+    return `"${email}",${date ? `"${date}"` : ''}`;
+  });
+  return [header, ...rows].join('\n');
+}
+
+function downloadCSV(content, filename) {
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 export default function AdminNewsletterPage() {
@@ -34,10 +64,17 @@ export default function AdminNewsletterPage() {
   );
 
   const copyEmail = (email, id) => {
-    navigator.clipboard?.writeText(email).then(() => {
+    navigator.clipboard?.writeText(email)?.then(() => {
       setCopiedId(id);
       setTimeout(() => setCopiedId(null), 2000);
-    });
+    }).catch(() => {});
+  };
+
+  const handleExport = () => {
+    if (list.length === 0) return;
+    const csv = exportSubscribersCSV(list);
+    const filename = `newsletter-subscribers-${new Date().toISOString().slice(0, 10)}.csv`;
+    downloadCSV(csv, filename);
   };
 
   return (
@@ -58,10 +95,22 @@ export default function AdminNewsletterPage() {
         </div>
       ) : (
         <>
-          <div className="flex items-center gap-2 mb-4">
-            <span className="font-mono text-[11px] text-[var(--subtle)] uppercase">Total</span>
-            <span className="font-display text-[18px] font-bold text-[var(--sungold)]">{list.length}</span>
-            <span className="font-mono text-[11px] text-[var(--muted)]">subscribers</span>
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[11px] text-[var(--subtle)] uppercase">Total</span>
+              <span className="font-display text-[18px] font-bold text-[var(--sungold)]">{list.length}</span>
+              <span className="font-mono text-[11px] text-[var(--muted)]">subscribers</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-[var(--border)] text-[var(--white)]"
+              onClick={handleExport}
+              disabled={list.length === 0}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export CSV
+            </Button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {paginatedList.map((s) => (
