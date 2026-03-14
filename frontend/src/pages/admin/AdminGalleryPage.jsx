@@ -89,10 +89,25 @@ export default function AdminGalleryPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="border-[var(--border)] bg-[var(--surface)] text-[var(--white)]">
           <DialogHeader><DialogTitle>{editing ? 'Edit item' : 'New item'}</DialogTitle></DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2"><Label>Title</Label><Input value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder="e.g. Dashboard UI" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-            <div className="space-y-2"><Label>Type</Label><Input value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))} placeholder="UI, 3D, or Graphic" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-            <div className="space-y-2"><Label>Color (hex)</Label><Input value={form.color} onChange={(e) => setForm((f) => ({ ...f, color: e.target.value }))} placeholder="#E8A020" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+          <div className="grid gap-4 py-4" role="form" aria-label={editing ? 'Edit item' : 'New item'}>
+            <div className="space-y-2">
+              <Label htmlFor="gallery-title">Title</Label>
+              <Input id="gallery-title" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder="e.g. Dashboard UI" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="gallery-type">Type</Label>
+              <Input id="gallery-type" value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))} placeholder="UI, 3D, or Graphic" className="bg-[var(--elevated)] border-[var(--border-md)]" list="gallery-type-list" />
+              <datalist id="gallery-type-list">
+                <option value="UI" /><option value="3D" /><option value="Graphic" />
+              </datalist>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="gallery-color">Color</Label>
+              <div className="flex gap-2 items-center">
+                <Input id="gallery-color" type="color" value={/^#[0-9A-Fa-f]{6}$/.test(form.color) ? form.color : '#E8A020'} onChange={(e) => setForm((f) => ({ ...f, color: e.target.value }))} className="h-10 w-14 p-1 cursor-pointer bg-[var(--elevated)] border-[var(--border-md)]" title="Pick color" />
+                <Input type="text" value={form.color} onChange={(e) => setForm((f) => ({ ...f, color: e.target.value }))} placeholder="#E8A020" className="flex-1 bg-[var(--elevated)] border-[var(--border-md)] font-mono text-sm" aria-label="Color hex value" />
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>

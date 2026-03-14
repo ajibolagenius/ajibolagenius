@@ -87,14 +87,29 @@ export default function AdminTimelinePage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="border-[var(--border)] bg-[var(--surface)] text-[var(--white)]">
           <DialogHeader><DialogTitle>{editing ? 'Edit entry' : 'New entry'}</DialogTitle></DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-4 py-4" role="form" aria-label={editing ? 'Edit entry' : 'New entry'}>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Year</Label><Input value={form.year} onChange={(e) => update('year', e.target.value)} placeholder="e.g. 2024" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-              <div className="space-y-2"><Label>Order</Label><Input type="number" value={form.order} onChange={(e) => update('order', parseInt(e.target.value, 10) || 0)} placeholder="0 = first" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+              <div className="space-y-2">
+                <Label htmlFor="timeline-year">Year</Label>
+                <Input id="timeline-year" type="number" min={1900} max={2100} value={form.year} onChange={(e) => update('year', e.target.value)} placeholder="e.g. 2024" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="timeline-order">Order</Label>
+                <Input id="timeline-order" type="number" value={form.order} onChange={(e) => update('order', parseInt(e.target.value, 10) || 0)} placeholder="0 = first" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+              </div>
             </div>
-            <div className="space-y-2"><Label>Title</Label><Input value={form.title} onChange={(e) => update('title', e.target.value)} placeholder="e.g. Senior Developer at X" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-            <div className="space-y-2"><Label>Body</Label><Textarea value={form.body} onChange={(e) => update('body', e.target.value)} rows={4} placeholder="Responsibilities and achievements..." className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-            <div className="space-y-2"><Label>Accent (theme color)</Label><Input value={form.accent} onChange={(e) => update('accent', e.target.value)} placeholder="sungold, nebula, stardust, terracotta" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+            <div className="space-y-2">
+              <Label htmlFor="timeline-title">Title</Label>
+              <Input id="timeline-title" value={form.title} onChange={(e) => update('title', e.target.value)} placeholder="e.g. Senior Developer at X" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="timeline-body">Body</Label>
+              <Textarea id="timeline-body" value={form.body} onChange={(e) => update('body', e.target.value)} rows={4} placeholder="Responsibilities and achievements..." className="bg-[var(--elevated)] border-[var(--border-md)]" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="timeline-accent">Accent (theme color)</Label>
+              <Input id="timeline-accent" value={form.accent} onChange={(e) => update('accent', e.target.value)} placeholder="sungold, nebula, stardust, terracotta" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>

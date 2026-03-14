@@ -92,17 +92,42 @@ export default function AdminBlogPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto border-[var(--border)] bg-[var(--surface)] text-[var(--white)]">
           <DialogHeader><DialogTitle>{editing ? 'Edit post' : 'New post'}</DialogTitle></DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-4 py-4" role="form" aria-label={editing ? 'Edit post' : 'New post'}>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Slug</Label><Input value={form.slug} onChange={(e) => update('slug', e.target.value)} placeholder="e.g. my-post → /writing/my-post" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-              <div className="space-y-2"><Label>Date</Label><Input value={form.date} onChange={(e) => update('date', e.target.value)} placeholder="YYYY-MM-DD" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+              <div className="space-y-2">
+                <Label htmlFor="blog-slug">Slug</Label>
+                <Input id="blog-slug" value={form.slug} onChange={(e) => update('slug', e.target.value)} placeholder="e.g. my-post → /writing/my-post" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="blog-date">Date</Label>
+                <Input id="blog-date" type="date" value={form.date} onChange={(e) => update('date', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" />
+              </div>
             </div>
-            <div className="space-y-2"><Label>Title</Label><Input value={form.title} onChange={(e) => update('title', e.target.value)} placeholder="e.g. How I Built X" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-            <div className="space-y-2"><Label>Category</Label><Input value={form.category} onChange={(e) => update('category', e.target.value)} placeholder="e.g. Engineering" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-            <div className="space-y-2"><Label>Tags (comma-separated)</Label><Input value={form.tags} onChange={(e) => update('tags', e.target.value)} placeholder="React, Next.js" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-            <div className="space-y-2"><Label>Excerpt</Label><Textarea value={form.excerpt} onChange={(e) => update('excerpt', e.target.value)} rows={2} placeholder="Short summary for listing and meta" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-            <div className="space-y-2"><Label>Body</Label><Textarea value={form.body} onChange={(e) => update('body', e.target.value)} rows={8} placeholder="Paragraphs separated by blank lines. Numbered lists as 1. Item" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-            <div className="space-y-2"><Label>Read time</Label><Input value={form.read_time} onChange={(e) => update('read_time', e.target.value)} placeholder="5 min" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+            <div className="space-y-2">
+              <Label htmlFor="blog-title">Title</Label>
+              <Input id="blog-title" value={form.title} onChange={(e) => update('title', e.target.value)} placeholder="e.g. How I Built X" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="blog-category">Category</Label>
+              <Input id="blog-category" value={form.category} onChange={(e) => update('category', e.target.value)} placeholder="e.g. Engineering" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="blog-tags">Tags</Label>
+              <Input id="blog-tags" value={form.tags} onChange={(e) => update('tags', e.target.value)} placeholder="React, Next.js" aria-describedby="blog-tags-hint" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+              <span id="blog-tags-hint" className="font-mono text-[11px] text-[var(--subtle)]">Separate multiple with commas.</span>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="blog-excerpt">Excerpt</Label>
+              <Textarea id="blog-excerpt" value={form.excerpt} onChange={(e) => update('excerpt', e.target.value)} rows={2} placeholder="Short summary for listing and meta" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="blog-body">Body</Label>
+              <Textarea id="blog-body" value={form.body} onChange={(e) => update('body', e.target.value)} rows={8} placeholder="Paragraphs separated by blank lines. Numbered lists as 1. Item" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="blog-read-time">Read time</Label>
+              <Input id="blog-read-time" value={form.read_time} onChange={(e) => update('read_time', e.target.value)} placeholder="5 min" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>

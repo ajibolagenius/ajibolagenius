@@ -95,18 +95,18 @@ export default function AdminCoursesPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto border-[var(--border)] bg-[var(--surface)] text-[var(--white)]">
           <DialogHeader><DialogTitle>{editing ? 'Edit course' : 'New course'}</DialogTitle></DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-4 py-4" role="form" aria-label={editing ? 'Edit course' : 'New course'}>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Slug</Label><Input value={form.slug} onChange={(e) => update('slug', e.target.value)} placeholder="e.g. nextjs-basics" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-              <div className="space-y-2"><Label>Badge</Label><Input value={form.badge} onChange={(e) => update('badge', e.target.value)} placeholder="e.g. 2 Weeks" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+              <div className="space-y-2"><Label htmlFor="course-slug">Slug</Label><Input id="course-slug" value={form.slug} onChange={(e) => update('slug', e.target.value)} placeholder="e.g. nextjs-basics" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+              <div className="space-y-2"><Label htmlFor="course-badge">Badge</Label><Input id="course-badge" value={form.badge} onChange={(e) => update('badge', e.target.value)} placeholder="e.g. 2 Weeks" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             </div>
-            <div className="space-y-2"><Label>Name</Label><Input value={form.name} onChange={(e) => update('name', e.target.value)} placeholder="e.g. Next.js Basics" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+            <div className="space-y-2"><Label htmlFor="course-name">Name</Label><Input id="course-name" value={form.name} onChange={(e) => update('name', e.target.value)} placeholder="e.g. Next.js Basics" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Duration</Label><Input value={form.duration} onChange={(e) => update('duration', e.target.value)} placeholder="2 Weeks" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-              <div className="space-y-2"><Label>Price</Label><Input value={form.price} onChange={(e) => update('price', e.target.value)} placeholder="₦100K" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+              <div className="space-y-2"><Label htmlFor="course-duration">Duration</Label><Input id="course-duration" value={form.duration} onChange={(e) => update('duration', e.target.value)} placeholder="2 Weeks" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+              <div className="space-y-2"><Label htmlFor="course-price">Price</Label><Input id="course-price" value={form.price} onChange={(e) => update('price', e.target.value)} placeholder="₦100K" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             </div>
-            <div className="space-y-2"><Label>Description</Label><Textarea value={form.description} onChange={(e) => update('description', e.target.value)} rows={2} placeholder="Course overview for Teach page" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-            <div className="space-y-2"><Label>Curriculum (one topic per line)</Label><Textarea value={Array.isArray(form.curriculum) ? form.curriculum.join('\n') : (form.curriculum || '')} onChange={(e) => update('curriculum', e.target.value)} rows={6} placeholder={"Module 1: Intro\nModule 2: Build"} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+            <div className="space-y-2"><Label htmlFor="course-description">Description</Label><Textarea id="course-description" value={form.description} onChange={(e) => update('description', e.target.value)} rows={2} placeholder="Course overview for Teach page" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+            <div className="space-y-2"><Label htmlFor="course-curriculum">Curriculum (one topic per line)</Label><Textarea id="course-curriculum" value={Array.isArray(form.curriculum) ? form.curriculum.join('\n') : (form.curriculum || '')} onChange={(e) => update('curriculum', e.target.value)} rows={6} placeholder={"Module 1: Intro\nModule 2: Build"} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>

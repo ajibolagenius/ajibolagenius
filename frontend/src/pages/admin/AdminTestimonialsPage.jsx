@@ -87,12 +87,12 @@ export default function AdminTestimonialsPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="border-[var(--border)] bg-[var(--surface)] text-[var(--white)]">
           <DialogHeader><DialogTitle>{editing ? 'Edit testimonial' : 'New testimonial'}</DialogTitle></DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-4 py-4" role="form" aria-label={editing ? 'Edit testimonial' : 'New testimonial'}>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Name</Label><Input value={form.name} onChange={(e) => update('name', e.target.value)} placeholder="e.g. Jane Doe" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-              <div className="space-y-2"><Label>Role</Label><Input value={form.role} onChange={(e) => update('role', e.target.value)} placeholder="e.g. Student, Frontend Developer" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+              <div className="space-y-2"><Label htmlFor="testimonial-name">Name</Label><Input id="testimonial-name" value={form.name} onChange={(e) => update('name', e.target.value)} placeholder="e.g. Jane Doe" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+              <div className="space-y-2"><Label htmlFor="testimonial-role">Role</Label><Input id="testimonial-role" value={form.role} onChange={(e) => update('role', e.target.value)} placeholder="e.g. Student, Frontend Developer" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             </div>
-            <div className="space-y-2"><Label>Quote text</Label><Textarea value={form.text} onChange={(e) => update('text', e.target.value)} rows={4} placeholder="Student or client quote" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+            <div className="space-y-2"><Label htmlFor="testimonial-text">Quote text</Label><Textarea id="testimonial-text" value={form.text} onChange={(e) => update('text', e.target.value)} rows={4} placeholder="Student or client quote" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>

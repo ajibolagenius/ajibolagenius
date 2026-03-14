@@ -175,91 +175,97 @@ export default function AdminProjectsPage() {
           <DialogHeader>
             <DialogTitle>{editing ? 'Edit project' : 'New project'}</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-5 h-px bg-[var(--sungold)]" aria-hidden />
-              <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--sungold)]">Card & listing</span>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Slug</Label>
-                <Input value={form.slug} onChange={(e) => update('slug', e.target.value)} placeholder="e.g. my-project → /work/my-project" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+          <div className="grid gap-4 py-4" role="form" aria-label={editing ? 'Edit project' : 'New project'}>
+            <fieldset className="grid gap-4 border-0 p-0 m-0">
+              <legend className="flex items-center gap-2 mb-2 font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--sungold)]">
+                <span className="w-5 h-px bg-[var(--sungold)]" aria-hidden /> Card & listing
+              </legend>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="proj-slug">Slug</Label>
+                  <Input id="proj-slug" value={form.slug} onChange={(e) => update('slug', e.target.value)} placeholder="e.g. my-project → /work/my-project" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="proj-label">Label</Label>
+                  <Input id="proj-label" value={form.label} onChange={(e) => update('label', e.target.value)} placeholder="e.g. RANT" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                </div>
               </div>
               <div className="space-y-2">
-                <Label>Label</Label>
-                <Input value={form.label} onChange={(e) => update('label', e.target.value)} placeholder="e.g. RANT" className="bg-[var(--elevated)] border-[var(--border-md)]" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label>Name</Label>
-              <Input value={form.name} onChange={(e) => update('name', e.target.value)} placeholder="e.g. Rant — Anonymous Expression" className="bg-[var(--elevated)] border-[var(--border-md)]" />
-            </div>
-            <div className="space-y-2">
-              <Label>Category</Label>
-              <Input value={form.category} onChange={(e) => update('category', e)} placeholder="e.g. Platform · Social" className="bg-[var(--elevated)] border-[var(--border-md)]" />
-            </div>
-            <div className="space-y-2">
-              <Label>Description</Label>
-              <Textarea value={form.description} onChange={(e) => update('description', e.target.value)} rows={2} placeholder="Short summary for cards and detail page" className="bg-[var(--elevated)] border-[var(--border-md)]" />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Tags (comma-separated)</Label>
-                <Input value={form.tags} onChange={(e) => update('tags', e.target.value)} placeholder="React, Node" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                <Label htmlFor="proj-name">Name</Label>
+                <Input id="proj-name" value={form.name} onChange={(e) => update('name', e.target.value)} placeholder="e.g. Rant — Anonymous Expression" className="bg-[var(--elevated)] border-[var(--border-md)]" />
               </div>
               <div className="space-y-2">
-                <Label>Type</Label>
-                <Input value={form.type} onChange={(e) => update('type', e.target.value)} placeholder="dev or design (Work filter)" className="bg-[var(--elevated)] border-[var(--border-md)]" />
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" id="featured" checked={form.featured} onChange={(e) => update('featured', e.target.checked)} className="rounded border-[var(--border-md)]" />
-              <Label htmlFor="featured">Featured</Label>
-            </div>
-            <div className="flex items-center gap-2 mt-4 mb-1">
-              <div className="w-5 h-px bg-[var(--sungold)]" aria-hidden />
-              <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--sungold)]">Links</span>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Live URL</Label>
-                <Input value={form.live_url} onChange={(e) => update('live_url', e.target.value)} placeholder="https://..." className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                <Label htmlFor="proj-category">Category</Label>
+                <Input id="proj-category" value={form.category} onChange={(e) => update('category', e)} placeholder="e.g. Platform · Social" className="bg-[var(--elevated)] border-[var(--border-md)]" />
               </div>
               <div className="space-y-2">
-                <Label>GitHub URL</Label>
-                <Input value={form.github_url} onChange={(e) => update('github_url', e.target.value)} placeholder="https://github.com/..." className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                <Label htmlFor="proj-description">Description</Label>
+                <Textarea id="proj-description" value={form.description} onChange={(e) => update('description', e.target.value)} rows={2} placeholder="Short summary for cards and detail page" className="bg-[var(--elevated)] border-[var(--border-md)]" />
               </div>
-            </div>
-            <div className="flex items-center gap-2 mt-4 mb-1">
-              <div className="w-5 h-px bg-[var(--sungold)]" aria-hidden />
-              <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--sungold)]">Detail page</span>
-            </div>
-            <div className="space-y-2">
-              <Label>Role title</Label>
-              <Input value={form.role_title} onChange={(e) => update('role_title', e.target.value)} placeholder="e.g. Lead Developer & Designer" className="bg-[var(--elevated)] border-[var(--border-md)]" />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="proj-tags">Tags</Label>
+                  <Input id="proj-tags" value={form.tags} onChange={(e) => update('tags', e.target.value)} placeholder="React, Node" aria-describedby="proj-tags-hint" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                  <span id="proj-tags-hint" className="font-mono text-[11px] text-[var(--subtle)]">Separate multiple with commas.</span>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="proj-type">Type</Label>
+                  <Input id="proj-type" value={form.type} onChange={(e) => update('type', e.target.value)} placeholder="dev or design (Work filter)" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="featured" checked={form.featured} onChange={(e) => update('featured', e.target.checked)} className="rounded border-[var(--border-md)]" />
+                <Label htmlFor="featured">Featured</Label>
+              </div>
+            </fieldset>
+
+            <fieldset className="grid gap-4 border-0 p-0 m-0">
+              <legend className="flex items-center gap-2 mb-2 font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--sungold)]">
+                <span className="w-5 h-px bg-[var(--sungold)]" aria-hidden /> Links
+              </legend>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="proj-live-url">Live URL</Label>
+                  <Input id="proj-live-url" type="text" inputMode="url" value={form.live_url} onChange={(e) => update('live_url', e.target.value)} placeholder="https://... or #" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="proj-github-url">GitHub URL</Label>
+                  <Input id="proj-github-url" type="text" inputMode="url" value={form.github_url} onChange={(e) => update('github_url', e.target.value)} placeholder="https://github.com/... or #" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset className="grid gap-4 border-0 p-0 m-0">
+              <legend className="flex items-center gap-2 mb-2 font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--sungold)]">
+                <span className="w-5 h-px bg-[var(--sungold)]" aria-hidden /> Detail page
+              </legend>
               <div className="space-y-2">
-                <Label>Duration</Label>
-                <Input value={form.duration} onChange={(e) => update('duration', e.target.value)} placeholder="e.g. 3 months" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                <Label htmlFor="proj-role-title">Role title</Label>
+                <Input id="proj-role-title" value={form.role_title} onChange={(e) => update('role_title', e.target.value)} placeholder="e.g. Lead Developer & Designer" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="proj-duration">Duration</Label>
+                  <Input id="proj-duration" value={form.duration} onChange={(e) => update('duration', e.target.value)} placeholder="e.g. 3 months" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="proj-year">Year</Label>
+                  <Input id="proj-year" type="number" min="1990" max="2100" value={form.year} onChange={(e) => update('year', e.target.value)} placeholder="e.g. 2024" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                </div>
               </div>
               <div className="space-y-2">
-                <Label>Year</Label>
-                <Input value={form.year} onChange={(e) => update('year', e.target.value)} placeholder="e.g. 2024" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                <Label htmlFor="proj-problem">Problem</Label>
+                <Textarea id="proj-problem" value={form.problem} onChange={(e) => update('problem', e.target.value)} rows={2} placeholder="The challenge or context..." className="bg-[var(--elevated)] border-[var(--border-md)]" />
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label>Problem</Label>
-              <Textarea value={form.problem} onChange={(e) => update('problem', e.target.value)} rows={2} placeholder="The challenge or context..." className="bg-[var(--elevated)] border-[var(--border-md)]" />
-            </div>
-            <div className="space-y-2">
-              <Label>Solution</Label>
-              <Textarea value={form.solution} onChange={(e) => update('solution', e.target.value)} rows={2} placeholder="What you built and how it helped..." className="bg-[var(--elevated)] border-[var(--border-md)]" />
-            </div>
-            <div className="space-y-2">
-              <Label>Tech details (one per line: name|role)</Label>
-              <Textarea value={form.tech_details} onChange={(e) => update('tech_details', e.target.value)} rows={4} placeholder={"Next.js|Framework\nTailwind|Styling"} className="bg-[var(--elevated)] border-[var(--border-md)] font-mono text-sm" />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="proj-solution">Solution</Label>
+                <Textarea id="proj-solution" value={form.solution} onChange={(e) => update('solution', e.target.value)} rows={2} placeholder="What you built and how it helped..." className="bg-[var(--elevated)] border-[var(--border-md)]" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="proj-tech-details">Tech details (one per line: name|role)</Label>
+                <Textarea id="proj-tech-details" value={form.tech_details} onChange={(e) => update('tech_details', e.target.value)} rows={4} placeholder={"Next.js|Framework\nTailwind|Styling"} className="bg-[var(--elevated)] border-[var(--border-md)] font-mono text-sm" />
+              </div>
+            </fieldset>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
