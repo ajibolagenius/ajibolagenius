@@ -31,6 +31,7 @@ const WritingPage = () => {
   const [page, setPage] = useState(1);
   const [nlEmail, setNlEmail] = useState('');
   const [nlMsg, setNlMsg] = useState('');
+  const [nlSubmitting, setNlSubmitting] = useState(false);
   const { data: posts, loading: postsLoading, error: postsError, refetch: refetchPosts } = useRealtimeQuery('blog_posts', fetchBlogPosts, fbPosts);
 
   const displayPosts = (Array.isArray(posts) && posts.length > 0) ? posts : fbPosts;
@@ -57,13 +58,17 @@ const WritingPage = () => {
 
   const handleSubscribe = async (e) => {
     e.preventDefault();
-    if (!nlEmail) return;
+    if (!nlEmail || nlSubmitting) return;
+    setNlSubmitting(true);
+    setNlMsg('');
     try {
-      const res = await subscribeNewsletter(nlEmail);
-      setNlMsg(res.message || 'Subscribed.');
+      const res = await subscribeNewsletter(nlEmail.trim());
+      setNlMsg(res?.message || 'Subscribed! You\'ll hear from me soon.');
       setNlEmail('');
     } catch {
       setNlMsg('Something went wrong. Try again.');
+    } finally {
+      setNlSubmitting(false);
     }
     setTimeout(() => setNlMsg(''), 4000);
   };
@@ -205,24 +210,29 @@ const WritingPage = () => {
             <p className="font-body text-[14px] mb-6 text-[var(--muted)]">
               Get notified when I publish new articles. No spam, unsubscribe anytime.
             </p>
-            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 max-w-[480px]">
+            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 max-w-[480px]" aria-label="Newsletter signup">
               <input
                 type="email"
                 placeholder="your@email.com"
                 value={nlEmail}
-                onChange={e => setNlEmail(e.target.value)}
-                className="flex-1 font-body text-[14px] px-4 py-[10px] outline-none bg-[var(--elevated)] border border-[var(--border-md)] text-[var(--white)] placeholder:text-[var(--subtle)] focus:border-[var(--sungold)] focus:shadow-[var(--shadow-sharp-ring)] rounded-none transition-all"
+                onChange={(e) => setNlEmail(e.target.value)}
+                disabled={nlSubmitting}
+                className="flex-1 font-body text-[14px] px-4 py-[10px] outline-none bg-[var(--elevated)] border border-[var(--border-md)] text-[var(--white)] placeholder:text-[var(--subtle)] focus:border-[var(--sungold)] focus:shadow-[var(--shadow-sharp-ring)] rounded-none transition-all disabled:opacity-60"
                 required
+                aria-describedby={nlMsg ? 'newsletter-msg' : undefined}
               />
               <button
                 type="submit"
-                className="btn-primary font-display text-[13px] font-semibold px-5 py-[10px] border-0 cursor-pointer bg-[var(--sungold)] text-[var(--void)] rounded-none shrink-0"
+                disabled={nlSubmitting}
+                className="btn-primary font-display text-[13px] font-semibold px-5 py-[10px] border-0 cursor-pointer bg-[var(--sungold)] text-[var(--void)] rounded-none shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Subscribe
+                {nlSubmitting ? 'Subscribing…' : 'Subscribe'}
               </button>
             </form>
             {nlMsg && (
-              <p className="font-mono text-[12px] mt-3 text-[var(--sungold)]">{nlMsg}</p>
+              <p id="newsletter-msg" className="font-mono text-[12px] mt-3 text-[var(--sungold)]" role="status" aria-live="polite">
+                {nlMsg}
+              </p>
             )}
           </div>
         </div>

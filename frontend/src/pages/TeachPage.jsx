@@ -235,18 +235,22 @@ const TeachPage = () => {
             </span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayTestimonials.map((t, i) => (
-              <div key={i} className="p-6 bg-[var(--surface)] border border-[var(--border)]">
-                <Quote size={20} className="mb-4 text-[var(--sungold)] opacity-60" />
-                <p className="font-body text-[13px] leading-[1.7] mb-5 text-[var(--muted)]">
-                  &ldquo;{t.text}&rdquo;
-                </p>
-                <div>
-                  <div className="font-display text-[13px] font-semibold text-[var(--white)]">{t.name}</div>
-                  <div className="font-mono text-[10px] text-[var(--sungold)]">{t.role}</div>
+            {displayTestimonials.length === 0 ? (
+              <p className="font-body text-[14px] text-[var(--muted)] col-span-full">No testimonials yet.</p>
+            ) : (
+              displayTestimonials.map((t, i) => (
+                <div key={t.id ?? `testimonial-${i}`} className="p-6 bg-[var(--surface)] border border-[var(--border)]">
+                  <Quote size={20} className="mb-4 text-[var(--sungold)] opacity-60" />
+                  <p className="font-body text-[13px] leading-[1.7] mb-5 text-[var(--muted)]">
+                    &ldquo;{t.text}&rdquo;
+                  </p>
+                  <div>
+                    <div className="font-display text-[13px] font-semibold text-[var(--white)]">{t.name}</div>
+                    <div className="font-mono text-[10px] text-[var(--sungold)]">{t.role}</div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </section>
