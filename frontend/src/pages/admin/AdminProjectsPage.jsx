@@ -187,12 +187,12 @@ export default function AdminProjectsPage() {
               </div>
               <div className="space-y-2">
                 <Label>Label</Label>
-                <Input value={form.label} onChange={(e) => update('label', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                <Input value={form.label} onChange={(e) => update('label', e.target.value)} placeholder="e.g. RANT" className="bg-[var(--elevated)] border-[var(--border-md)]" />
               </div>
             </div>
             <div className="space-y-2">
               <Label>Name</Label>
-              <Input value={form.name} onChange={(e) => update('name', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" />
+              <Input value={form.name} onChange={(e) => update('name', e.target.value)} placeholder="e.g. Rant — Anonymous Expression" className="bg-[var(--elevated)] border-[var(--border-md)]" />
             </div>
             <div className="space-y-2">
               <Label>Category</Label>
@@ -200,7 +200,7 @@ export default function AdminProjectsPage() {
             </div>
             <div className="space-y-2">
               <Label>Description</Label>
-              <Textarea value={form.description} onChange={(e) => update('description', e.target.value)} rows={2} className="bg-[var(--elevated)] border-[var(--border-md)]" />
+              <Textarea value={form.description} onChange={(e) => update('description', e.target.value)} rows={2} placeholder="Short summary for cards and detail page" className="bg-[var(--elevated)] border-[var(--border-md)]" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -223,11 +223,11 @@ export default function AdminProjectsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Live URL</Label>
-                <Input value={form.live_url} onChange={(e) => update('live_url', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                <Input value={form.live_url} onChange={(e) => update('live_url', e.target.value)} placeholder="https://..." className="bg-[var(--elevated)] border-[var(--border-md)]" />
               </div>
               <div className="space-y-2">
                 <Label>GitHub URL</Label>
-                <Input value={form.github_url} onChange={(e) => update('github_url', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                <Input value={form.github_url} onChange={(e) => update('github_url', e.target.value)} placeholder="https://github.com/..." className="bg-[var(--elevated)] border-[var(--border-md)]" />
               </div>
             </div>
             <div className="flex items-center gap-2 mt-4 mb-1">
@@ -241,20 +241,20 @@ export default function AdminProjectsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Duration</Label>
-                <Input value={form.duration} onChange={(e) => update('duration', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                <Input value={form.duration} onChange={(e) => update('duration', e.target.value)} placeholder="e.g. 3 months" className="bg-[var(--elevated)] border-[var(--border-md)]" />
               </div>
               <div className="space-y-2">
                 <Label>Year</Label>
-                <Input value={form.year} onChange={(e) => update('year', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                <Input value={form.year} onChange={(e) => update('year', e.target.value)} placeholder="e.g. 2024" className="bg-[var(--elevated)] border-[var(--border-md)]" />
               </div>
             </div>
             <div className="space-y-2">
               <Label>Problem</Label>
-              <Textarea value={form.problem} onChange={(e) => update('problem', e.target.value)} rows={2} className="bg-[var(--elevated)] border-[var(--border-md)]" />
+              <Textarea value={form.problem} onChange={(e) => update('problem', e.target.value)} rows={2} placeholder="The challenge or context..." className="bg-[var(--elevated)] border-[var(--border-md)]" />
             </div>
             <div className="space-y-2">
               <Label>Solution</Label>
-              <Textarea value={form.solution} onChange={(e) => update('solution', e.target.value)} rows={2} className="bg-[var(--elevated)] border-[var(--border-md)]" />
+              <Textarea value={form.solution} onChange={(e) => update('solution', e.target.value)} rows={2} placeholder="What you built and how it helped..." className="bg-[var(--elevated)] border-[var(--border-md)]" />
             </div>
             <div className="space-y-2">
               <Label>Tech details (one per line: name|role)</Label>

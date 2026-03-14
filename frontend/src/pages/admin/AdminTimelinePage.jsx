@@ -89,11 +89,11 @@ export default function AdminTimelinePage() {
           <DialogHeader><DialogTitle>{editing ? 'Edit entry' : 'New entry'}</DialogTitle></DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Year</Label><Input value={form.year} onChange={(e) => update('year', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+              <div className="space-y-2"><Label>Year</Label><Input value={form.year} onChange={(e) => update('year', e.target.value)} placeholder="e.g. 2024" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
               <div className="space-y-2"><Label>Order</Label><Input type="number" value={form.order} onChange={(e) => update('order', parseInt(e.target.value, 10) || 0)} placeholder="0 = first" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             </div>
-            <div className="space-y-2"><Label>Title</Label><Input value={form.title} onChange={(e) => update('title', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
-            <div className="space-y-2"><Label>Body</Label><Textarea value={form.body} onChange={(e) => update('body', e.target.value)} rows={4} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+            <div className="space-y-2"><Label>Title</Label><Input value={form.title} onChange={(e) => update('title', e.target.value)} placeholder="e.g. Senior Developer at X" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+            <div className="space-y-2"><Label>Body</Label><Textarea value={form.body} onChange={(e) => update('body', e.target.value)} rows={4} placeholder="Responsibilities and achievements..." className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             <div className="space-y-2"><Label>Accent (theme color)</Label><Input value={form.accent} onChange={(e) => update('accent', e.target.value)} placeholder="sungold, nebula, stardust, terracotta" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
           </div>
           <DialogFooter>

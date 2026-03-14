@@ -97,7 +97,7 @@ export default function AdminBlogPage() {
               <div className="space-y-2"><Label>Slug</Label><Input value={form.slug} onChange={(e) => update('slug', e.target.value)} placeholder="e.g. my-post → /writing/my-post" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
               <div className="space-y-2"><Label>Date</Label><Input value={form.date} onChange={(e) => update('date', e.target.value)} placeholder="YYYY-MM-DD" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             </div>
-            <div className="space-y-2"><Label>Title</Label><Input value={form.title} onChange={(e) => update('title', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+            <div className="space-y-2"><Label>Title</Label><Input value={form.title} onChange={(e) => update('title', e.target.value)} placeholder="e.g. How I Built X" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             <div className="space-y-2"><Label>Category</Label><Input value={form.category} onChange={(e) => update('category', e.target.value)} placeholder="e.g. Engineering" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             <div className="space-y-2"><Label>Tags (comma-separated)</Label><Input value={form.tags} onChange={(e) => update('tags', e.target.value)} placeholder="React, Next.js" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             <div className="space-y-2"><Label>Excerpt</Label><Textarea value={form.excerpt} onChange={(e) => update('excerpt', e.target.value)} rows={2} placeholder="Short summary for listing and meta" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>

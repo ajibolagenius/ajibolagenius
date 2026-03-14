@@ -100,12 +100,12 @@ export default function AdminCoursesPage() {
               <div className="space-y-2"><Label>Slug</Label><Input value={form.slug} onChange={(e) => update('slug', e.target.value)} placeholder="e.g. nextjs-basics" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
               <div className="space-y-2"><Label>Badge</Label><Input value={form.badge} onChange={(e) => update('badge', e.target.value)} placeholder="e.g. 2 Weeks" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             </div>
-            <div className="space-y-2"><Label>Name</Label><Input value={form.name} onChange={(e) => update('name', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+            <div className="space-y-2"><Label>Name</Label><Input value={form.name} onChange={(e) => update('name', e.target.value)} placeholder="e.g. Next.js Basics" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2"><Label>Duration</Label><Input value={form.duration} onChange={(e) => update('duration', e.target.value)} placeholder="2 Weeks" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
               <div className="space-y-2"><Label>Price</Label><Input value={form.price} onChange={(e) => update('price', e.target.value)} placeholder="₦100K" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             </div>
-            <div className="space-y-2"><Label>Description</Label><Textarea value={form.description} onChange={(e) => update('description', e.target.value)} rows={2} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+            <div className="space-y-2"><Label>Description</Label><Textarea value={form.description} onChange={(e) => update('description', e.target.value)} rows={2} placeholder="Course overview for Teach page" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             <div className="space-y-2"><Label>Curriculum (one topic per line)</Label><Textarea value={Array.isArray(form.curriculum) ? form.curriculum.join('\n') : (form.curriculum || '')} onChange={(e) => update('curriculum', e.target.value)} rows={6} placeholder={"Module 1: Intro\nModule 2: Build"} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
           </div>
           <DialogFooter>
