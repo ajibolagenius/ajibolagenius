@@ -14,6 +14,7 @@ import ListPagination from '../components/portfolio/ListPagination';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { DataLoadingSkeleton, DataErrorBanner } from '../components/portfolio/DataStateMessage';
+import OptimizedImage from '../components/portfolio/OptimizedImage';
 
 const getHeroUrl = (project) => {
   const first = project.screenshots?.[0];
@@ -39,7 +40,7 @@ const ProjectCard = ({ project }) => {
     >
       <div className="h-[200px] flex items-center justify-center relative overflow-hidden bg-[var(--surface)]">
         {heroUrl ? (
-          <img src={heroUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <OptimizedImage src={heroUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
         ) : (
           <div
             className="absolute inset-0 opacity-40"
@@ -147,7 +148,7 @@ const FeaturedSpotlight = ({ project, onView }) => {
         </div>
         <div className="min-h-[240px] lg:min-h-[320px] flex items-center justify-center relative overflow-hidden bg-[var(--elevated)]">
           {heroUrl ? (
-            <img src={heroUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+            <OptimizedImage src={heroUrl} alt="" className="absolute inset-0 w-full h-full object-cover" priority />
           ) : (
             <div
               className="absolute inset-0 opacity-40"

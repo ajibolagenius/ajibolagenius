@@ -6,6 +6,7 @@ import { projects as fallbackProjects } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
+import OptimizedImage from '../components/portfolio/OptimizedImage';
 
 const WorkDetailPage = () => {
   const { slug } = useParams();
@@ -122,10 +123,11 @@ const WorkDetailPage = () => {
               className="w-full h-full min-h-[280px] md:min-h-[360px] block cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2"
               aria-label="Open image in lightbox"
             >
-              <img
+              <OptimizedImage
                 src={heroImage}
                 alt={project.name}
                 className="w-full h-full object-cover min-h-[280px] md:min-h-[360px]"
+                priority
               />
             </button>
           ) : (
@@ -173,10 +175,11 @@ const WorkDetailPage = () => {
             className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <img
+            <OptimizedImage
               src={screenshots[lightboxSafeIndex]}
               alt={`${project.name} screenshot ${lightboxSafeIndex + 1}`}
               className="max-w-full max-h-[90vh] w-auto h-auto object-contain"
+              loading="eager"
             />
           </div>
           <span className="absolute bottom-4 left-1/2 -translate-x-1/2 font-mono text-[11px] text-[var(--subtle)]">
@@ -307,7 +310,7 @@ const WorkDetailPage = () => {
                   className="border border-[var(--border)] overflow-hidden bg-[var(--elevated)] text-left cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2"
                   aria-label={`View screenshot ${i + 1}`}
                 >
-                  <img
+                  <OptimizedImage
                     src={url}
                     alt={`${project.name} screenshot ${i + 1}`}
                     className="w-full aspect-video object-cover"

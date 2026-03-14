@@ -24,6 +24,7 @@ import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import ListPagination from '../../components/portfolio/ListPagination';
 import { paginate } from '../../lib/paginate';
 import { adminEndpoints, uploadProjectScreenshot } from '../../services/adminApi';
+import OptimizedImage from '../../components/portfolio/OptimizedImage';
 import { ImagePlus, Trash2 } from 'lucide-react';
 
 const ADMIN_PAGE_SIZE = 10;
@@ -359,7 +360,7 @@ export default function AdminProjectsPage() {
                     <ul className="grid grid-cols-2 sm:grid-cols-3 gap-2 list-none p-0 m-0">
                       {(form.screenshots || []).map((url, i) => (
                         <li key={url} className="relative group border border-[var(--border)] bg-[var(--elevated)] overflow-hidden aspect-video">
-                          <img src={url} alt="" className="w-full h-full object-cover" />
+                          <OptimizedImage src={url} alt="" className="w-full h-full object-cover" />
                           <button
                             type="button"
                             onClick={() => removeScreenshot(i)}

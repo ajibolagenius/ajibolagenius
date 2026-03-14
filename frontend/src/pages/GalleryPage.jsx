@@ -12,6 +12,7 @@ import { DataErrorBanner, DataLoadingSkeleton } from '../components/portfolio/Da
 import { byString, applySort } from '../lib/sortHelpers';
 import { paginate } from '../lib/paginate';
 import ListPagination from '../components/portfolio/ListPagination';
+import OptimizedImage from '../components/portfolio/OptimizedImage';
 
 const FILTER_OPTIONS = [
   { label: 'All', value: 'All' },
@@ -78,7 +79,7 @@ function GalleryCard({ item, height, onClick }) {
         style={{ height: `${height}px` }}
         onClick={onClick}
       >
-        <img
+        <OptimizedImage
           src={url}
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
@@ -240,7 +241,7 @@ const GalleryPage = () => {
                 </div>
               ) : hasMedia(lightbox) ? (
                 <div className="bg-[var(--surface)] rounded overflow-hidden border border-[var(--border-md)]">
-                  <img src={lightbox.url} alt="" className="w-full max-h-[70vh] object-contain" />
+                  <OptimizedImage src={lightbox.url} alt="" className="w-full max-h-[70vh] object-contain" loading="eager" />
                   <div className="p-4 border-t border-[var(--border)] flex items-center justify-between flex-wrap gap-2">
                     <div>
                       <span className="font-mono text-[11px] tracking-[0.12em] uppercase mr-2" style={{ color: lightbox.color || 'var(--sungold)' }}>{lightbox.type}</span>

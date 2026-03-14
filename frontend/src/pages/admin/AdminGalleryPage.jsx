@@ -9,6 +9,7 @@ import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import ListPagination from '../../components/portfolio/ListPagination';
 import { paginate } from '../../lib/paginate';
 import { adminEndpoints, uploadGalleryMedia } from '../../services/adminApi';
+import OptimizedImage from '../../components/portfolio/OptimizedImage';
 import { ImagePlus, Pencil, Trash2, Video, Upload, X } from 'lucide-react';
 
 const UPLOAD_ACCEPT = 'image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime';
@@ -61,7 +62,7 @@ function MediaPreview({ item, className = '' }) {
     );
   }
   return (
-    <img
+    <OptimizedImage
       src={url}
       alt=""
       className={`object-cover w-full h-full ${className}`}
