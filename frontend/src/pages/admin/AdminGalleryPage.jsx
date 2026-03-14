@@ -4,6 +4,7 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../components/ui/alert-dialog';
+import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import { adminEndpoints } from '../../services/adminApi';
 
 const emptyItem = () => ({ title: '', type: 'UI', color: '#E8A020' });
@@ -50,9 +51,9 @@ export default function AdminGalleryPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-2xl font-bold text-[var(--white)]">Gallery</h1>
-        <Button onClick={openCreate} className="bg-[var(--sungold)] text-[var(--void)] font-display font-semibold">Add item</Button>
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+        <AdminPageHeader kicker="Content" title="Gallery" subtitle="Visual archive items." />
+        <Button onClick={openCreate} className="self-start sm:self-center h-11 font-display font-semibold text-[13px] bg-[var(--sungold)] text-[var(--void)] rounded-none hover:shadow-[var(--shadow-sharp-gold)] hover:-translate-y-0.5">Add item</Button>
       </div>
       {loading ? <p className="text-[var(--muted)] font-mono text-sm">Loading…</p> : (
         <div className="border border-[var(--border)] overflow-hidden">

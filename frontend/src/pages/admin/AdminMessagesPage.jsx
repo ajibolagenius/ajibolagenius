@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import { adminEndpoints } from '../../services/adminApi';
 
 export default function AdminMessagesPage() {
@@ -12,11 +13,15 @@ export default function AdminMessagesPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-bold text-[var(--white)] mb-6">Contact messages</h1>
-      {loading ? <p className="text-[var(--muted)] font-mono text-sm">Loading…</p> : (
-        <div className="border border-[var(--border)] overflow-hidden">
+      <AdminPageHeader
+        kicker="Engagement"
+        title="Contact messages"
+        subtitle="Form submissions from the contact page."
+      />
+      {loading ? <p className="font-mono text-[13px] text-[var(--subtle)]">Loading…</p> : (
+        <div className="border border-[var(--border)] bg-[var(--surface)] overflow-hidden">
           <table className="w-full text-left">
-            <thead className="bg-[var(--surface)] border-b border-[var(--border)]">
+            <thead className="bg-[var(--elevated)] border-b border-[var(--border)]">
               <tr>
                 <th className="px-4 py-3 font-mono text-[11px] text-[var(--subtle)] uppercase">Name</th>
                 <th className="px-4 py-3 font-mono text-[11px] text-[var(--subtle)] uppercase">Email</th>

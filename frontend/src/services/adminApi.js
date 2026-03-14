@@ -47,6 +47,7 @@ export const adminEndpoints = {
   personalInfo: { get: () => adminApi.get('/personal-info').then((r) => r.data), update: (d) => adminApi.put('/admin/personal-info', d).then((r) => r.data) },
   contactMessages: { list: () => adminApi.get('/admin/contact-messages').then((r) => r.data) },
   newsletterSubscribers: { list: () => adminApi.get('/admin/newsletter-subscribers').then((r) => r.data) },
+  stats: () => adminApi.get('/admin/stats').then((r) => r.data),
 };
 
 export default adminApi;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import { adminEndpoints } from '../../services/adminApi';
 
 export default function AdminNewsletterPage() {
@@ -12,7 +13,7 @@ export default function AdminNewsletterPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-bold text-[var(--white)] mb-6">Newsletter subscribers</h1>
+      <AdminPageHeader kicker="Engagement" title="Newsletter subscribers" subtitle="Mailing list from the blog signup." />
       {loading ? <p className="text-[var(--muted)] font-mono text-sm">Loading…</p> : (
         <div className="border border-[var(--border)] overflow-hidden">
           <table className="w-full text-left">

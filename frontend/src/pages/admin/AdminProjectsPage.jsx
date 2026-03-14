@@ -20,6 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../../components/ui/alert-dialog';
+import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import { adminEndpoints } from '../../services/adminApi';
 
 const emptyProject = () => ({
@@ -130,18 +131,21 @@ export default function AdminProjectsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-2xl font-bold text-[var(--white)]">Projects</h1>
-        <Button onClick={openCreate} className="bg-[var(--sungold)] text-[var(--void)] font-display font-semibold">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+        <AdminPageHeader kicker="Content" title="Projects" subtitle="Work and case studies." />
+        <Button
+          onClick={openCreate}
+          className="self-start sm:self-center h-11 font-display font-semibold text-[13px] tracking-[0.04em] bg-[var(--sungold)] text-[var(--void)] rounded-none hover:shadow-[var(--shadow-sharp-gold)] hover:-translate-y-0.5 transition-all duration-200"
+        >
           Add project
         </Button>
       </div>
       {loading ? (
         <p className="text-[var(--muted)] font-mono text-sm">Loading…</p>
       ) : (
-        <div className="border border-[var(--border)] overflow-hidden">
+        <div className="border border-[var(--border)] bg-[var(--surface)] overflow-hidden">
           <table className="w-full text-left">
-            <thead className="bg-[var(--surface)] border-b border-[var(--border)]">
+            <thead className="bg-[var(--elevated)] border-b border-[var(--border)]">
               <tr>
                 <th className="px-4 py-3 font-mono text-[11px] text-[var(--subtle)] uppercase">Label</th>
                 <th className="px-4 py-3 font-mono text-[11px] text-[var(--subtle)] uppercase">Name</th>

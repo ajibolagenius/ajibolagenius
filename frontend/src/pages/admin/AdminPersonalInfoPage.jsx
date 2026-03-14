@@ -3,6 +3,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
+import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import { adminEndpoints } from '../../services/adminApi';
 
 const defaultInfo = {
@@ -29,11 +30,11 @@ export default function AdminPersonalInfoPage() {
     } catch (e) { console.error(e); } finally { setSaving(false); }
   };
 
-  if (loading) return <p className="text-[var(--muted)] font-mono text-sm">Loading…</p>;
+  if (loading) return <p className="font-mono text-[13px] text-[var(--subtle)]">Loading…</p>;
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-bold text-[var(--white)] mb-6">Personal info</h1>
+      <AdminPageHeader kicker="Settings" title="Personal info" subtitle="Site hero, tagline, and social links." />
       <div className="max-w-2xl space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2"><Label>Name</Label><Input value={form.name} onChange={(e) => update('name', e.target.value)} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
@@ -58,7 +59,7 @@ export default function AdminPersonalInfoPage() {
             ))}
           </div>
         </div>
-        <Button onClick={handleSave} disabled={saving} className="bg-[var(--sungold)] text-[var(--void)] font-display font-semibold mt-4">{saving ? 'Saving…' : 'Save'}</Button>
+        <Button onClick={handleSave} disabled={saving} className="mt-4 h-11 font-display font-semibold text-[13px] bg-[var(--sungold)] text-[var(--void)] rounded-none hover:shadow-[var(--shadow-sharp-gold)] hover:-translate-y-0.5">{saving ? 'Saving…' : 'Save'}</Button>
       </div>
     </div>
   );

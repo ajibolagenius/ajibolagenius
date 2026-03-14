@@ -464,6 +464,48 @@ async def get_newsletter_subscribers():
     return docs
 
 
+# ---- Admin: Analytics / Stats ----
+@admin_router.get("/stats")
+async def get_admin_stats():
+    """Aggregate counts and recent activity for the admin dashboard."""
+    projects = await db.projects.count_documents({})
+    blog_posts = await db.blog_posts.count_documents({})
+    gallery = await db.gallery_items.count_documents({})
+    courses = await db.courses.count_documents({})
+    timeline = await db.timeline_entries.count_documents({})
+    testimonials = await db.testimonials.count_documents({})
+    contact_messages = await db.contact_messages.count_documents({})
+    newsletter_subscribers = await db.newsletter_subscribers.count_documents({})
+
+    recent_messages = (
+        await db.contact_messages.find({}, {"_id": 0})
+        .sort("created_at", -1)
+        .limit(5)
+        .to_list(5)
+    )
+    recent_subscribers = (
+        await db.newsletter_subscribers.find({}, {"_id": 0})
+        .sort("created_at", -1)
+        .limit(5)
+        .to_list(5)
+    )
+
+    return {
+        "counts": {
+            "projects": projects,
+            "blog_posts": blog_posts,
+            "gallery": gallery,
+            "courses": courses,
+            "timeline": timeline,
+            "testimonials": testimonials,
+            "contact_messages": contact_messages,
+            "newsletter_subscribers": newsletter_subscribers,
+        },
+        "recent_messages": recent_messages,
+        "recent_subscribers": recent_subscribers,
+    }
+
+
 # ========================================
 # APP SETUP
 # ========================================
