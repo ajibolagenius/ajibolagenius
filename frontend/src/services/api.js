@@ -1,42 +1,58 @@
-import axios from 'axios';
+import { supabase } from '../lib/supabase';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
-const API = `${BACKEND_URL}/api`;
-
-const api = axios.create({
-  baseURL: API,
-  timeout: 10000,
-  headers: { 'Content-Type': 'application/json' },
-});
-
-// Single place for 4xx/5xx — reject so callers can .catch() and use fallback (e.g. mock data)
-api.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    if (err.response) {
-      const { status } = err.response;
-      if (status >= 400 && status < 500) console.warn('[API] Client error:', status, err.config?.url);
-      else if (status >= 500) console.error('[API] Server error:', status, err.config?.url);
-    } else if (err.code === 'ECONNABORTED') {
-      console.warn('[API] Request timeout:', err.config?.url);
+function handleResponse({ data, error }) {
+  if (error) {
+    if (error.code === 'PGRST116' || error.message?.includes('404')) {
+      const e = new Error(error.message);
+      e.status = 404;
+      throw e;
     }
-    return Promise.reject(err);
+    if (error.code) console.warn('[API]', error.code, error.message);
+    throw error;
   }
-);
+  return data;
+}
 
-// Public endpoints
-export const fetchPersonalInfo = () => api.get('/personal-info').then(r => r.data);
-export const fetchProjects = () => api.get('/projects').then(r => r.data);
-export const fetchProject = (slug) => api.get(`/projects/${slug}`).then(r => r.data);
-export const fetchCourses = () => api.get('/courses').then(r => r.data);
-export const fetchBlogPosts = () => api.get('/blog-posts').then(r => r.data);
-export const fetchBlogPost = (slug) => api.get(`/blog-posts/${slug}`).then(r => r.data);
-export const fetchGallery = () => api.get('/gallery').then(r => r.data);
-export const fetchTimeline = () => api.get('/timeline').then(r => r.data);
-export const fetchTestimonials = () => api.get('/testimonials').then(r => r.data);
+// Public read
+export const fetchPersonalInfo = () =>
+  supabase.from('personal_info').select('*').eq('id', 1).single().then(handleResponse);
 
-// Form submissions
-export const submitContact = (data) => api.post('/contact', data).then(r => r.data);
-export const subscribeNewsletter = (email) => api.post('/newsletter', { email }).then(r => r.data);
+export const fetchProjects = () =>
+  supabase.from('projects').select('*').order('created_at', { ascending: false }).then(handleResponse);
 
-export default api;
+export const fetchProject = (slug) =>
+  supabase.from('projects').select('*').eq('slug', slug).single().then(handleResponse);
+
+export const fetchCourses = () =>
+  supabase.from('courses').select('*').then(handleResponse);
+
+export const fetchBlogPosts = () =>
+  supabase.from('blog_posts').select('*').order('date', { ascending: false }).then(handleResponse);
+
+export const fetchBlogPost = (slug) =>
+  supabase.from('blog_posts').select('*').eq('slug', slug).single().then(handleResponse);
+
+export const fetchGallery = () =>
+  supabase.from('gallery_items').select('*').then(handleResponse);
+
+export const fetchTimeline = () =>
+  supabase.from('timeline_entries').select('*').order('order', { ascending: true }).then(handleResponse);
+
+export const fetchTestimonials = () =>
+  supabase.from('testimonials').select('*').then(handleResponse);
+
+// Public write
+export const submitContact = (data) =>
+  supabase.from('contact_messages').insert({ name: data.name, email: data.email, subject: data.subject ?? '', message: data.message }).then((r) => {
+    handleResponse(r);
+    return { status: 'ok', message: "Message received! I'll get back to you soon." };
+  });
+
+export const subscribeNewsletter = async (email) => {
+  const { data, error } = await supabase.from('newsletter_subscribers').insert({ email }).select();
+  if (error) {
+    if (error.code === '23505') return { status: 'ok', message: "You're already subscribed!" };
+    throw error;
+  }
+  return { status: 'ok', message: "Subscribed! You'll hear from me soon." };
+};

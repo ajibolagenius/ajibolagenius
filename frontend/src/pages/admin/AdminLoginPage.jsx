@@ -4,14 +4,15 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { authApi } from '../../services/adminApi';
+import { supabase } from '../../lib/supabase';
 import { useAdminAuth } from '../../contexts/AdminAuthContext';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { setToken, setLoading, isAuthenticated } = useAdminAuth();
+  const [submitting, setSubmitting] = useState(false);
+  const { isAuthenticated } = useAdminAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/admin';
@@ -24,15 +25,16 @@ export default function AdminLoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
+    setSubmitting(true);
     try {
-      const { access_token } = await authApi.login(email, password);
-      setToken(access_token);
+      const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+      if (err) {
+        setError(err.message || 'Invalid email or password');
+        return;
+      }
       navigate(from, { replace: true });
-    } catch (err) {
-      setError(err.response?.data?.detail || 'Invalid email or password');
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -91,9 +93,10 @@ export default function AdminLoginPage() {
             )}
             <Button
               type="submit"
+              disabled={submitting}
               className="w-full h-11 font-display font-semibold text-[13px] tracking-[0.04em] bg-[var(--sungold)] text-[var(--void)] rounded-none hover:opacity-95 hover:shadow-[var(--shadow-sharp-gold)] hover:-translate-y-0.5 transition-all duration-200"
             >
-              Sign in
+              {submitting ? 'Signing in…' : 'Sign in'}
             </Button>
           </form>
         </CardContent>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import ThemeToggle from '../../components/portfolio/ThemeToggle';
+import { useAdminAuth } from '../../contexts/AdminAuthContext';
 
 const contentNav = [
   { to: '/admin/projects', label: 'Projects' },
@@ -49,11 +50,11 @@ function NavGroup({ title, items }) {
 
 export default function AdminLayout() {
   const navigate = useNavigate();
+  const { logout } = useAdminAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem('admin_token');
+    logout();
     navigate('/admin/login', { replace: true });
-    window.location.reload();
   };
 
   return (

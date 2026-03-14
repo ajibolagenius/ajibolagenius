@@ -23,15 +23,16 @@ yarn dev
 
 Dev server runs at **http://localhost:5173**. For production: `yarn build` → output in `dist/`, then `yarn preview` to serve it locally.
 
-**Environment (optional)** — Add a `.env` in the frontend root if you need to point elsewhere:
+**Environment** — Copy `.env.example` to `.env` and set:
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `VITE_BACKEND_URL` | `http://localhost:8000` | Portfolio API base URL |
-| `VITE_SITE_URL` | — | Public site URL (canonical, OG) |
-| `VITE_CV_PDF_URL` | — | CV PDF download URL |
+| Variable | Purpose |
+|----------|----------|
+| `VITE_SUPABASE_URL` | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anon key |
+| `VITE_SITE_URL` | (optional) Public site URL |
+| `VITE_CV_PDF_URL` | (optional) CV PDF URL |
 
-Start the backend on 8000 (or set `VITE_BACKEND_URL`), then the frontend. If the API isn’t there, the app still loads using `src/data/mock.js`.
+Run the SQL in `supabase/migrations/20250313000000_initial_schema.sql` in the Supabase SQL Editor, then create an admin user in Auth → Users. Without Supabase, the app falls back to `src/data/mock.js`.
 
 ---
 

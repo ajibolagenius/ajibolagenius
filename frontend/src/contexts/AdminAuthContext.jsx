@@ -1,26 +1,31 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 const AdminAuthContext = createContext(null);
 
-const TOKEN_KEY = 'admin_token';
-
 export function AdminAuthProvider({ children }) {
-  const [token, setTokenState] = useState(() => localStorage.getItem(TOKEN_KEY));
-  const [loading, setLoading] = useState(false);
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const setToken = useCallback((t) => {
-    if (t) localStorage.setItem(TOKEN_KEY, t);
-    else localStorage.removeItem(TOKEN_KEY);
-    setTokenState(t);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      setSession(s);
+      setLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, s) => {
+      setSession(s);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const logout = useCallback(() => {
-    setToken(null);
-  }, [setToken]);
+  const logout = () => supabase.auth.signOut();
+  const isAuthenticated = !!session;
 
-  const isAuthenticated = !!token;
-
-  const value = { token, setToken, logout, isAuthenticated, loading, setLoading };
+  const value = { session, logout, isAuthenticated, loading };
   return (
     <AdminAuthContext.Provider value={value}>
       {children}

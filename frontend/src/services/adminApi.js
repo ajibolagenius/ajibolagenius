@@ -1,53 +1,152 @@
-import axios from 'axios';
+import { supabase } from '../lib/supabase';
 
-const BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
-const API = `${BASE}/api`;
-
-function getToken() {
-  return localStorage.getItem('admin_token');
-}
-
-export const adminApi = axios.create({
-  baseURL: API,
-  timeout: 15000,
-  headers: { 'Content-Type': 'application/json' },
-});
-
-adminApi.interceptors.request.use((config) => {
-  const token = getToken();
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
-adminApi.interceptors.response.use(
-  (r) => r,
-  (err) => {
-    if (err.response?.status === 401) {
-      localStorage.removeItem('admin_token');
+function handleResponse({ data, error }) {
+  if (error) {
+    if (error.message?.toLowerCase().includes('jwt') || error.message?.toLowerCase().includes('expired')) {
+      supabase.auth.signOut();
       if (window.location.pathname.startsWith('/admin') && !window.location.pathname.includes('/admin/login')) {
         window.location.href = '/admin/login';
       }
     }
-    return Promise.reject(err);
+    throw error;
   }
-);
+  return data;
+}
 
-export const authApi = {
-  login: (email, password) =>
-    adminApi.post('/auth/login', { email, password }).then((r) => r.data),
+const tableConfig = {
+  projects: { table: 'projects', order: { column: 'created_at', ascending: false } },
+  blogPosts: { table: 'blog_posts', order: { column: 'date', ascending: false } },
+  gallery: { table: 'gallery_items' },
+  courses: { table: 'courses' },
+  timeline: { table: 'timeline_entries', order: { column: 'order', ascending: true } },
+  testimonials: { table: 'testimonials' },
 };
+
+function list(tableName, order) {
+  let q = supabase.from(tableName).select('*');
+  if (order) q = q.order(order.column, { ascending: order.ascending });
+  return q.then(handleResponse);
+}
+
+function create(tableName, payload) {
+  return supabase.from(tableName).insert(payload).select().single().then(handleResponse);
+}
+
+function update(tableName, id, payload) {
+  const { id: _id, created_at: _ca, ...rest } = payload ?? {};
+  return supabase.from(tableName).update(rest).eq('id', id).select().then((r) => {
+    handleResponse(r);
+    return { status: 'ok', id };
+  });
+}
+
+function remove(tableName, id) {
+  return supabase.from(tableName).delete().eq('id', id).then(handleResponse);
+}
 
 export const adminEndpoints = {
-  projects: { list: () => adminApi.get('/projects').then((r) => r.data), create: (d) => adminApi.post('/admin/projects', d).then((r) => r.data), update: (id, d) => adminApi.put(`/admin/projects/${id}`, d).then((r) => r.data), delete: (id) => adminApi.delete(`/admin/projects/${id}`).then((r) => r.data) },
-  blogPosts: { list: () => adminApi.get('/blog-posts').then((r) => r.data), create: (d) => adminApi.post('/admin/blog-posts', d).then((r) => r.data), update: (id, d) => adminApi.put(`/admin/blog-posts/${id}`, d).then((r) => r.data), delete: (id) => adminApi.delete(`/admin/blog-posts/${id}`).then((r) => r.data) },
-  gallery: { list: () => adminApi.get('/gallery').then((r) => r.data), create: (d) => adminApi.post('/admin/gallery', d).then((r) => r.data), update: (id, d) => adminApi.put(`/admin/gallery/${id}`, d).then((r) => r.data), delete: (id) => adminApi.delete(`/admin/gallery/${id}`).then((r) => r.data) },
-  courses: { list: () => adminApi.get('/courses').then((r) => r.data), create: (d) => adminApi.post('/admin/courses', d).then((r) => r.data), update: (id, d) => adminApi.put(`/admin/courses/${id}`, d).then((r) => r.data), delete: (id) => adminApi.delete(`/admin/courses/${id}`).then((r) => r.data) },
-  timeline: { list: () => adminApi.get('/timeline').then((r) => r.data), create: (d) => adminApi.post('/admin/timeline', d).then((r) => r.data), update: (id, d) => adminApi.put(`/admin/timeline/${id}`, d).then((r) => r.data), delete: (id) => adminApi.delete(`/admin/timeline/${id}`).then((r) => r.data) },
-  testimonials: { list: () => adminApi.get('/testimonials').then((r) => r.data), create: (d) => adminApi.post('/admin/testimonials', d).then((r) => r.data), update: (id, d) => adminApi.put(`/admin/testimonials/${id}`, d).then((r) => r.data), delete: (id) => adminApi.delete(`/admin/testimonials/${id}`).then((r) => r.data) },
-  personalInfo: { get: () => adminApi.get('/personal-info').then((r) => r.data), update: (d) => adminApi.put('/admin/personal-info', d).then((r) => r.data) },
-  contactMessages: { list: () => adminApi.get('/admin/contact-messages').then((r) => r.data) },
-  newsletterSubscribers: { list: () => adminApi.get('/admin/newsletter-subscribers').then((r) => r.data) },
-  stats: () => adminApi.get('/admin/stats').then((r) => r.data),
+  projects: {
+    list: () => list(tableConfig.projects.table, tableConfig.projects.order),
+    create: (d) => create(tableConfig.projects.table, d),
+    update: (id, d) => update(tableConfig.projects.table, id, d).then(() => ({ status: 'ok', id })),
+    delete: (id) => remove(tableConfig.projects.table, id).then(() => ({ status: 'ok' })),
+  },
+  blogPosts: {
+    list: () => list(tableConfig.blogPosts.table, tableConfig.blogPosts.order),
+    create: (d) => create(tableConfig.blogPosts.table, d),
+    update: (id, d) => update(tableConfig.blogPosts.table, id, d).then(() => ({ status: 'ok', id })),
+    delete: (id) => remove(tableConfig.blogPosts.table, id).then(() => ({ status: 'ok' })),
+  },
+  gallery: {
+    list: () => list(tableConfig.gallery.table),
+    create: (d) => create(tableConfig.gallery.table, d),
+    update: (id, d) => update(tableConfig.gallery.table, id, d).then(() => ({ status: 'ok', id })),
+    delete: (id) => remove(tableConfig.gallery.table, id).then(() => ({ status: 'ok' })),
+  },
+  courses: {
+    list: () => list(tableConfig.courses.table),
+    create: (d) => create(tableConfig.courses.table, d),
+    update: (id, d) => update(tableConfig.courses.table, id, d).then(() => ({ status: 'ok', id })),
+    delete: (id) => remove(tableConfig.courses.table, id).then(() => ({ status: 'ok' })),
+  },
+  timeline: {
+    list: () => list(tableConfig.timeline.table, tableConfig.timeline.order),
+    create: (d) => create(tableConfig.timeline.table, d),
+    update: (id, d) => update(tableConfig.timeline.table, id, d).then(() => ({ status: 'ok', id })),
+    delete: (id) => remove(tableConfig.timeline.table, id).then(() => ({ status: 'ok' })),
+  },
+  testimonials: {
+    list: () => list(tableConfig.testimonials.table),
+    create: (d) => create(tableConfig.testimonials.table, d),
+    update: (id, d) => update(tableConfig.testimonials.table, id, d).then(() => ({ status: 'ok', id })),
+    delete: (id) => remove(tableConfig.testimonials.table, id).then(() => ({ status: 'ok' })),
+  },
+  personalInfo: {
+    get: () => supabase.from('personal_info').select('*').eq('id', 1).single().then(handleResponse),
+    update: (d) =>
+      supabase
+        .from('personal_info')
+        .update({
+          name: d.name,
+          tagline: d.tagline,
+          tagline_suffix: d.tagline_suffix,
+          description: d.description,
+          role: d.role,
+          email: d.email,
+          location: d.location,
+          availability: d.availability,
+          social: d.social ?? {},
+        })
+        .eq('id', 1)
+        .then(handleResponse)
+        .then(() => ({ status: 'ok' })),
+  },
+  contactMessages: {
+    list: () =>
+      supabase.from('contact_messages').select('*').order('created_at', { ascending: false }).then(handleResponse),
+  },
+  newsletterSubscribers: {
+    list: () =>
+      supabase.from('newsletter_subscribers').select('*').order('created_at', { ascending: false }).then(handleResponse),
+  },
+  stats: async () => {
+    const keys = [
+      'projects',
+      'blog_posts',
+      'gallery',
+      'courses',
+      'timeline',
+      'testimonials',
+      'contact_messages',
+      'newsletter_subscribers',
+    ];
+    const tables = [
+      'projects',
+      'blog_posts',
+      'gallery_items',
+      'courses',
+      'timeline_entries',
+      'testimonials',
+      'contact_messages',
+      'newsletter_subscribers',
+    ];
+    const counts = {};
+    await Promise.all(
+      tables.map(async (table, i) => {
+        const { count, error } = await supabase.from(table).select('*', { count: 'exact', head: true });
+        counts[keys[i]] = error ? 0 : count ?? 0;
+      })
+    );
+    const [messagesRes, subsRes] = await Promise.all([
+      supabase.from('contact_messages').select('*').order('created_at', { ascending: false }).limit(5),
+      supabase.from('newsletter_subscribers').select('*').order('created_at', { ascending: false }).limit(5),
+    ]);
+    return {
+      counts,
+      recent_messages: handleResponse(messagesRes) ?? [],
+      recent_subscribers: handleResponse(subsRes) ?? [],
+    };
+  },
 };
 
-export default adminApi;
+export default adminEndpoints;
