@@ -380,6 +380,7 @@ export const navLinks = [
     { label: "Writing", href: "/writing" },
     { label: "Gallery", href: "/gallery" },
     { label: "CV", href: "/cv" },
+    { label: "Search", href: "/search" },
     { label: "Contact", href: "/contact" }
 ];
 

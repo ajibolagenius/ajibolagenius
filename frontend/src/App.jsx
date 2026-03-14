@@ -18,6 +18,7 @@ const BlogPostPage = lazy(() => import('./pages/BlogPostPage'));
 const GalleryPage = lazy(() => import('./pages/GalleryPage'));
 const CVPage = lazy(() => import('./pages/CVPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
+const SearchPage = lazy(() => import('./pages/SearchPage'));
 
 const AdminProjectsPage = lazy(() => import('./pages/admin/AdminProjectsPage'));
 const AdminBlogPage = lazy(() => import('./pages/admin/AdminBlogPage'));
@@ -63,6 +64,7 @@ function App() {
               <Route path="gallery" element={<Suspense fallback={adminFallback}><GalleryPage /></Suspense>} />
               <Route path="cv" element={<Suspense fallback={adminFallback}><CVPage /></Suspense>} />
               <Route path="contact" element={<Suspense fallback={adminFallback}><ContactPage /></Suspense>} />
+              <Route path="search" element={<Suspense fallback={adminFallback}><SearchPage /></Suspense>} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

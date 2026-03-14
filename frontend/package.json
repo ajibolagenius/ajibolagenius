@@ -70,7 +70,8 @@
     "seed:testimonials": "node scripts/seed-testimonials.js",
     "seed:timeline": "node scripts/seed-timeline.js",
     "seed:education": "node scripts/seed-education.js",
-    "seed:cv": "node scripts/seed-timeline.js && node scripts/seed-education.js"
+    "seed:cv": "node scripts/seed-timeline.js && node scripts/seed-education.js",
+    "generate:sitemap-rss": "node scripts/generate-sitemap-rss.js"
   },
   "browserslist": {
     "production": [

@@ -28,8 +28,16 @@ const articleProseClass = [
   '[&_pre]:max-w-full [&_pre]:overflow-x-auto [&_code]:break-words',
 ].join(' ');
 
-/** Render body: HTML from WYSIWYG or plain text (paragraphs + numbered lists). */
-function ArticleBody({ body }) {
+/** Render body: HTML from WYSIWYG (with optional pre-injected heading ids) or plain text. */
+function ArticleBody({ body, htmlWithIds }) {
+  if (htmlWithIds !== undefined && htmlWithIds !== '') {
+    return (
+      <div
+        className={articleProseClass}
+        dangerouslySetInnerHTML={{ __html: htmlWithIds }}
+      />
+    );
+  }
   if (!body || typeof body !== 'string') return null;
 
   if (isHtmlBody(body)) {
@@ -77,11 +85,45 @@ function ArticleBody({ body }) {
   return <div className="article-body max-w-full break-words">{elements}</div>;
 }
 
+function slugify(text) {
+  return (text || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '') || 'section';
+}
+
+/** Inject ids into h1/h2/h3 in HTML and return { html, tocEntries }. */
+function injectHeadingIds(html) {
+  if (!html || typeof html !== 'string') return { html: '', tocEntries: [] };
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const headings = doc.querySelectorAll('h1, h2, h3');
+  const seen = new Map();
+  const tocEntries = [];
+  headings.forEach((h) => {
+    const text = h.textContent?.trim() || '';
+    let id = slugify(text);
+    const count = seen.get(id) ?? 0;
+    seen.set(id, count + 1);
+    if (count > 0) id += `-${count}`;
+    h.id = id;
+    tocEntries.push({ id, text, level: parseInt(h.tagName.slice(1), 10) });
+  });
+  const serializer = new XMLSerializer();
+  const bodyEl = doc.body;
+  const htmlWithIds = bodyEl ? Array.from(bodyEl.childNodes).map((n) => serializer.serializeToString(n)).join('') : html;
+  return { html: htmlWithIds, tocEntries };
+}
+
 const BlogPostPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [readProgress, setReadProgress] = useState(0);
+  const articleRef = React.useRef(null);
 
   useEffect(() => {
     fetchBlogPost(slug)
@@ -104,6 +146,33 @@ const BlogPostPage = () => {
         }
       : { title: 'Article', description: 'Article by Ajibola Akelebe.', canonical: slug ? `/writing/${slug}` : '/writing' }
   );
+
+  const { html: bodyWithIds, tocEntries } = React.useMemo(() => {
+    if (!post?.body) return { html: '', tocEntries: [] };
+    if (isHtmlBody(post.body)) return injectHeadingIds(post.body);
+    return { html: post.body, tocEntries: [] };
+  }, [post?.body]);
+
+  useEffect(() => {
+    const onScroll = () => {
+      if (!articleRef.current) return;
+      const rect = articleRef.current.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const articleTop = rect.top + window.scrollY;
+      const articleHeight = rect.height;
+      const scrollable = articleHeight - vh;
+      if (scrollable <= 0) {
+        setReadProgress(1);
+        return;
+      }
+      const scrolled = window.scrollY - articleTop;
+      const p = Math.max(0, Math.min(1, scrolled / scrollable));
+      setReadProgress(p);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [post]);
 
   if (loading) {
     return (
@@ -133,6 +202,12 @@ const BlogPostPage = () => {
 
   return (
     <>
+      {/* Reading progress bar — article scroll */}
+      <div
+        className="fixed top-0 left-0 right-0 h-0.5 bg-[var(--stardust)] z-[998] pointer-events-none"
+        style={{ width: `${readProgress * 100}%` }}
+        aria-hidden
+      />
       {/* Post title + meta + tags / category */}
       <section className="pt-12 pb-8 md:pt-16 md:pb-10 border-b border-[var(--border)]">
         <div className="max-w-[720px] mx-auto px-4 md:px-8">
@@ -176,17 +251,33 @@ const BlogPostPage = () => {
         </div>
       </section>
 
-      {/* Article body */}
+      {/* Article body + TOC */}
       <section className="py-12 md:py-16">
-        <div className="max-w-[720px] mx-auto px-4 md:px-8">
-          {post.excerpt && (
-            <div className="mb-10 pl-4 border-l-4 border-[var(--sungold)]">
-              <p className="font-body text-[17px] leading-[1.75] text-[var(--white)] font-medium">
-                {post.excerpt}
-              </p>
-            </div>
+        <div className="max-w-[720px] mx-auto px-4 md:px-8 flex flex-col md:flex-row md:gap-12">
+          {tocEntries.length > 0 && (
+            <nav className="mb-8 md:mb-0 md:w-48 md:flex-shrink-0 md:sticky md:top-24 self-start" aria-label="Table of contents">
+              <p className="font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--subtle)] mb-3">On this page</p>
+              <ul className="list-none p-0 m-0 space-y-2">
+                {tocEntries.map(({ id, text, level }) => (
+                  <li key={id} style={{ paddingLeft: level > 2 ? 12 : 0 }}>
+                    <a href={`#${id}`} className="font-mono text-[12px] text-[var(--muted)] hover:text-[var(--sungold)] no-underline block py-0.5">
+                      {text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           )}
-          <ArticleBody body={post.body} />
+          <div ref={articleRef} className="min-w-0 flex-1">
+            {post.excerpt && (
+              <div className="mb-10 pl-4 border-l-4 border-[var(--sungold)]">
+                <p className="font-body text-[17px] leading-[1.75] text-[var(--white)] font-medium">
+                  {post.excerpt}
+                </p>
+              </div>
+            )}
+            <ArticleBody body={post.body} htmlWithIds={isHtmlBody(post.body) ? bodyWithIds : undefined} />
+          </div>
         </div>
       </section>
 
