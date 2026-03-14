@@ -34,6 +34,8 @@ Dev server runs at **http://localhost:5173**. For production: `yarn build` → o
 
 Run the SQL in `supabase/migrations/20250313000000_initial_schema.sql` in the Supabase SQL Editor, then create an admin user in Auth → Users. Without Supabase, the app falls back to `src/data/mock.js`.
 
+**Realtime** — To show live data updates when content changes in the admin, enable Postgres Realtime in Supabase: **Database → Replication** → add the tables `projects`, `blog_posts`, `personal_info` (and optionally `courses`, `gallery_items`, `timeline_entries`, `testimonials`) to the `supabase_realtime` publication. The app subscribes via `useRealtimeQuery` on Hero, Projects, Work, and Writing.
+
 ---
 
 ### Where things live

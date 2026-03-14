@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Download } from 'lucide-react';
 import { fetchPersonalInfo } from '../../services/api';
 import { personalInfo as fallbackInfo, tickerItems } from '../../data/mock';
+import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
 
 const Ticker = () => {
   const items = [...tickerItems, ...tickerItems];
@@ -24,15 +25,12 @@ const Ticker = () => {
 
 const Hero = () => {
   const [visible, setVisible] = useState(false);
-  const [info, setInfo] = useState(null);
   const heroRef = useRef(null);
   const navigate = useNavigate();
+  const { data: info } = useRealtimeQuery('personal_info', fetchPersonalInfo, fallbackInfo);
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 200);
-    fetchPersonalInfo()
-      .then(setInfo)
-      .catch(() => setInfo(fallbackInfo));
     return () => clearTimeout(timer);
   }, []);
 

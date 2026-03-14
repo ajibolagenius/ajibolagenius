@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, ArrowRight } from 'lucide-react';
 import { fetchBlogPosts, subscribeNewsletter } from '../services/api';
@@ -8,19 +8,16 @@ import SectionKicker from '../components/portfolio/SectionKicker';
 import FilterButtons from '../components/portfolio/FilterButtons';
 import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 
 const WritingPage = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('All');
-  const [posts, setPosts] = useState([]);
   const [nlEmail, setNlEmail] = useState('');
   const [nlMsg, setNlMsg] = useState('');
+  const { data: posts } = useRealtimeQuery('blog_posts', fetchBlogPosts, fbPosts);
 
-  useEffect(() => {
-    fetchBlogPosts().then(setPosts).catch(() => setPosts(fbPosts));
-  }, []);
-
-  const displayPosts = posts.length > 0 ? posts : fbPosts;
+  const displayPosts = (Array.isArray(posts) && posts.length > 0) ? posts : fbPosts;
   const categoryList = ['All', ...[...new Set(displayPosts.map(p => p.category).filter(Boolean))].sort()];
   const categoryOptions = categoryList.map((c) => ({ label: c, value: c }));
   const filtered = filter === 'All' ? displayPosts : displayPosts.filter(p => p.category === filter);

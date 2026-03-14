@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { fetchProjects } from '../../services/api';
 import { projects as fallbackProjects } from '../../data/mock';
+import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
 import Badge from './Badge';
 
 const ProjectCard = ({ project, index, visible }) => {
@@ -61,14 +62,9 @@ const ProjectCard = ({ project, index, visible }) => {
 const Projects = ({ featuredOnly = false }) => {
   const [visible, setVisible] = useState(false);
   const [filter, setFilter] = useState('all');
-  const [projects, setProjects] = useState([]);
   const sectionRef = useRef(null);
-
-  useEffect(() => {
-    fetchProjects()
-      .then(setProjects)
-      .catch(() => setProjects(fallbackProjects));
-  }, []);
+  const { data, loading } = useRealtimeQuery('projects', fetchProjects, fallbackProjects);
+  const projects = Array.isArray(data) ? data : fallbackProjects;
 
   useEffect(() => {
     const observer = new IntersectionObserver(

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowUpRight, ExternalLink } from 'lucide-react';
 import { fetchProjects } from '../services/api';
@@ -8,6 +8,7 @@ import SectionKicker from '../components/portfolio/SectionKicker';
 import FilterButtons from '../components/portfolio/FilterButtons';
 import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 
 const ProjectCard = ({ project }) => {
   const [hovered, setHovered] = useState(false);
@@ -142,15 +143,9 @@ const FeaturedSpotlight = ({ project, onView }) => {
 
 const WorkPage = () => {
   const [filter, setFilter] = useState('all');
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchProjects()
-      .then(data => { setProjects(data); setLoading(false); })
-      .catch(() => { setProjects(fallbackProjects); setLoading(false); });
-  }, []);
+  const { data, loading } = useRealtimeQuery('projects', fetchProjects, fallbackProjects);
+  const projects = Array.isArray(data) ? data : fallbackProjects;
 
   const filteredProjects = filter === 'all'
     ? projects
