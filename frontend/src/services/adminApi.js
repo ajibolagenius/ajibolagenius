@@ -47,37 +47,37 @@ export const adminEndpoints = {
   projects: {
     list: () => list(tableConfig.projects.table, tableConfig.projects.order),
     create: (d) => create(tableConfig.projects.table, d),
-    update: (id, d) => update(tableConfig.projects.table, id, d).then(() => ({ status: 'ok', id })),
+    update: (id, d) => update(tableConfig.projects.table, id, d),
     delete: (id) => remove(tableConfig.projects.table, id).then(() => ({ status: 'ok' })),
   },
   blogPosts: {
     list: () => list(tableConfig.blogPosts.table, tableConfig.blogPosts.order),
     create: (d) => create(tableConfig.blogPosts.table, d),
-    update: (id, d) => update(tableConfig.blogPosts.table, id, d).then(() => ({ status: 'ok', id })),
+    update: (id, d) => update(tableConfig.blogPosts.table, id, d),
     delete: (id) => remove(tableConfig.blogPosts.table, id).then(() => ({ status: 'ok' })),
   },
   gallery: {
     list: () => list(tableConfig.gallery.table),
     create: (d) => create(tableConfig.gallery.table, d),
-    update: (id, d) => update(tableConfig.gallery.table, id, d).then(() => ({ status: 'ok', id })),
+    update: (id, d) => update(tableConfig.gallery.table, id, d),
     delete: (id) => remove(tableConfig.gallery.table, id).then(() => ({ status: 'ok' })),
   },
   courses: {
     list: () => list(tableConfig.courses.table),
     create: (d) => create(tableConfig.courses.table, d),
-    update: (id, d) => update(tableConfig.courses.table, id, d).then(() => ({ status: 'ok', id })),
+    update: (id, d) => update(tableConfig.courses.table, id, d),
     delete: (id) => remove(tableConfig.courses.table, id).then(() => ({ status: 'ok' })),
   },
   timeline: {
     list: () => list(tableConfig.timeline.table, tableConfig.timeline.order),
     create: (d) => create(tableConfig.timeline.table, d),
-    update: (id, d) => update(tableConfig.timeline.table, id, d).then(() => ({ status: 'ok', id })),
+    update: (id, d) => update(tableConfig.timeline.table, id, d),
     delete: (id) => remove(tableConfig.timeline.table, id).then(() => ({ status: 'ok' })),
   },
   testimonials: {
     list: () => list(tableConfig.testimonials.table),
     create: (d) => create(tableConfig.testimonials.table, d),
-    update: (id, d) => update(tableConfig.testimonials.table, id, d).then(() => ({ status: 'ok', id })),
+    update: (id, d) => update(tableConfig.testimonials.table, id, d),
     delete: (id) => remove(tableConfig.testimonials.table, id).then(() => ({ status: 'ok' })),
   },
   personalInfo: {
