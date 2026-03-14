@@ -196,7 +196,7 @@ export default function AdminProjectsPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="proj-category">Category</Label>
-                <Input id="proj-category" value={form.category} onChange={(e) => update('category', e)} placeholder="e.g. Platform · Social" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+                <Input id="proj-category" value={form.category} onChange={(e) => update('category', e.target.value)} placeholder="e.g. Platform · Social" className="bg-[var(--elevated)] border-[var(--border-md)]" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="proj-description">Description</Label>
