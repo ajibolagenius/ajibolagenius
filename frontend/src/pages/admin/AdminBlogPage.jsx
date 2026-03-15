@@ -188,8 +188,8 @@ export default function AdminBlogPage() {
         )}
       </div>
       {loading ? <p className="text-[var(--muted)] font-mono text-sm">Loading…</p> : (
-        <div className="border border-[var(--border)] overflow-hidden">
-          <table className="w-full text-left">
+        <div className="border border-[var(--border)] overflow-x-auto">
+          <table className="w-full text-left min-w-[600px]">
             <thead className="bg-[var(--surface)] border-b border-[var(--border)]">
               <tr>
                 <th className="w-10 px-2 py-3">

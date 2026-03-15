@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Clock, ArrowRight } from 'lucide-react';
 import { fetchBlogPosts, subscribeNewsletter } from '../services/api';
 import { blogPosts as fbPosts } from '../data/mock';
@@ -158,10 +158,10 @@ const WritingPage = () => {
               <p className="font-body text-[15px] text-[var(--muted)]">No posts yet.</p>
             )}
             {paginatedPosts.map(post => (
-              <div
+              <Link
                 key={post.slug || post.id}
-                className="p-6 cursor-pointer transition-all duration-200 border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--elevated)] hover:border-[rgba(232,160,32,0.2)]"
-                onClick={() => navigate(`/writing/${post.slug || post.id}`)}
+                to={`/writing/${post.slug || post.id}`}
+                className="block p-6 no-underline cursor-pointer transition-all duration-200 border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--elevated)] hover:border-[rgba(232,160,32,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
               >
                 <div className="flex items-start justify-between gap-6">
                   <div className="flex-1 min-w-0">
@@ -187,7 +187,7 @@ const WritingPage = () => {
                   </div>
                   <ArrowRight size={18} className="mt-2 flex-shrink-0 text-[var(--sungold)]" />
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
 
@@ -217,16 +217,22 @@ const WritingPage = () => {
               Get notified when I publish new articles. No spam, unsubscribe anytime.
             </p>
             <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 max-w-[480px]" aria-label="Newsletter signup">
-              <input
-                type="email"
-                placeholder="your@email.com"
-                value={nlEmail}
-                onChange={(e) => setNlEmail(e.target.value)}
-                disabled={nlSubmitting}
-                className="flex-1 font-body text-[14px] px-4 py-[10px] outline-none bg-[var(--elevated)] border border-[var(--border-md)] text-[var(--white)] placeholder:text-[var(--subtle)] focus:border-[var(--sungold)] focus:shadow-[var(--shadow-sharp-ring)] rounded-none transition-all disabled:opacity-60"
-                required
-                aria-describedby={nlMsg ? 'newsletter-msg' : undefined}
-              />
+              <div className="flex-1 flex flex-col gap-1.5 min-w-0">
+                <label htmlFor="newsletter-email" className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--subtle)]">
+                  Email
+                </label>
+                <input
+                  id="newsletter-email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={nlEmail}
+                  onChange={(e) => setNlEmail(e.target.value)}
+                  disabled={nlSubmitting}
+                  className="w-full font-body text-[14px] px-4 py-[10px] outline-none bg-[var(--elevated)] border border-[var(--border-md)] text-[var(--white)] placeholder:text-[var(--subtle)] focus:border-[var(--sungold)] focus:shadow-[var(--shadow-sharp-ring)] rounded-none transition-all disabled:opacity-60"
+                  required
+                  aria-describedby={nlMsg ? 'newsletter-msg' : undefined}
+                />
+              </div>
               <button
                 type="submit"
                 disabled={nlSubmitting}

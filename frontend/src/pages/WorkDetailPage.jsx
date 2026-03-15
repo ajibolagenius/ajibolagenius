@@ -112,8 +112,10 @@ const WorkDetailPage = () => {
       {/* Hero image / 3D preview */}
       <section className="relative border-b border-[var(--border)]">
         <button
+          type="button"
           onClick={() => navigate('/work')}
-          className="absolute top-4 left-4 z-10 inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.08em] uppercase cursor-pointer bg-[var(--void)]/80 border border-[var(--border)] px-3 py-2 text-[var(--muted)] hover:text-[var(--sungold)] transition-colors"
+          className="absolute top-4 left-4 z-10 inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.08em] uppercase cursor-pointer bg-[var(--void)]/80 border border-[var(--border)] px-3 py-2 text-[var(--muted)] hover:text-[var(--sungold)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
+          aria-label="Back to projects"
         >
           <ArrowLeft size={14} /> Back to Projects
         </button>

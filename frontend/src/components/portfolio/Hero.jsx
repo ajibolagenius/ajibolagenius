@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ArrowRight, Download } from 'lucide-react';
 import { fetchPersonalInfo } from '../../services/api';
 import { personalInfo as fallbackInfo, tickerItems } from '../../data/mock';
@@ -27,7 +27,6 @@ const Ticker = () => {
 const Hero = () => {
   const [visible, setVisible] = useState(false);
   const heroRef = useRef(null);
-  const navigate = useNavigate();
   const { data: info } = useRealtimeQuery('personal_info', fetchPersonalInfo, fallbackInfo);
   const { t } = useLocale();
 
@@ -91,20 +90,20 @@ const Hero = () => {
             </p>
 
             <div className="flex gap-3 flex-wrap">
-              <button
-                className="btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] border-0 cursor-pointer transition-all duration-200 bg-[var(--sungold)] text-[var(--void)]"
-                onClick={() => navigate('/work')}
+              <Link
+                to="/work"
+                className="btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] border-0 rounded-none no-underline transition-all duration-200 bg-[var(--sungold)] text-[var(--void)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
               >
                 {t('hero_view_projects')}
                 <ArrowRight size={14} />
-              </button>
-              <button
-                className="btn-ghost inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] cursor-pointer transition-all duration-200 bg-transparent text-[var(--white)] border border-[var(--border-md)]"
-                onClick={() => navigate('/cv')}
+              </Link>
+              <Link
+                to="/cv"
+                className="btn-ghost inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] rounded-none no-underline cursor-pointer transition-all duration-200 bg-transparent text-[var(--white)] border border-[var(--border-md)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
               >
                 <Download size={14} />
                 {t('hero_download_cv')}
-              </button>
+              </Link>
             </div>
           </div>
         </div>

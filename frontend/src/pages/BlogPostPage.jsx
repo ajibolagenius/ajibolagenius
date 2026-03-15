@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Clock } from 'lucide-react';
 import { fetchBlogPost } from '../services/api';
 import { blogPosts as fbPosts } from '../data/mock';
@@ -121,7 +121,6 @@ function injectHeadingIds(html) {
 
 const BlogPostPage = () => {
   const { slug } = useParams();
-  const navigate = useNavigate();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [readProgress, setReadProgress] = useState(0);
@@ -196,12 +195,12 @@ const BlogPostPage = () => {
       <section className="py-16 md:py-32">
         <div className="max-w-[720px] mx-auto px-4 md:px-8 text-center">
           <h1 className="font-display text-[36px] font-extrabold mb-4 text-[var(--white)]">Post not found</h1>
-          <button
-            onClick={() => navigate('/writing')}
-            className="btn-primary font-display text-[13px] font-semibold px-[22px] py-[11px] cursor-pointer bg-[var(--sungold)] text-[var(--void)] border-0 rounded-none"
+          <Link
+            to="/writing"
+            className="btn-primary inline-flex items-center font-display text-[13px] font-semibold px-[22px] py-[11px] cursor-pointer bg-[var(--sungold)] text-[var(--void)] border-0 rounded-none no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
           >
             Back to Blog
-          </button>
+          </Link>
         </div>
       </section>
     );
@@ -221,12 +220,12 @@ const BlogPostPage = () => {
       <section className="pt-12 pb-8 md:pt-16 md:pb-10 border-b border-[var(--border)]">
         <div className="max-w-[720px] mx-auto px-4 md:px-8">
           <div className="mb-10">
-            <button
-              onClick={() => navigate('/writing')}
-              className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.08em] uppercase cursor-pointer bg-transparent border-none text-[var(--muted)] hover:text-[var(--sungold)] transition-colors"
+            <Link
+              to="/writing"
+              className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.08em] uppercase no-underline text-[var(--muted)] hover:text-[var(--sungold)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
             >
               <ArrowLeft size={14} /> Back to Writing
-            </button>
+            </Link>
           </div>
 
           {post.category && (
@@ -293,12 +292,12 @@ const BlogPostPage = () => {
       {/* Footer CTA */}
       <section className="py-12 border-t border-[var(--border)]">
         <div className="max-w-[720px] mx-auto px-4 md:px-8">
-          <button
-            onClick={() => navigate('/writing')}
-            className="btn-ghost inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[11px] cursor-pointer bg-transparent text-[var(--white)] border border-[var(--border-md)] rounded-none"
+          <Link
+            to="/writing"
+            className="btn-ghost inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[11px] no-underline cursor-pointer bg-transparent text-[var(--white)] border border-[var(--border-md)] rounded-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
           >
             <ArrowLeft size={14} /> All Articles
-          </button>
+          </Link>
         </div>
       </section>
     </>

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ArrowUpRight, ExternalLink } from 'lucide-react';
 import { fetchProjects } from '../services/api';
 import { projects as fallbackProjects } from '../data/mock';
@@ -23,12 +23,13 @@ const getHeroUrl = (project) => {
 
 const ProjectCard = ({ project }) => {
   const [hovered, setHovered] = useState(false);
-  const navigate = useNavigate();
+  const href = `/work/${project.slug || project.id}`;
   const heroUrl = getHeroUrl(project);
 
   return (
-    <div
-      className="cursor-pointer bg-[var(--elevated)] border overflow-hidden rounded-none transition-all duration-300"
+    <Link
+      to={href}
+      className="block cursor-pointer bg-[var(--elevated)] border overflow-hidden rounded-none transition-all duration-300 no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
       style={{
         borderColor: hovered ? 'rgba(232,160,32,0.25)' : 'var(--border)',
         transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
@@ -36,11 +37,10 @@ const ProjectCard = ({ project }) => {
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={() => navigate(`/work/${project.slug || project.id}`)}
     >
       <div className="h-[200px] flex items-center justify-center relative overflow-hidden bg-[var(--surface)]">
         {heroUrl ? (
-          <OptimizedImage src={heroUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <OptimizedImage src={heroUrl} alt={project.name ? `Project: ${project.name}` : 'Project screenshot'} className="absolute inset-0 w-full h-full object-cover" />
         ) : (
           <div
             className="absolute inset-0 opacity-40"
@@ -84,7 +84,7 @@ const ProjectCard = ({ project }) => {
           />
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
@@ -93,17 +93,18 @@ const FeaturedSpotlight = ({ project, onView }) => {
   const problem = project.problem || '';
   const excerpt = problem.length > 120 ? problem.slice(0, 120) + '…' : problem;
   const heroUrl = getHeroUrl(project);
+  const href = `/work/${project.slug || project.id}`;
 
   return (
-    <div
-      className="border border-[var(--border)] bg-[var(--surface)] overflow-hidden rounded-none transition-all duration-300 cursor-pointer"
+    <Link
+      to={href}
+      className="block border border-[var(--border)] bg-[var(--surface)] overflow-hidden rounded-none transition-all duration-300 cursor-pointer no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
       style={{
         borderColor: hovered ? 'rgba(232,160,32,0.25)' : undefined,
         boxShadow: hovered ? 'var(--shadow-sharp-lg), 0 0 0 1px rgba(232,160,32,0.2)' : 'none'
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={() => onView(project.slug || project.id)}
     >
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-0">
         <div className="p-8 md:p-10 flex flex-col justify-center">
@@ -134,21 +135,14 @@ const FeaturedSpotlight = ({ project, onView }) => {
               </span>
             ))}
           </div>
-          <button
-            type="button"
-            className="btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] border-0 cursor-pointer transition-all duration-200 bg-[var(--sungold)] text-[var(--void)] w-fit"
-            onClick={(e) => {
-              e.stopPropagation();
-              onView(project.slug || project.id);
-            }}
-          >
+          <span className="btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] border-0 rounded-none transition-all duration-200 bg-[var(--sungold)] text-[var(--void)] w-fit">
             View case study
             <ExternalLink size={14} />
-          </button>
+          </span>
         </div>
         <div className="min-h-[240px] lg:min-h-[320px] flex items-center justify-center relative overflow-hidden bg-[var(--elevated)]">
           {heroUrl ? (
-            <OptimizedImage src={heroUrl} alt="" className="absolute inset-0 w-full h-full object-cover" priority />
+            <OptimizedImage src={heroUrl} alt={project.name ? `Featured: ${project.name}` : 'Featured project'} className="absolute inset-0 w-full h-full object-cover" priority />
           ) : (
             <div
               className="absolute inset-0 opacity-40"
@@ -160,7 +154,7 @@ const FeaturedSpotlight = ({ project, onView }) => {
           </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

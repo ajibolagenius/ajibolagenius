@@ -1,5 +1,6 @@
-import React from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
 import ThemeToggle from '../../components/portfolio/ThemeToggle';
 import { useAdminAuth } from '../../contexts/AdminAuthContext';
 
@@ -51,7 +52,13 @@ function NavGroup({ title, items }) {
 
 export default function AdminLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { logout } = useAdminAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     await logout();
@@ -60,14 +67,47 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-[var(--void)] flex">
-      <aside className="w-60 border-r border-[var(--border)] bg-[var(--surface)] flex flex-col flex-shrink-0">
-        <div className="p-5 border-b border-[var(--border)]">
+      {/* Mobile sidebar toggle — visible only when sidebar is hidden */}
+      <button
+        type="button"
+        className="lg:hidden fixed top-4 left-4 z-40 flex items-center justify-center w-10 h-10 border border-[var(--border)] bg-[var(--surface)] text-[var(--white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)]"
+        onClick={() => setSidebarOpen(true)}
+        aria-label="Open admin menu"
+      >
+        <Menu size={20} />
+      </button>
+
+      {/* Sidebar overlay on mobile when open */}
+      {sidebarOpen && (
+        <button
+          type="button"
+          className="lg:hidden fixed inset-0 z-40 bg-[var(--void)]/80 backdrop-blur-sm"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Close admin menu"
+        />
+      )}
+
+      <aside
+        className={`w-60 border-r border-[var(--border)] bg-[var(--surface)] flex flex-col flex-shrink-0 fixed lg:static inset-y-0 left-0 z-50 transform transition-transform duration-200 ease-out ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}
+        aria-label="Admin navigation"
+      >
+        <div className="p-5 border-b border-[var(--border)] flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-6 h-px bg-[var(--sungold)]" aria-hidden />
             <span className="font-display font-bold text-[var(--sungold)] text-[13px] tracking-[0.15em] uppercase">
               Admin
             </span>
           </div>
+          <button
+            type="button"
+            className="lg:hidden p-2 text-[var(--muted)] hover:text-[var(--white)]"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close menu"
+          >
+            <X size={18} />
+          </button>
         </div>
         <nav className="flex-1 p-3 overflow-auto">
           <NavLink
@@ -121,7 +161,7 @@ export default function AdminLayout() {
           </button>
         </div>
       </aside>
-      <main className="flex-1 overflow-auto min-w-0">
+      <main className="flex-1 overflow-auto min-w-0 pt-14 lg:pt-0">
         <div className="max-w-[1160px] mx-auto px-6 md:px-8 py-8 md:py-10">
           <Outlet />
         </div>

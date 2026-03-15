@@ -218,8 +218,8 @@ export default function AdminProjectsPage() {
       {loading ? (
         <p className="text-[var(--muted)] font-mono text-sm">Loading…</p>
       ) : (
-        <div className="border border-[var(--border)] bg-[var(--surface)] overflow-hidden">
-          <table className="w-full text-left">
+        <div className="border border-[var(--border)] bg-[var(--surface)] overflow-x-auto">
+          <table className="w-full text-left min-w-[600px]">
             <thead className="bg-[var(--elevated)] border-b border-[var(--border)]">
               <tr>
                 <th className="px-4 py-3 font-mono text-[11px] text-[var(--subtle)] uppercase">Label</th>

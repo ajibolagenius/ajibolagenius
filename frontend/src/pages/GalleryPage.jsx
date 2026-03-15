@@ -48,13 +48,17 @@ function isVideo(item) {
 function GalleryCard({ item, height, onClick }) {
   const url = item?.url?.trim();
   const video = hasMedia(item) && isVideo(item);
+  const cardLabel = item?.title ? `View ${item.title}` : 'View gallery item';
+  const commonClasses = "relative overflow-hidden border border-[var(--border)] transition-all duration-300 group-hover:border-[rgba(232,160,32,0.25)] cursor-pointer group w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]";
 
   if (url && video) {
     return (
-      <div
-        className="relative overflow-hidden border border-[var(--border)] transition-all duration-300 group-hover:border-[rgba(232,160,32,0.25)] cursor-pointer group"
+      <button
+        type="button"
+        className={commonClasses}
         style={{ height: `${height}px` }}
         onClick={onClick}
+        aria-label={cardLabel}
       >
         <video
           src={url}
@@ -68,20 +72,22 @@ function GalleryCard({ item, height, onClick }) {
           <span className="font-mono text-[10px] tracking-[0.12em] uppercase" style={{ color: item.color || 'var(--sungold)' }}>{item.type}</span>
           <span className="font-display text-[14px] font-bold text-[var(--white)]">{item.title}</span>
         </div>
-      </div>
+      </button>
     );
   }
 
   if (url) {
     return (
-      <div
-        className="relative overflow-hidden border border-[var(--border)] transition-all duration-300 group-hover:border-[rgba(232,160,32,0.25)] cursor-pointer group"
+      <button
+        type="button"
+        className={commonClasses}
         style={{ height: `${height}px` }}
         onClick={onClick}
+        aria-label={cardLabel}
       >
         <OptimizedImage
           src={url}
-          alt=""
+          alt={item.title ? `Gallery: ${item.title}` : 'Gallery image'}
           className="absolute inset-0 w-full h-full object-cover"
           onError={(e) => {
             e.target.style.display = 'none';
@@ -96,20 +102,22 @@ function GalleryCard({ item, height, onClick }) {
         <div className="absolute inset-0 bg-[var(--void)]/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
           <span className="font-mono text-[11px] tracking-[0.1em] uppercase text-[var(--sungold)]">View</span>
         </div>
-      </div>
+      </button>
     );
   }
 
   // Placeholder card (no URL)
   return (
-    <div
-      className="relative overflow-hidden border border-[var(--border)] transition-all duration-300 group-hover:border-[rgba(232,160,32,0.25)] cursor-pointer group"
+    <button
+      type="button"
+      className={commonClasses}
       style={{
         height: `${height}px`,
         background: 'var(--surface)',
         backgroundImage: item.color ? `repeating-linear-gradient(45deg, ${item.color}08 0px, ${item.color}08 1px, transparent 1px, transparent 16px)` : undefined,
       }}
       onClick={onClick}
+      aria-label={cardLabel}
     >
       <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
         <span className="font-mono text-[10px] tracking-[0.12em] uppercase mb-2" style={{ color: item.color || 'var(--sungold)' }}>{item.type}</span>
@@ -118,7 +126,7 @@ function GalleryCard({ item, height, onClick }) {
       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[var(--void)]/80">
         <span className="font-mono text-[11px] tracking-[0.1em] uppercase text-[var(--sungold)]">View</span>
       </div>
-    </div>
+    </button>
   );
 }
 
@@ -206,6 +214,9 @@ const GalleryPage = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={() => setLightbox(null)}
+            role="dialog"
+            aria-modal="true"
+            aria-label={lightbox?.title ? `Viewing: ${lightbox.title}` : 'Gallery lightbox'}
           >
             <motion.div className="absolute inset-0" onClick={() => setLightbox(null)} />
             <motion.div
@@ -241,7 +252,7 @@ const GalleryPage = () => {
                 </div>
               ) : hasMedia(lightbox) ? (
                 <div className="bg-[var(--surface)] rounded overflow-hidden border border-[var(--border-md)]">
-                  <OptimizedImage src={lightbox.url} alt="" className="w-full max-h-[70vh] object-contain" loading="eager" />
+                  <OptimizedImage src={lightbox.url} alt={lightbox.title ? `Gallery: ${lightbox.title}` : 'Gallery image'} className="w-full max-h-[70vh] object-contain" loading="eager" />
                   <div className="p-4 border-t border-[var(--border)] flex items-center justify-between flex-wrap gap-2">
                     <div>
                       <span className="font-mono text-[11px] tracking-[0.12em] uppercase mr-2" style={{ color: lightbox.color || 'var(--sungold)' }}>{lightbox.type}</span>

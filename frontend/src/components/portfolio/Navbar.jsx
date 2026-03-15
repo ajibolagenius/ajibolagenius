@@ -58,6 +58,7 @@ const Navbar = () => {
 
       <nav
         className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between transition-all duration-300 border-b border-[var(--border)] backdrop-blur-[20px] px-4 md:px-8"
+        aria-label="Main navigation"
         style={{
           height: `${NAV_HEIGHT}px`,
           background: scrolled ? 'var(--nav-bg-scrolled)' : 'var(--nav-bg)',
@@ -103,9 +104,11 @@ const Navbar = () => {
 
           <button
             type="button"
-            className="md:hidden flex items-center justify-center w-10 h-10 border-none bg-transparent cursor-pointer text-[var(--white)]"
+            className="md:hidden flex items-center justify-center w-10 h-10 border-none bg-transparent cursor-pointer text-[var(--white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-nav-menu"
           >
             {mobileOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -113,8 +116,11 @@ const Navbar = () => {
 
         {mobileOpen && (
           <div
+            id="mobile-nav-menu"
             className="md:hidden absolute left-0 right-0 py-6 px-4 backdrop-blur-[20px] border-b border-[var(--border)]"
             style={{ top: `${NAV_HEIGHT}px`, background: 'var(--nav-mobile-bg)' }}
+            role="region"
+            aria-label="Mobile menu"
           >
             <ul className="list-none m-0 p-0 flex flex-col gap-4">
               {navLinks.map((link) => (
@@ -127,7 +133,7 @@ const Navbar = () => {
                       color: isActive(link.href) ? 'var(--sungold)' : 'var(--muted)',
                     }}
                   >
-                    {link.label}
+                    {t('nav_' + link.href.slice(1)) || link.label}
                   </a>
                 </li>
               ))}

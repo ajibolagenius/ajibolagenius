@@ -112,29 +112,36 @@ const CourseCard = ({ course, whatsapp, index = 0 }) => {
   );
 };
 
-const FaqItem = ({ item, open, onToggle }) => (
-  <div
-    className="cursor-pointer transition-all duration-200 border border-[var(--border)]"
-    style={{ background: open ? 'var(--elevated)' : 'var(--surface)' }}
-    onClick={onToggle}
-  >
-    <div className="p-5 flex items-center justify-between gap-4">
-      <h4 className="font-display text-[14px] font-semibold text-[var(--white)]">
-        {item.question}
-      </h4>
-      {open ? (
-        <ChevronUp size={16} className="text-[var(--sungold)] flex-shrink-0" />
-      ) : (
-        <ChevronDown size={16} className="text-[var(--subtle)] flex-shrink-0" />
+const FaqItem = ({ item, open, onToggle, index }) => {
+  const idBase = `faq-${index}`;
+  return (
+    <div
+      className="transition-all duration-200 border border-[var(--border)]"
+      style={{ background: open ? 'var(--elevated)' : 'var(--surface)' }}
+    >
+      <button
+        type="button"
+        className="w-full p-5 flex items-center justify-between gap-4 text-left cursor-pointer border-0 bg-transparent font-display text-[14px] font-semibold text-[var(--white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--sungold)]"
+        onClick={onToggle}
+        aria-expanded={open}
+        aria-controls={`${idBase}-answer`}
+        id={`${idBase}-question`}
+      >
+        <span className="font-display text-[14px] font-semibold">{item.question}</span>
+        {open ? (
+          <ChevronUp size={16} className="text-[var(--sungold)] flex-shrink-0" aria-hidden />
+        ) : (
+          <ChevronDown size={16} className="text-[var(--subtle)] flex-shrink-0" aria-hidden />
+        )}
+      </button>
+      {open && (
+        <div id={`${idBase}-answer`} className="px-5 pb-5" role="region" aria-labelledby={`${idBase}-question`}>
+          <p className="font-body text-[13px] leading-[1.7] text-[var(--muted)]">{item.answer}</p>
+        </div>
       )}
     </div>
-    {open && (
-      <div className="px-5 pb-5">
-        <p className="font-body text-[13px] leading-[1.7] text-[var(--muted)]">{item.answer}</p>
-      </div>
-    )}
-  </div>
-);
+  );
+};
 
 const TeachPage = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
@@ -282,16 +289,22 @@ const TeachPage = () => {
             Leave your email and we&apos;ll let you know when the course you&apos;re interested in is open for enrolment.
           </p>
           <form onSubmit={handleWaitlistSubmit} className="flex flex-col sm:flex-row gap-3 max-w-[520px]" aria-label="Course waitlist">
-            <input
-              type="email"
-              placeholder={t('teach_notify_placeholder')}
-              value={waitlistEmail}
-              onChange={(e) => setWaitlistEmail(e.target.value)}
-              required
-              disabled={waitlistSubmitting}
-              className="flex-1 font-body text-[14px] px-4 py-[10px] outline-none bg-[var(--elevated)] border border-[var(--border-md)] text-[var(--white)] placeholder:text-[var(--subtle)] focus:border-[var(--nebula)] rounded-none transition-colors disabled:opacity-60"
-              aria-describedby={waitlistMsg ? 'waitlist-msg' : undefined}
-            />
+            <div className="flex-1 flex flex-col gap-1.5 min-w-0">
+              <label htmlFor="waitlist-email" className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--subtle)]">
+                {t('teach_notify_placeholder')}
+              </label>
+              <input
+                id="waitlist-email"
+                type="email"
+                placeholder={t('teach_notify_placeholder')}
+                value={waitlistEmail}
+                onChange={(e) => setWaitlistEmail(e.target.value)}
+                required
+                disabled={waitlistSubmitting}
+                className="w-full font-body text-[14px] px-4 py-[10px] outline-none bg-[var(--elevated)] border border-[var(--border-md)] text-[var(--white)] placeholder:text-[var(--subtle)] focus:border-[var(--nebula)] rounded-none transition-colors disabled:opacity-60"
+                aria-describedby={waitlistMsg ? 'waitlist-msg' : undefined}
+              />
+            </div>
             <select
               value={waitlistCourse}
               onChange={(e) => setWaitlistCourse(e.target.value)}
@@ -366,6 +379,7 @@ const TeachPage = () => {
             {faqItems.map((item, i) => (
               <FaqItem
                 key={i}
+                index={i}
                 item={item}
                 open={openFaqIndex === i}
                 onToggle={() => setOpenFaqIndex(prev => (prev === i ? null : i))}

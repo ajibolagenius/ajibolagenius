@@ -102,9 +102,13 @@ export default function SearchPage() {
           <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-4 text-[var(--white)]" style={{ fontSize: 'clamp(28px, 4vw, 48px)' }}>
             Search
           </h1>
-          <form onSubmit={handleSubmit} className="max-w-xl">
+          <form onSubmit={handleSubmit} className="max-w-xl" role="search" aria-label="Site search">
+            <label htmlFor="search-query" className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--subtle)] block mb-2">
+              Search blog, work, courses
+            </label>
             <div className="flex gap-2">
               <input
+                id="search-query"
                 type="search"
                 name="query"
                 value={query}

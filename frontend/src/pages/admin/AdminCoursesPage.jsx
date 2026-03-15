@@ -89,8 +89,8 @@ export default function AdminCoursesPage() {
         <Button onClick={openCreate} className="self-start sm:self-center h-11 font-display font-semibold text-[13px] bg-[var(--sungold)] text-[var(--void)] rounded-none hover:shadow-[var(--shadow-sharp-gold)] hover:-translate-y-0.5">Add course</Button>
       </div>
       {loading ? <p className="text-[var(--muted)] font-mono text-sm">Loading…</p> : (
-        <div className="border border-[var(--border)] overflow-hidden">
-          <table className="w-full text-left">
+        <div className="border border-[var(--border)] overflow-x-auto">
+          <table className="w-full text-left min-w-[600px]">
             <thead className="bg-[var(--surface)] border-b border-[var(--border)]">
               <tr>
                 <th className="px-4 py-3 font-mono text-[11px] text-[var(--subtle)] uppercase">Name</th>

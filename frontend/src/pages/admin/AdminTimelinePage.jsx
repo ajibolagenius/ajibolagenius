@@ -159,8 +159,8 @@ export default function AdminTimelinePage() {
         <Button onClick={openCreate} className="self-start sm:self-center h-11 font-display font-semibold text-[13px] bg-[var(--sungold)] text-[var(--void)] rounded-none hover:shadow-[var(--shadow-sharp-gold)] hover:-translate-y-0.5">Add entry</Button>
       </div>
       {loading ? <p className="text-[var(--muted)] font-mono text-sm">Loading…</p> : (
-        <div className="border border-[var(--border)] overflow-hidden">
-          <table className="w-full text-left">
+        <div className="border border-[var(--border)] overflow-x-auto">
+          <table className="w-full text-left min-w-[500px]">
             <thead className="bg-[var(--surface)] border-b border-[var(--border)]">
               <tr>
                 <th className="px-4 py-3 font-mono text-[11px] text-[var(--subtle)] uppercase">Year</th>
@@ -195,8 +195,8 @@ export default function AdminTimelinePage() {
           <Button onClick={openCreateEdu} variant="outline" className="self-start sm:self-center h-11 font-display font-semibold text-[13px] border-[var(--border)] text-[var(--white)] rounded-none">Add entry</Button>
         </div>
         {eduLoading ? <p className="text-[var(--muted)] font-mono text-sm">Loading…</p> : (
-          <div className="border border-[var(--border)] overflow-hidden">
-            <table className="w-full text-left">
+          <div className="border border-[var(--border)] overflow-x-auto">
+            <table className="w-full text-left min-w-[500px]">
               <thead className="bg-[var(--surface)] border-b border-[var(--border)]">
                 <tr>
                   <th className="px-4 py-3 font-mono text-[11px] text-[var(--subtle)] uppercase">Year</th>
@@ -237,8 +237,8 @@ export default function AdminTimelinePage() {
           <Button onClick={openCreateCert} variant="outline" className="self-start sm:self-center h-11 font-display font-semibold text-[13px] border-[var(--border)] text-[var(--white)] rounded-none">Add entry</Button>
         </div>
         {certLoading ? <p className="text-[var(--muted)] font-mono text-sm">Loading…</p> : (
-          <div className="border border-[var(--border)] overflow-hidden">
-            <table className="w-full text-left">
+          <div className="border border-[var(--border)] overflow-x-auto">
+            <table className="w-full text-left min-w-[400px]">
               <thead className="bg-[var(--surface)] border-b border-[var(--border)]">
                 <tr>
                   <th className="px-4 py-3 font-mono text-[11px] text-[var(--subtle)] uppercase">Order</th>
