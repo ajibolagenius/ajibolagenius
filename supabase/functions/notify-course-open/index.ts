@@ -1,6 +1,7 @@
 // Notify course waitlist when a course is marked open for enrolment.
 // Invoke from admin after setting course.open_for_enrolment = true.
 // Requires: RESEND_API_KEY, optional FROM_EMAIL (e.g. "Portfolio <noreply@yourdomain.com>").
+/// <reference path="./deno.d.ts" />
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
@@ -60,10 +61,12 @@ Deno.serve(async (req: Request) => {
       .or(`course_slug.eq.${course_slug},course_slug.is.null`);
 
     if (fetchError) {
-      return jsonResponse({ ok: false, error: fetchError.message, sent: 0 }, 500);
+      const err = fetchError as { message?: string };
+      return jsonResponse({ ok: false, error: err?.message ?? 'Fetch failed', sent: 0 }, 500);
     }
 
-    const emails = [...new Set((rows ?? []).map((r) => r.email).filter(Boolean))];
+    const list = (rows ?? []) as { email?: string }[];
+    const emails = [...new Set(list.map((r) => r.email).filter(Boolean))];
     if (emails.length === 0) {
       return jsonResponse({ ok: true, sent: 0, message: 'No waitlist entries for this course' }, 200);
     }
