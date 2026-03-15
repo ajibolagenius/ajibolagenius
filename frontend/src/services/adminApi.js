@@ -167,6 +167,10 @@ export const adminEndpoints = {
     list: () =>
       supabase.from('newsletter_subscribers').select('*').order('created_at', { ascending: false }).then(handleResponse),
   },
+  courseWaitlist: {
+    list: () =>
+      supabase.from('course_waitlist').select('*').order('created_at', { ascending: false }).then(handleResponse),
+  },
   stats: async () => {
     const keys = [
       'projects',
@@ -179,6 +183,7 @@ export const adminEndpoints = {
       'testimonials',
       'contact_messages',
       'newsletter_subscribers',
+      'course_waitlist',
     ];
     const tables = [
       'projects',
@@ -191,6 +196,7 @@ export const adminEndpoints = {
       'testimonials',
       'contact_messages',
       'newsletter_subscribers',
+      'course_waitlist',
     ];
     const counts = {};
     await Promise.all(

@@ -15,6 +15,7 @@ const contentNav = [
 const engagementNav = [
   { to: '/admin/messages', label: 'Messages' },
   { to: '/admin/newsletter', label: 'Newsletter' },
+  { to: '/admin/waitlist', label: 'Waitlist' },
 ];
 
 const settingsNav = [

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Download, Briefcase, GraduationCap, Award, Wrench } from 'lucide-react';
+import { Download, Briefcase, GraduationCap, Award, Wrench, Printer } from 'lucide-react';
 import { fetchTimeline, fetchEducation, fetchCertifications } from '../services/api';
 import { timeline as fbTimeline, skills, cvData } from '../data/mock';
 import { techStackForCV } from '../data/techStack';
@@ -62,14 +62,23 @@ const CVPage = () => {
           <p className="font-body text-[17px] leading-[1.7] max-w-[560px] mb-8 text-[var(--muted)]">
             A detailed overview of my journey, skills, tools, and qualifications.
           </p>
-          <a
-            href={getPdfUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[11px] no-underline bg-[var(--sungold)] text-[var(--void)] border-0 rounded-none"
-          >
-            <Download size={14} /> Download PDF
-          </a>
+          <div className="flex flex-wrap gap-3">
+            <a
+              href={getPdfUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="no-print btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[11px] no-underline bg-[var(--sungold)] text-[var(--void)] border-0 rounded-none"
+            >
+              <Download size={14} /> Download PDF
+            </a>
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="no-print inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[11px] border border-[var(--border-md)] bg-transparent text-[var(--white)] rounded-none hover:border-[var(--sungold)] hover:text-[var(--sungold)] transition-colors"
+            >
+              <Printer size={14} /> Print / Save as PDF
+            </button>
+          </div>
         </div>
       </section>
 

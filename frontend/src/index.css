@@ -452,7 +452,16 @@ a {
 @media print {
   .scroll-bar,
   nav,
+  footer,
+  .skip-link,
+  .no-print,
   [data-hide-print] {
     display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+  main {
+    padding-top: 0;
   }
 }

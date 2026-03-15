@@ -29,6 +29,7 @@ const AdminTestimonialsPage = lazy(() => import('./pages/admin/AdminTestimonials
 const AdminPersonalInfoPage = lazy(() => import('./pages/admin/AdminPersonalInfoPage'));
 const AdminMessagesPage = lazy(() => import('./pages/admin/AdminMessagesPage'));
 const AdminNewsletterPage = lazy(() => import('./pages/admin/AdminNewsletterPage'));
+const AdminWaitlistPage = lazy(() => import('./pages/admin/AdminWaitlistPage'));
 const AdminAnalyticsPage = lazy(() => import('./pages/admin/AdminAnalyticsPage'));
 
 const adminFallback = (
@@ -53,6 +54,7 @@ function App() {
               <Route path="personal-info" element={<Suspense fallback={adminFallback}><AdminPersonalInfoPage /></Suspense>} />
               <Route path="messages" element={<Suspense fallback={adminFallback}><AdminMessagesPage /></Suspense>} />
               <Route path="newsletter" element={<Suspense fallback={adminFallback}><AdminNewsletterPage /></Suspense>} />
+              <Route path="waitlist" element={<Suspense fallback={adminFallback}><AdminWaitlistPage /></Suspense>} />
               <Route path="analytics" element={<Suspense fallback={adminFallback}><AdminAnalyticsPage /></Suspense>} />
             </Route>
 

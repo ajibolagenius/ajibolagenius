@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { MessageSquare, Quote, ChevronDown, ChevronUp } from 'lucide-react';
-import { fetchCourses, fetchTestimonials, fetchPersonalInfo } from '../services/api';
+import { MessageSquare, Quote, ChevronDown, ChevronUp, Bell } from 'lucide-react';
+import { fetchCourses, fetchTestimonials, fetchPersonalInfo, submitCourseWaitlist } from '../services/api';
 import { courses as fbCourses, testimonials as fbTestimonials, faqItems, personalInfo as fbInfo } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
 import SectionKicker from '../components/portfolio/SectionKicker';
@@ -145,6 +145,29 @@ const TeachPage = () => {
     [sortedCourses, page]
   );
 
+  const [waitlistEmail, setWaitlistEmail] = useState('');
+  const [waitlistCourse, setWaitlistCourse] = useState('');
+  const [waitlistMsg, setWaitlistMsg] = useState('');
+  const [waitlistSubmitting, setWaitlistSubmitting] = useState(false);
+  const handleWaitlistSubmit = async (e) => {
+    e.preventDefault();
+    const email = waitlistEmail.trim();
+    if (!email || waitlistSubmitting) return;
+    setWaitlistSubmitting(true);
+    setWaitlistMsg('');
+    try {
+      const res = await submitCourseWaitlist(email, waitlistCourse || null);
+      setWaitlistMsg(res?.message || "You're on the list!");
+      setWaitlistEmail('');
+      setWaitlistCourse('');
+    } catch {
+      setWaitlistMsg('Something went wrong. Try again.');
+    } finally {
+      setWaitlistSubmitting(false);
+    }
+    setTimeout(() => setWaitlistMsg(''), 5000);
+  };
+
   usePageMeta({
     title: 'Courses & Mentorship',
     description: 'I teach what I know and share what I learn. Remote courses designed for the Nigerian developer ready to level up.',
@@ -224,6 +247,60 @@ const TeachPage = () => {
           >
             <MessageSquare size={16} /> Enrol via WhatsApp
           </a>
+        </div>
+      </section>
+
+      {/* Course waitlist */}
+      <section className="py-12 md:py-16 border-b border-[var(--border)]">
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-6 h-px bg-[var(--nebula)]" aria-hidden />
+            <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--nebula)]">
+              Notify me
+            </span>
+          </div>
+          <h2 className="font-display font-extrabold leading-[1.1] tracking-[-0.02em] mb-3 text-[var(--white)]" style={{ fontSize: 'clamp(24px, 3vw, 32px)' }}>
+            Notify me when a course opens
+          </h2>
+          <p className="font-body text-[15px] leading-[1.7] mb-6 max-w-[480px] text-[var(--muted)]">
+            Leave your email and we&apos;ll let you know when the course you&apos;re interested in is open for enrolment.
+          </p>
+          <form onSubmit={handleWaitlistSubmit} className="flex flex-col sm:flex-row gap-3 max-w-[520px]" aria-label="Course waitlist">
+            <input
+              type="email"
+              placeholder="your@email.com"
+              value={waitlistEmail}
+              onChange={(e) => setWaitlistEmail(e.target.value)}
+              required
+              disabled={waitlistSubmitting}
+              className="flex-1 font-body text-[14px] px-4 py-[10px] outline-none bg-[var(--elevated)] border border-[var(--border-md)] text-[var(--white)] placeholder:text-[var(--subtle)] focus:border-[var(--nebula)] rounded-none transition-colors disabled:opacity-60"
+              aria-describedby={waitlistMsg ? 'waitlist-msg' : undefined}
+            />
+            <select
+              value={waitlistCourse}
+              onChange={(e) => setWaitlistCourse(e.target.value)}
+              disabled={waitlistSubmitting}
+              className="font-body text-[14px] px-4 py-[10px] outline-none bg-[var(--elevated)] border border-[var(--border-md)] text-[var(--white)] rounded-none transition-colors disabled:opacity-60 w-full sm:w-[200px]"
+              aria-label="Course (optional)"
+            >
+              <option value="">Any course</option>
+              {displayCourses.map((c) => (
+                <option key={c.slug || c.id} value={c.slug || c.id}>{c.name}</option>
+              ))}
+            </select>
+            <button
+              type="submit"
+              disabled={waitlistSubmitting}
+              className="inline-flex items-center justify-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[11px] bg-[var(--nebula)] text-[var(--white)] border-0 rounded-none transition-colors disabled:opacity-60"
+            >
+              <Bell size={14} /> {waitlistSubmitting ? 'Adding…' : 'Notify me'}
+            </button>
+          </form>
+          {waitlistMsg && (
+            <p id="waitlist-msg" role="status" className="font-mono text-[12px] mt-3 text-[var(--nebula)]" aria-live="polite">
+              {waitlistMsg}
+            </p>
+          )}
         </div>
       </section>
 

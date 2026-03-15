@@ -84,3 +84,9 @@ export const subscribeNewsletter = async (email) => {
   }
   return { status: 'ok', message: "Subscribed! You'll hear from me soon." };
 };
+
+export const submitCourseWaitlist = async (email, courseSlug = null) => {
+  const { error } = await supabase.from('course_waitlist').insert({ email: email.trim(), course_slug: courseSlug || null }).select();
+  if (error) throw error;
+  return { status: 'ok', message: "You're on the list! I'll notify you when the course opens." };
+};

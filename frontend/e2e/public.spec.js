@@ -5,7 +5,7 @@ test.describe('Public site', () => {
   test('home page loads and shows hero', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await expect(page.getByText('Design & Engineering', { exact: false })).toBeVisible();
+    await expect(page.getByText('Design & Engineering,', { exact: true })).toBeVisible();
   });
 
   test('writing page loads', async ({ page }) => {
@@ -15,7 +15,7 @@ test.describe('Public site', () => {
 
   test('teach page loads and shows courses section', async ({ page }) => {
     await page.goto('/teach');
-    await expect(page.getByText(/Courses|Mentorship/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Courses & Mentorship' })).toBeVisible();
   });
 
   test('contact form exists and can be filled', async ({ page }) => {

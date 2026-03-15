@@ -12,6 +12,7 @@ const statCards = [
   { key: 'testimonials', label: 'Testimonials', path: '/admin/testimonials', accent: 'nebula' },
   { key: 'contact_messages', label: 'Messages', path: '/admin/messages', accent: 'stardust' },
   { key: 'newsletter_subscribers', label: 'Subscribers', path: '/admin/newsletter', accent: 'terracotta' },
+  { key: 'course_waitlist', label: 'Waitlist', path: '/admin/waitlist', accent: 'nebula' },
 ];
 
 const quickLinks = [
@@ -24,6 +25,7 @@ const quickLinks = [
   { path: '/admin/personal-info', label: 'Personal Info', desc: 'Hero & contact' },
   { path: '/admin/messages', label: 'Messages', desc: 'Contact form' },
   { path: '/admin/newsletter', label: 'Newsletter', desc: 'Subscribers' },
+  { path: '/admin/waitlist', label: 'Waitlist', desc: 'Course waitlist' },
 ];
 
 
