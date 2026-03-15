@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Design_%26_Engineering-No_boundaries-E8A020?style=for-the-badge" alt="Design & Engineering" />
-  <img src="https://img.shields.io/badge/Location-Nigeria-22C55E?style=for-the-badge" alt="Nigeria" />
   <img src="https://img.shields.io/badge/Role-Full--Stack_·_Design_·_Educator-8B72F0?style=for-the-badge" alt="Role" />
+  <img src="https://img.shields.io/badge/Location-Nigeria-22C55E?style=for-the-badge" alt="Nigeria" />
 </p>
 
 <p align="center">
@@ -10,45 +10,39 @@
 
 ---
 
-## 👋 Slide 1 — Who this is
+<pre style="background:#1a1a1a;color:#39ff14;padding:12px 16px;border-radius:4px;font-family:ui-monospace,monospace;font-size:14px;margin:16px 0;overflow-x:auto;"><code>$ whoami</code></pre>
 
-# Hi, I'm Ajibola Akelebe
-
-**Design & Engineering — no boundaries.**
+**Ajibola Akelebe.**
+Design & Engineering — no boundaries.
 
 I build products and teach people how to build them. Based in Nigeria, building for a global audience. Full-stack, UI design, and the messy middle where both meet.
 
 ---
 
-## 📋 Slide 2 — The short version
+<pre style="background:#1a1a1a;color:#39ff14;padding:12px 16px;border-radius:4px;font-family:ui-monospace,monospace;font-size:14px;margin:16px 0;overflow-x:auto;"><code>$ cat README.story</code></pre>
 
 | Topic | Description |
 |:--|:--|
-| **🎯 What I do** | Ship products (social platforms, voice apps, design systems) and run remote courses for individuals ready to level up. |
-| **💡 How I think** | Start with *why*, not just *what*. Projects beat theory. Community outlasts the course. |
-| **📍 Where you’ll find me** | Writing code, pushing pixels, or in a WhatsApp group with students who’ve become collaborators. |
-
+| **What I do** | Ship products (social platforms, voice apps, design systems) and run remote courses for people ready to level up. |
+| **How I think** | Start with *why*, not just *what*. Projects beat theory. Community outlasts the course. |
+| **Where you'll find me** | Writing code, pushing pixels, or in a WhatsApp group with students who've become collaborators. |
 
 ---
 
-## 🧭 Slide 3 — What I’m about
+<pre style="background:#1a1a1a;color:#39ff14;padding:12px 16px;border-radius:4px;font-family:ui-monospace,monospace;font-size:14px;margin:16px 0;overflow-x:auto;"><code>$ echo $LOOP</code></pre>
 
-I didn’t wait for permission to build. I started building, then learned how to teach it.
+I didn't wait for permission to build. I started building, then learned how to teach it.
 
-That loop is what I care about:
-
-```
-  build  →  learn  →  teach  →  build
-```
+<pre style="background:#1a1a1a;color:#39ff14;padding:12px 16px;border-radius:4px;font-family:ui-monospace,monospace;font-size:14px;margin:16px 0;overflow-x:auto;"><code>  build  →  learn  →  teach  →  build</code></pre>
 
 The portfolio is the proof: real products, real constraints, real users — often starting in Nigeria, then going further.
 
 - **Identity in tech:** Afrofuturism, sharp geometry, interfaces that feel like they come from somewhere.
-- **Craft:** Clean APIs, clear components, design systems that don’t get in the way.
+- **Craft:** Clean APIs, clear components, design systems that don't get in the way.
 
 ---
 
-## 🔗 Slide 4 — Links
+<pre style="background:#1a1a1a;color:#39ff14;padding:12px 16px;border-radius:4px;font-family:ui-monospace,monospace;font-size:14px;margin:16px 0;overflow-x:auto;"><code>$ ./links.sh</code></pre>
 
 <p align="center">
   <a href="https://ajibolagenius.pro"><img src="https://img.shields.io/badge/Portfolio-ajibolagenius.pro-E8A020?style=flat-square&logo=googlechrome" alt="Portfolio" /></a>
@@ -60,13 +54,13 @@ The portfolio is the proof: real products, real constraints, real users — ofte
 
 | Link | Where |
 |:--|:--|
-| **🌐 Portfolio** | [ajibolagenius.pro](https://ajibolagenius.pro) *(or see pinned repos)* |
-| **🐦 Twitter** | [@ajibolagenius](https://twitter.com/ajibolagenius) |
-| **📚 Courses & mentorship** | Via portfolio → Teach |
+| **Portfolio** | [ajibolagenius.pro](https://ajibolagenius.pro) *(or see pinned repos)* |
+| **Twitter** | [@ajibolagenius](https://twitter.com/ajibolagenius) |
+| **Courses & mentorship** | Via portfolio → Teach |
 
 ---
 
-## ⚡ Slide 5 — Stack & tools
+<pre style="background:#1a1a1a;color:#39ff14;padding:12px 16px;border-radius:4px;font-family:ui-monospace,monospace;font-size:14px;margin:16px 0;overflow-x:auto;"><code>$ stack --list</code></pre>
 
 <p align="center">
   <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react" alt="React" />
@@ -79,16 +73,14 @@ The portfolio is the proof: real products, real constraints, real users — ofte
   <img src="https://img.shields.io/badge/GSAP-88CE02?style=flat-square" alt="GSAP" />
 </p>
 
-*“From Nigeria, for the world.”*
+*"From Nigeria, for the world."*
 
 ---
 
-## 🏁 Slide 6 — The rest
+<pre style="background:#1a1a1a;color:#39ff14;padding:12px 16px;border-radius:4px;font-family:ui-monospace,monospace;font-size:14px;margin:16px 0;overflow-x:auto;"><code>$ tail -n 2 README.story</code></pre>
 
-<p align="center">
-  <strong>This README is the story so far.</strong><br/>
-  <em>The rest is in the repos.</em>
-</p>
+**This README is the story so far.**
+*The rest is in the repos.*
 
 <p align="center">
   <img src="https://img.shields.io/badge/Don_Genius-Portfolio-E8A020?style=for-the-badge" alt="DON_GENIUS" />
