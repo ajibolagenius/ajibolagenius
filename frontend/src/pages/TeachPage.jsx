@@ -7,6 +7,7 @@ import SectionKicker from '../components/portfolio/SectionKicker';
 import SortSelect from '../components/portfolio/SortSelect';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
+import { useLocale } from '../contexts/LocaleContext';
 import { buildTeachPageSchema } from '../lib/structuredData';
 import { byString, byPrice, applySort } from '../lib/sortHelpers';
 import { paginate } from '../lib/paginate';
@@ -30,6 +31,7 @@ const TEACH_SORT_OPTIONS = [
 const CourseCard = ({ course, whatsapp, index = 0 }) => {
   const [hovered, setHovered] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const { t } = useLocale();
   const accent = COURSE_ACCENTS[index % COURSE_ACCENTS.length];
   const accentColor = accent.color;
 
@@ -71,7 +73,7 @@ const CourseCard = ({ course, whatsapp, index = 0 }) => {
         <div className="px-5 pb-5 pt-0 border-t border-[var(--border)]">
           <div className="pt-4">
             <div className="font-mono text-[10px] tracking-[0.12em] uppercase mb-3 text-[var(--stardust)]">
-              Curriculum
+              {t('teach_curriculum')}
             </div>
             <ul className="list-none p-0 m-0 flex flex-col gap-2">
               {course.curriculum.map((item, i) => (
@@ -88,7 +90,7 @@ const CourseCard = ({ course, whatsapp, index = 0 }) => {
               className="btn-primary inline-flex items-center gap-2 font-display text-[12px] font-semibold px-4 py-2 mt-4 no-underline border-0 rounded-none"
               style={{ background: accentColor, color: accentColor === 'var(--sungold)' ? 'var(--void)' : 'var(--white)' }}
             >
-              <MessageSquare size={12} /> Enrol via WhatsApp
+              <MessageSquare size={12} /> {t('teach_enrol_via_whatsapp')}
             </a>
           </div>
         </div>
@@ -123,6 +125,7 @@ const FaqItem = ({ item, open, onToggle }) => (
 
 const TeachPage = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
+  const { t } = useLocale();
   const { data: courses } = useRealtimeQuery('courses', fetchCourses, fbCourses);
   const { data: testimonials } = useRealtimeQuery('testimonials', fetchTestimonials, fbTestimonials);
   const { data: personalInfo } = useRealtimeQuery('personal_info', fetchPersonalInfo, fbInfo);
@@ -157,7 +160,7 @@ const TeachPage = () => {
     setWaitlistMsg('');
     try {
       const res = await submitCourseWaitlist(email, waitlistCourse || null);
-      setWaitlistMsg(res?.message || "You're on the list!");
+      setWaitlistMsg(res?.message || t('teach_on_list'));
       setWaitlistEmail('');
       setWaitlistCourse('');
     } catch {
@@ -182,10 +185,10 @@ const TeachPage = () => {
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <SectionKicker label="Teach" accent="sungold" />
           <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-4 text-[var(--white)]" style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}>
-            Courses & Mentorship
+            {t('teach_heading')}
           </h1>
           <p className="font-body text-[17px] leading-[1.7] max-w-[600px] mb-4 text-[var(--muted)]">
-            I teach what I know and share what I learn. Remote courses designed for the Nigerian developer ready to level up.
+            {t('teach_subheading')}
           </p>
           <p className="font-body text-[15px] leading-[1.7] max-w-[600px] text-[var(--subtle)]">
             Start with <em>why</em>, not just <em>what</em>. Projects beat theory every time. Community is everything — the WhatsApp groups outlast the courses. Pricing is set for Nigerian reality, not Silicon Valley budgets.
@@ -260,7 +263,7 @@ const TeachPage = () => {
             </span>
           </div>
           <h2 className="font-display font-extrabold leading-[1.1] tracking-[-0.02em] mb-3 text-[var(--white)]" style={{ fontSize: 'clamp(24px, 3vw, 32px)' }}>
-            Notify me when a course opens
+            {t('teach_notify_heading')}
           </h2>
           <p className="font-body text-[15px] leading-[1.7] mb-6 max-w-[480px] text-[var(--muted)]">
             Leave your email and we&apos;ll let you know when the course you&apos;re interested in is open for enrolment.
@@ -268,7 +271,7 @@ const TeachPage = () => {
           <form onSubmit={handleWaitlistSubmit} className="flex flex-col sm:flex-row gap-3 max-w-[520px]" aria-label="Course waitlist">
             <input
               type="email"
-              placeholder="your@email.com"
+              placeholder={t('teach_notify_placeholder')}
               value={waitlistEmail}
               onChange={(e) => setWaitlistEmail(e.target.value)}
               required
@@ -293,7 +296,7 @@ const TeachPage = () => {
               disabled={waitlistSubmitting}
               className="inline-flex items-center justify-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[11px] bg-[var(--nebula)] text-[var(--white)] border-0 rounded-none transition-colors disabled:opacity-60"
             >
-              <Bell size={14} /> {waitlistSubmitting ? 'Adding…' : 'Notify me'}
+              <Bell size={14} /> {waitlistSubmitting ? '…' : t('teach_notify_button')}
             </button>
           </form>
           {waitlistMsg && (

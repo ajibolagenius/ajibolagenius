@@ -154,6 +154,7 @@ export const adminEndpoints = {
           location: d.location,
           availability: d.availability,
           social: d.social ?? {},
+          locale: d.locale ?? 'en',
         })
         .eq('id', 1)
         .then(handleResponse)
@@ -171,6 +172,12 @@ export const adminEndpoints = {
     list: () =>
       supabase.from('course_waitlist').select('*').order('created_at', { ascending: false }).then(handleResponse),
   },
+  /** Invoke Edge Function to email waitlist when a course is marked open. Call after saving course with open_for_enrolment true. */
+  notifyCourseOpen: (courseSlug, courseName) =>
+    supabase.functions.invoke('notify-course-open', { body: { course_slug: courseSlug, course_name: courseName } }).then((r) => {
+      if (r.error) throw r.error;
+      return r.data ?? { ok: false, sent: 0 };
+    }),
   stats: async () => {
     const keys = [
       'projects',

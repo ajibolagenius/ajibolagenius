@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import Layout from './components/portfolio/Layout';
 import ErrorBoundary from './components/portfolio/ErrorBoundary';
 import { AdminAuthProvider } from './contexts/AdminAuthContext';
+import { LocaleProvider } from './contexts/LocaleContext';
 import AdminRoute from './pages/admin/AdminRoute';
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
@@ -41,6 +42,7 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <AdminAuthProvider>
+          <LocaleProvider>
           <Routes>
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
@@ -72,6 +74,7 @@ function App() {
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          </LocaleProvider>
         </AdminAuthProvider>
       </BrowserRouter>
     </div>

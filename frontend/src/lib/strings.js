@@ -1,0 +1,73 @@
+/**
+ * UI strings by locale. Keyed by personal_info.locale (e.g. 'en', 'fr').
+ * Use via useLocale().t('key').
+ */
+export const strings = {
+  en: {
+    skip_to_content: 'Skip to content',
+    nav_work: 'Work',
+    nav_teach: 'Teach',
+    nav_writing: 'Writing',
+    nav_gallery: 'Gallery',
+    nav_cv: 'CV',
+    nav_search: 'Search',
+    nav_contact: 'Contact',
+    hero_view_projects: 'View Projects',
+    hero_download_cv: 'Download CV',
+    footer_theme: 'Afrofuturism × Dark Cosmic',
+    teach_heading: 'Courses & Mentorship',
+    teach_subheading: 'Structured courses and 1:1 mentorship. Enrol via WhatsApp.',
+    teach_notify_heading: 'Notify me when a course opens',
+    teach_notify_placeholder: 'Your email',
+    teach_notify_button: 'Notify me',
+    teach_on_list: "You're on the list! I'll notify you when the course opens.",
+    teach_curriculum: 'Curriculum',
+    teach_enrol_via_whatsapp: 'Enrol via WhatsApp',
+    contact_kicker: 'Contact',
+    contact_heading: "Let's Build Something",
+    contact_subheading: 'Design and engineering inquiries, collaboration, or just say hello.',
+    contact_name: 'Name',
+    contact_email: 'Email',
+    contact_subject: 'Subject',
+    contact_message: 'Message',
+    contact_send: 'Send message',
+    contact_success: "Message received! I'll get back to you soon.",
+    contact_error: 'Something went wrong. Please try again.',
+  },
+  fr: {
+    skip_to_content: 'Aller au contenu',
+    nav_work: 'Projets',
+    nav_teach: 'Cours',
+    nav_writing: 'Blog',
+    nav_gallery: 'Galerie',
+    nav_cv: 'CV',
+    nav_search: 'Recherche',
+    nav_contact: 'Contact',
+    hero_view_projects: 'Voir les projets',
+    hero_download_cv: 'Télécharger le CV',
+    footer_theme: 'Afrofuturisme × Cosmos sombre',
+    teach_heading: 'Cours et mentorat',
+    teach_subheading: 'Cours structurés et mentorat 1:1. Inscription via WhatsApp.',
+    teach_notify_heading: 'Prévenez-moi quand un cours ouvre',
+    teach_notify_placeholder: 'Votre email',
+    teach_notify_button: 'Prévenir',
+    teach_on_list: "Vous êtes sur la liste ! Je vous préviendrai à l'ouverture du cours.",
+    teach_curriculum: 'Programme',
+    teach_enrol_via_whatsapp: "S'inscrire via WhatsApp",
+    contact_kicker: 'Contact',
+    contact_heading: 'Construisons ensemble',
+    contact_subheading: 'Demandes design et ingénierie, collaboration ou simplement dire bonjour.',
+    contact_name: 'Nom',
+    contact_email: 'Email',
+    contact_subject: 'Sujet',
+    contact_message: 'Message',
+    contact_send: 'Envoyer',
+    contact_success: 'Message reçu ! Je vous répondrai bientôt.',
+    contact_error: 'Une erreur est survenue. Veuillez réessayer.',
+  },
+};
+
+export function getString(locale, key) {
+  const loc = locale && strings[locale] ? locale : 'en';
+  return strings[loc]?.[key] ?? strings.en?.[key] ?? key;
+}

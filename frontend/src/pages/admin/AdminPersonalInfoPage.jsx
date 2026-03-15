@@ -17,6 +17,7 @@ const defaultInfo = {
   location: '',
   availability: '',
   social: { github: '', twitter: '', linkedin: '', whatsapp: '' },
+  locale: 'en',
 };
 
 const SOCIAL_KEYS = [
@@ -103,6 +104,19 @@ export default function AdminPersonalInfoPage() {
             <div className="space-y-2">
               <Label htmlFor="info-role">Role (subtitle)</Label>
               <Input id="info-role" value={form.role} onChange={(e) => update('role', e.target.value)} placeholder="e.g. // FULL-STACK · UI DESIGN" className="bg-[var(--elevated)] border-[var(--border-md)]" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="info-locale">Site locale</Label>
+              <select
+                id="info-locale"
+                value={form.locale ?? 'en'}
+                onChange={(e) => update('locale', e.target.value)}
+                className="w-full bg-[var(--elevated)] border border-[var(--border-md)] px-4 py-[10px] font-body text-[14px] text-[var(--white)] rounded-none"
+              >
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+              </select>
+              <p className="font-mono text-[11px] text-[var(--subtle)]">UI strings (nav, hero, contact, teach) follow this locale.</p>
             </div>
           </div>
         </section>

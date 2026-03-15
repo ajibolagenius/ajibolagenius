@@ -7,6 +7,7 @@ import Badge from './Badge';
 import { BADGE_VARIANTS } from '../../constants';
 import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
 import { fetchPersonalInfo } from '../../services/api';
+import { useLocale } from '../../contexts/LocaleContext';
 
 /**
  * Footer — Design System layout.
@@ -22,6 +23,7 @@ const SOCIAL_CONFIG = [
 
 const Footer = () => {
   const { data: info } = useRealtimeQuery('personal_info', fetchPersonalInfo, fbInfo);
+  const { t } = useLocale();
   const social = info?.social ?? fbInfo.social ?? {};
   const socialIcons = SOCIAL_CONFIG.filter(({ key }) => social[key]).map(({ Icon, key, label }) => ({
     Icon,
@@ -71,7 +73,7 @@ const Footer = () => {
                 to={href}
                 className="font-mono text-[11px] text-[var(--muted)] hover:text-[var(--sungold)] transition-colors duration-200"
               >
-                {label}
+                {t('nav_' + href.slice(1)) || label}
               </Link>
             ))}
           </div>
@@ -88,7 +90,7 @@ const Footer = () => {
             © {new Date().getFullYear()} {name?.trim() || 'Ajibola Akelebe'}.
           </p>
           <p className="font-mono text-[10px] text-[var(--dim)]">
-            Afrofuturism × Dark Cosmic
+            {t('footer_theme')}
           </p>
         </div>
       </div>

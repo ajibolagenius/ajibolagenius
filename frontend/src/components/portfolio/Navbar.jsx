@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { navLinks } from '../../data/mock';
 import { NAV_HEIGHT } from '../../constants';
 import ThemeToggle from './ThemeToggle';
+import { useLocale } from '../../contexts/LocaleContext';
 
 /**
  * Header / Nav — Design System §08 Nav
@@ -20,6 +21,7 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLocale();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -86,7 +88,7 @@ const Navbar = () => {
                     color: isActive(link.href) ? 'var(--sungold)' : 'var(--muted)',
                   }}
                 >
-                  {link.label}
+                  {t('nav_' + link.href.slice(1)) || link.label}
                 </a>
               </li>
             ))}

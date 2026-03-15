@@ -47,7 +47,11 @@ export default function AdminWaitlistPage() {
 
   useEffect(() => {
     setLoading(true);
-    adminEndpoints.courseWaitlist.list().then(setList).catch(() => setList([])).finally(() => setLoading(false));
+    adminEndpoints.courseWaitlist
+      .list()
+      .then((data) => setList(Array.isArray(data) ? data : []))
+      .catch(() => setList([]))
+      .finally(() => setLoading(false));
   }, []);
 
   const { items: paginatedList, totalPages, start, end, total } = useMemo(
@@ -56,10 +60,14 @@ export default function AdminWaitlistPage() {
   );
 
   const copyEmail = (email, id) => {
-    navigator.clipboard?.writeText(email)?.then(() => {
-      setCopiedId(id);
-      setTimeout(() => setCopiedId(null), 2000);
-    })?.catch(() => {});
+    if (!email || !navigator.clipboard?.writeText) return;
+    navigator.clipboard
+      .writeText(email)
+      .then(() => {
+        setCopiedId(id);
+        setTimeout(() => setCopiedId(null), 2000);
+      })
+      .catch(() => {});
   };
 
   const handleExport = () => {

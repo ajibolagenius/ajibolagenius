@@ -4,6 +4,7 @@ import { ArrowRight, Download } from 'lucide-react';
 import { fetchPersonalInfo } from '../../services/api';
 import { personalInfo as fallbackInfo, tickerItems } from '../../data/mock';
 import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
+import { useLocale } from '../../contexts/LocaleContext';
 
 const Ticker = () => {
   const items = [...tickerItems, ...tickerItems];
@@ -28,6 +29,7 @@ const Hero = () => {
   const heroRef = useRef(null);
   const navigate = useNavigate();
   const { data: info } = useRealtimeQuery('personal_info', fetchPersonalInfo, fallbackInfo);
+  const { t } = useLocale();
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 200);
@@ -93,7 +95,7 @@ const Hero = () => {
                 className="btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] border-0 cursor-pointer transition-all duration-200 bg-[var(--sungold)] text-[var(--void)]"
                 onClick={() => navigate('/work')}
               >
-                View Projects
+                {t('hero_view_projects')}
                 <ArrowRight size={14} />
               </button>
               <button
@@ -101,7 +103,7 @@ const Hero = () => {
                 onClick={() => navigate('/cv')}
               >
                 <Download size={14} />
-                Download CV
+                {t('hero_download_cv')}
               </button>
             </div>
           </div>

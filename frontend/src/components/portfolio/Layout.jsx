@@ -4,10 +4,12 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 import SmoothScrollProvider from './SmoothScrollProvider';
 import { track } from '../../services/analytics';
+import { useLocale } from '../../contexts/LocaleContext';
 
 const Layout = ({ children }) => {
   const mainRef = useRef(null);
   const location = useLocation();
+  const { t } = useLocale();
 
   useEffect(() => {
     if (location?.pathname) track('page_view', { path: location.pathname });
@@ -24,7 +26,7 @@ const Layout = ({ children }) => {
           mainRef.current?.focus();
         }}
       >
-        Skip to content
+        {t('skip_to_content')}
       </a>
       <Navbar />
       <main ref={mainRef} id="main-content" className="flex-1 pt-[56px]" tabIndex={-1}>

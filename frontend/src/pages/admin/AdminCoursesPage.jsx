@@ -12,7 +12,7 @@ import { adminEndpoints } from '../../services/adminApi';
 
 const ADMIN_PAGE_SIZE = 10;
 
-const emptyCourse = () => ({ slug: '', name: '', duration: '', price: '', badge: '', description: '', curriculum: [] });
+const emptyCourse = () => ({ slug: '', name: '', duration: '', price: '', badge: '', description: '', curriculum: [], open_for_enrolment: false });
 
 export default function AdminCoursesPage() {
   const [list, setList] = useState([]);
@@ -39,7 +39,7 @@ export default function AdminCoursesPage() {
   const openCreate = () => { setEditing(null); setForm(emptyCourse()); setDialogOpen(true); };
   const openEdit = (p) => {
     setEditing(p);
-    setForm({ ...p, curriculum: Array.isArray(p.curriculum) ? p.curriculum.join('\n') : '' });
+    setForm({ ...p, curriculum: Array.isArray(p.curriculum) ? p.curriculum.join('\n') : '', open_for_enrolment: p.open_for_enrolment ?? false });
     setDialogOpen(true);
   };
   const openDelete = (p) => { setToDelete(p); setDeleteOpen(true); };
@@ -48,11 +48,23 @@ export default function AdminCoursesPage() {
     const payload = {
       ...form,
       curriculum: typeof form.curriculum === 'string' ? form.curriculum.split('\n').map((s) => s.trim()).filter(Boolean) : form.curriculum,
+      open_for_enrolment: !!form.open_for_enrolment,
     };
+    const wasOpen = editing?.open_for_enrolment ?? false;
+    const nowOpen = !!payload.open_for_enrolment;
     setSaving(true);
     try {
       if (editing) await adminEndpoints.courses.update(editing.id, payload);
       else await adminEndpoints.courses.create(payload);
+      if (nowOpen && !wasOpen && payload.slug && payload.name) {
+        try {
+          const result = await adminEndpoints.notifyCourseOpen(payload.slug, payload.name);
+          if (result?.sent > 0) window.alert(`Course saved. ${result.sent} waitlist notification(s) sent.`);
+        } catch (err) {
+          console.error('Notify waitlist failed:', err);
+          window.alert('Course saved but sending waitlist emails failed. Check RESEND_API_KEY and Edge Function.');
+        }
+      }
       setDialogOpen(false);
       load();
     } catch (e) { console.error(e); } finally { setSaving(false); }
@@ -83,6 +95,7 @@ export default function AdminCoursesPage() {
               <tr>
                 <th className="px-4 py-3 font-mono text-[11px] text-[var(--subtle)] uppercase">Name</th>
                 <th className="px-4 py-3 font-mono text-[11px] text-[var(--subtle)] uppercase">Badge</th>
+                <th className="px-4 py-3 font-mono text-[11px] text-[var(--subtle)] uppercase w-24">Open</th>
                 <th className="px-4 py-3 font-mono text-[11px] text-[var(--subtle)] uppercase w-28">Actions</th>
               </tr>
             </thead>
@@ -91,6 +104,7 @@ export default function AdminCoursesPage() {
                 <tr key={p.id} className="bg-[var(--elevated)]/50 hover:bg-[var(--elevated)]">
                   <td className="px-4 py-3 font-body text-sm text-[var(--white)]">{p.name}</td>
                   <td className="px-4 py-3 font-mono text-[12px] text-[var(--muted)]">{p.badge}</td>
+                  <td className="px-4 py-3 font-mono text-[12px] text-[var(--muted)]">{p.open_for_enrolment ? 'Yes' : '—'}</td>
                   <td className="px-4 py-3 flex gap-2">
                     <Button variant="ghost" size="sm" onClick={() => openEdit(p)}>Edit</Button>
                     <Button variant="ghost" size="sm" className="text-[var(--terracotta)]" onClick={() => openDelete(p)}>Delete</Button>
@@ -107,7 +121,7 @@ export default function AdminCoursesPage() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto border-[var(--border)] bg-[var(--surface)] text-[var(--white)]">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto border-[var(--border)] bg-[var(--surface)] text-[var(--white)]" aria-describedby={undefined}>
           <DialogHeader><DialogTitle>{editing ? 'Edit course' : 'New course'}</DialogTitle></DialogHeader>
           <div className="grid gap-4 py-4" role="form" aria-label={editing ? 'Edit course' : 'New course'}>
             <div className="grid grid-cols-2 gap-4">
@@ -120,6 +134,10 @@ export default function AdminCoursesPage() {
               <div className="space-y-2"><Label htmlFor="course-price">Price</Label><Input id="course-price" value={form.price} onChange={(e) => update('price', e.target.value)} placeholder="₦100K" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
             </div>
             <div className="space-y-2"><Label htmlFor="course-description">Description</Label><Textarea id="course-description" value={form.description} onChange={(e) => update('description', e.target.value)} rows={2} placeholder="Course overview for Teach page" className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id="course-open" checked={!!form.open_for_enrolment} onChange={(e) => update('open_for_enrolment', e.target.checked)} className="rounded border-[var(--border-md)] bg-[var(--elevated)] text-[var(--sungold)]" />
+              <Label htmlFor="course-open" className="cursor-pointer font-mono text-[12px] text-[var(--muted)]">Open for enrolment (notify waitlist when saved)</Label>
+            </div>
             <div className="space-y-2"><Label htmlFor="course-curriculum">Curriculum (one topic per line)</Label><Textarea id="course-curriculum" value={Array.isArray(form.curriculum) ? form.curriculum.join('\n') : (form.curriculum || '')} onChange={(e) => update('curriculum', e.target.value)} rows={6} placeholder={"Module 1: Intro\nModule 2: Build"} className="bg-[var(--elevated)] border-[var(--border-md)]" /></div>
           </div>
           <DialogFooter>

@@ -4,6 +4,7 @@ import { submitContact, fetchPersonalInfo } from '../services/api';
 import { personalInfo as fbInfo } from '../data/mock';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
+import { useLocale } from '../contexts/LocaleContext';
 
 const INPUT_CLASS =
   'w-full bg-[var(--elevated)] border border-[var(--border-md)] px-4 py-[10px] font-body text-[14px] text-[var(--white)] placeholder:text-[var(--subtle)] outline-none transition-all duration-200 rounded-none focus:border-[var(--sungold)] focus:shadow-[var(--shadow-sharp-ring)]';
@@ -15,6 +16,7 @@ const ContactPage = () => {
   const [responseMsg, setResponseMsg] = useState('');
   const [isError, setIsError] = useState(false);
   const { data: info } = useRealtimeQuery('personal_info', fetchPersonalInfo, fbInfo);
+  const { t } = useLocale();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,7 +32,7 @@ const ContactPage = () => {
     setIsError(false);
     try {
       const res = await submitContact(trimmed);
-      setResponseMsg(res?.message || 'Message sent.');
+      setResponseMsg(res?.message || t('contact_success'));
       setSubmitted(true);
       setFormData({ name: '', email: '', subject: '', message: '' });
       setTimeout(() => {
@@ -38,7 +40,7 @@ const ContactPage = () => {
         setResponseMsg('');
       }, 5000);
     } catch (err) {
-      setResponseMsg(err?.message || 'Something went wrong. Please try again.');
+      setResponseMsg(err?.message || t('contact_error'));
       setIsError(true);
       setTimeout(() => {
         setResponseMsg('');
@@ -72,14 +74,14 @@ const ContactPage = () => {
           <div className="flex items-center gap-2 mb-3">
             <div className="w-5 h-px bg-[var(--sungold)]" />
             <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--sungold)]">
-              Contact
+              {t('contact_kicker')}
             </span>
           </div>
           <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-4 text-[var(--white)]" style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}>
-            Let&apos;s Build Something
+            {t('contact_heading')}
           </h1>
           <p className="font-body text-[17px] leading-[1.7] max-w-[560px] text-[var(--muted)]">
-            Got a project in mind, want to enrol in a course, or just want to connect? I&apos;d love to hear from you.
+            {t('contact_subheading')}
           </p>
         </div>
       </section>
@@ -91,7 +93,7 @@ const ContactPage = () => {
             <form onSubmit={handleSubmit} className="flex flex-col gap-5" aria-label="Contact form">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label htmlFor="contact-name" className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">Name</label>
+                  <label htmlFor="contact-name" className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">{t('contact_name')}</label>
                   <input
                     id="contact-name"
                     type="text"
@@ -105,7 +107,7 @@ const ContactPage = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="contact-email" className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">Email</label>
+                  <label htmlFor="contact-email" className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">{t('contact_email')}</label>
                   <input
                     id="contact-email"
                     type="email"
@@ -119,7 +121,7 @@ const ContactPage = () => {
                 </div>
               </div>
               <div>
-                <label htmlFor="contact-subject" className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">Subject</label>
+                <label htmlFor="contact-subject" className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">{t('contact_subject')}</label>
                 <input
                   id="contact-subject"
                   type="text"
@@ -132,7 +134,7 @@ const ContactPage = () => {
                 />
               </div>
               <div>
-                <label htmlFor="contact-message" className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">Message</label>
+                <label htmlFor="contact-message" className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">{t('contact_message')}</label>
                 <textarea
                   id="contact-message"
                   rows={6}
@@ -155,7 +157,7 @@ const ContactPage = () => {
                 }}
                 aria-busy={isSubmitting}
               >
-                {isSubmitting ? 'Sending…' : submitted ? 'Message Sent!' : 'Send Message'} <Send size={14} />
+                {isSubmitting ? '…' : submitted ? '✓' : t('contact_send')} <Send size={14} />
               </button>
               {responseMsg && (
                 <p id="contact-status" role="status" aria-live="polite" className={`font-mono text-[12px] ${isError ? 'text-red-400' : 'text-[var(--sungold)]'}`}>
