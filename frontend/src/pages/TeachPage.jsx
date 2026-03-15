@@ -32,37 +32,46 @@ const CourseCard = ({ course, whatsapp, index = 0 }) => {
   const [hovered, setHovered] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const { t } = useLocale();
+  const isOpen = course.open_for_enrolment === true;
   const accent = COURSE_ACCENTS[index % COURSE_ACCENTS.length];
   const accentColor = accent.color;
 
   return (
     <div
-      className="transition-all duration-200 overflow-hidden border border-[var(--border)] cursor-pointer"
+      className={`transition-all duration-200 overflow-hidden border cursor-pointer ${isOpen ? 'border-[var(--border)]' : 'border-[var(--border)] opacity-75'}`}
       style={{
         background: hovered ? 'var(--elevated)' : 'var(--surface)',
-        borderLeft: `3px solid ${accentColor}`
+        borderLeft: `3px solid ${isOpen ? accentColor : 'var(--border-md)'}`
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       <div
-        className="p-5 grid grid-cols-[1fr_auto] items-center gap-4"
+        className={`p-5 grid grid-cols-[1fr_auto] items-center gap-4 ${!isOpen ? 'text-[var(--muted)]' : ''}`}
         onClick={() => setExpanded(!expanded)}
       >
         <div>
-          <Badge variant={accent.badge} className="mb-2">
-            {course.badge}
-          </Badge>
-          <h3 className="font-display text-[15px] font-semibold mb-1 text-[var(--white)]">
+          <div className="flex flex-wrap items-center gap-2 mb-2">
+            <Badge variant={accent.badge} className={!isOpen ? 'opacity-80' : ''}>
+              {course.badge}
+            </Badge>
+            <span
+              className={`font-mono text-[10px] tracking-[0.1em] uppercase px-2 py-0.5 border ${isOpen ? 'text-[var(--sungold)] border-[var(--sungold)]/50 bg-[var(--sungold)]/10' : 'text-[var(--subtle)] border-[var(--border-md)] bg-[var(--elevated)]'}`}
+              aria-label={isOpen ? 'Open for enrolment' : 'Currently closed'}
+            >
+              {isOpen ? 'Open' : 'Closed'}
+            </span>
+          </div>
+          <h3 className={`font-display text-[15px] font-semibold mb-1 ${isOpen ? 'text-[var(--white)]' : 'text-[var(--muted)]'}`}>
             {course.name}
           </h3>
           <p className="font-mono text-[11px] text-[var(--muted)]">{course.duration}</p>
-          <p className="font-body text-[13px] mt-2 text-[var(--subtle)]">{course.description}</p>
+          <p className={`font-body text-[13px] mt-2 ${isOpen ? 'text-[var(--subtle)]' : 'text-[var(--dim)]'}`}>{course.description}</p>
         </div>
         <div className="flex flex-col items-end gap-2">
           <span
-            className="font-display text-[20px] font-extrabold whitespace-nowrap"
-            style={{ color: accentColor }}
+            className={`font-display text-[20px] font-extrabold whitespace-nowrap ${isOpen ? '' : 'text-[var(--muted)]'}`}
+            style={isOpen ? { color: accentColor } : undefined}
           >
             {course.price}
           </span>
@@ -83,15 +92,19 @@ const CourseCard = ({ course, whatsapp, index = 0 }) => {
                 </li>
               ))}
             </ul>
-            <a
-              href={whatsapp}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary inline-flex items-center gap-2 font-display text-[12px] font-semibold px-4 py-2 mt-4 no-underline border-0 rounded-none"
-              style={{ background: accentColor, color: accentColor === 'var(--sungold)' ? 'var(--void)' : 'var(--white)' }}
-            >
-              <MessageSquare size={12} /> {t('teach_enrol_via_whatsapp')}
-            </a>
+            {isOpen ? (
+              <a
+                href={whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary inline-flex items-center gap-2 font-display text-[12px] font-semibold px-4 py-2 mt-4 no-underline border-0 rounded-none"
+                style={{ background: accentColor, color: accentColor === 'var(--sungold)' ? 'var(--void)' : 'var(--white)' }}
+              >
+                <MessageSquare size={12} /> {t('teach_enrol_via_whatsapp')}
+              </a>
+            ) : (
+              <p className="font-mono text-[11px] text-[var(--subtle)] mt-4">{t('teach_join_waitlist_hint')}</p>
+            )}
           </div>
         </div>
       )}
