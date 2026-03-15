@@ -45,18 +45,12 @@ The portfolio is the proof: real products, real constraints, real users — ofte
 <pre style="background:#1a1a1a;color:#39ff14;padding:12px 16px;border-radius:4px;font-family:ui-monospace,monospace;font-size:14px;margin:16px 0;overflow-x:auto;"><code>$ ./links.sh</code></pre>
 
 <p align="center">
-  <a href="https://ajibolagenius.pro"><img src="https://img.shields.io/badge/Portfolio-ajibolagenius.pro-E8A020?style=flat-square&logo=googlechrome" alt="Portfolio" /></a>
+  <a href="https://ajibolagenius.pro"><img src="https://img.shields.io/badge/Portfolio-ajibolagenius.pro-E8A020?style=flat-square&logo=googlechrome" height="30" alt="Portfolio" /></a>
   &nbsp;
-  <a href="https://twitter.com/ajibolagenius"><img src="https://img.shields.io/badge/Twitter-@ajibolagenius-1DA1F2?style=flat-square&logo=twitter" alt="Twitter" /></a>
+  <a href="https://twitter.com/ajibolagenius"><img src="https://img.shields.io/badge/Twitter-@ajibolagenius-1DA1F2?style=flat-square&logo=twitter" height="30" alt="Twitter" /></a>
   &nbsp;
-  <a href="https://github.com/ajibolagenius"><img src="https://img.shields.io/badge/GitHub-ajibolagenius-181717?style=flat-square&logo=github" alt="GitHub" /></a>
+  <a href="https://github.com/ajibolagenius"><img src="https://img.shields.io/badge/GitHub-ajibolagenius-181717?style=flat-square&logo=github" height="30" alt="GitHub" /></a>
 </p>
-
-| Link | Where |
-|:--|:--|
-| **Portfolio** | [ajibolagenius.pro](https://ajibolagenius.pro) *(or see pinned repos)* |
-| **Twitter** | [@ajibolagenius](https://twitter.com/ajibolagenius) |
-| **Courses & mentorship** | Via portfolio → Teach |
 
 ---
 
@@ -71,16 +65,33 @@ The portfolio is the proof: real products, real constraints, real users — ofte
   <img src="https://img.shields.io/badge/Three.js-000000?style=flat-square&logo=three.js" alt="Three.js" />
   <img src="https://img.shields.io/badge/Framer_Motion-0055FF?style=flat-square" alt="Framer Motion" />
   <img src="https://img.shields.io/badge/GSAP-88CE02?style=flat-square" alt="GSAP" />
+  <img src="https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel" alt="Vercel" />
+  <img src="https://img.shields.io/badge/Resend-000000?style=flat-square&logo=resend" alt="Resend" />
+  <img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github" alt="GitHub" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker" alt="Docker" />
+  <img src="https://img.shields.io/badge/GCP-4285F4?style=flat-square&logo=google-cloud" alt="GCP" />
+  <img src="https://img.shields.io/badge/MacOS-000000?style=flat-square&logo=apple" alt="MacOS" />
+  <img src="https://img.shields.io/badge/Windows-0078D6?style=flat-square&logo=windows" alt="Windows" />
+  <img src="https://img.shields.io/badge/iOS-000000?style=flat-square&logo=apple" alt="iOS" />
+  <img src="https://img.shields.io/badge/Android-3DDC84?style=flat-square&logo=android" alt="Android" />
+  <img src="https://img.shields.io/badge/Flutter-02569B?style=flat-square&logo=flutter" alt="Flutter" />
+  <img src="https://img.shields.io/badge/React_Native-61DAFB?style=flat-square&logo=react" alt="React Native" />
+  <img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python" alt="Python" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript" alt="JavaScript" />
+  <img src="https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5" alt="HTML5" />
+  <img src="https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3" alt="CSS3" />
+  <img src="https://img.shields.io/badge/Sass-CC6699?style=flat-square&logo=sass" alt="Sass" />
 </p>
 
-*"From Nigeria, for the world."*
+<!-- *"From Nigeria, for the world."* -->
 
 ---
 
-<pre style="background:#1a1a1a;color:#39ff14;padding:12px 16px;border-radius:4px;font-family:ui-monospace,monospace;font-size:14px;margin:16px 0;overflow-x:auto;"><code>$ tail -n 2 README.story</code></pre>
+<pre style="background:#1a1a1a;color:#39ff14;padding:12px 16px;border-radius:4px;font-family:ui-monospace,monospace;font-size:14px;margin:16px 0;overflow-x:auto;"><code>$ tail -n 2 README.story && echo 'This README is the story so far. \n The rest is in the repos.'</code></pre>
 
-**This README is the story so far.**
-*The rest is in the repos.*
+<!-- **This README is the story so far.**
+*The rest is in the repos.* -->
 
 ---
 
