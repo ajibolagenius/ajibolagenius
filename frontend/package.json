@@ -72,7 +72,9 @@
     "seed:timeline": "node scripts/seed-timeline.js",
     "seed:education": "node scripts/seed-education.js",
     "seed:cv": "node scripts/seed-timeline.js && node scripts/seed-education.js",
-    "generate:sitemap-rss": "node scripts/generate-sitemap-rss.js"
+    "generate:sitemap-rss": "node scripts/generate-sitemap-rss.js",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "browserslist": {
     "production": [
@@ -88,6 +90,7 @@
   },
   "devDependencies": {
     "@eslint/js": "9.23.0",
+    "@playwright/test": "^1.58.2",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "eslint": "9.23.0",
@@ -98,7 +101,8 @@
     "globals": "15.15.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
-    "vite": "^6.0.3"
+    "vite": "^6.0.3",
+    "vite-plugin-pwa": "^1.2.0"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

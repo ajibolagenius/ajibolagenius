@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
  * - Uses native loading="lazy" and decoding="async" by default.
  * - Set priority={true} for above-the-fold / LCP images (eager load + fetchpriority="high").
  * - Optional fade-in on load to reduce visual pop-in.
+ * - Pass sizes for responsive hints (used with srcset if provided; improves LCP).
  */
 const OptimizedImage = React.forwardRef(
   (
@@ -17,6 +18,7 @@ const OptimizedImage = React.forwardRef(
       decoding = 'async',
       priority = false,
       fadeIn = false,
+      sizes,
       onLoad,
       onError,
       ...rest
@@ -43,6 +45,7 @@ const OptimizedImage = React.forwardRef(
         loading={loading}
         decoding={decoding}
         fetchPriority={fetchPriority}
+        sizes={sizes}
         className={cn(
           fadeIn && !loaded && 'opacity-0',
           fadeIn && loaded && 'opacity-100 transition-opacity duration-300',

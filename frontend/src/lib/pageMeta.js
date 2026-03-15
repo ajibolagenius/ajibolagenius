@@ -96,4 +96,30 @@ export function resetPageMeta() {
   setPageMeta({});
 }
 
+const STRUCTURED_DATA_ID = 'page-structured-data';
+
+/**
+ * Set or clear JSON-LD structured data (one script tag). Call with null to remove.
+ * @param {object | null} data - JSON-LD object (e.g. Person, BlogPosting, Course)
+ */
+export function setStructuredData(data) {
+  let el = document.getElementById(STRUCTURED_DATA_ID);
+  if (data == null) {
+    if (el) el.remove();
+    return;
+  }
+  if (!el) {
+    el = document.createElement('script');
+    el.id = STRUCTURED_DATA_ID;
+    el.type = 'application/ld+json';
+    document.head.appendChild(el);
+  }
+  el.textContent = JSON.stringify(data);
+}
+
+/** Clear structured data (e.g. on route leave). */
+export function clearStructuredData() {
+  setStructuredData(null);
+}
+
 export { SITE_NAME, DEFAULT_TITLE, DEFAULT_DESCRIPTION, DEFAULT_IMAGE, OG_TYPE_WEBSITE, OG_TYPE_ARTICLE };

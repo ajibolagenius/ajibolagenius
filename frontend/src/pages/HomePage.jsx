@@ -4,12 +4,17 @@ import About from '../components/portfolio/About';
 import Projects from '../components/portfolio/Projects';
 import HomeCTA from '../components/portfolio/HomeCTA';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { buildPersonSchema } from '../lib/structuredData';
 
 /**
  * Home — Hero (with ticker) · About (stats + Skills & Tools) · Featured projects · CTA
  */
 const HomePage = () => {
-  usePageMeta({ title: 'Design & Engineering', description: 'Developer and designer based in Nigeria, building for a global audience. I teach what I know and ship what I learn.' });
+  usePageMeta({
+    title: 'Design & Engineering',
+    description: 'Developer and designer based in Nigeria, building for a global audience. I teach what I know and ship what I learn.',
+    structuredData: buildPersonSchema(),
+  });
   return (
     <>
       <Hero />

@@ -7,6 +7,7 @@ import SectionKicker from '../components/portfolio/SectionKicker';
 import SortSelect from '../components/portfolio/SortSelect';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
+import { buildTeachPageSchema } from '../lib/structuredData';
 import { byString, byPrice, applySort } from '../lib/sortHelpers';
 import { paginate } from '../lib/paginate';
 import ListPagination from '../components/portfolio/ListPagination';
@@ -147,6 +148,7 @@ const TeachPage = () => {
   usePageMeta({
     title: 'Courses & Mentorship',
     description: 'I teach what I know and share what I learn. Remote courses designed for the Nigerian developer ready to level up.',
+    structuredData: buildTeachPageSchema(displayCourses),
     canonical: '/teach',
   });
 

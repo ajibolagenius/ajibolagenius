@@ -7,6 +7,7 @@ import Badge from '../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { track } from '../services/analytics';
+import { buildBlogPostingSchema } from '../lib/structuredData';
 
 /** Detect if body is HTML from WYSIWYG (e.g. starts with <p> or contains tags). */
 function isHtmlBody(body) {
@@ -150,6 +151,7 @@ const BlogPostPage = () => {
           image: post.og_image || undefined,
           canonical: `/writing/${post.slug || slug}`,
           ogType: 'article',
+          structuredData: buildBlogPostingSchema(post),
         }
       : { title: 'Article', description: 'Article by Ajibola Akelebe.', canonical: slug ? `/writing/${slug}` : '/writing' }
   );
