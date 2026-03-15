@@ -4,9 +4,9 @@
   <img src="https://img.shields.io/badge/Location-Nigeria-22C55E?style=for-the-badge" alt="Nigeria" />
 </p>
 
-<p align="center">
+<!-- <p align="center">
   <strong>From Nigeria, for the world.</strong>
-</p>
+</p> -->
 
 ---
 
@@ -82,6 +82,8 @@ The portfolio is the proof: real products, real constraints, real users — ofte
 **This README is the story so far.**
 *The rest is in the repos.*
 
-<p align="center">
+---
+
+<!-- <p align="center">
   <img src="https://img.shields.io/badge/Don_Genius-Portfolio-E8A020?style=for-the-badge" alt="DON_GENIUS" />
-</p>
+</p> -->
