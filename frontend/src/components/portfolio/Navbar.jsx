@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { navLinks } from '../../data/mock';
 import { NAV_HEIGHT } from '../../constants';
@@ -18,7 +17,6 @@ import { useLocale } from '../../contexts/LocaleContext';
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [scrollPct, setScrollPct] = useState(0);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useLocale();
@@ -37,7 +35,6 @@ const Navbar = () => {
 
   const handleNavClick = (e, href) => {
     e.preventDefault();
-    setMobileOpen(false);
     navigate(href);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -102,48 +99,13 @@ const Navbar = () => {
             </span>
           </span>
 
-          <button
-            type="button"
-            className="md:hidden flex items-center justify-center w-10 h-10 border-none bg-transparent cursor-pointer text-[var(--white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={mobileOpen}
-            aria-controls="mobile-nav-menu"
-          >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          {/* Theme toggle visible on mobile now that hamburger is gone */}
+          <span className="flex items-center gap-2 md:hidden">
+            <ThemeToggle />
+          </span>
         </div>
 
-        {mobileOpen && (
-          <div
-            id="mobile-nav-menu"
-            className="md:hidden absolute left-0 right-0 py-6 px-4 backdrop-blur-[20px] border-b border-[var(--border)]"
-            style={{ top: `${NAV_HEIGHT}px`, background: 'var(--nav-mobile-bg)' }}
-            role="region"
-            aria-label="Mobile menu"
-          >
-            <ul className="list-none m-0 p-0 flex flex-col gap-4">
-              {navLinks.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    onClick={(e) => handleNavClick(e, link.href)}
-                    className="font-mono text-[12px] tracking-[0.08em] no-underline transition-colors duration-200 hover:text-[var(--sungold)]"
-                    style={{
-                      color: isActive(link.href) ? 'var(--sungold)' : 'var(--muted)',
-                    }}
-                  >
-                    {t('nav_' + link.href.slice(1)) || link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-            <div className="flex items-center gap-3 mt-6 pt-4 border-t border-[var(--border)]">
-              <span className="font-mono text-[11px] tracking-[0.08em] text-[var(--muted)]">Theme</span>
-              <ThemeToggle />
-            </div>
-          </div>
-        )}
+        {/* mobileOpen menu removed in favour of BottomNav */}
       </nav>
     </>
   );

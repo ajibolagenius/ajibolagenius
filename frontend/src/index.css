@@ -163,6 +163,7 @@ body {
   color: var(--white);
   line-height: 1.7;
   overflow-x: hidden;
+  overscroll-behavior-y: none;
 }
 
 /* — Geometric grid background (Design System §08 Background) — */
@@ -177,6 +178,11 @@ body::before {
   background-position: 0 0;
   pointer-events: none;
   z-index: 0;
+}
+
+/* Base safe area support for standard iOS notches */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* ============================================
