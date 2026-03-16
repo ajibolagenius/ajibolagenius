@@ -2,11 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Download, Briefcase, GraduationCap, Award, Wrench, Printer } from 'lucide-react';
 import { fetchTimeline, fetchEducation, fetchCertifications, fetchSkills } from '../services/api';
 import { techStackForCV } from '../data/techStack';
+import { cvData } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { CVSkeleton } from '../components/portfolio/SkeletonLayouts';
+import { Skeleton } from '../components/ui/skeleton';
 
 const ACCENT_COLORS = {
   sungold: { bg: 'var(--sungold)', ring: 'rgba(232,160,32,0.2)' },
@@ -16,7 +18,11 @@ const ACCENT_COLORS = {
 };
 
 /** PDF URL for download - set in env as VITE_CV_PDF_URL or override in cvData */
-const getPdfUrl = () => import.meta.env?.VITE_CV_PDF_URL || (typeof cvData?.pdfUrl === 'string' ? cvData.pdfUrl : '#');
+const getPdfUrl = () => {
+  const envUrl = import.meta.env?.VITE_CV_PDF_URL;
+  if (envUrl) return envUrl;
+  return (cvData && typeof cvData.pdfUrl === 'string') ? cvData.pdfUrl : '#';
+};
 
 const CVPage = () => {
   const [visible, setVisible] = useState(false);
@@ -52,8 +58,12 @@ const CVPage = () => {
 
   return (
     <>
-      <section className="pt-12 pb-8 md:pt-20 md:pb-10 border-b border-[var(--border)]">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
+      <section className="relative pt-12 pb-8 md:pt-20 md:pb-10 border-b border-[var(--border)] overflow-hidden">
+        {/* Nebula Glow Backdrop */}
+        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[120%] bg-[var(--nebula)] opacity-[0.05] blur-[160px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[80%] bg-[var(--sungold)] opacity-[0.03] blur-[140px] rounded-full pointer-events-none" />
+
+        <div className="relative z-10 max-w-[1160px] mx-auto px-4 md:px-8">
           {loading ? (
             <>
               <Skeleton className="w-[100px] h-[11px] mb-3" />
@@ -76,14 +86,14 @@ const CVPage = () => {
                 Experience & Skills
               </h1>
               <p className="font-body text-[17px] leading-[1.7] max-w-[560px] mb-8 text-[var(--muted)]">
-                A detailed overview of my journey, skills, tools, and qualifications.
+                A detailed overview of my journey, technical stack, and design philosophy.
               </p>
               <div className="flex flex-wrap gap-3">
                 <a
                   href={getPdfUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="no-print btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[11px] no-underline bg-[var(--sungold)] text-[var(--void)] border-0 rounded-none"
+                  className="no-print btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[11px] no-underline bg-[var(--sungold)] text-[var(--void)] border-0 rounded-none hover:opacity-90 transition-opacity"
                 >
                   <Download size={14} /> Download PDF
                 </a>
@@ -100,8 +110,12 @@ const CVPage = () => {
         </div>
       </section>
 
-      <section className="py-12 md:py-16" ref={sectionRef}>
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
+      <section className="py-12 md:py-16 relative overflow-hidden" ref={sectionRef}>
+        {/* Subtle grid accent */}
+        <div className="absolute inset-0 opacity-[0.1] pointer-events-none" 
+             style={{ backgroundImage: 'linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)', backgroundSize: '80px 80px' }} />
+
+        <div className="relative z-10 max-w-[1160px] mx-auto px-4 md:px-8">
           {loading ? (
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-12 lg:gap-16">
               <div>
@@ -148,7 +162,7 @@ const CVPage = () => {
                     return (
                       <div
                         key={i}
-                        className="relative mb-8 last:mb-0 transition-all duration-500"
+                        className="relative mb-8 last:mb-0 transition-all duration-500 group/timeline"
                         style={{
                           opacity: visible ? 1 : 0,
                           transform: visible ? 'translateY(0)' : 'translateY(20px)',
@@ -156,7 +170,7 @@ const CVPage = () => {
                         }}
                       >
                         <div
-                          className="absolute -left-[27px] top-[5px] w-[10px] h-[10px] border-2 border-[var(--void)]"
+                          className="absolute -left-[27px] top-[5px] w-[10px] h-[10px] border-2 border-[var(--void)] z-10"
                           style={{
                             background: accent.bg,
                             boxShadow: `0 0 0 3px ${accent.ring}`,
@@ -164,7 +178,7 @@ const CVPage = () => {
                           }}
                         />
                         <div className="font-mono text-[11px] mb-1 text-[var(--stardust)]">{item.year}</div>
-                        <h3 className="font-display text-[15px] font-semibold mb-1 text-[var(--white)]">{item.title}</h3>
+                        <h3 className="font-display text-[15px] font-semibold mb-1 text-[var(--white)] group-hover/timeline:text-[var(--sungold)] transition-colors">{item.title}</h3>
                         <p className="font-body text-[13px] leading-[1.6] text-[var(--muted)]">{item.body}</p>
                       </div>
                     );
@@ -178,9 +192,13 @@ const CVPage = () => {
                       Education
                     </span>
                   </div>
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-4">
                     {displayEducation.map((edu, i) => (
-                      <div key={edu.id ?? i} className="p-5 bg-[var(--surface)] border border-[var(--border)]">
+                      <div key={edu.id ?? i} className="relative p-5 bg-[var(--surface)] border border-[var(--border)] group/edu">
+                        {/* Technical corner accents */}
+                        <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-[var(--violet)] opacity-0 group-hover/edu:opacity-60 transition-opacity" />
+                        <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-[var(--violet)] opacity-0 group-hover/edu:opacity-60 transition-opacity" />
+
                         <div className="font-mono text-[11px] mb-1 text-[var(--stardust)]">{edu.year}</div>
                         <h3 className="font-display text-[15px] font-semibold mb-1 text-[var(--white)]">{edu.degree}</h3>
                         <p className="font-body text-[13px] text-[var(--muted)]">{edu.school}</p>
@@ -201,7 +219,7 @@ const CVPage = () => {
                   </div>
                   <div className="flex flex-col gap-2">
                     {displayCertifications.map((cert, i) => (
-                      <div key={i} className="flex items-center gap-3 p-3 bg-[var(--surface)] border border-[var(--border)]">
+                      <div key={i} className="flex items-center gap-3 p-3 bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--border-hi)] transition-colors">
                         <span className="w-1.5 h-1.5 flex-shrink-0 bg-[var(--sungold)]" />
                         <span className="font-body text-[13px] text-[var(--muted)]">{cert}</span>
                       </div>
@@ -218,14 +236,14 @@ const CVPage = () => {
                       Skills with proficiency
                     </span>
                   </div>
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-5">
                     {skills.map((skill, i) => (
                       <div key={i}>
-                        <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center justify-between mb-1.5">
                           <span className="font-mono text-[12px] text-[var(--muted)]">{skill.name}</span>
                           <span className="font-mono text-[11px] text-[var(--subtle)]">{skill.level}%</span>
                         </div>
-                        <div className="h-[3px] bg-[var(--elevated)] overflow-hidden">
+                        <div className="h-[2px] bg-[var(--elevated)] overflow-hidden">
                           <div
                             className="h-full bg-[var(--sungold)] transition-all duration-1000"
                             style={{
@@ -246,11 +264,12 @@ const CVPage = () => {
                       Tools & Stack
                     </span>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-3">
                     {techStackForCV.map((tool, i) => (
-                      <div key={i} className="p-4 bg-[var(--surface)] border border-[var(--border)]">
-                        <div className="font-display text-[13px] font-semibold text-[var(--white)]">{tool.name}</div>
-                        <Badge variant={BADGE_VARIANTS[i % BADGE_VARIANTS.length]} className="mt-2">
+                      <div key={i} className="relative p-4 bg-[var(--surface)] border border-[var(--border)] group/tool overflow-hidden">
+                        <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-[var(--sungold)] opacity-0 group-hover/tool:opacity-100 transition-opacity" />
+                        <div className="font-display text-[13px] font-semibold text-[var(--white)] transition-colors group-hover:text-[var(--sungold)]">{tool.name}</div>
+                        <Badge variant={BADGE_VARIANTS[i % BADGE_VARIANTS.length]} className="mt-2 scale-90 origin-left opacity-80 group-hover:opacity-100">
                           {tool.category}
                         </Badge>
                       </div>
