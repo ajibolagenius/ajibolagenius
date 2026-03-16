@@ -68,9 +68,7 @@ const WorkDetailPage = () => {
       ? {
           title: project.name,
           description: project.description || 'Project by Ajibola Akelebe.',
-          image: (project.screenshots && project.screenshots[0]) 
-            ? (typeof project.screenshots[0] === 'string' ? project.screenshots[0] : project.screenshots[0].url) 
-            : undefined,
+          image: `https://peincqeqcufbkoccyneo.supabase.co/functions/v1/og-image?title=${encodeURIComponent(project.name)}&category=${encodeURIComponent('Project')}`,
           canonical: `/work/${project.slug || slug}`,
         }
       : { 

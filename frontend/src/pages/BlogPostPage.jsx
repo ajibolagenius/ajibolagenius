@@ -172,7 +172,7 @@ const BlogPostPage = () => {
       ? {
           title: post.title,
           description: post.excerpt || post.description || 'Read this article by Ajibola Akelebe.',
-          image: post.cover_image || post.image,
+          image: `https://peincqeqcufbkoccyneo.supabase.co/functions/v1/og-image?title=${encodeURIComponent(post.title)}&category=${encodeURIComponent(post.category || 'Thought')}`,
           ogType: 'article',
           canonical: `/writing/${post.slug || slug}`,
           structuredData: buildBlogPostingSchema(post),
@@ -186,7 +186,7 @@ const BlogPostPage = () => {
 
   const handleWhatsAppShare = () => {
     const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(`Check out this article: ${post?.title} - `);
+    const text = encodeURIComponent(`${post?.title} - `);
     window.open(`https://wa.me/?text=${text}${url}`, '_blank');
   };
 
