@@ -1,11 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { aboutData, skills, homeAboutSnapshot } from '../../data/mock';
-// About section uses static data from mock - will integrate with backend personal-info if needed
+import { fetchPersonalInfo } from '../../services/api';
+import { personalInfo as fallbackInfo } from '../../data/mock';
+import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
 
 const About = ({ snapshot = false }) => {
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
-  const bodyCopy = snapshot ? homeAboutSnapshot : aboutData.body;
+  const { data: info } = useRealtimeQuery('personal_info', fetchPersonalInfo, fallbackInfo);
+
+  // Use fetched description if available, otherwise fall back to mock
+  const bodyCopy = snapshot
+    ? (info?.description || homeAboutSnapshot)
+    : (info?.description || aboutData.body);
 
   useEffect(() => {
     const observer = new IntersectionObserver(

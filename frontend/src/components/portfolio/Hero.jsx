@@ -5,6 +5,7 @@ import { fetchPersonalInfo } from '../../services/api';
 import { personalInfo as fallbackInfo, tickerItems } from '../../data/mock';
 import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
 import { useLocale } from '../../contexts/LocaleContext';
+import GitHubGraph from './GitHubGraph';
 
 const Ticker = () => {
   const items = [...tickerItems, ...tickerItems];
@@ -67,7 +68,7 @@ const Hero = () => {
               style={{ color: 'var(--sungold)' }}
             >
               <span className="text-[7px]">◆</span>
-              Portfolio 2024
+              Portfolio {new Date().getFullYear()}
             </div>
 
             <h1
@@ -105,6 +106,9 @@ const Hero = () => {
                 {t('hero_download_cv')}
               </Link>
             </div>
+
+            {/* GitHub contribution graph */}
+            <GitHubGraph username="ajibolagenius" />
           </div>
         </div>
       </div>
