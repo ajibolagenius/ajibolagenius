@@ -23,6 +23,7 @@ const COURSE_ACCENTS = [
 ];
 
 const TEACH_SORT_OPTIONS = [
+  { value: 'default', label: 'Open first, then name' },
   { value: 'name-asc', label: 'Name A–Z' },
   { value: 'name-desc', label: 'Name Z–A' },
   { value: 'price-asc', label: 'Price low–high' },
@@ -168,9 +169,19 @@ const TeachPage = () => {
   const displayTestimonials = Array.isArray(testimonials) && testimonials.length > 0 ? testimonials : [];
   const whatsapp = personalInfo?.social?.whatsapp || '';
 
-  const [sortBy, setSortBy] = useState('name-asc');
+  const [sortBy, setSortBy] = useState('default');
   const [page, setPage] = useState(1);
   const sortedCourses = useMemo(() => {
+    if (sortBy === 'default') {
+      return applySort(displayCourses, (a, b) => {
+        const aOpen = a.open_for_enrolment === true ? 1 : 0;
+        const bOpen = b.open_for_enrolment === true ? 1 : 0;
+        if (bOpen !== aOpen) return bOpen - aOpen;
+        const byBadge = byString('badge', 'asc')(a, b);
+        if (byBadge !== 0) return byBadge;
+        return byString('name', 'asc')(a, b);
+      });
+    }
     const comp = sortBy === 'name-asc' ? byString('name', 'asc')
       : sortBy === 'name-desc' ? byString('name', 'desc')
       : sortBy === 'price-asc' ? byPrice('price', 'asc')

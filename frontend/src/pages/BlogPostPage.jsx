@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Clock, Copy, Share2, Check, Twitter, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Clock, Copy, Share2, Check, Twitter, MessageCircle, List, ChevronDown, ChevronUp } from 'lucide-react';
 import { fetchBlogPost, fetchBlogPosts } from '../services/api';
 import Badge from '../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../constants';
@@ -129,6 +129,7 @@ const BlogPostPage = () => {
 
   const [nextPost, setNextPost] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [tocOpen, setTocOpen] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -356,23 +357,9 @@ const BlogPostPage = () => {
         </div>
       </section>
 
-      {/* Article body + TOC */}
+      {/* Article body + TOC: article first so body isn't constrained; TOC right on desktop, collapsible on mobile */}
       <section className="py-12 md:py-16">
-        <div className="max-w-[720px] mx-auto px-4 md:px-8 flex flex-col md:flex-row md:gap-12">
-          {tocEntries.length > 0 && (
-            <nav className="mb-8 md:mb-0 md:w-48 md:flex-shrink-0 md:sticky md:top-24 self-start" aria-label="Table of contents">
-              <p className="font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--subtle)] mb-3">On this page</p>
-              <ul className="list-none p-0 m-0 space-y-2">
-                {tocEntries.map(({ id, text, level }) => (
-                  <li key={id} style={{ paddingLeft: level > 2 ? 12 : 0 }}>
-                    <a href={`#${id}`} className="font-mono text-[12px] text-[var(--muted)] hover:text-[var(--sungold)] no-underline block py-0.5">
-                      {text}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          )}
+        <div className="max-w-[720px] md:max-w-[960px] mx-auto px-4 md:px-8 flex flex-col md:flex-row md:items-start md:gap-16">
           <div ref={articleRef} className="min-w-0 flex-1">
             {post.excerpt && (
               <div className="mb-10 pl-4 border-l-4 border-[var(--sungold)]">
@@ -383,6 +370,45 @@ const BlogPostPage = () => {
             )}
             <ArticleBody body={post.body} htmlWithIds={isHtmlBody(post.body) ? bodyWithIds : undefined} />
           </div>
+
+          {tocEntries.length > 0 && (
+            <nav
+              className="md:w-52 md:flex-shrink-0 md:sticky md:top-24 border border-[var(--border)] bg-[var(--surface)] md:bg-transparent md:border-0"
+              aria-label="Table of contents"
+            >
+              {/* Mobile: collapsible so body is not pushed down */}
+              <button
+                type="button"
+                onClick={() => setTocOpen((o) => !o)}
+                className="md:hidden w-full flex items-center justify-between gap-2 py-3 px-4 font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--subtle)] hover:text-[var(--sungold)] transition-colors border-0 bg-transparent cursor-pointer"
+                aria-expanded={tocOpen}
+                aria-controls="toc-list"
+              >
+                <span className="flex items-center gap-2">
+                  <List size={14} aria-hidden /> On this page
+                </span>
+                {tocOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              </button>
+              <div id="toc-list" className={tocOpen ? 'block' : 'hidden md:block'}>
+                <p className="font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--subtle)] mb-3 pt-0 md:pt-0 px-4 md:px-0 pb-2 md:pb-3 border-b border-[var(--border)] md:border-0">
+                  On this page
+                </p>
+                <ul className="list-none p-0 m-0 space-y-2 py-4 md:py-0 md:pt-0 px-4 md:px-0">
+                  {tocEntries.map(({ id, text, level }) => (
+                    <li key={id} style={{ paddingLeft: level > 2 ? 12 : 0 }}>
+                      <a
+                        href={`#${id}`}
+                        onClick={() => setTocOpen(false)}
+                        className="font-mono text-[12px] text-[var(--muted)] hover:text-[var(--sungold)] no-underline block py-0.5"
+                      >
+                        {text}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </nav>
+          )}
         </div>
       </section>
 
