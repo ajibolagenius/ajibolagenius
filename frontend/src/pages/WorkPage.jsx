@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowUpRight, ExternalLink } from 'lucide-react';
 import { fetchProjects } from '../services/api';
@@ -224,14 +225,28 @@ const WorkPage = () => {
         <div className="absolute bottom-[-10%] right-[-5%] w-[35%] h-[55%] bg-[var(--sungold)] opacity-[0.02] blur-[120px] rounded-full pointer-events-none" />
 
         <div className="max-w-[1160px] mx-auto px-4 md:px-8 relative z-10">
-          <SectionKicker label="Projects" accent="sungold" />
-          <h1 className="font-display font-extrabold leading-[0.95] tracking-[-0.04em] mb-6 text-[var(--white)] max-w-[800px]" style={{ fontSize: 'clamp(44px, 10vw, 84px)' }}>
-            Selected Work
-          </h1>
-          <p className="font-body text-[19px] leading-[1.6] max-w-[560px] text-[var(--muted)]">
-            A collection of products and experiments — from social platforms to creative coding explorations.
-          </p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <SectionKicker label="Projects" accent="sungold" />
+            <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--white)] max-w-[800px]" style={{ fontSize: 'clamp(40px, 8vw, 80px)' }}>
+              Selected Work
+            </h1>
+            <p className="font-body text-[17px] leading-[1.7] max-w-[600px] text-[var(--muted)]">
+              A collection of architectural products, creative experiences, and technical experiments—fusing engineering precision with African design identity.
+            </p>
+          </motion.div>
         </div>
+
+        {/* Technical Scanline effect */}
+        <motion.div 
+          initial={{ top: '-10%' }}
+          animate={{ top: '110%' }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+          className="absolute left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--sungold)]/10 to-transparent pointer-events-none z-0"
+        />
       </section>
 
       <section className="py-12 md:py-16">

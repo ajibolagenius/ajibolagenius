@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { MessageSquare, Quote, ChevronDown, ChevronUp, Bell } from 'lucide-react';
 import { fetchCourses, fetchTestimonials, fetchPersonalInfo, submitCourseWaitlist } from '../services/api';
 import { faqItems } from '../data/mock';
@@ -221,47 +222,61 @@ const TeachPage = () => {
         <div className="absolute bottom-[-10%] left-[-5%] w-[30%] h-[50%] bg-[var(--sungold)] opacity-[0.03] blur-[100px] rounded-full pointer-events-none" />
         
         <div className="max-w-[1160px] mx-auto px-4 md:px-8 relative z-10">
-          <SectionKicker label="Teach" accent="sungold" />
-          <h1 className="font-display font-extrabold leading-[0.95] tracking-[-0.04em] mb-6 text-[var(--white)] max-w-[800px]" style={{ fontSize: 'clamp(40px, 8vw, 72px)' }}>
-            {t('teach_heading')}
-          </h1>
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-8 md:gap-16 items-start">
-            <div>
-              <p className="font-body text-[19px] leading-[1.6] mb-6 text-[var(--white)] font-medium">
-                {t('teach_subheading')}
-              </p>
-              <p className="font-body text-[15px] leading-[1.8] text-[var(--muted)]">
-                Start with <em>why</em>, not just <em>what</em>. Projects beat theory every time. Community is everything — the groups outlast the courses. Pricing is set for Nigerian reality, not Silicon Valley budgets.
-              </p>
-              <div className="flex flex-wrap items-center gap-6 mt-8">
-                <div className="flex flex-col">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--stardust)] mb-1">Students</span>
-                  <span className="font-display text-[20px] font-bold text-[var(--white)]">300+</span>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <SectionKicker label="Teach" accent="sungold" />
+            <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--white)] max-w-[800px]" style={{ fontSize: 'clamp(40px, 8vw, 80px)' }}>
+              {t('teach_heading')}
+            </h1>
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-8 md:gap-16 items-start">
+              <div>
+                <p className="font-body text-[19px] leading-[1.6] mb-6 text-[var(--white)] font-medium">
+                  {t('teach_subheading')}
+                </p>
+                <p className="font-body text-[17px] leading-[1.7] max-w-[600px] text-[var(--muted)]">
+                  Start with <em>why</em>, not just <em>what</em>. Projects beat theory every time. Community is everything — the groups outlast the courses. Pricing is set for Nigerian reality, not Silicon Valley budgets.
+                </p>
+                <div className="flex flex-wrap items-center gap-6 mt-8">
+                  <div className="flex flex-col">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--stardust)] mb-1">Students</span>
+                    <span className="font-display text-[20px] font-bold text-[var(--white)]">300+</span>
+                  </div>
+                  <div className="w-px h-8 bg-[var(--border)]" />
+                  <div className="flex flex-col">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--stardust)] mb-1">Format</span>
+                    <span className="font-display text-[20px] font-bold text-[var(--white)]">Remote</span>
+                  </div>
+                  <div className="w-px h-8 bg-[var(--border)]" />
+                  <div className="flex flex-col">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--stardust)] mb-1">Impact</span>
+                    <span className="font-display text-[20px] font-bold text-[var(--white)]">Global</span>
+                  </div>
                 </div>
-                <div className="w-px h-8 bg-[var(--border)]" />
-                <div className="flex flex-col">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--stardust)] mb-1">Format</span>
-                  <span className="font-display text-[20px] font-bold text-[var(--white)]">Remote</span>
-                </div>
-                <div className="w-px h-8 bg-[var(--border)]" />
-                <div className="flex flex-col">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--stardust)] mb-1">Impact</span>
-                  <span className="font-display text-[20px] font-bold text-[var(--white)]">Global</span>
+              </div>
+              <div className="bg-[var(--surface)] border border-[var(--border-md)] p-6 relative">
+                <div className="absolute -top-px -left-px w-4 h-4 border-t border-l border-[var(--sungold)]" />
+                <p className="font-mono text-[11px] leading-[1.6] text-[var(--subtle)] italic">
+                  {'"The best way to learn is to build. The second best way is to teach what you just built."' || t('teach_sidebar_quote') }
+                </p>
+                <div className="mt-4 flex items-center gap-2">
+                  <div className="w-4 h-px bg-[var(--sungold)]" />
+                  <span className="font-mono text-[10px] uppercase text-[var(--sungold)]">Guiding Principle</span>
                 </div>
               </div>
             </div>
-            <div className="bg-[var(--surface)] border border-[var(--border-md)] p-6 relative">
-              <div className="absolute -top-px -left-px w-4 h-4 border-t border-l border-[var(--sungold)]" />
-              <p className="font-mono text-[11px] leading-[1.6] text-[var(--subtle)] italic">
-                {'"The best way to learn is to build. The second best way is to teach what you just built."' || t('teach_sidebar_quote') }
-              </p>
-              <div className="mt-4 flex items-center gap-2">
-                <div className="w-4 h-px bg-[var(--sungold)]" />
-                <span className="font-mono text-[10px] uppercase text-[var(--sungold)]">Guiding Principle</span>
-              </div>
-            </div>
-          </div>
+          </motion.div>
         </div>
+
+        {/* Technical Scanline effect */}
+        <motion.div 
+          initial={{ top: '-10%' }}
+          animate={{ top: '110%' }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+          className="absolute left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--sungold)]/10 to-transparent pointer-events-none z-0"
+        />
       </section>
 
       {/* Course grid (9 courses) */}

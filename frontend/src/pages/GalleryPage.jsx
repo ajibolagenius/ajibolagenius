@@ -155,20 +155,34 @@ const GalleryPage = () => {
 
   return (
     <>
-      <section className="relative pt-12 pb-8 md:pt-20 md:pb-10 border-b border-[var(--border)] overflow-hidden">
+      <section className="relative pt-12 pb-8 md:pt-24 md:pb-16 border-b border-[var(--border)] overflow-hidden">
         {/* Nebula Glow Backdrop */}
         <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[120%] bg-[var(--nebula)] opacity-[0.05] blur-[160px] rounded-full pointer-events-none" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[80%] bg-[var(--sungold)] opacity-[0.03] blur-[140px] rounded-full pointer-events-none" />
 
         <div className="relative z-10 max-w-[1160px] mx-auto px-4 md:px-8">
-          <SectionKicker label="Gallery" accent="sungold" />
-          <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-4 text-[var(--white)]" style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}>
-            Gallery
-          </h1>
-          <p className="font-body text-[17px] leading-[1.7] max-w-[560px] text-[var(--muted)]">
-            A curated collection of visual experiments, UI studies, and technical art.
-          </p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <SectionKicker label="Gallery" accent="sungold" />
+            <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--white)] max-w-[800px]" style={{ fontSize: 'clamp(40px, 8vw, 80px)' }}>
+              Gallery
+            </h1>
+            <p className="font-body text-[17px] leading-[1.7] max-w-[600px] text-[var(--muted)]">
+              A curated collection of visual experiments, UI studies, and technical art.
+            </p>
+          </motion.div>
         </div>
+
+        {/* Technical Scanline effect */}
+        <motion.div 
+          initial={{ top: '-10%' }}
+          animate={{ top: '110%' }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+          className="absolute left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--sungold)]/10 to-transparent pointer-events-none z-0"
+        />
       </section>
 
       <section className="py-12 md:py-20 relative overflow-hidden">
