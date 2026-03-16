@@ -231,7 +231,7 @@ const TeachPage = () => {
                 {t('teach_subheading')}
               </p>
               <p className="font-body text-[15px] leading-[1.8] text-[var(--muted)]">
-                Start with <em>why</em>, not just <em>what</em>. Projects beat theory every time. Community is everything — the WhatsApp groups outlast the courses. Pricing is set for Nigerian reality, not Silicon Valley budgets.
+                Start with <em>why</em>, not just <em>what</em>. Projects beat theory every time. Community is everything — the groups outlast the courses. Pricing is set for Nigerian reality, not Silicon Valley budgets.
               </p>
               <div className="flex flex-wrap items-center gap-6 mt-8">
                 <div className="flex flex-col">

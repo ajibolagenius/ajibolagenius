@@ -26,7 +26,6 @@ const WRITING_PAGE_SIZE = 9;
 const WritingPage = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('All');
-  const [tagFilter, setTagFilter] = useState('');
   const [sortBy, setSortBy] = useState('date-desc');
   const [page, setPage] = useState(1);
   const [nlEmail, setNlEmail] = useState('');
@@ -37,11 +36,7 @@ const WritingPage = () => {
   const displayPosts = Array.isArray(posts) && posts.length > 0 ? posts : [];
   const categoryList = ['All', ...[...new Set(displayPosts.map(p => (p.category || '').trim()).filter(Boolean))].sort()];
   const categoryOptions = categoryList.map((c) => ({ label: c, value: c }));
-  const tagList = [...new Set(displayPosts.flatMap((p) => (Array.isArray(p.tags) ? p.tags : []).map((t) => (t || '').trim()).filter(Boolean)))].sort();
-  const tagOptions = [{ label: 'All tags', value: '' }, ...tagList.map((t) => ({ label: t, value: t }))];
-  const byCategory = filter === 'All' ? displayPosts : displayPosts.filter((p) => (p.category || '').trim() === filter);
-  const byTag = !tagFilter ? byCategory : byCategory.filter((p) => (Array.isArray(p.tags) ? p.tags : []).some((t) => (t || '').trim() === tagFilter));
-  const filtered = byTag;
+  const filtered = filter === 'All' ? displayPosts : displayPosts.filter((p) => (p.category || '').trim() === filter);
   const featured = filtered[0] ?? null;
   const listPostsUnsorted = filtered.filter((p) => (p.slug || p.id) !== (featured?.slug || featured?.id));
 
@@ -162,14 +157,11 @@ const WritingPage = () => {
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="flex flex-wrap items-center gap-4 mb-6">
             <FilterButtons options={categoryOptions} value={filter} onChange={(v) => { setFilter(v); setPage(1); }} label="Category" />
-            {tagOptions.length > 1 && (
-              <FilterButtons options={tagOptions} value={tagFilter} onChange={(v) => { setTagFilter(v); setPage(1); }} label="Tag" />
-            )}
             <SortSelect options={WRITING_SORT_OPTIONS} value={sortBy} onChange={(v) => { setSortBy(v); setPage(1); }} label="Sort" />
           </div>
 
           <div className="flex flex-col gap-4">
-            {listPosts.length === 0 && featured && (filter !== 'All' || tagFilter) && (
+            {listPosts.length === 0 && featured && filter !== 'All' && (
               <p className="font-body text-[15px] text-[var(--muted)]">No other posts match this filter.</p>
             )}
             {listPosts.length === 0 && !featured && (

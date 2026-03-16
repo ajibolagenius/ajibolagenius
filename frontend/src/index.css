@@ -163,7 +163,6 @@ body {
   color: var(--white);
   line-height: 1.7;
   overflow-x: hidden;
-  overscroll-behavior-y: none;
 }
 
 /* — Geometric grid background (Design System §08 Background) — */
