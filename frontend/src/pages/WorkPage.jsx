@@ -39,7 +39,11 @@ const ProjectCard = ({ project }) => {
     >
       <div className="h-[200px] flex items-center justify-center relative overflow-hidden bg-[var(--surface)]">
         {heroUrl ? (
-          <OptimizedImage src={heroUrl} alt={project.name ? `Project: ${project.name}` : 'Project screenshot'} className="absolute inset-0 w-full h-full object-cover" />
+          <OptimizedImage
+            src={heroUrl}
+            alt={project.name ? `Project: ${project.name}` : 'Project screenshot'}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
         ) : (
           <div
             className="absolute inset-0 opacity-40"
@@ -134,14 +138,19 @@ const FeaturedSpotlight = ({ project, onView }) => {
               </span>
             ))}
           </div>
-          <span className="btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] border-0 rounded-none transition-all duration-200 bg-[var(--sungold)] text-[var(--void)] w-fit">
+          <span className="btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] border-0 rounded-none transition-all duration-200 bg-[var(--sungold)] text-[var(--void)] w-fit uppercase">
             View case study
             <ExternalLink size={14} />
           </span>
         </div>
         <div className="min-h-[240px] lg:min-h-[320px] flex items-center justify-center relative overflow-hidden bg-[var(--elevated)]">
           {heroUrl ? (
-            <OptimizedImage src={heroUrl} alt={project.name ? `Featured: ${project.name}` : 'Featured project'} className="absolute inset-0 w-full h-full object-cover" priority />
+            <OptimizedImage
+              src={heroUrl}
+              alt={project.name ? `Featured: ${project.name}` : 'Featured project'}
+              className="absolute inset-0 w-full h-full object-cover"
+              priority
+            />
           ) : (
             <div
               className="absolute inset-0 opacity-40"
@@ -171,7 +180,7 @@ const WorkPage = () => {
   const [sortBy, setSortBy] = useState('year-desc');
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
-  const { data, loading, error, refetch } = useRealtimeQuery('projects', fetchProjects);
+  const { data, loading, error } = useRealtimeQuery('projects', fetchProjects);
   const projects = Array.isArray(data) ? data : [];
 
   const filteredProjects = filter === 'all'
@@ -198,10 +207,6 @@ const WorkPage = () => {
     { label: 'Design', value: 'design' },
   ];
 
-  const handleViewCaseStudy = (slug) => {
-    navigate(`/work/${slug}`);
-  };
-
   usePageMeta({
     title: 'Selected Work',
     description: 'A collection of products and experiments — from social platforms to creative coding explorations.',
@@ -226,11 +231,11 @@ const WorkPage = () => {
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           {featuredForSpotlight && (
             <div className="mb-12">
-              <FeaturedSpotlight project={featuredForSpotlight} onView={handleViewCaseStudy} />
+              <FeaturedSpotlight project={featuredForSpotlight} />
             </div>
           )}
 
-          <div className="flex flex-wrap items-center gap-4 mb-6">
+          <div className="flex flex-wrap items-center gap-4 mb-8">
             <FilterButtons options={filterOptions} value={filter} onChange={(v) => { setFilter(v); setPage(1); }} label="Filter" />
             <SortSelect options={WORK_SORT_OPTIONS} value={sortBy} onChange={(v) => { setSortBy(v); setPage(1); }} label="Sort" />
           </div>
