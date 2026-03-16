@@ -2,28 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Download } from 'lucide-react';
 import { fetchPersonalInfo } from '../../services/api';
-import { personalInfo as fallbackInfo, tickerItems } from '../../data/mock';
+import { personalInfo as fallbackInfo } from '../../data/mock';
 import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
 import { useLocale } from '../../contexts/LocaleContext';
 import GitHubGraph from './GitHubGraph';
-
-const Ticker = () => {
-  const items = [...tickerItems, ...tickerItems];
-  return (
-    <div
-      className="w-full overflow-hidden bg-[var(--elevated)] border-t border-b border-[var(--border)] py-2"
-    >
-      <div className="ticker-track flex items-center gap-12 whitespace-nowrap font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--subtle)]">
-        {items.map((item, i) => (
-          <span key={i} className="flex items-center gap-6">
-            <span className="text-[var(--sungold)]">◆</span>
-            {item}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-};
+import Ticker from './Ticker';
 
 const Hero = () => {
   const [visible, setVisible] = useState(false);
@@ -41,7 +24,7 @@ const Hero = () => {
   return (
     <section
       ref={heroRef}
-      className="relative min-h-screen flex flex-col overflow-hidden"
+      className="relative flex flex-col overflow-hidden h-[calc(100dvh-120px)] md:h-[calc(100dvh-56px)]"
     >
       {/* Hero orbs — flat tint rectangles, blur 80px (Design System §08: no radial) */}
       <div
@@ -53,8 +36,8 @@ const Hero = () => {
         style={{ background: 'var(--warm-glow)', borderRadius: 0 }}
       />
 
-      {/* Main hero content — flex-1 so ticker stays in first viewport */}
-      <div className="flex-1 flex items-center relative z-10">
+      {/* Main hero content — flex-1 + min-h-0 so it actually shrinks, keeping ticker visible */}
+      <div className="flex-1 min-h-0 flex items-center relative z-10 overflow-hidden">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8 w-full">
           <div
             className="transition-all duration-1000"
