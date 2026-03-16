@@ -2,16 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Download } from 'lucide-react';
 import { fetchPersonalInfo } from '../../services/api';
-import { personalInfo as fallbackInfo } from '../../data/mock';
 import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
 import { useLocale } from '../../contexts/LocaleContext';
 import GitHubGraph from './GitHubGraph';
 import Ticker from './Ticker';
+import { HeroSkeleton } from './SkeletonLayouts';
 
 const Hero = () => {
   const [visible, setVisible] = useState(false);
   const heroRef = useRef(null);
-  const { data: info } = useRealtimeQuery('personal_info', fetchPersonalInfo, fallbackInfo);
+  const { data: info, loading } = useRealtimeQuery('personal_info', fetchPersonalInfo);
   const { t } = useLocale();
 
   useEffect(() => {
@@ -19,7 +19,16 @@ const Hero = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const data = info || fallbackInfo;
+  const data = info;
+
+  if (loading || !data) {
+    return (
+      <section className="relative flex flex-col overflow-hidden h-[calc(100dvh-120px)] md:h-[calc(100dvh-56px)]">
+        <HeroSkeleton />
+        <div className="relative z-10 flex-shrink-0"><Ticker /></div>
+      </section>
+    );
+  }
 
   return (
     <section

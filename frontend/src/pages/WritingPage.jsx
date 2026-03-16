@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Clock, ArrowRight } from 'lucide-react';
 import { fetchBlogPosts, subscribeNewsletter } from '../services/api';
-import { blogPosts as fbPosts } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
 import SectionKicker from '../components/portfolio/SectionKicker';
 import FilterButtons from '../components/portfolio/FilterButtons';
@@ -13,7 +12,7 @@ import { paginate } from '../lib/paginate';
 import ListPagination from '../components/portfolio/ListPagination';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
-import { DataLoadingSkeleton, DataErrorBanner } from '../components/portfolio/DataStateMessage';
+import { WritingSkeleton } from '../components/portfolio/SkeletonLayouts';
 
 const WRITING_SORT_OPTIONS = [
   { value: 'date-desc', label: 'Newest first' },
@@ -33,9 +32,9 @@ const WritingPage = () => {
   const [nlEmail, setNlEmail] = useState('');
   const [nlMsg, setNlMsg] = useState('');
   const [nlSubmitting, setNlSubmitting] = useState(false);
-  const { data: posts, loading: postsLoading, error: postsError, refetch: refetchPosts } = useRealtimeQuery('blog_posts', fetchBlogPosts, fbPosts);
+  const { data: posts, loading: postsLoading, error: postsError, refetch: refetchPosts } = useRealtimeQuery('blog_posts', fetchBlogPosts);
 
-  const displayPosts = (Array.isArray(posts) && posts.length > 0) ? posts : fbPosts;
+  const displayPosts = Array.isArray(posts) && posts.length > 0 ? posts : [];
   const categoryList = ['All', ...[...new Set(displayPosts.map(p => (p.category || '').trim()).filter(Boolean))].sort()];
   const categoryOptions = categoryList.map((c) => ({ label: c, value: c }));
   const tagList = [...new Set(displayPosts.flatMap((p) => (Array.isArray(p.tags) ? p.tags : []).map((t) => (t || '').trim()).filter(Boolean)))].sort();
@@ -79,7 +78,7 @@ const WritingPage = () => {
   if (postsLoading && displayPosts.length === 0) {
     return (
       <div className="py-32 px-4 max-w-[1160px] mx-auto">
-        <DataLoadingSkeleton lines={8} />
+        <WritingSkeleton count={5} />
       </div>
     );
   }
@@ -105,7 +104,7 @@ const WritingPage = () => {
         </div>
       </section>
 
-      {postsError && <DataErrorBanner error={postsError} onRetry={refetchPosts} className="max-w-[1160px] mx-auto px-4 md:px-8 mb-6" />}
+
       {/* Featured post hero */}
       {featured && (
         <section className="py-12 md:py-16 border-b border-[var(--border)]">

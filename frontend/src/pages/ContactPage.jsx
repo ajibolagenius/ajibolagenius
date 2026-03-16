@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Send, MessageSquare, MapPin, Mail, Github, Twitter, Linkedin } from 'lucide-react';
 import { submitContact, fetchPersonalInfo } from '../services/api';
-import { personalInfo as fbInfo } from '../data/mock';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { useLocale } from '../contexts/LocaleContext';
+import { ContactSkeleton } from '../components/portfolio/SkeletonLayouts';
 
 const INPUT_CLASS =
   'w-full bg-[var(--elevated)] border border-[var(--border-md)] px-4 py-[10px] font-body text-[14px] text-[var(--white)] placeholder:text-[var(--subtle)] outline-none transition-all duration-200 rounded-none focus:border-[var(--sungold)] focus:shadow-[var(--shadow-sharp-ring)]';
@@ -15,7 +15,7 @@ const ContactPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [responseMsg, setResponseMsg] = useState('');
   const [isError, setIsError] = useState(false);
-  const { data: info } = useRealtimeQuery('personal_info', fetchPersonalInfo, fbInfo);
+  const { data: info, loading } = useRealtimeQuery('personal_info', fetchPersonalInfo);
   const { t } = useLocale();
 
   const handleSubmit = async (e) => {
@@ -51,8 +51,8 @@ const ContactPage = () => {
     }
   };
 
-  const data = info || fbInfo;
-  const social = data.social || fbInfo.social;
+  const data = info || {};
+  const social = data.social || {};
 
   usePageMeta({
     title: 'Contact',

@@ -2,13 +2,12 @@ import React, { useState, useMemo } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchGallery } from '../services/api';
-import { galleryItems as fbGallery } from '../data/mock';
 import SectionKicker from '../components/portfolio/SectionKicker';
 import FilterButtons from '../components/portfolio/FilterButtons';
 import SortSelect from '../components/portfolio/SortSelect';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
-import { DataErrorBanner, DataLoadingSkeleton } from '../components/portfolio/DataStateMessage';
+import { GallerySkeleton } from '../components/portfolio/SkeletonLayouts';
 import { byString, applySort } from '../lib/sortHelpers';
 import { paginate } from '../lib/paginate';
 import ListPagination from '../components/portfolio/ListPagination';
@@ -135,8 +134,8 @@ const GalleryPage = () => {
   const [sortBy, setSortBy] = useState('title-asc');
   const [page, setPage] = useState(1);
   const [lightbox, setLightbox] = useState(null);
-  const { data, loading, error, refetch } = useRealtimeQuery('gallery_items', fetchGallery, fbGallery);
-  const displayItems = Array.isArray(data) && data.length > 0 ? data : fbGallery;
+  const { data, loading, error, refetch } = useRealtimeQuery('gallery_items', fetchGallery);
+  const displayItems = Array.isArray(data) && data.length > 0 ? data : [];
   const filteredByType = filter === 'All' ? displayItems : displayItems.filter((g) => (g.type || '') === filter);
   const filtered = useMemo(() => {
     const comp = sortBy === 'title-desc' ? byString('title', 'desc') : byString('title', 'asc');
@@ -174,9 +173,8 @@ const GalleryPage = () => {
             <FilterButtons options={FILTER_OPTIONS} value={filter} onChange={(v) => { setFilter(v); setPage(1); }} label="Type" />
             <SortSelect options={GALLERY_SORT_OPTIONS} value={sortBy} onChange={(v) => { setSortBy(v); setPage(1); }} label="Sort" />
           </div>
-          {error && <DataErrorBanner error={error} onRetry={refetch} className="mb-6" />}
           {loading && displayItems.length === 0 ? (
-            <DataLoadingSkeleton lines={8} className="mb-6" />
+            <GallerySkeleton count={6} />
           ) : (
             <motion.div layout className="columns-1 sm:columns-2 lg:columns-3 gap-4" initial={false}>
               {paginatedItems.map((item, i) => {

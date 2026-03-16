@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowUpRight, ExternalLink } from 'lucide-react';
 import { fetchProjects } from '../services/api';
-import { projects as fallbackProjects } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
 import SectionKicker from '../components/portfolio/SectionKicker';
 import FilterButtons from '../components/portfolio/FilterButtons';
@@ -13,7 +12,7 @@ import { paginate } from '../lib/paginate';
 import ListPagination from '../components/portfolio/ListPagination';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
-import { DataLoadingSkeleton, DataErrorBanner } from '../components/portfolio/DataStateMessage';
+import { ProjectsSkeleton } from '../components/portfolio/SkeletonLayouts';
 import OptimizedImage from '../components/portfolio/OptimizedImage';
 
 const getHeroUrl = (project) => {
@@ -172,8 +171,8 @@ const WorkPage = () => {
   const [sortBy, setSortBy] = useState('year-desc');
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
-  const { data, loading, error, refetch } = useRealtimeQuery('projects', fetchProjects, fallbackProjects);
-  const projects = Array.isArray(data) ? data : fallbackProjects;
+  const { data, loading, error, refetch } = useRealtimeQuery('projects', fetchProjects);
+  const projects = Array.isArray(data) ? data : [];
 
   const filteredProjects = filter === 'all'
     ? projects
@@ -236,9 +235,8 @@ const WorkPage = () => {
             <SortSelect options={WORK_SORT_OPTIONS} value={sortBy} onChange={(v) => { setSortBy(v); setPage(1); }} label="Sort" />
           </div>
 
-          {error && <DataErrorBanner error={error} onRetry={refetch} className="mb-6" />}
           {loading && projects.length === 0 ? (
-            <DataLoadingSkeleton lines={6} className="py-8 mb-6" />
+            <ProjectsSkeleton count={6} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {paginatedProjects.map((project) => (

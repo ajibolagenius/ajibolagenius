@@ -92,15 +92,10 @@ const Navbar = () => {
             ))}
           </ul>
 
-          <span className="hidden md:inline-flex md:items-center md:gap-2">
-            <ThemeToggle />
-            <span className="font-mono text-[11px] px-[10px] py-[3px] text-[var(--subtle)] bg-[var(--elevated)] border border-[var(--border)] rounded-none">
-              v1.0
+          <span className="flex items-center gap-2">
+            <span className="font-mono text-[10px] tracking-[0.05em] uppercase px-[10px] py-[3.5px] text-[var(--sungold)] bg-[rgba(232,160,32,0.1)] border border-[rgba(232,160,32,0.25)] rounded-none">
+              <span className="hidden sm:inline">◆ </span>Available<span className="hidden sm:inline"> for work</span>
             </span>
-          </span>
-
-          {/* Theme toggle visible on mobile now that hamburger is gone */}
-          <span className="flex items-center gap-2 md:hidden">
             <ThemeToggle />
           </span>
         </div>

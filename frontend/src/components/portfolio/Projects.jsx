@@ -2,9 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { fetchProjects } from '../../services/api';
-import { projects as fallbackProjects } from '../../data/mock';
 import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
-import { DataLoadingSkeleton, DataErrorBanner } from './DataStateMessage';
+import { ProjectsSkeleton } from './SkeletonLayouts';
 import Badge from './Badge';
 
 const ProjectCard = ({ project, index, visible }) => {
@@ -64,8 +63,8 @@ const Projects = ({ featuredOnly = false }) => {
   const [visible, setVisible] = useState(false);
   const [filter, setFilter] = useState('all');
   const sectionRef = useRef(null);
-  const { data, loading, error, refetch } = useRealtimeQuery('projects', fetchProjects, fallbackProjects);
-  const projects = Array.isArray(data) ? data : fallbackProjects;
+  const { data, loading, error, refetch } = useRealtimeQuery('projects', fetchProjects);
+  const projects = Array.isArray(data) ? data : [];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -124,9 +123,8 @@ const Projects = ({ featuredOnly = false }) => {
             ))}
           </div>
         )}
-        {error && <DataErrorBanner error={error} onRetry={refetch} className="mb-6" />}
         {loading && projects.length === 0 ? (
-          <DataLoadingSkeleton lines={6} className="mb-6" />
+          <ProjectsSkeleton count={3} />
         ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {displayProjects.map((project, i) => (

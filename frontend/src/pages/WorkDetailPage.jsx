@@ -2,12 +2,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink, Github, X } from 'lucide-react';
 import { fetchProject } from '../services/api';
-import { projects as fallbackProjects } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
 import OptimizedImage from '../components/portfolio/OptimizedImage';
 import { track } from '../services/analytics';
+import { ProjectsSkeleton } from '../components/portfolio/SkeletonLayouts';
 
 const WorkDetailPage = () => {
   const { slug } = useParams();
@@ -32,8 +32,7 @@ const WorkDetailPage = () => {
     fetchProject(slug)
       .then(data => { setProject(data); setLoading(false); })
       .catch(() => {
-        const fb = fallbackProjects.find(p => p.id === slug || p.slug === slug);
-        if (fb) { setProject(fb); } else { setError(true); }
+        setError(true);
         setLoading(false);
       });
   }, [slug]);
@@ -77,8 +76,8 @@ const WorkDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="py-32 text-center font-mono text-[13px] text-[var(--subtle)]">
-        Loading…
+      <div className="py-32 px-4 max-w-[1160px] mx-auto">
+        <ProjectsSkeleton count={1} />
       </div>
     );
   }

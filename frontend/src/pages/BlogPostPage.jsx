@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Clock } from 'lucide-react';
 import { fetchBlogPost } from '../services/api';
-import { blogPosts as fbPosts } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { track } from '../services/analytics';
 import { buildBlogPostingSchema } from '../lib/structuredData';
+import { WritingSkeleton } from '../components/portfolio/SkeletonLayouts';
 
 /** Detect if body is HTML from WYSIWYG (e.g. starts with <p> or contains tags). */
 function isHtmlBody(body) {
@@ -130,8 +130,7 @@ const BlogPostPage = () => {
     fetchBlogPost(slug)
       .then(data => { setPost(data); setLoading(false); })
       .catch(() => {
-        const fb = fbPosts.find(p => p.id === slug || p.slug === slug);
-        setPost(fb || null);
+        setPost(null);
         setLoading(false);
       });
   }, [slug]);
@@ -184,8 +183,8 @@ const BlogPostPage = () => {
 
   if (loading) {
     return (
-      <div className="py-32 text-center font-mono text-[13px] text-[var(--subtle)]">
-        Loading…
+      <div className="py-32 px-4 max-w-[720px] mx-auto">
+        <WritingSkeleton count={1} />
       </div>
     );
   }

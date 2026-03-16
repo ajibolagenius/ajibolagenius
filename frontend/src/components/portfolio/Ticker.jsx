@@ -1,16 +1,16 @@
 import React from 'react';
 import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
 import { fetchProjects, fetchCourses, fetchSkills, fetchPersonalInfo } from '../../services/api';
-import { personalInfo as fallbackInfo, tickerItems as fallbackTicker } from '../../data/mock';
+import { TickerSkeleton } from './SkeletonLayouts';
 
 /**
  * Build ticker items dynamically from live API data.
  * Falls back gracefully to mock data when API is unavailable.
  */
 function buildTickerItems({ info, projects, courses, skills }) {
-  const name = info?.name || fallbackInfo?.name || 'DON_GENIUS';
-  const role = info?.role || fallbackInfo?.role || 'Design + Engineering';
-  const location = info?.location || fallbackInfo?.location || 'Nigeria';
+  const name = info?.name || 'DON_GENIUS';
+  const role = info?.role || 'Design + Engineering';
+  const location = info?.location || 'Nigeria';
 
   const projectCount = Array.isArray(projects) ? projects.length : 0;
   const courseCount = Array.isArray(courses) ? courses.length : 0;
@@ -31,10 +31,12 @@ function buildTickerItems({ info, projects, courses, skills }) {
 }
 
 const Ticker = () => {
-  const { data: info } = useRealtimeQuery('personal_info', fetchPersonalInfo, fallbackInfo);
-  const { data: projects } = useRealtimeQuery('projects', fetchProjects, []);
-  const { data: courses } = useRealtimeQuery('courses', fetchCourses, []);
-  const { data: skills } = useRealtimeQuery('skills', fetchSkills, []);
+  const { data: info, loading: l1 } = useRealtimeQuery('personal_info', fetchPersonalInfo);
+  const { data: projects, loading: l2 } = useRealtimeQuery('projects', fetchProjects);
+  const { data: courses, loading: l3 } = useRealtimeQuery('courses', fetchCourses);
+  const { data: skills, loading: l4 } = useRealtimeQuery('skills', fetchSkills);
+
+  if (l1 || l2 || l3 || l4) return <TickerSkeleton />;
 
   const dynamicItems = buildTickerItems({ info, projects, courses, skills });
   // Duplicate for seamless infinite scroll

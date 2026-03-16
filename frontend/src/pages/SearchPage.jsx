@@ -2,12 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Search, FileText, Briefcase, BookOpen } from 'lucide-react';
 import { fetchBlogPosts, fetchProjects, fetchCourses } from '../services/api';
-import { blogPosts as fbPosts } from '../data/mock';
-import { projects as fbProjects } from '../data/mock';
-import { courses as fbCourses } from '../data/mock';
 import SectionKicker from '../components/portfolio/SectionKicker';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { track } from '../services/analytics';
+import { Skeleton } from '../components/ui/skeleton';
 
 function matchQuery(str, q) {
   if (!str || typeof str !== 'string') return false;
@@ -36,14 +34,14 @@ export default function SearchPage() {
     let cancelled = false;
     setLoading(true);
     Promise.all([
-      fetchBlogPosts().catch(() => fbPosts),
-      fetchProjects().catch(() => fbProjects),
-      fetchCourses().catch(() => fbCourses),
+      fetchBlogPosts().catch(() => []),
+      fetchProjects().catch(() => []),
+      fetchCourses().catch(() => []),
     ]).then(([p, pr, c]) => {
       if (!cancelled) {
-        setPosts(Array.isArray(p) ? p : fbPosts);
-        setProjects(Array.isArray(pr) ? pr : fbProjects);
-        setCourses(Array.isArray(c) ? c : fbCourses);
+        setPosts(Array.isArray(p) ? p : []);
+        setProjects(Array.isArray(pr) ? pr : []);
+        setCourses(Array.isArray(c) ? c : []);
         setLoading(false);
       }
     });
@@ -133,7 +131,9 @@ export default function SearchPage() {
       <section className="py-12 md:py-16">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           {loading ? (
-            <p className="font-mono text-[13px] text-[var(--muted)]">Loading…</p>
+            <div className="space-y-4">
+              {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
+            </div>
           ) : !searchTerm ? (
             <p className="font-body text-[15px] text-[var(--muted)]">Enter a term above to search blog posts, projects, and courses.</p>
           ) : totalCount === 0 ? (

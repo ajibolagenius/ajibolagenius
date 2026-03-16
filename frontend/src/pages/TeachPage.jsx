@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { MessageSquare, Quote, ChevronDown, ChevronUp, Bell } from 'lucide-react';
 import { fetchCourses, fetchTestimonials, fetchPersonalInfo, submitCourseWaitlist } from '../services/api';
-import { courses as fbCourses, testimonials as fbTestimonials, faqItems, personalInfo as fbInfo } from '../data/mock';
+import { faqItems } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
 import SectionKicker from '../components/portfolio/SectionKicker';
 import SortSelect from '../components/portfolio/SortSelect';
@@ -146,12 +146,12 @@ const FaqItem = ({ item, open, onToggle, index }) => {
 const TeachPage = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const { t } = useLocale();
-  const { data: courses } = useRealtimeQuery('courses', fetchCourses, fbCourses);
-  const { data: testimonials } = useRealtimeQuery('testimonials', fetchTestimonials, fbTestimonials);
-  const { data: personalInfo } = useRealtimeQuery('personal_info', fetchPersonalInfo, fbInfo);
-  const displayCourses = Array.isArray(courses) && courses.length > 0 ? courses : fbCourses;
-  const displayTestimonials = Array.isArray(testimonials) && testimonials.length > 0 ? testimonials : fbTestimonials;
-  const whatsapp = personalInfo?.social?.whatsapp || fbInfo.social.whatsapp;
+  const { data: courses, loading: l1 } = useRealtimeQuery('courses', fetchCourses);
+  const { data: testimonials, loading: l2 } = useRealtimeQuery('testimonials', fetchTestimonials);
+  const { data: personalInfo, loading: l3 } = useRealtimeQuery('personal_info', fetchPersonalInfo);
+  const displayCourses = Array.isArray(courses) && courses.length > 0 ? courses : [];
+  const displayTestimonials = Array.isArray(testimonials) && testimonials.length > 0 ? testimonials : [];
+  const whatsapp = personalInfo?.social?.whatsapp || '';
 
   const [sortBy, setSortBy] = useState('name-asc');
   const [page, setPage] = useState(1);
