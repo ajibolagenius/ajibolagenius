@@ -9,28 +9,29 @@ import { cn } from '@/lib/utils';
  * - Pass sizes for responsive hints (used with srcset if provided; improves LCP).
  */
 const OptimizedImage = React.forwardRef(
-  (
-    {
+  (props, ref) => {
+    const {
       src,
       alt = '',
       className,
       loading: loadingProp,
-      decoding = 'async',
+      decoding: decodingProp,
       priority = false,
       fadeIn = false,
+      highQuality = false,
       sizes,
       onLoad,
       onError,
       ...rest
-    },
-    ref
-  ) => {
+    } = props;
+
     const [loaded, setLoaded] = useState(false);
     const imgRef = useRef(null);
     const resolvedRef = ref ?? imgRef;
 
-    const loading = loadingProp ?? (priority ? 'eager' : 'lazy');
-    const fetchPriority = priority ? 'high' : undefined;
+    const loading = highQuality ? 'eager' : (loadingProp ?? (priority ? 'eager' : 'lazy'));
+    const fetchPriority = (priority || highQuality) ? 'high' : undefined;
+    const decoding = highQuality ? 'sync' : decodingProp || 'async';
 
     const handleLoad = (e) => {
       setLoaded(true);
@@ -52,7 +53,7 @@ const OptimizedImage = React.forwardRef(
           className
         )}
         onLoad={handleLoad}
-        onError={onError}
+        onError={handleLoad} // Still mark as "loaded" visually on error to avoid infinite opacity-0
         {...rest}
       />
     );

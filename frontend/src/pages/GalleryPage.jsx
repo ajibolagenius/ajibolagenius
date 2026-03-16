@@ -155,48 +155,67 @@ const GalleryPage = () => {
 
   return (
     <>
-      <section className="pt-12 pb-8 md:pt-20 md:pb-10 border-b border-[var(--border)]">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
+      <section className="relative pt-12 pb-8 md:pt-20 md:pb-10 border-b border-[var(--border)] overflow-hidden">
+        {/* Nebula Glow Backdrop */}
+        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[120%] bg-[var(--nebula)] opacity-[0.05] blur-[160px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[80%] bg-[var(--sungold)] opacity-[0.03] blur-[140px] rounded-full pointer-events-none" />
+
+        <div className="relative z-10 max-w-[1160px] mx-auto px-4 md:px-8">
           <SectionKicker label="Gallery" accent="sungold" />
           <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-4 text-[var(--white)]" style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}>
             Gallery
           </h1>
           <p className="font-body text-[17px] leading-[1.7] max-w-[560px] text-[var(--muted)]">
-            Images and videos: UI, 3D, and graphic work.
+            A curated collection of visual experiments, UI studies, and technical art.
           </p>
         </div>
       </section>
 
-      <section className="py-12 md:py-16">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="flex flex-wrap items-center gap-4 mb-8">
+      <section className="py-12 md:py-20 relative overflow-hidden">
+        {/* Subtle grid accent for the whole section */}
+        <div className="absolute inset-0 opacity-[0.15] pointer-events-none" 
+             style={{ backgroundImage: 'linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+
+        <div className="relative z-10 max-w-[1160px] mx-auto px-4 md:px-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
             <FilterButtons options={FILTER_OPTIONS} value={filter} onChange={(v) => { setFilter(v); setPage(1); }} label="Type" />
-            <SortSelect options={GALLERY_SORT_OPTIONS} value={sortBy} onChange={(v) => { setSortBy(v); setPage(1); }} label="Sort" />
+            <div className="flex items-center gap-4">
+               <span className="font-mono text-[10px] uppercase text-[var(--subtle)] hidden sm:inline">Sort BY</span>
+               <SortSelect options={GALLERY_SORT_OPTIONS} value={sortBy} onChange={(v) => { setSortBy(v); setPage(1); }} label="" />
+            </div>
           </div>
+
           {loading && displayItems.length === 0 ? (
             <GallerySkeleton count={6} />
           ) : (
-            <motion.div layout className="columns-1 sm:columns-2 lg:columns-3 gap-4" initial={false}>
+            <motion.div layout className="columns-1 sm:columns-2 lg:columns-3 gap-6" initial={false}>
               {paginatedItems.map((item, i) => {
                 const h = MASONRY_HEIGHTS[(start + i) % MASONRY_HEIGHTS.length];
                 return (
                   <motion.div
                     key={item.id}
                     layout
-                    initial={{ opacity: 0, y: 12 }}
+                    initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="mb-4 break-inside-avoid"
+                    transition={{ duration: 0.35, ease: 'easeOut' }}
+                    className="mb-6 break-inside-avoid relative group/item"
                   >
+                    {/* Technical corner accent for each card on hover */}
+                    <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-[var(--sungold)] opacity-0 group-hover/item:opacity-100 transition-all duration-300 z-10 pointer-events-none" />
+                    <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-[var(--sungold)] opacity-0 group-hover/item:opacity-100 transition-all duration-300 z-10 pointer-events-none" />
+                    
                     <GalleryCard item={item} height={h} onClick={() => setLightbox(item)} />
                   </motion.div>
                 );
               })}
             </motion.div>
           )}
+
           {!loading && filtered.length > 0 && (
-            <ListPagination page={page} totalPages={totalPages} onPageChange={setPage} range={{ start, end, total }} />
+            <div className="mt-12">
+              <ListPagination page={page} totalPages={totalPages} onPageChange={setPage} range={{ start, end, total }} />
+            </div>
           )}
         </div>
       </section>
@@ -226,63 +245,125 @@ const GalleryPage = () => {
               onClick={(e) => e.stopPropagation()}
             >
               {hasMedia(lightbox) && isVideo(lightbox) ? (
-                <div className="bg-[var(--void)] rounded overflow-hidden border border-[var(--border-md)]">
-                  <video
-                    src={lightbox.url}
-                    className="w-full max-h-[70vh] object-contain"
-                    controls
-                    autoPlay
-                    playsInline
-                  />
-                  <div className="p-4 border-t border-[var(--border)] flex items-center justify-between flex-wrap gap-2">
-                    <div>
-                      <span className="font-mono text-[11px] tracking-[0.12em] uppercase mr-2" style={{ color: lightbox.color || 'var(--sungold)' }}>{lightbox.type}</span>
-                      <span className="font-display font-bold text-[var(--white)]">{lightbox.title}</span>
+                <div className="bg-[var(--void)] rounded-none overflow-hidden border border-[var(--border-hi)] shadow-sharp-lg">
+                  <div className="relative group/vid">
+                    <video
+                      src={lightbox.url}
+                      className="w-full max-h-[75vh] object-contain block"
+                      controls
+                      autoPlay
+                      playsInline
+                    />
+                    {/* Corner accents inside lightbox */}
+                    <div className="absolute top-4 left-4 w-6 h-6 border-t border-l border-[var(--sungold)] opacity-40" />
+                    <div className="absolute bottom-4 right-4 w-6 h-6 border-b border-r border-[var(--sungold)] opacity-40" />
+                  </div>
+                  
+                  <div className="p-6 bg-[var(--surface)] border-t border-[var(--border-md)] flex items-center justify-between flex-wrap gap-4">
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-[10px] tracking-[0.2em] uppercase px-2 py-0.5 border border-[var(--border-hi)] text-[var(--sungold)]">{lightbox.type}</span>
+                        <h2 className="font-display font-bold text-[18px] text-[var(--white)]">{lightbox.title}</h2>
+                      </div>
+                      {lightbox.description && (
+                        <p className="font-body text-[13px] text-[var(--muted)] max-w-[400px] mt-1 line-clamp-2">{lightbox.description}</p>
+                      )}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setLightbox(null)}
-                      className="font-mono text-[11px] tracking-[0.08em] uppercase cursor-pointer bg-transparent border-none text-[var(--sungold)] hover:opacity-80 transition-opacity"
-                    >
-                      Close
-                    </button>
+                    
+                    <div className="flex items-center gap-4">
+                      <a
+                        href={lightbox.url}
+                        download={lightbox.title || 'gallery-video'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-mono text-[11px] tracking-[0.08em] uppercase text-[var(--white)] hover:text-[var(--sungold)] transition-colors flex items-center gap-2"
+                      >
+                        <span className="opacity-40">↓</span> Download
+                      </a>
+                      <div className="w-px h-4 bg-[var(--border-hi)]" />
+                      <button
+                        type="button"
+                        onClick={() => setLightbox(null)}
+                        className="font-mono text-[11px] tracking-[0.08em] uppercase cursor-pointer bg-transparent border-none text-[var(--sungold)] hover:opacity-80 transition-opacity"
+                      >
+                        Close [ESC]
+                      </button>
+                    </div>
                   </div>
                 </div>
               ) : hasMedia(lightbox) ? (
-                <div className="bg-[var(--surface)] rounded overflow-hidden border border-[var(--border-md)]">
-                  <OptimizedImage src={lightbox.url} alt={lightbox.title ? `Gallery: ${lightbox.title}` : 'Gallery image'} className="w-full max-h-[70vh] object-contain" loading="eager" />
-                  <div className="p-4 border-t border-[var(--border)] flex items-center justify-between flex-wrap gap-2">
-                    <div>
-                      <span className="font-mono text-[11px] tracking-[0.12em] uppercase mr-2" style={{ color: lightbox.color || 'var(--sungold)' }}>{lightbox.type}</span>
-                      <span className="font-display font-bold text-[var(--white)]">{lightbox.title}</span>
+                <div className="bg-[var(--surface)] rounded-none overflow-hidden border border-[var(--border-hi)] shadow-sharp-lg">
+                  <div className="relative group/img bg-[var(--void)]">
+                    <OptimizedImage 
+                      src={lightbox.url} 
+                      alt={lightbox.title} 
+                      className="w-full max-h-[75vh] object-contain block" 
+                      highQuality={true}
+                    />
+                    {/* Corner accents inside lightbox */}
+                    <div className="absolute top-4 left-4 w-6 h-6 border-t border-l border-[var(--sungold)] opacity-40" />
+                    <div className="absolute bottom-4 right-4 w-6 h-6 border-b border-r border-[var(--sungold)] opacity-40" />
+                  </div>
+
+                  <div className="p-6 bg-[var(--surface)] border-t border-[var(--border-md)] flex items-center justify-between flex-wrap gap-4">
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-[10px] tracking-[0.2em] uppercase px-2 py-0.5 border border-[var(--border-hi)] text-[var(--sungold)]">{lightbox.type}</span>
+                        <h2 className="font-display font-bold text-[18px] text-[var(--white)]">{lightbox.title}</h2>
+                      </div>
+                      {lightbox.description && (
+                         <p className="font-body text-[13px] text-[var(--muted)] max-w-[400px] mt-1 line-clamp-2">{lightbox.description}</p>
+                      )}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setLightbox(null)}
-                      className="font-mono text-[11px] tracking-[0.08em] uppercase cursor-pointer bg-transparent border-none text-[var(--sungold)] hover:opacity-80 transition-opacity"
-                    >
-                      Close
-                    </button>
+
+                    <div className="flex items-center gap-4">
+                      <a
+                        href={lightbox.url}
+                        download={lightbox.title || 'gallery-image'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-mono text-[11px] tracking-[0.08em] uppercase text-[var(--white)] hover:text-[var(--sungold)] transition-colors flex items-center gap-2"
+                      >
+                        <span className="opacity-40">↓</span> Download Original
+                      </a>
+                      <div className="w-px h-4 bg-[var(--border-hi)]" />
+                      <button
+                        type="button"
+                        onClick={() => setLightbox(null)}
+                        className="font-mono text-[11px] tracking-[0.08em] uppercase cursor-pointer bg-transparent border-none text-[var(--sungold)] hover:opacity-80 transition-opacity"
+                      >
+                        Close [ESC]
+                      </button>
+                    </div>
                   </div>
                 </div>
               ) : (
                 <div
-                  className="min-h-[320px] md:min-h-[400px] flex flex-col items-center justify-center relative border border-[var(--border-md)] rounded"
+                  className="min-h-[320px] md:min-h-[460px] flex flex-col items-center justify-center relative border border-[var(--border-hi)] shadow-sharp-lg"
                   style={{
                     background: 'var(--surface)',
                     backgroundImage: lightbox.color ? `repeating-linear-gradient(45deg, ${lightbox.color}12 0px, ${lightbox.color}12 1px, transparent 1px, transparent 20px)` : undefined,
                   }}
                 >
-                  <span className="font-mono text-[12px] tracking-[0.12em] uppercase mb-2" style={{ color: lightbox.color || 'var(--sungold)' }}>{lightbox.type}</span>
-                  <span className="font-display text-[22px] md:text-[28px] font-bold text-center text-[var(--white)] px-4">{lightbox.title}</span>
-                  <div className="mt-4 flex items-center justify-between w-full px-4">
-                    <span className="font-mono text-[11px] text-[var(--subtle)]">{lightbox.type}</span>
+                  <div className="absolute top-4 left-4 w-8 h-8 border-t border-l border-[var(--sungold)] opacity-40" />
+                  <div className="absolute bottom-4 right-4 w-8 h-8 border-b border-r border-[var(--sungold)] opacity-40" />
+
+                  <span className="font-mono text-[12px] tracking-[0.2em] uppercase mb-4 text-[var(--sungold)] px-3 py-1 border border-[var(--border-hi)]">{lightbox.type}</span>
+                  <h2 className="font-display text-[28px] md:text-[42px] font-bold text-center text-[var(--white)] px-8 max-w-[600px] leading-[1.1]">{lightbox.title}</h2>
+                  
+                  {lightbox.description && (
+                    <p className="font-body text-[15px] text-[var(--muted)] text-center max-w-[400px] mt-6 px-4">
+                      {lightbox.description}
+                    </p>
+                  )}
+
+                  <div className="absolute bottom-6 flex items-center gap-6">
                     <button
                       type="button"
                       onClick={() => setLightbox(null)}
-                      className="font-mono text-[11px] tracking-[0.08em] uppercase cursor-pointer bg-transparent border-none text-[var(--sungold)] hover:opacity-80 transition-opacity"
+                      className="font-mono text-[11px] tracking-[0.1em] uppercase cursor-pointer bg-transparent border border-[var(--border-md)] px-6 py-2 text-[var(--white)] hover:border-[var(--sungold)] transition-colors"
                     >
-                      Close
+                      Close Overview
                     </button>
                   </div>
                 </div>
