@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Send, MessageSquare, MapPin, Mail, Github, Twitter, Linkedin } from 'lucide-react';
 import { submitContact, fetchPersonalInfo } from '../services/api';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { useLocale } from '../contexts/LocaleContext';
+import SectionKicker from '../components/portfolio/SectionKicker';
 import { ContactSkeleton } from '../components/portfolio/SkeletonLayouts';
 
 const INPUT_CLASS =
@@ -69,29 +71,53 @@ const ContactPage = () => {
 
   return (
     <>
-      <section className="pt-12 pb-8 md:pt-20 md:pb-10 border-b border-[var(--border)]">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-5 h-px bg-[var(--sungold)]" />
-            <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--sungold)]">
-              {t('contact_kicker')}
-            </span>
-          </div>
-          <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-4 text-[var(--white)]" style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}>
-            {t('contact_heading')}
-          </h1>
-          <p className="font-body text-[17px] leading-[1.7] max-w-[560px] text-[var(--muted)]">
-            {t('contact_subheading')}
-          </p>
+      <section className="relative pt-12 pb-8 md:pt-24 md:pb-16 border-b border-[var(--border)] overflow-hidden">
+        {/* Nebula Glow Backdrop */}
+        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[70%] bg-[var(--nebula)] opacity-[0.05] blur-[150px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-[35%] h-[55%] bg-[var(--sungold)] opacity-[0.02] blur-[120px] rounded-full pointer-events-none" />
+
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <SectionKicker label={t('contact_kicker')} accent="sungold" />
+            <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--white)] max-w-[800px]" style={{ fontSize: 'clamp(40px, 8vw, 80px)' }}>
+              {t('contact_heading')}
+            </h1>
+            <p className="font-body text-[17px] leading-[1.7] max-w-[600px] text-[var(--muted)]">
+              {t('contact_subheading')}
+            </p>
+          </motion.div>
         </div>
+
+        {/* Technical Scanline effect */}
+        <motion.div 
+          initial={{ top: '-10%' }}
+          animate={{ top: '110%' }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+          className="absolute left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--sungold)]/10 to-transparent pointer-events-none z-0"
+        />
       </section>
 
-      <section className="py-12 md:py-16">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
+      <section className="py-12 md:py-16 relative overflow-hidden">
+        {/* Subtle grid accent */}
+        <div className="absolute inset-0 opacity-[0.08] pointer-events-none" 
+             style={{ backgroundImage: 'linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)', backgroundSize: '80px 80px' }} />
+
+        <div className="max-w-[1160px] mx-auto px-4 md:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-12">
             {/* Contact form */}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-5" aria-label="Contact form">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <motion.form
+              onSubmit={handleSubmit}
+              className="flex flex-col gap-5"
+              aria-label="Contact form"
+              initial="hidden"
+              animate="visible"
+              variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.2 } } }}
+            >
+              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label htmlFor="contact-name" className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">{t('contact_name')}</label>
                   <input
@@ -119,8 +145,8 @@ const ContactPage = () => {
                     disabled={isSubmitting}
                   />
                 </div>
-              </div>
-              <div>
+              </motion.div>
+              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}>
                 <label htmlFor="contact-subject" className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">{t('contact_subject')}</label>
                 <input
                   id="contact-subject"
@@ -132,8 +158,8 @@ const ContactPage = () => {
                   required
                   disabled={isSubmitting}
                 />
-              </div>
-              <div>
+              </motion.div>
+              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}>
                 <label htmlFor="contact-message" className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--subtle)]">{t('contact_message')}</label>
                 <textarea
                   id="contact-message"
@@ -145,58 +171,85 @@ const ContactPage = () => {
                   required
                   disabled={isSubmitting}
                 />
-              </div>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[12px] border-0 cursor-pointer self-start rounded-none transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
-                style={{
-                  background: submitted ? 'var(--surface)' : 'var(--sungold)',
-                  color: submitted ? 'var(--sungold)' : 'var(--void)',
-                  border: submitted ? '1px solid rgba(232,160,32,0.3)' : 'none'
-                }}
-                aria-busy={isSubmitting}
-              >
-                {isSubmitting ? '…' : submitted ? '✓' : t('contact_send')} <Send size={14} />
-              </button>
+              </motion.div>
+              <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[12px] border-0 cursor-pointer self-start rounded-none transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                  style={{
+                    background: submitted ? 'var(--surface)' : 'var(--sungold)',
+                    color: submitted ? 'var(--sungold)' : 'var(--void)',
+                    border: submitted ? '1px solid rgba(232,160,32,0.3)' : 'none'
+                  }}
+                  aria-busy={isSubmitting}
+                >
+                  {isSubmitting ? '…' : submitted ? '✓' : t('contact_send')} <Send size={14} />
+                </motion.button>
+              </motion.div>
               {responseMsg && (
-                <p id="contact-status" role="status" aria-live="polite" className={`font-mono text-[12px] ${isError ? 'text-red-400' : 'text-[var(--sungold)]'}`}>
+                <motion.p
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  id="contact-status"
+                  role="status"
+                  aria-live="polite"
+                  className={`font-mono text-[12px] ${isError ? 'text-red-400' : 'text-[var(--sungold)]'}`}
+                >
                   {responseMsg}
-                </p>
+                </motion.p>
               )}
-            </form>
+            </motion.form>
 
             {/* Right column: Availability, Social grid, Email, Location, WhatsApp quick link */}
-            <div className="flex flex-col gap-5">
+            <motion.div
+              className="flex flex-col gap-5"
+              initial="hidden"
+              animate="visible"
+              variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.3 } } }}
+            >
               {/* Availability status */}
-              <div className="p-5 flex items-center gap-3 bg-[var(--warm-glow)] border border-[rgba(232,160,32,0.2)]">
-                <div className="w-2 h-2 bg-[var(--sungold)] shrink-0" style={{ boxShadow: '0 0 8px rgba(232,160,32,0.5)' }} />
+              <motion.div
+                variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}
+                className="p-5 flex items-center gap-3 bg-[var(--warm-glow)] border border-[rgba(232,160,32,0.2)] relative group"
+              >
+                <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-[var(--sungold)] opacity-40" />
+                <div className="w-2 h-2 bg-[var(--sungold)] shrink-0 animate-pulse" style={{ boxShadow: '0 0 8px rgba(232,160,32,0.5)' }} />
                 <span className="font-mono text-[11px] tracking-[0.08em] text-[var(--sungold)]">
                   {data.availability || 'Available for projects'}
                 </span>
-              </div>
+              </motion.div>
 
               {/* Social links grid */}
-              <div>
+              <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}>
                 <span className="block font-mono text-[10px] tracking-[0.12em] uppercase mb-3 text-[var(--subtle)]">Social</span>
                 <div className="grid grid-cols-2 gap-3">
                   {socialLinks.map((link, i) => (
-                    <a
+                    <motion.a
                       key={i}
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-4 flex items-center gap-3 no-underline bg-[var(--surface)] border border-[var(--border)] transition-all duration-200 hover:border-[rgba(232,160,32,0.25)] hover:bg-[var(--elevated)]"
+                      whileHover={{ scale: 1.02 }}
+                      className="p-4 flex items-center gap-3 no-underline bg-[var(--surface)] border border-[var(--border)] transition-all duration-200 hover:border-[rgba(232,160,32,0.25)] hover:bg-[var(--elevated)] relative group/social"
                     >
+                      {/* Corner accent on hover */}
+                      <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-[var(--sungold)] opacity-0 group-hover/social:opacity-60 transition-opacity duration-300" />
                       <link.icon size={18} className="text-[var(--sungold)] shrink-0" />
-                      <span className="font-mono text-[11px] text-[var(--muted)]">{link.label}</span>
-                    </a>
+                      <span className="font-mono text-[11px] text-[var(--muted)] group-hover/social:text-[var(--white)] transition-colors">{link.label}</span>
+                    </motion.a>
                   ))}
                 </div>
-              </div>
+              </motion.div>
 
               {/* Email */}
-              <div className="p-5 bg-[var(--surface)] border border-[var(--border)]">
+              <motion.div
+                variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}
+                className="p-5 bg-[var(--surface)] border border-[var(--border)] relative group hover:border-[var(--border-md)] transition-colors"
+              >
+                <div className="absolute -top-px -left-px w-3 h-3 border-t border-l border-[var(--sungold)] opacity-40" />
                 <div className="flex items-center gap-2 mb-2">
                   <Mail size={16} className="text-[var(--sungold)]" />
                   <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--subtle)]">Email</span>
@@ -204,31 +257,39 @@ const ContactPage = () => {
                 <a href={`mailto:${data.email}`} className="font-body text-[14px] text-[var(--white)] no-underline hover:text-[var(--sungold)] transition-colors">
                   {data.email}
                 </a>
-              </div>
+              </motion.div>
 
               {/* Location */}
-              <div className="p-5 bg-[var(--surface)] border border-[var(--border)]">
+              <motion.div
+                variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}
+                className="p-5 bg-[var(--surface)] border border-[var(--border)] relative group hover:border-[var(--border-md)] transition-colors"
+              >
+                <div className="absolute -top-px -left-px w-3 h-3 border-t border-l border-[var(--stardust)] opacity-40" />
                 <div className="flex items-center gap-2 mb-2">
                   <MapPin size={16} className="text-[var(--stardust)]" />
                   <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--subtle)]">Location</span>
                 </div>
                 <p className="font-body text-[14px] text-[var(--white)]">{data.location}</p>
-              </div>
+              </motion.div>
 
               {/* WhatsApp quick link */}
-              <a
+              <motion.a
+                variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 href={social.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary flex items-center justify-center gap-2 font-display text-[13px] font-semibold px-5 py-4 no-underline bg-[var(--sungold)] text-[var(--void)] border-0 rounded-none transition-all duration-200 hover:shadow-[var(--shadow-sharp-gold)]"
               >
                 <MessageSquare size={18} /> WhatsApp quick link
-              </a>
-            </div>
+              </motion.a>
+            </motion.div>
           </div>
         </div>
       </section>
     </>
+
   );
 };
 
