@@ -79,7 +79,7 @@ const PullToRefresh = ({ children, onRefresh }) => {
 
       <motion.div
         animate={controls}
-        className="relative z-10 bg-[var(--void)]"
+        className="relative z-10"
       >
         {children}
       </motion.div>
