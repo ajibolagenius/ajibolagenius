@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import { adminEndpoints } from '../../services/adminApi';
 
@@ -70,23 +71,33 @@ export default function AdminDashboard() {
           {/* Stat cards — design system: elevated bg, sharp, left accent */}
           <section className="mb-10">
             <h2 className="sr-only">Counts</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+            <motion.div
+              className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3"
+              initial="hidden"
+              animate="visible"
+              variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.05 } } }}
+            >
               {statCards.map(({ key, label, path, accent }) => (
-                <Link
+                <motion.div
                   key={key}
-                  to={path}
-                  className="block p-4 bg-[var(--elevated)] border border-[var(--border)] border-l-4 transition-all duration-200 hover:border-[var(--border-hi)] hover:shadow-[var(--shadow-sharp-md)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
-                  style={{ borderLeftColor: `var(--${accent})` }}
+                  variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } }}
                 >
-                  <span className="font-display font-extrabold text-[28px] leading-none text-[var(--white)] tabular-nums">
-                    {counts[key] ?? 0}
-                  </span>
-                  <span className="block mt-1 font-mono text-[11px] tracking-[0.08em] uppercase text-[var(--muted)]">
-                    {label}
-                  </span>
-                </Link>
+                  <Link
+                    to={path}
+                    className="block p-4 bg-[var(--elevated)] border border-[var(--border)] border-l-4 transition-all duration-200 hover:border-[var(--border-hi)] hover:shadow-[var(--shadow-sharp-md)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)] relative group"
+                    style={{ borderLeftColor: `var(--${accent})` }}
+                  >
+                    <div className="absolute top-0 right-0 w-2 h-2 border-t border-r opacity-0 group-hover:opacity-50 transition-opacity duration-300" style={{ borderColor: `var(--${accent})` }} />
+                    <span className="font-display font-extrabold text-[28px] leading-none text-[var(--white)] tabular-nums">
+                      {counts[key] ?? 0}
+                    </span>
+                    <span className="block mt-1 font-mono text-[11px] tracking-[0.08em] uppercase text-[var(--muted)]">
+                      {label}
+                    </span>
+                  </Link>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </section>
 
           {/* Quick links */}
@@ -97,32 +108,43 @@ export default function AdminDashboard() {
                 Quick actions
               </span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
+              initial="hidden"
+              animate="visible"
+              variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.2 } } }}
+            >
               {quickLinks.map(({ path, label, desc }) => (
-                <Link
-                  key={path}
-                  to={path}
-                  className="block p-4 border border-[var(--border)] bg-[var(--surface)] transition-all duration-200 hover:border-[rgba(232,160,32,0.25)] hover:shadow-[var(--shadow-sharp-lg)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
-                >
-                  <span className="font-display font-semibold text-[15px] text-[var(--white)]">
-                    {label}
-                  </span>
-                  <p className="font-body text-[13px] text-[var(--muted)] mt-1">{desc}</p>
-                </Link>
+                <motion.div key={path} variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}>
+                  <Link
+                    to={path}
+                    className="block p-4 border border-[var(--border)] bg-[var(--surface)] transition-all duration-200 hover:border-[rgba(232,160,32,0.25)] hover:shadow-[var(--shadow-sharp-lg)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)] relative group"
+                  >
+                    <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-[var(--sungold)] opacity-0 group-hover:opacity-50 transition-opacity duration-300" />
+                    <span className="font-display font-semibold text-[15px] text-[var(--white)] group-hover:text-[var(--sungold)] transition-colors">
+                      {label}
+                    </span>
+                    <p className="font-body text-[13px] text-[var(--muted)] mt-1">{desc}</p>
+                  </Link>
+                </motion.div>
               ))}
-              <Link
-                to="/admin/analytics"
-                className="block p-4 border border-[var(--border)] bg-[var(--surface)] transition-all duration-200 hover:border-[rgba(232,160,32,0.25)] hover:shadow-[var(--shadow-sharp-lg)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
-              >
-                <span className="font-display font-semibold text-[15px] text-[var(--white)]">Analytics</span>
-                <p className="font-body text-[13px] text-[var(--muted)] mt-1">Charts & engagement</p>
-              </Link>
-            </div>
+              <motion.div variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}>
+                <Link
+                  to="/admin/analytics"
+                  className="block p-4 border border-[var(--border)] bg-[var(--surface)] transition-all duration-200 hover:border-[rgba(232,160,32,0.25)] hover:shadow-[var(--shadow-sharp-lg)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)] relative group"
+                >
+                  <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-[var(--sungold)] opacity-0 group-hover:opacity-50 transition-opacity duration-300" />
+                  <span className="font-display font-semibold text-[15px] text-[var(--white)] group-hover:text-[var(--sungold)] transition-colors">Analytics</span>
+                  <p className="font-body text-[13px] text-[var(--muted)] mt-1">Charts & engagement</p>
+                </Link>
+              </motion.div>
+            </motion.div>
           </section>
 
           {/* Recent activity */}
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="border border-[var(--border)] bg-[var(--surface)]">
+            <div className="border border-[var(--border)] bg-[var(--surface)] relative">
+              <div className="absolute -top-px -left-px w-3 h-3 border-t border-l border-[var(--sungold)] opacity-40" />
               <div className="p-4 border-b border-[var(--border)] flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-5 h-px bg-[var(--sungold)]" aria-hidden />
@@ -156,7 +178,8 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="border border-[var(--border)] bg-[var(--surface)]">
+            <div className="border border-[var(--border)] bg-[var(--surface)] relative">
+              <div className="absolute -top-px -left-px w-3 h-3 border-t border-l border-[var(--nebula)] opacity-40" />
               <div className="p-4 border-b border-[var(--border)] flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-5 h-px bg-[var(--nebula)]" aria-hidden />

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Download } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -278,9 +279,10 @@ export default function AdminAnalyticsPage() {
       <div className="flex flex-wrap items-center gap-2 mb-8">
         <span className="font-mono text-[11px] text-[var(--muted)] uppercase tracking-wider">Range</span>
         {[7, 30].map((d) => (
-          <button
+          <motion.button
             key={d}
             type="button"
+            whileTap={{ scale: 0.95 }}
             onClick={() => setRangeDays(d)}
             className={`px-3 py-1.5 font-mono text-[12px] border transition-colors ${
               rangeDays === d
@@ -289,7 +291,7 @@ export default function AdminAnalyticsPage() {
             }`}
           >
             Last {d} days
-          </button>
+          </motion.button>
         ))}
       </div>
 
@@ -301,7 +303,8 @@ export default function AdminAnalyticsPage() {
             Engagement over time
           </h2>
         </div>
-        <div className="border border-[var(--border)] bg-[var(--surface)] p-4 md:p-6">
+        <div className="border border-[var(--border)] bg-[var(--surface)] p-4 md:p-6 relative">
+          <div className="absolute -top-px -left-px w-3 h-3 border-t border-l border-[var(--sungold)] opacity-40" />
           <div className="h-[280px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={engagementData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
@@ -384,7 +387,8 @@ export default function AdminAnalyticsPage() {
           </h2>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="border border-[var(--border)] bg-[var(--surface)] p-4 md:p-6">
+          <div className="border border-[var(--border)] bg-[var(--surface)] p-4 md:p-6 relative">
+            <div className="absolute -top-px -left-px w-3 h-3 border-t border-l border-[var(--stardust)] opacity-40" />
             <div className="h-[260px] w-full">
               {contentPieData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
@@ -427,7 +431,8 @@ export default function AdminAnalyticsPage() {
             </div>
           </div>
 
-          <div className="border border-[var(--border)] bg-[var(--surface)] p-4 md:p-6">
+          <div className="border border-[var(--border)] bg-[var(--surface)] p-4 md:p-6 relative">
+            <div className="absolute -top-px -left-px w-3 h-3 border-t border-l border-[var(--nebula)] opacity-40" />
             <div className="h-[260px] w-full">
               {contentPieData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
@@ -501,7 +506,8 @@ export default function AdminAnalyticsPage() {
           </div>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <div className="border border-[var(--border)] bg-[var(--surface)] p-4 md:p-6">
+          <div className="border border-[var(--border)] bg-[var(--surface)] p-4 md:p-6 relative">
+            <div className="absolute -top-px -left-px w-3 h-3 border-t border-l border-[var(--violet)] opacity-40" />
             <p className="font-mono text-[11px] text-[var(--muted)] mb-3">Events over time</p>
             <div className="h-[240px] w-full">
               {activityByDay.some((b) => b.total > 0) ? (
@@ -563,7 +569,8 @@ export default function AdminAnalyticsPage() {
               )}
             </div>
           </div>
-          <div className="border border-[var(--border)] bg-[var(--surface)] p-4 md:p-6">
+          <div className="border border-[var(--border)] bg-[var(--surface)] p-4 md:p-6 relative">
+            <div className="absolute -top-px -left-px w-3 h-3 border-t border-l border-[var(--nebula)] opacity-40" />
             <p className="font-mono text-[11px] text-[var(--muted)] mb-3">Top pages & paths</p>
             <div className="h-[240px] w-full">
               {topPaths.length > 0 ? (

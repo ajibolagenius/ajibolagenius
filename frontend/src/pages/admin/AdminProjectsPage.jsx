@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -198,12 +199,14 @@ export default function AdminProjectsPage() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
         <AdminPageHeader kicker="Content" title="Projects" subtitle="Shown on Home, Work list, and project detail (/work/[slug])." />
-        <Button
-          onClick={openCreate}
-          className="self-start sm:self-center h-11 font-display font-semibold text-[13px] tracking-[0.04em] bg-[var(--sungold)] text-[var(--void)] rounded-none hover:shadow-[var(--shadow-sharp-gold)] hover:-translate-y-0.5 transition-all duration-200"
-        >
-          Add project
-        </Button>
+        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <Button
+            onClick={openCreate}
+            className="self-start sm:self-center h-11 font-display font-semibold text-[13px] tracking-[0.04em] bg-[var(--sungold)] text-[var(--void)] rounded-none hover:shadow-[var(--shadow-sharp-gold)] hover:-translate-y-0.5 transition-all duration-200"
+          >
+            Add project
+          </Button>
+        </motion.div>
       </div>
       {!loading && (
         <Input
@@ -218,7 +221,8 @@ export default function AdminProjectsPage() {
       {loading ? (
         <p className="text-[var(--muted)] font-mono text-sm">Loading…</p>
       ) : (
-        <div className="border border-[var(--border)] bg-[var(--surface)] overflow-x-auto">
+        <div className="border border-[var(--border)] bg-[var(--surface)] overflow-x-auto relative">
+          <div className="absolute -top-px -left-px w-3 h-3 border-t border-l border-[var(--sungold)] opacity-40" />
           <table className="w-full text-left min-w-[600px]">
             <thead className="bg-[var(--elevated)] border-b border-[var(--border)]">
               <tr>
@@ -230,7 +234,7 @@ export default function AdminProjectsPage() {
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
               {paginatedList.map((p) => (
-                <tr key={p.id} className="bg-[var(--elevated)]/50 hover:bg-[var(--elevated)]">
+                <tr key={p.id} className="bg-[var(--elevated)]/50 hover:bg-[var(--elevated)] hover:border-l-2 hover:border-l-[var(--sungold)] transition-all duration-150">
                   <td className="px-4 py-3 font-mono text-[12px] text-[var(--white)]">{p.label}</td>
                   <td className="px-4 py-3 font-body text-sm text-[var(--white)]">{p.name}</td>
                   <td className="px-4 py-3 font-body text-sm text-[var(--muted)]">{p.category}</td>

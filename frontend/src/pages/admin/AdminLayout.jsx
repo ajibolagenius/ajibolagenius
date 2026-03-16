@@ -39,11 +39,16 @@ function NavGroup({ title, items }) {
               `block px-3 py-2 font-mono text-[12px] tracking-[0.06em] transition-all duration-200 ${
                 isActive
                   ? 'bg-[var(--sungold)]/15 text-[var(--sungold)] border-l-2 border-[var(--sungold)] shadow-[var(--shadow-sharp-sm)]'
-                  : 'text-[var(--muted)] hover:text-[var(--white)] hover:bg-[var(--elevated)] border-l-2 border-transparent'
+                  : 'text-[var(--muted)] hover:text-[var(--white)] hover:bg-[var(--elevated)] hover:translate-x-0.5 border-l-2 border-transparent'
               }`
             }
           >
-            {label}
+            {isActive => (
+              <span className="flex items-center gap-2">
+                {isActive && <span className="w-1.5 h-1.5 bg-[var(--sungold)] shrink-0 animate-pulse" style={{ boxShadow: '0 0 6px rgba(232,160,32,0.4)' }} />}
+                {label}
+              </span>
+            )}
           </NavLink>
         ))}
       </div>
@@ -94,7 +99,8 @@ export default function AdminLayout() {
         }`}
         aria-label="Admin navigation"
       >
-        <div className="p-5 border-b border-[var(--border)] flex items-center justify-between">
+        <div className="p-5 border-b border-[var(--border)] flex items-center justify-between relative">
+          <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-[var(--sungold)] opacity-30" />
           <div className="flex items-center gap-2">
             <div className="w-6 h-px bg-[var(--sungold)]" aria-hidden />
             <span className="font-display font-bold text-[var(--sungold)] text-[13px] tracking-[0.15em] uppercase">
