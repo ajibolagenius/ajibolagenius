@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Clock } from 'lucide-react';
-import { fetchBlogPost } from '../services/api';
+import { ArrowLeft, Clock, Copy, Share2, Check, Twitter, MessageCircle } from 'lucide-react';
+import { fetchBlogPost, fetchBlogPosts } from '../services/api';
 import Badge from '../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { track } from '../services/analytics';
 import { buildBlogPostingSchema } from '../lib/structuredData';
 import { WritingSkeleton } from '../components/portfolio/SkeletonLayouts';
+import SectionKicker from '../components/portfolio/SectionKicker';
 
 /** Detect if body is HTML from WYSIWYG (e.g. starts with <p> or contains tags). */
 function isHtmlBody(body) {
@@ -18,16 +19,16 @@ function isHtmlBody(body) {
 
 /** Prose styles for WYSIWYG HTML output (headings, lists, blockquote, links). */
 const articleProseClass = [
-  'article-body font-body text-[15px] leading-[1.8] text-[var(--muted)] max-w-full break-words',
-  '[&_h1]:font-display [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-[var(--white)] [&_h1]:mt-8 [&_h1]:mb-4',
-  '[&_h2]:font-display [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-[var(--white)] [&_h2]:mt-6 [&_h2]:mb-3',
-  '[&_h3]:font-display [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-[var(--white)] [&_h3]:mt-4 [&_h3]:mb-2',
+  'article-body font-body text-[16px] leading-[1.8] text-[var(--muted)] max-w-full break-words',
+  '[&_h1]:font-display [&_h1]:text-3xl [&_h1]:font-extrabold [&_h1]:text-[var(--white)] [&_h1]:mt-12 [&_h1]:mb-6 [&_h1]:tracking-tight',
+  '[&_h2]:font-display [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-[var(--white)] [&_h2]:mt-10 [&_h2]:mb-4 [&_h2]:tracking-tight',
+  '[&_h3]:font-display [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-[var(--white)] [&_h3]:mt-8 [&_h3]:mb-3',
   '[&_p]:mb-6',
-  '[&_ul]:list-none [&_ul]:pl-0 [&_ul]:my-6 [&_ul]:space-y-2 [&_ul]:[&_li]:flex [&_ul]:[&_li]:items-start [&_ul]:[&_li]:gap-2',
-  '[&_ol]:list-none [&_ol]:pl-0 [&_ol]:my-6 [&_ol]:space-y-2 [&_ol]:[&_li]:flex [&_ol]:[&_li]:items-start [&_ol]:[&_li]:gap-2',
-  '[&_blockquote]:border-l-4 [&_blockquote]:border-[var(--sungold)] [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-[var(--subtle)] [&_blockquote]:my-6',
-  '[&_a]:text-[var(--sungold)] [&_a]:underline [&_a]:hover:no-underline',
-  '[&_pre]:max-w-full [&_pre]:overflow-x-auto [&_code]:break-words',
+  '[&_ul]:list-none [&_ul]:pl-0 [&_ul]:my-6 [&_ul]:space-y-3 [&_ul]:[&_li]:flex [&_ul]:[&_li]:items-start [&_ul]:[&_li]:gap-3',
+  '[&_ol]:list-none [&_ol]:pl-0 [&_ol]:my-6 [&_ol]:space-y-3 [&_ol]:[&_li]:flex [&_ol]:[&_li]:items-start [&_ol]:[&_li]:gap-3',
+  '[&_blockquote]:border-l-4 [&_blockquote]:border-[var(--sungold)] [&_blockquote]:pl-6 [&_blockquote]:italic [&_blockquote]:text-[var(--white)] [&_blockquote]:bg-[var(--overlay)] [&_blockquote]:py-4 [&_blockquote]:my-8',
+  '[&_a]:text-[var(--sungold)] [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-[var(--stardust)] [&_a]:transition-colors',
+  '[&_pre]:bg-[var(--surface)] [&_pre]:p-6 [&_pre]:border [&_pre]:border-[var(--border)] [&_pre]:my-8 [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_code]:font-mono [&_code]:text-[13px] [&_code]:leading-normal',
 ].join(' ');
 
 /** Render body: HTML from WYSIWYG (with optional pre-injected heading ids) or plain text. */
@@ -126,14 +127,68 @@ const BlogPostPage = () => {
   const [readProgress, setReadProgress] = useState(0);
   const articleRef = React.useRef(null);
 
+  const [nextPost, setNextPost] = useState(null);
+  const [copied, setCopied] = useState(false);
+
   useEffect(() => {
+    setLoading(true);
     fetchBlogPost(slug)
-      .then(data => { setPost(data); setLoading(false); })
+      .then(async (data) => {
+        setPost(data);
+        setLoading(false);
+        // Fetch sibling posts for navigation
+        try {
+          const allPosts = await fetchBlogPosts();
+          const currentIndex = allPosts.findIndex(p => p.id === data.id);
+          if (currentIndex !== -1 && currentIndex < allPosts.length - 1) {
+            setNextPost(allPosts[currentIndex + 1]);
+          } else if (allPosts.length > 1) {
+            setNextPost(allPosts[0]); // Wrap to first
+          }
+        } catch (e) {
+          console.warn('Failed to fetch next post', e);
+        }
+      })
       .catch(() => {
         setPost(null);
         setLoading(false);
       });
   }, [slug]);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleShare = () => {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(`Reading "${post?.title}" by @ajibola_akelebe`);
+    window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+  };
+
+  usePageMeta(
+    post
+      ? {
+          title: post.title,
+          description: post.excerpt || post.description || 'Read this article by Ajibola Akelebe.',
+          image: post.cover_image || post.image,
+          ogType: 'article',
+          canonical: `/writing/${post.slug || slug}`,
+          structuredData: buildBlogPostingSchema(post),
+        }
+      : { 
+          title: 'Article', 
+          description: 'Technical writing by Ajibola Akelebe.', 
+          canonical: `/writing/${slug}` 
+        }
+  );
+
+  const handleWhatsAppShare = () => {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(`Check out this article: ${post?.title} - `);
+    window.open(`https://wa.me/?text=${text}${url}`, '_blank');
+  };
 
   useEffect(() => {
     if (post?.slug || post?.title) {
@@ -211,45 +266,88 @@ const BlogPostPage = () => {
     <>
       {/* Reading progress bar — article scroll */}
       <div
-        className="fixed top-0 left-0 right-0 h-0.5 bg-[var(--stardust)] z-[998] pointer-events-none"
-        style={{ width: `${readProgress * 100}%` }}
+        className="fixed top-0 left-0 right-0 h-0.5 bg-[var(--sungold)] z-[998] pointer-events-none transition-all duration-300"
+        style={{
+          width: `${readProgress * 100}%`,
+          boxShadow: readProgress > 0 ? '0 0 8px var(--sungold)' : 'none'
+        }}
         aria-hidden
       />
+
       {/* Post title + meta + tags / category */}
-      <section className="pt-12 pb-8 md:pt-16 md:pb-10 border-b border-[var(--border)]">
-        <div className="max-w-[720px] mx-auto px-4 md:px-8">
-          <div className="mb-10">
+      <section className="relative pt-20 pb-12 md:pt-28 md:pb-16 border-b border-[var(--border)] overflow-hidden">
+        {/* Nebula Backdrop */}
+        <div className="absolute inset-0 z-0 pointer-events-none opacity-15">
+          <div className="absolute top-[-10%] left-[-5%] w-[50%] h-[60%] bg-[var(--nebula)] blur-[100px] rounded-full" />
+          <div className="absolute bottom-[-5%] right-[-10%] w-[40%] h-[50%] bg-[var(--violet)] blur-[80px] rounded-full opacity-50" />
+        </div>
+
+        <div className="max-w-[720px] mx-auto px-4 md:px-8 relative z-10">
+          <div className="mb-12">
             <Link
               to="/writing"
-              className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.08em] uppercase no-underline text-[var(--muted)] hover:text-[var(--sungold)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
+              className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.1em] uppercase no-underline text-[var(--muted)] hover:text-[var(--sungold)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
             >
               <ArrowLeft size={14} /> Back to Writing
             </Link>
           </div>
 
           {post.category && (
-            <Badge variant="cosmic" className="mb-4 block w-fit">
-              {post.category}
-            </Badge>
+            <SectionKicker label={post.category} accent="sungold" />
           )}
 
-          <h1 className="font-display font-extrabold leading-[1.1] tracking-[-0.02em] mb-4 text-[var(--white)]" style={{ fontSize: 'clamp(28px, 5vw, 48px)' }}>
+          <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--white)]" style={{ fontSize: 'clamp(32px, 6vw, 56px)' }}>
             {post.title}
           </h1>
 
-          <div className="flex flex-wrap items-center gap-4 mb-6 font-mono text-[11px] text-[var(--subtle)]">
-            <span>{post.date}</span>
-            {readTime && (
-              <span className="flex items-center gap-1">
-                <Clock size={11} /> {readTime}
-              </span>
-            )}
+          <div className="flex flex-wrap items-center justify-between gap-6 mb-10 pb-8 border-b border-[var(--border-md)]">
+            <div className="flex flex-wrap items-center gap-4 font-mono text-[11px] text-[var(--subtle)]">
+              <span className="bg-[var(--overlay)] px-2 py-1 border border-[var(--border)]">{post.date}</span>
+              {readTime && (
+                <span className="flex items-center gap-1">
+                  <Clock size={12} className="text-[var(--sungold)]" /> {readTime}
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleCopy}
+                className="p-2 text-[var(--muted)] hover:text-[var(--sungold)] transition-colors bg-[var(--surface)] border border-[var(--border)] rounded-full group relative"
+                title="Copy link"
+              >
+                {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[var(--void)] text-[var(--white)] text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-[var(--border)]">
+                  {copied ? 'Copied!' : 'Copy Link'}
+                </span>
+              </button>
+              <button
+                onClick={handleShare}
+                className="p-2 text-[var(--muted)] hover:text-[var(--sungold)] transition-colors bg-[var(--surface)] border border-[var(--border)] rounded-full group relative"
+                title="Share on X"
+              >
+                <Twitter size={14} />
+                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[var(--void)] text-[var(--white)] text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-[var(--border)]">
+                  Share on X
+                </span>
+              </button>
+              <button
+                onClick={handleWhatsAppShare}
+                className="p-2 text-[var(--muted)] hover:text-green-500 transition-colors bg-[var(--surface)] border border-[var(--border)] rounded-full group relative"
+                title="Share on WhatsApp"
+              >
+                <MessageCircle size={14} />
+                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[var(--void)] text-[var(--white)] text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-[var(--border)]">
+                  WhatsApp
+                </span>
+              </button>
+            </div>
           </div>
 
           {(post.tags || []).length > 0 && (
             <div className="flex flex-wrap gap-2">
               {post.tags.map((tag, j) => (
-                <Badge key={j} variant={BADGE_VARIANTS[j % BADGE_VARIANTS.length]}>
+                <Badge key={j} variant={BADGE_VARIANTS[j % BADGE_VARIANTS.length]} className="text-[10px]">
                   {tag}
                 </Badge>
               ))}
@@ -288,14 +386,32 @@ const BlogPostPage = () => {
         </div>
       </section>
 
-      {/* Footer CTA */}
-      <section className="py-12 border-t border-[var(--border)]">
+      {/* Footer CTA & Next Post */}
+      <section className="py-20 border-t border-[var(--border)] bg-[var(--surface)]/10">
         <div className="max-w-[720px] mx-auto px-4 md:px-8">
+          {nextPost && (
+            <div className="mb-16">
+              <SectionKicker label="Continue Reading" accent="stardust" />
+              <Link
+                to={`/writing/${nextPost.slug || nextPost.id}`}
+                className="group block p-8 border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--stardust)] transition-all relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--stardust)]/5 blur-[40px] rounded-full group-hover:bg-[var(--stardust)]/10 transition-all" />
+                <h3 className="font-display text-xl md:text-2xl font-bold text-[var(--white)] group-hover:text-[var(--sungold)] transition-colors mb-2">
+                  {nextPost.title}
+                </h3>
+                <p className="font-body text-[14px] text-[var(--muted)] line-clamp-2">
+                  {nextPost.excerpt || nextPost.description}
+                </p>
+              </Link>
+            </div>
+          )}
+
           <Link
             to="/writing"
-            className="btn-ghost inline-flex items-center gap-2 font-display text-[13px] font-semibold px-[22px] py-[11px] no-underline cursor-pointer bg-transparent text-[var(--white)] border border-[var(--border-md)] rounded-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
+            className="btn-ghost inline-flex items-center gap-3 font-display text-[13px] font-bold px-[24px] py-[12px] no-underline cursor-pointer bg-transparent text-[var(--white)] border border-[var(--border-md)] rounded-none hover:bg-[var(--overlay)] transition-all uppercase tracking-[0.05em]"
           >
-            <ArrowLeft size={14} /> All Articles
+            <ArrowLeft size={16} /> All Articles
           </Link>
         </div>
       </section>

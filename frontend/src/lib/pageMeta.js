@@ -56,7 +56,9 @@ function setCanonical(href) {
     el.setAttribute('rel', 'canonical');
     document.head.appendChild(el);
   }
-  el.setAttribute('href', href || getBaseUrl());
+  const base = getBaseUrl();
+  const absoluteHref = href?.startsWith('http') ? href : `${base}${href?.startsWith('/') ? '' : '/'}${href || ''}`;
+  el.setAttribute('href', absoluteHref);
 }
 
 /**
@@ -72,22 +74,31 @@ function setCanonical(href) {
 export function setPageMeta(opts = {}) {
   const base = getBaseUrl();
   const title = opts.title ? `${opts.title} — ${SITE_NAME}` : DEFAULT_TITLE;
-  const description = opts.description ?? DEFAULT_DESCRIPTION;
-  const image = opts.image?.startsWith('http') ? opts.image : `${base}${(opts.image || DEFAULT_IMAGE).replace(/^\//, '/')}`;
-  const canonical = opts.canonical ? `${base}${opts.canonical.startsWith('/') ? '' : '/'}${opts.canonical}` : base;
-  const ogType = opts.ogType ?? OG_TYPE_WEBSITE;
+  const description = opts.description || DEFAULT_DESCRIPTION;
+  
+  // Ensure image is absolute
+  let image = opts.image || DEFAULT_IMAGE;
+  if (!image.startsWith('http')) {
+    image = `${base}${image.startsWith('/') ? '' : '/'}${image}`;
+  }
+  
+  const canonical = opts.canonical || '';
+  const absoluteUrl = canonical.startsWith('http') ? canonical : `${base}${canonical.startsWith('/') ? '' : '/'}${canonical}`;
+  const ogType = opts.ogType || OG_TYPE_WEBSITE;
 
   document.title = title;
   ensureMeta('description', 'content', description);
   ensureMeta('og:title', 'content', title);
   ensureMeta('og:description', 'content', description);
   ensureMeta('og:image', 'content', image);
-  ensureMeta('og:url', 'content', canonical);
+  ensureMeta('og:url', 'content', absoluteUrl);
   ensureMeta('og:type', 'content', ogType);
+  
   ensureMeta('twitter:card', 'content', 'summary_large_image');
   ensureMeta('twitter:title', 'content', title);
   ensureMeta('twitter:description', 'content', description);
   ensureMeta('twitter:image', 'content', image);
+  
   setCanonical(canonical);
 }
 

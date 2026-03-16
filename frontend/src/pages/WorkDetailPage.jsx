@@ -67,11 +67,17 @@ const WorkDetailPage = () => {
     project
       ? {
           title: project.name,
-          description: typeof project.description === 'string' ? project.description : 'Project by Ajibola Akelebe.',
-          image: (project.screenshots && project.screenshots[0]) ? (typeof project.screenshots[0] === 'string' ? project.screenshots[0] : project.screenshots[0].url) : undefined,
+          description: project.description || 'Project by Ajibola Akelebe.',
+          image: (project.screenshots && project.screenshots[0]) 
+            ? (typeof project.screenshots[0] === 'string' ? project.screenshots[0] : project.screenshots[0].url) 
+            : undefined,
           canonical: `/work/${project.slug || slug}`,
         }
-      : { title: 'Project', description: 'Project by Ajibola Akelebe.', canonical: slug ? `/work/${slug}` : '/work' }
+      : { 
+          title: 'Project', 
+          description: 'Project by Ajibola Akelebe.', 
+          canonical: `/work/${slug}` 
+        }
   );
 
   if (loading) {

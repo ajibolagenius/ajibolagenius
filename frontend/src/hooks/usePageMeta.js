@@ -23,5 +23,12 @@ export function usePageMeta(opts) {
       resetPageMeta();
       clearStructuredData();
     };
-  }, [opts?.title, opts?.description, opts?.image, opts?.canonical, opts?.ogType, opts?.structuredData]);
+  }, [
+    opts?.title, 
+    opts?.description, 
+    opts?.image, 
+    opts?.canonical, 
+    opts?.ogType, 
+    opts?.structuredData ? JSON.stringify(opts.structuredData) : null
+  ]);
 }
