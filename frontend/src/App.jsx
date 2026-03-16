@@ -32,6 +32,7 @@ const AdminMessagesPage = lazy(() => import('./pages/admin/AdminMessagesPage'));
 const AdminNewsletterPage = lazy(() => import('./pages/admin/AdminNewsletterPage'));
 const AdminWaitlistPage = lazy(() => import('./pages/admin/AdminWaitlistPage'));
 const AdminAnalyticsPage = lazy(() => import('./pages/admin/AdminAnalyticsPage'));
+const AdminSkillsPage = lazy(() => import('./pages/admin/AdminSkillsPage'));
 
 const adminFallback = (
   <div className="py-32 text-center font-mono text-[13px] text-[var(--subtle)]">Loading…</div>
@@ -53,6 +54,7 @@ function App() {
               <Route path="courses" element={<Suspense fallback={adminFallback}><AdminCoursesPage /></Suspense>} />
               <Route path="timeline" element={<Suspense fallback={adminFallback}><AdminTimelinePage /></Suspense>} />
               <Route path="testimonials" element={<Suspense fallback={adminFallback}><AdminTestimonialsPage /></Suspense>} />
+              <Route path="skills" element={<Suspense fallback={adminFallback}><AdminSkillsPage /></Suspense>} />
               <Route path="personal-info" element={<Suspense fallback={adminFallback}><AdminPersonalInfoPage /></Suspense>} />
               <Route path="messages" element={<Suspense fallback={adminFallback}><AdminMessagesPage /></Suspense>} />
               <Route path="newsletter" element={<Suspense fallback={adminFallback}><AdminNewsletterPage /></Suspense>} />

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { aboutData, skills, homeAboutSnapshot } from '../../data/mock';
-import { fetchPersonalInfo } from '../../services/api';
+import { aboutData, skills as fallbackSkills, homeAboutSnapshot } from '../../data/mock';
+import { fetchPersonalInfo, fetchSkills, fetchProjects, fetchCourses } from '../../services/api';
 import { personalInfo as fallbackInfo } from '../../data/mock';
 import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
 
@@ -8,6 +8,19 @@ const About = ({ snapshot = false }) => {
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
   const { data: info } = useRealtimeQuery('personal_info', fetchPersonalInfo, fallbackInfo);
+  const { data: skillsData } = useRealtimeQuery('skills', fetchSkills, fallbackSkills);
+  const { data: projectsData } = useRealtimeQuery('projects', fetchProjects, []);
+  const { data: coursesData } = useRealtimeQuery('courses', fetchCourses, []);
+
+  const skills = Array.isArray(skillsData) && skillsData.length > 0 ? skillsData : fallbackSkills;
+
+  // Compute dynamic stats from live table counts
+  const dynamicStats = [
+    { label: 'Projects Shipped', value: `${Array.isArray(projectsData) ? projectsData.length : 0}+` },
+    { label: 'Courses Created', value: `${Array.isArray(coursesData) ? coursesData.length : 0}` },
+    { label: 'Students Taught', value: aboutData.stats[2]?.value || '300+' },
+    { label: 'Years Experience', value: aboutData.stats[3]?.value || '6+' },
+  ];
 
   // Use fetched description if available, otherwise fall back to mock
   const bodyCopy = snapshot
@@ -62,53 +75,53 @@ const About = ({ snapshot = false }) => {
           </p>
 
           {!snapshot && (
-          <>
-          {/* Stats grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-            {aboutData.stats.map((stat, i) => (
-              <div
-                key={i}
-                className="p-5 bg-[var(--surface)] border border-[var(--border)] rounded-none"
-              >
-                <div className="font-display text-[28px] font-extrabold mb-1 text-[var(--sungold)]">
-                  {stat.value}
-                </div>
-                <div className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--subtle)]">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Skills */}
-          <div className="flex items-center gap-2 mb-6">
-            <div className="w-5 h-px bg-[var(--stardust)]" />
-            <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--stardust)]">
-              Skills & Tools
-            </span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {skills.map((skill, i) => (
-              <div key={i} className="flex items-center gap-4">
-                <span className="font-mono text-[12px] tracking-[0.04em] min-w-[180px] text-[var(--muted)]">
-                  {skill.name}
-                </span>
-                <div className="flex-1 h-[3px] relative bg-[var(--elevated)]">
+            <>
+              {/* Stats grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+                {dynamicStats.map((stat, i) => (
                   <div
-                    className="absolute top-0 left-0 h-full transition-all duration-1000 rounded-none bg-[var(--sungold)]"
-                    style={{
-                      width: visible ? `${skill.level}%` : '0%',
-                      transitionDelay: `${i * 100}ms`
-                    }}
-                  />
-                </div>
-                <span className="font-mono text-[11px] text-[var(--subtle)]">
-                  {skill.level}%
+                    key={i}
+                    className="p-5 bg-[var(--surface)] border border-[var(--border)] rounded-none"
+                  >
+                    <div className="font-display text-[28px] font-extrabold mb-1 text-[var(--sungold)]">
+                      {stat.value}
+                    </div>
+                    <div className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--subtle)]">
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Skills */}
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-5 h-px bg-[var(--stardust)]" />
+                <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--stardust)]">
+                  Skills & Tools
                 </span>
               </div>
-            ))}
-          </div>
-          </>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {skills.map((skill, i) => (
+                  <div key={i} className="flex items-center gap-4">
+                    <span className="font-mono text-[12px] tracking-[0.04em] min-w-[180px] text-[var(--muted)]">
+                      {skill.name}
+                    </span>
+                    <div className="flex-1 h-[3px] relative bg-[var(--elevated)]">
+                      <div
+                        className="absolute top-0 left-0 h-full transition-all duration-1000 rounded-none bg-[var(--sungold)]"
+                        style={{
+                          width: visible ? `${skill.level}%` : '0%',
+                          transitionDelay: `${i * 100}ms`
+                        }}
+                      />
+                    </div>
+                    <span className="font-mono text-[11px] text-[var(--subtle)]">
+                      {skill.level}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </div>

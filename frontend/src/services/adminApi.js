@@ -26,6 +26,7 @@ const tableConfig = {
   education: { table: 'education_entries', order: { column: 'order', ascending: true } },
   certifications: { table: 'certifications', order: { column: 'order', ascending: true } },
   testimonials: { table: 'testimonials' },
+  skills: { table: 'skills', order: { column: 'order', ascending: true } },
 };
 
 function list(tableName, order) {
@@ -138,6 +139,12 @@ export const adminEndpoints = {
     create: (d) => create(tableConfig.testimonials.table, d),
     update: (id, d) => update(tableConfig.testimonials.table, id, d),
     delete: (id) => remove(tableConfig.testimonials.table, id).then(() => ({ status: 'ok' })),
+  },
+  skills: {
+    list: () => list(tableConfig.skills.table, tableConfig.skills.order),
+    create: (d) => create(tableConfig.skills.table, d),
+    update: (id, d) => update(tableConfig.skills.table, id, d),
+    delete: (id) => remove(tableConfig.skills.table, id).then(() => ({ status: 'ok' })),
   },
   personalInfo: {
     get: () => supabase.from('personal_info').select('*').eq('id', 1).single().then(handleResponse),

@@ -97,8 +97,8 @@ export const aboutData = {
     stats: [
         { label: "Projects Shipped", value: "5+" },
         { label: "Courses Created", value: "9" },
-        { label: "Students Taught", value: "200+" },
-        { label: "Years Experience", value: "5+" }
+        { label: "Students Taught", value: "300+" },
+        { label: "Years Experience", value: "6+" }
     ]
 };
 

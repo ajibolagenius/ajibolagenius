@@ -64,6 +64,9 @@ export const fetchEducation = () =>
 export const fetchCertifications = () =>
   supabase.from('certifications').select('*').order('order', { ascending: true }).then(handleResponse);
 
+export const fetchSkills = () =>
+  supabase.from('skills').select('*').order('order', { ascending: true }).then(handleResponse);
+
 export const fetchTestimonials = () =>
   supabase.from('testimonials').select('*').eq('approved', true).then(handleResponse);
 

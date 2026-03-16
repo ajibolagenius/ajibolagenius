@@ -11,6 +11,7 @@ const contentNav = [
   { to: '/admin/courses', label: 'Courses' },
   { to: '/admin/timeline', label: 'Timeline' },
   { to: '/admin/testimonials', label: 'Testimonials' },
+  { to: '/admin/skills', label: 'Skills' },
 ];
 
 const engagementNav = [

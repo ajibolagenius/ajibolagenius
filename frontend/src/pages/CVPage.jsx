@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Download, Briefcase, GraduationCap, Award, Wrench, Printer } from 'lucide-react';
-import { fetchTimeline, fetchEducation, fetchCertifications } from '../services/api';
-import { timeline as fbTimeline, skills, cvData } from '../data/mock';
+import { fetchTimeline, fetchEducation, fetchCertifications, fetchSkills } from '../services/api';
+import { timeline as fbTimeline, skills as fbSkills, cvData } from '../data/mock';
 import { techStackForCV } from '../data/techStack';
 import Badge from '../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../constants';
@@ -24,6 +24,9 @@ const CVPage = () => {
   const { data: timeline } = useRealtimeQuery('timeline_entries', fetchTimeline, fbTimeline);
   const { data: education } = useRealtimeQuery('education_entries', fetchEducation, cvData.education);
   const { data: certifications } = useRealtimeQuery('certifications', fetchCertifications, []);
+  const { data: skillsData } = useRealtimeQuery('skills', fetchSkills, fbSkills);
+
+  const skills = Array.isArray(skillsData) && skillsData.length > 0 ? skillsData : fbSkills;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
