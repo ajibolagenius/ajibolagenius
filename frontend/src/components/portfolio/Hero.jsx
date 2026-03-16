@@ -35,15 +35,10 @@ const Hero = () => {
       ref={heroRef}
       className="relative flex flex-col overflow-hidden h-[calc(100dvh-120px)] md:h-[calc(100dvh-56px)]"
     >
-      {/* Hero orbs — flat tint rectangles, blur 80px (Design System §08: no radial) */}
-      <div
-        className="absolute pointer-events-none w-[400px] h-[400px] -top-[80px] -right-[80px] blur-[80px]"
-        style={{ background: 'var(--cosmic-glow)', borderRadius: 0 }}
-      />
-      <div
-        className="absolute pointer-events-none w-[320px] h-[320px] bottom-0 -left-[40px] blur-[80px]"
-        style={{ background: 'var(--warm-glow)', borderRadius: 0 }}
-      />
+      {/* Nebula Glow Backdrop */}
+      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[var(--nebula)] opacity-[0.06] blur-[160px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-[-5%] right-[-5%] w-[40%] h-[50%] bg-[var(--sungold)] opacity-[0.03] blur-[140px] rounded-full pointer-events-none" />
+      <div className="absolute top-[20%] right-[15%] w-[30%] h-[40%] bg-[var(--stardust)] opacity-[0.02] blur-[100px] rounded-full pointer-events-none" />
 
       {/* Main hero content — flex-1 + min-h-0 so it actually shrinks, keeping ticker visible */}
       <div className="flex-1 min-h-0 flex items-center relative z-10 overflow-hidden">

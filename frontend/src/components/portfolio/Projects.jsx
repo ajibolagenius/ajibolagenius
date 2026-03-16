@@ -5,6 +5,7 @@ import { fetchProjects } from '../../services/api';
 import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
 import { ProjectsSkeleton } from './SkeletonLayouts';
 import Badge from './Badge';
+import { BADGE_VARIANTS } from '../../constants';
 
 const ProjectCard = ({ project, index, visible }) => {
   const [hovered, setHovered] = useState(false);
@@ -12,46 +13,58 @@ const ProjectCard = ({ project, index, visible }) => {
 
   return (
     <div
-      className="group cursor-pointer bg-[var(--elevated)] border overflow-hidden rounded-none transition-all duration-300"
+      className="group relative cursor-pointer bg-[var(--elevated)] border border-[var(--border)] overflow-hidden rounded-none transition-all duration-300 hover:border-[var(--sungold)]/30"
       style={{
-        borderColor: hovered ? 'rgba(232,160,32,0.25)' : 'var(--border)',
         opacity: visible ? 1 : 0,
-        transform: visible ? `translateY(${hovered ? '-4px' : '0px'})` : 'translateY(30px)',
+        transform: visible ? 'translateY(0px)' : 'translateY(30px)',
         transitionDelay: visible ? `${index * 120}ms` : '0ms',
-        boxShadow: hovered ? 'var(--shadow-sharp-lg), 0 0 0 1px rgba(232,160,32,0.2)' : 'none'
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onClick={() => navigate(`/work/${project.slug || project.id}`)}
     >
+      {/* Technical hover line */}
+      <div className="absolute left-0 top-0 w-0.5 h-0 bg-[var(--sungold)] transition-all duration-300 group-hover:h-full z-20" />
+
       <div
-        className="h-[160px] flex items-center justify-center relative overflow-hidden bg-[var(--surface)]"
-        style={{ backgroundImage: `repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 12px)` }}
+        className="h-[180px] flex items-center justify-center relative overflow-hidden bg-[var(--surface)]"
       >
-        <span className="font-display text-[11px] tracking-[0.15em] uppercase text-[var(--subtle)]">
-          {project.label}
+        <div
+          className="absolute inset-0 opacity-40"
+          style={{ backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 12px)' }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--void)]/40 to-transparent" />
+        
+        <span className="relative z-10 font-display text-[10px] tracking-[0.2em] uppercase px-4 py-2 bg-[var(--void)]/80 backdrop-blur-md text-[var(--white)] border border-[var(--border)] transition-colors group-hover:border-[var(--sungold)]/40 group-hover:text-[var(--sungold)]">
+          {project.label || 'Project'}
         </span>
         {project.featured && (
-          <span className="absolute top-3 right-3">
+          <span className="absolute top-3 right-3 z-10 scale-90">
             <Badge variant="gold">◆ Featured</Badge>
           </span>
         )}
       </div>
-      <div className="p-5">
-        <div className="font-mono text-[10px] tracking-[0.12em] uppercase mb-2 text-[var(--sungold)]">{project.category}</div>
-        <h3 className="font-display text-[18px] font-bold leading-[1.2] mb-2 text-[var(--white)]">{project.name}</h3>
-        <p className="font-body text-[13px] leading-[1.6] mb-4 text-[var(--muted)]">{project.description}</p>
-        <div className="flex items-center justify-between">
+      <div className="p-6">
+        <div className="font-mono text-[10px] tracking-[0.15em] uppercase mb-3 text-[var(--sungold)] opacity-60 group-hover:opacity-100 transition-opacity">
+          {project.category}
+        </div>
+        <h3 className="font-display text-[18px] font-bold leading-[1.2] mb-3 text-[var(--white)] group-hover:text-[var(--sungold)] transition-colors">
+          {project.name}
+        </h3>
+        <p className="font-body text-[13px] leading-[1.7] mb-6 text-[var(--muted)] line-clamp-2 group-hover:text-[var(--subtle)] transition-colors">
+          {project.description}
+        </p>
+        <div className="flex items-center justify-between pt-4 border-t border-[var(--border)]">
           <div className="flex gap-2 flex-wrap">
-            {project.tags.map((tag, j) => (
-              <span key={j} className="font-mono text-[10px] px-2 py-[3px] bg-[var(--overlay)] text-[var(--subtle)] border border-[var(--border)] rounded-none">
+            {(project.tags || []).slice(0, 2).map((tag, j) => (
+              <Badge key={j} variant={BADGE_VARIANTS[j % BADGE_VARIANTS.length]}>
                 {tag}
-              </span>
+              </Badge>
             ))}
           </div>
           <ArrowUpRight
-            size={18} className="transition-transform duration-200 text-[var(--sungold)]"
-            style={{ transform: hovered ? 'translate(3px, -3px)' : 'translate(0, 0)' }}
+            size={18}
+            className="text-[var(--sungold)] transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
           />
         </div>
       </div>
