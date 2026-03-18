@@ -14,6 +14,7 @@ const statCards = [
   { key: 'contact_messages', label: 'Messages', path: '/admin/messages', accent: 'stardust' },
   { key: 'newsletter_subscribers', label: 'Subscribers', path: '/admin/newsletter', accent: 'terracotta' },
   { key: 'course_waitlist', label: 'Waitlist', path: '/admin/waitlist', accent: 'nebula' },
+  { key: 'assets', label: 'Assets', path: '/admin/assets', accent: 'stardust' },
 ];
 
 const quickLinks = [
@@ -27,6 +28,7 @@ const quickLinks = [
   { path: '/admin/messages', label: 'Messages', desc: 'Contact form' },
   { path: '/admin/newsletter', label: 'Newsletter', desc: 'Subscribers' },
   { path: '/admin/waitlist', label: 'Waitlist', desc: 'Course waitlist' },
+  { path: '/admin/assets', label: 'Assets', desc: 'Downloads & links' },
 ];
 
 

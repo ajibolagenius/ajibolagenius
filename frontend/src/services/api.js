@@ -70,6 +70,9 @@ export const fetchSkills = () =>
 export const fetchTestimonials = () =>
   supabase.from('testimonials').select('*').eq('approved', true).then(handleResponse);
 
+export const fetchAssets = () =>
+  supabase.from('assets').select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: false }).then(handleResponse);
+
 // Public write (contact form, newsletter — anon insert)
 export const submitContact = async (data) => {
   const r = await supabase

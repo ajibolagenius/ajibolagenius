@@ -27,6 +27,7 @@ const tableConfig = {
   certifications: { table: 'certifications', order: { column: 'order', ascending: true } },
   testimonials: { table: 'testimonials' },
   skills: { table: 'skills', order: { column: 'order', ascending: true } },
+  assets: { table: 'assets', order: { column: 'sort_order', ascending: true } },
 };
 
 function list(tableName, order) {
@@ -52,6 +53,7 @@ function remove(tableName, id) {
 
 const PROJECT_SCREENSHOTS_BUCKET = 'project-screenshots';
 const GALLERY_MEDIA_BUCKET = 'gallery-media';
+const ASSETS_BUCKET = 'assets';
 
 /**
  * Upload a project screenshot to Storage. Returns the public URL.
@@ -89,6 +91,24 @@ export async function uploadGalleryMedia(file) {
   if (error) throw error;
   const { data } = supabase.storage.from(GALLERY_MEDIA_BUCKET).getPublicUrl(path);
   return data.publicUrl;
+}
+
+/**
+ * Upload an asset file to Storage. Returns { publicUrl, path, fileName } for storing in assets row.
+ * @param {File} file - Any allowed type (images, PDF, ZIP, etc.)
+ * @returns {Promise<{ publicUrl: string, path: string, fileName: string }>}
+ */
+export async function uploadAssetFile(file) {
+  const fileName = file.name || 'download';
+  const ext = fileName.split('.').pop()?.toLowerCase() || 'bin';
+  const path = `${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from(ASSETS_BUCKET).upload(path, file, {
+    cacheControl: '3600',
+    upsert: false,
+  });
+  if (error) throw error;
+  const { data } = supabase.storage.from(ASSETS_BUCKET).getPublicUrl(path);
+  return { publicUrl: data.publicUrl, path, fileName };
 }
 
 export const adminEndpoints = {
@@ -146,6 +166,12 @@ export const adminEndpoints = {
     update: (id, d) => update(tableConfig.skills.table, id, d),
     delete: (id) => remove(tableConfig.skills.table, id).then(() => ({ status: 'ok' })),
   },
+  assets: {
+    list: () => list(tableConfig.assets.table, tableConfig.assets.order),
+    create: (d) => create(tableConfig.assets.table, d),
+    update: (id, d) => update(tableConfig.assets.table, id, d),
+    delete: (id) => remove(tableConfig.assets.table, id).then(() => ({ status: 'ok' })),
+  },
   personalInfo: {
     get: () => supabase.from('personal_info').select('*').eq('id', 1).single().then(handleResponse),
     update: (d) =>
@@ -195,6 +221,7 @@ export const adminEndpoints = {
       'education',
       'certifications',
       'testimonials',
+      'assets',
       'contact_messages',
       'newsletter_subscribers',
       'course_waitlist',
@@ -208,6 +235,7 @@ export const adminEndpoints = {
       'education_entries',
       'certifications',
       'testimonials',
+      'assets',
       'contact_messages',
       'newsletter_subscribers',
       'course_waitlist',

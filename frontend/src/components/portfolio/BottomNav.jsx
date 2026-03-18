@@ -26,10 +26,11 @@ const BottomNav = () => {
   };
 
   const moreLinks = [
-    { label: "Gallery", href: "/gallery" },
-    { label: "CV", href: "/cv" },
-    { label: "Search", href: "/search" },
-    { label: "Contact", href: "/contact" }
+    { label: 'Gallery', href: '/gallery' },
+    { label: 'Assets', href: '/assets' },
+    { label: 'CV', href: '/cv' },
+    { label: 'Search', href: '/search' },
+    { label: 'Contact', href: '/contact' },
   ];
 
   return (

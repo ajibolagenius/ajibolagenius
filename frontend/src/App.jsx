@@ -20,6 +20,7 @@ const GalleryPage = lazy(() => import('./pages/GalleryPage'));
 const CVPage = lazy(() => import('./pages/CVPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
+const AssetsPage = lazy(() => import('./pages/AssetsPage'));
 
 const AdminProjectsPage = lazy(() => import('./pages/admin/AdminProjectsPage'));
 const AdminBlogPage = lazy(() => import('./pages/admin/AdminBlogPage'));
@@ -33,6 +34,7 @@ const AdminNewsletterPage = lazy(() => import('./pages/admin/AdminNewsletterPage
 const AdminWaitlistPage = lazy(() => import('./pages/admin/AdminWaitlistPage'));
 const AdminAnalyticsPage = lazy(() => import('./pages/admin/AdminAnalyticsPage'));
 const AdminSkillsPage = lazy(() => import('./pages/admin/AdminSkillsPage'));
+const AdminAssetsPage = lazy(() => import('./pages/admin/AdminAssetsPage'));
 
 const adminFallback = (
   <div className="py-32 text-center font-mono text-[13px] text-[var(--subtle)]">Loading…</div>
@@ -60,6 +62,7 @@ function App() {
               <Route path="newsletter" element={<Suspense fallback={adminFallback}><AdminNewsletterPage /></Suspense>} />
               <Route path="waitlist" element={<Suspense fallback={adminFallback}><AdminWaitlistPage /></Suspense>} />
               <Route path="analytics" element={<Suspense fallback={adminFallback}><AdminAnalyticsPage /></Suspense>} />
+              <Route path="assets" element={<Suspense fallback={adminFallback}><AdminAssetsPage /></Suspense>} />
             </Route>
 
             <Route path="/" element={<Layout><ErrorBoundary><Outlet /></ErrorBoundary></Layout>}>
@@ -73,6 +76,7 @@ function App() {
               <Route path="cv" element={<Suspense fallback={adminFallback}><CVPage /></Suspense>} />
               <Route path="contact" element={<Suspense fallback={adminFallback}><ContactPage /></Suspense>} />
               <Route path="search" element={<Suspense fallback={adminFallback}><SearchPage /></Suspense>} />
+              <Route path="assets" element={<Suspense fallback={adminFallback}><AssetsPage /></Suspense>} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
