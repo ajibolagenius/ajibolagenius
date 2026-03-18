@@ -93,8 +93,25 @@ export async function uploadGalleryMedia(file) {
   return data.publicUrl;
 }
 
+/** Extension → MIME type for asset uploads (must match bucket allowed_mime_types). */
+const ASSET_EXT_TO_MIME = {
+  zip: 'application/zip',
+  pdf: 'application/pdf',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
+  gif: 'image/gif',
+  csv: 'text/csv',
+  txt: 'text/plain',
+  json: 'application/json',
+  xls: 'application/vnd.ms-excel',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+};
+
 /**
  * Upload an asset file to Storage. Returns { publicUrl, path, fileName } for storing in assets row.
+ * Sends explicit contentType so bucket MIME validation accepts the upload.
  * @param {File} file - Any allowed type (images, PDF, ZIP, etc.)
  * @returns {Promise<{ publicUrl: string, path: string, fileName: string }>}
  */
@@ -102,9 +119,11 @@ export async function uploadAssetFile(file) {
   const fileName = file.name || 'download';
   const ext = fileName.split('.').pop()?.toLowerCase() || 'bin';
   const path = `${crypto.randomUUID()}.${ext}`;
+  const contentType = file.type || ASSET_EXT_TO_MIME[ext] || 'application/octet-stream';
   const { error } = await supabase.storage.from(ASSETS_BUCKET).upload(path, file, {
     cacheControl: '3600',
     upsert: false,
+    contentType,
   });
   if (error) throw error;
   const { data } = supabase.storage.from(ASSETS_BUCKET).getPublicUrl(path);
