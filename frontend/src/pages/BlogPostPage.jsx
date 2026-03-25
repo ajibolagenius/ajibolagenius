@@ -9,6 +9,7 @@ import { track } from '../services/analytics';
 import { buildBlogPostingSchema } from '../lib/structuredData';
 import { buildOgImageUrl, getShareTwitterHandle, DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
 import { blogPostShareDescription, blogPostCustomOgImage } from '../lib/blogMeta';
+import { getBlogReadTimeDisplay } from '../lib/blogReadTime';
 import { WritingSkeleton } from '../components/portfolio/SkeletonLayouts';
 import SectionKicker from '../components/portfolio/SectionKicker';
 
@@ -263,7 +264,7 @@ const BlogPostPage = () => {
     );
   }
 
-  const readTime = post.read_time || post.readTime;
+  const readTime = getBlogReadTimeDisplay(post);
 
   return (
     <>

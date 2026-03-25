@@ -12,6 +12,7 @@ import Badge from '../../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../../constants';
 import SectionKicker from '../../components/portfolio/SectionKicker';
 import { adminEndpoints, uploadAssetFile } from '../../services/adminApi';
+import { formatBlogReadTimeFromBody } from '../../lib/blogReadTime';
 
 const BLOG_CATEGORIES = [
   'Design', 'Education', 'Engineering', 'Technical',
@@ -25,14 +26,6 @@ const emptyPost = () => ({
   body: '', read_time: '', published: true, published_at: '',
   meta_description: '', og_image: '',
 });
-
-const WPM = 200;
-function computeReadTime(body) {
-  if (!body || typeof body !== 'string') return '1 min';
-  const text = body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-  const words = text ? text.split(' ').filter(Boolean).length : 0;
-  return `${Math.max(1, Math.ceil(words / WPM))} min`;
-}
 
 /** Prose styles matching BlogPostPage.jsx for accurate preview */
 const articleProseClass = [
@@ -109,7 +102,7 @@ export default function AdminBlogEditorPage() {
   const update = (key, value) => {
     setForm((f) => {
       const next = { ...f, [key]: value };
-      if (key === 'body') next.read_time = computeReadTime(value);
+      if (key === 'body') next.read_time = formatBlogReadTimeFromBody(value);
       return next;
     });
   };
@@ -119,7 +112,7 @@ export default function AdminBlogEditorPage() {
       setSaving(true);
       setOgImageUploading(Boolean(ogImageFile));
 
-      const readTime = computeReadTime(form.body);
+      const readTime = formatBlogReadTimeFromBody(form.body);
       const tagsArr = typeof form.tags === 'string'
         ? form.tags.split(',').map((t) => t.trim()).filter(Boolean)
         : form.tags;
@@ -166,7 +159,7 @@ export default function AdminBlogEditorPage() {
     return form.tags.split(',').map((t) => t.trim()).filter(Boolean);
   }, [form.tags]);
 
-  const previewReadTime = useMemo(() => computeReadTime(form.body), [form.body]);
+  const previewReadTime = useMemo(() => formatBlogReadTimeFromBody(form.body), [form.body]);
 
   if (loading) {
     return (

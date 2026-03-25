@@ -15,6 +15,7 @@ import { usePageMeta } from '../hooks/usePageMeta';
 import { DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { WritingSkeleton } from '../components/portfolio/SkeletonLayouts';
+import { getBlogReadTimeDisplay } from '../lib/blogReadTime';
 
 const WRITING_SORT_OPTIONS = [
   { value: 'date-desc', label: 'Newest first' },
@@ -160,7 +161,7 @@ const WritingPage = () => {
                   <span>{featured.date}</span>
                   <div className="w-1 h-1 rounded-full bg-[var(--border-hi)]" />
                   <span className="flex items-center gap-2">
-                    <Clock size={12} className="text-[var(--sungold)]" /> {featured.read_time || featured.readTime}
+                    <Clock size={12} className="text-[var(--sungold)]" /> {getBlogReadTimeDisplay(featured)}
                   </span>
                 </div>
               </div>
@@ -217,7 +218,7 @@ const WritingPage = () => {
                     <div className="flex items-center gap-6 font-mono text-[11px] text-[var(--dim)] decoration-[var(--border-hi)] decoration-dashed underline-offset-4">
                       <span>{post.date}</span>
                       <span className="flex items-center gap-2">
-                        <Clock size={12} className="text-[var(--stardust)]" /> {post.read_time || post.readTime}
+                        <Clock size={12} className="text-[var(--stardust)]" /> {getBlogReadTimeDisplay(post)}
                       </span>
                     </div>
                   </div>
