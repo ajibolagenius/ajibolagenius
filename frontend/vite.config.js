@@ -67,7 +67,12 @@ export default defineConfig(({ mode }) => {
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,jpg,jpeg,svg,woff2}'],
+        // Do not precache HTML: after a deploy, an old cached shell still points at removed
+        // hashed chunks → 404 on lazy routes (e.g. WritingPage-*.js). JS/CSS stay precached.
+        globPatterns: ['**/*.{js,css,ico,png,jpg,jpeg,svg,woff2}'],
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
           { urlPattern: /^https:\/\/fonts\.(gstatic|googleapis)\.com\/.*/i, handler: 'CacheFirst', options: { cacheName: 'google-fonts', expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 } } },
         ],
