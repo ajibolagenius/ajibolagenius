@@ -228,7 +228,6 @@ export default function AdminProjectsPage() {
         await adminEndpoints.projects.update(createdId, { screenshots: finalScreenshots });
       }
       setDialogOpen(false);
-      setScreenshotItems([]);
       load();
     } catch (e) {
       console.error(e);

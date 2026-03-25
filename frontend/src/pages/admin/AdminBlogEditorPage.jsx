@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Eye, Clock } from 'lucide-react';
+import { ArrowLeft, Save, Eye, Clock, ImagePlus, Trash2 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -11,7 +11,7 @@ import RichTextEditor from '../../components/admin/RichTextEditor';
 import Badge from '../../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../../constants';
 import SectionKicker from '../../components/portfolio/SectionKicker';
-import { adminEndpoints } from '../../services/adminApi';
+import { adminEndpoints, uploadAssetFile } from '../../services/adminApi';
 
 const BLOG_CATEGORIES = [
   'Design', 'Education', 'Engineering', 'Technical',
@@ -63,6 +63,10 @@ export default function AdminBlogEditorPage() {
   const [loading, setLoading] = useState(!!id);
   const [saving, setSaving] = useState(false);
   const [originalPost, setOriginalPost] = useState(null);
+  const [ogImageFile, setOgImageFile] = useState(null);
+  const [ogImagePreviewUrl, setOgImagePreviewUrl] = useState(null);
+  const [ogImageUploading, setOgImageUploading] = useState(false);
+  const ogImageInputRef = React.useRef(null);
 
   // Load existing post
   useEffect(() => {
@@ -81,11 +85,26 @@ export default function AdminBlogEditorPage() {
             meta_description: found.meta_description ?? '',
             og_image: found.og_image ?? '',
           });
+          // Reset local upload state when switching to an existing record.
+          setOgImageFile(null);
+          setOgImagePreviewUrl(null);
         }
       })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [id]);
+
+  useEffect(() => {
+    return () => {
+      if (ogImagePreviewUrl) {
+        try {
+          URL.revokeObjectURL(ogImagePreviewUrl);
+        } catch (_) {
+          // ignore
+        }
+      }
+    };
+  }, [ogImagePreviewUrl]);
 
   const update = (key, value) => {
     setForm((f) => {
@@ -96,11 +115,25 @@ export default function AdminBlogEditorPage() {
   };
 
   const handleSave = async () => {
+    setOgImageUploading(Boolean(ogImageFile));
     const readTime = computeReadTime(form.body);
     const tagsArr = typeof form.tags === 'string'
       ? form.tags.split(',').map((t) => t.trim()).filter(Boolean)
       : form.tags;
     const published = form.published !== false;
+
+    let ogImageUrl = (form.og_image ?? '').trim();
+    if (ogImageFile) {
+      const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+      if (!allowed.includes(ogImageFile.type)) {
+        setOgImageUploading(false);
+        throw new Error('OG image must be JPEG/PNG/WebP/GIF.');
+      }
+      // Upload to public storage, then store its public URL in `blog_posts.og_image`.
+      const uploaded = await uploadAssetFile(ogImageFile);
+      ogImageUrl = uploaded?.publicUrl || ogImageUrl;
+    }
+
     const payload = {
       ...form,
       tags: tagsArr,
@@ -110,7 +143,7 @@ export default function AdminBlogEditorPage() {
         ? new Date().toISOString()
         : (form.published_at || originalPost?.published_at || null),
       meta_description: form.meta_description ?? '',
-      og_image: form.og_image ?? '',
+      og_image: ogImageUrl ?? '',
     };
     setSaving(true);
     try {
@@ -121,6 +154,7 @@ export default function AdminBlogEditorPage() {
       console.error(e);
     } finally {
       setSaving(false);
+      setOgImageUploading(false);
     }
   };
 
@@ -298,14 +332,98 @@ export default function AdminBlogEditorPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="ed-og-image">OG image URL</Label>
-              <Input
-                id="ed-og-image"
-                value={form.og_image || ''}
-                onChange={(e) => update('og_image', e.target.value)}
-                placeholder="/og-image.png or full URL"
-                className="bg-[var(--elevated)] border-[var(--border-md)]"
-              />
+              <div className="flex items-center justify-between gap-3">
+                <Label htmlFor="ed-og-image">OG image</Label>
+                {ogImageUploading && (
+                  <span className="font-mono text-[11px] text-[var(--subtle)]">Uploading…</span>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Input
+                  id="ed-og-image"
+                  value={form.og_image || ''}
+                  onChange={(e) => update('og_image', e.target.value)}
+                  placeholder="/og-image.png or full URL"
+                  className="bg-[var(--elevated)] border-[var(--border-md)]"
+                />
+
+                <input
+                  ref={ogImageInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+                    if (!allowed.includes(file.type)) return;
+                    if (ogImagePreviewUrl) {
+                      try {
+                        URL.revokeObjectURL(ogImagePreviewUrl);
+                      } catch (_) {
+                        // ignore
+                      }
+                    }
+                    setOgImageFile(file);
+                    setOgImagePreviewUrl(URL.createObjectURL(file));
+                    // Do not overwrite the URL field yet; we override on Save.
+                  }}
+                  className="hidden"
+                  aria-label="Upload OG image"
+                />
+
+                <div className="flex items-center flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => ogImageInputRef.current?.click()}
+                    disabled={saving || ogImageUploading}
+                    className="border-[var(--border-md)] text-[var(--white)]"
+                  >
+                    <ImagePlus className="w-4 h-4 mr-1" aria-hidden />
+                    {ogImageFile ? 'Change file' : 'Upload image'}
+                  </Button>
+
+                  {ogImageFile && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setOgImageFile(null);
+                        if (ogImagePreviewUrl) {
+                          try {
+                            URL.revokeObjectURL(ogImagePreviewUrl);
+                          } catch (_) {
+                            // ignore
+                          }
+                        }
+                        setOgImagePreviewUrl(null);
+                      }}
+                      disabled={saving || ogImageUploading}
+                      className="text-[var(--terracotta)]"
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" aria-hidden />
+                      Remove
+                    </Button>
+                  )}
+                </div>
+
+                {ogImagePreviewUrl && (
+                  <div className="border border-[var(--border)] bg-[var(--elevated)] p-2">
+                    <img
+                      src={ogImagePreviewUrl}
+                      alt="OG preview"
+                      className="w-full h-auto max-h-[160px] object-contain"
+                    />
+                  </div>
+                )}
+
+                <p className="font-mono text-[11px] text-[var(--subtle)]">
+                  Upload overrides the OG URL field on Save.
+                </p>
+              </div>
             </div>
           </div>
         </div>
