@@ -1,10 +1,16 @@
 /**
- * After `vite build`, emit static HTML for /writing/:slug and /work/:slug with full OG + JSON-LD
- * so crawlers that do not run JS still see correct meta.
+ * After `vite build`, emit static HTML so WhatsApp / Facebook / Slack / OG checkers see correct
+ * <meta> without running React (SPA shell is not enough for non-root URLs).
  *
- * Requires: VITE_SITE_URL, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY (or SUPABASE_*).
- * Writes: dist/writing/<slug>/index.html, dist/work/<slug>/index.html, dist/_redirects (Netlify-style).
- * Set SKIP_PRERENDER_DETAIL=1 to skip (e.g. local build without DB).
+ * 1) Listing routes (always): dist/work/index.html, dist/writing/index.html, etc. — no DB required.
+ * 2) Detail routes (optional): dist/writing/<slug>/index.html, dist/work/<slug>/index.html — needs Supabase.
+ *
+ * Env: VITE_SITE_URL strongly recommended (absolute og:url). VITE_SUPABASE_* for detail prerender only.
+ * Writes dist/_redirects (Netlify). Vercel: static files in dist/ are served before SPA fallback when
+ * Output Directory is dist — ensure project Root Directory points at frontend if monorepo.
+ * Set SKIP_PRERENDER_DETAIL=1 to skip this entire script.
+ *
+ * Keep pageTitle + description in sync with *Page.jsx usePageMeta.
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -56,6 +62,53 @@ const anonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_
 const siteUrl = (process.env.VITE_SITE_URL || '').replace(/\/$/, '');
 const distDir = path.join(frontendDir, 'dist');
 const indexPath = path.join(distDir, 'index.html');
+
+/** Listing paths — titles match usePageMeta `title` (before " — SITE_NAME" suffix). */
+const STATIC_LIST_ROUTES = [
+  {
+    path: '/work',
+    pageTitle: 'Selected Work',
+    description:
+      'A collection of products and experiments — from social platforms to creative coding explorations.',
+  },
+  {
+    path: '/writing',
+    pageTitle: 'Blog & Thoughts',
+    description:
+      'Writing about design, development, teaching, and the intersection of African identity and technology.',
+  },
+  {
+    path: '/teach',
+    pageTitle: 'Courses & Mentorship',
+    description:
+      'I teach what I know and share what I learn. Remote courses designed for the Nigerian developer ready to level up.',
+  },
+  {
+    path: '/gallery',
+    pageTitle: 'Gallery',
+    description: 'Images and videos: UI, 3D, and graphic work.',
+  },
+  {
+    path: '/contact',
+    pageTitle: 'Contact',
+    description: 'Get in touch — design and engineering inquiries, collaboration, or just say hello.',
+  },
+  {
+    path: '/cv',
+    pageTitle: 'CV',
+    description: 'Experience, education, and skills — design and engineering.',
+  },
+  {
+    path: '/search',
+    pageTitle: 'Search',
+    description: 'Search blog posts, projects, and courses.',
+  },
+  {
+    path: '/assets',
+    pageTitle: 'Assets & Downloads',
+    description: 'Design files, resources, and links shared by Ajibola Akelebe.',
+  },
+];
 
 function escapeAttr(text) {
   return String(text).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
@@ -177,9 +230,37 @@ function patchHtmlForPage({
   return next;
 }
 
+function writeStaticListingHtml(baseHtml) {
+  const defaultOgAbs = absolutize(DEFAULT_OG_IMAGE_PATH, siteUrl);
+  let n = 0;
+  for (const route of STATIC_LIST_ROUTES) {
+    const title = `${route.pageTitle} — ${SITE_NAME}`;
+    const html = patchHtmlForPage({
+      html: baseHtml,
+      title,
+      description: route.description,
+      canonicalPath: route.path,
+      ogImage: defaultOgAbs,
+      ogType: 'website',
+      articleMeta: null,
+      jsonLd: null,
+    });
+    const segments = route.path.replace(/^\//, '').split('/').filter(Boolean);
+    const dir = path.join(distDir, ...segments);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, 'index.html'), html, 'utf8');
+    n += 1;
+  }
+  return n;
+}
+
 function writeRedirects() {
+  const exact = STATIC_LIST_ROUTES.map(
+    (r) => `${r.path}  ${r.path}/index.html  200`
+  );
   const lines = [
-    '# Detail prerender (first); SPA fallback last (Netlify-style). Tune for your host if needed.',
+    '# Prerendered listings (exact paths first), then detail slugs, then SPA fallback (Netlify).',
+    ...exact,
     '/writing/*  /writing/:splat/index.html  200',
     '/work/*     /work/:splat/index.html     200',
     '/*          /index.html                 200',
@@ -193,17 +274,21 @@ async function main() {
     process.exit(1);
   }
 
-  if (!supabaseUrl || !anonKey) {
-    console.warn('[prerender] No Supabase env — skipping (set VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY).');
-    process.exit(0);
+  if (!siteUrl) {
+    console.warn('[prerender] VITE_SITE_URL unset — og:url / canonical may be relative; set for production OG previews.');
   }
 
-  if (!siteUrl) {
-    console.warn('[prerender] VITE_SITE_URL unset — og:url / JSON-LD may be relative; set for production.');
+  const baseHtml = fs.readFileSync(indexPath, 'utf8');
+  const listCount = writeStaticListingHtml(baseHtml);
+  console.log(`[prerender] Wrote ${listCount} listing HTML files (${STATIC_LIST_ROUTES.map((r) => r.path).join(', ')})`);
+
+  if (!supabaseUrl || !anonKey) {
+    console.warn('[prerender] No Supabase env — skipping blog/work detail prerender (set VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY).');
+    writeRedirects();
+    return;
   }
 
   const supabase = createClient(supabaseUrl, anonKey);
-  const baseHtml = fs.readFileSync(indexPath, 'utf8');
 
   const [{ data: posts, error: pe }, { data: projects, error: re }] = await Promise.all([
     supabase.from('blog_posts').select('*').eq('published', true),
