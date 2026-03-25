@@ -26,9 +26,10 @@ import ListPagination from '../../components/portfolio/ListPagination';
 import { paginate } from '../../lib/paginate';
 import { adminEndpoints, uploadProjectScreenshot } from '../../services/adminApi';
 import OptimizedImage from '../../components/portfolio/OptimizedImage';
-import { ImagePlus, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, ImagePlus, Trash2 } from 'lucide-react';
 
 const ADMIN_PAGE_SIZE = 10;
+const MAX_PROJECT_SCREENSHOTS = 6;
 
 const emptyProject = () => ({
   slug: '',
@@ -76,6 +77,8 @@ export default function AdminProjectsPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
   const fileInputRef = React.useRef(null);
+  // screenshotItems: { id, kind: 'url'|'file', url?, file?, previewUrl? }
+  const [screenshotItems, setScreenshotItems] = useState([]);
   const [search, setSearch] = useState('');
 
   const load = () => {
@@ -84,6 +87,24 @@ export default function AdminProjectsPage() {
   };
 
   useEffect(load, []);
+
+  function safeId() {
+    // Browser: crypto.randomUUID exists in modern runtimes.
+    if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+
+  function revokeScreenshotPreviews(items) {
+    (items || []).forEach((it) => {
+      if (it?.kind === 'file' && it?.previewUrl) {
+        try {
+          URL.revokeObjectURL(it.previewUrl);
+        } catch (_) {
+          // ignore
+        }
+      }
+    });
+  }
 
   const filteredList = useMemo(() => {
     if (!search.trim()) return list;
@@ -107,12 +128,16 @@ export default function AdminProjectsPage() {
     setEditing(null);
     setForm(emptyProject());
     setUploadError(null);
+    revokeScreenshotPreviews(screenshotItems);
+    setScreenshotItems([]);
     setDialogOpen(true);
   };
 
   const openEdit = (p) => {
     setEditing(p);
     setUploadError(null);
+    revokeScreenshotPreviews(screenshotItems);
+    setScreenshotItems([]);
     const screenshots = Array.isArray(p.screenshots)
       ? p.screenshots.map((s) => (typeof s === 'string' ? s : s?.url)).filter(Boolean)
       : [];
@@ -122,6 +147,13 @@ export default function AdminProjectsPage() {
       tech_details: formatTechDetails(p.tech_details),
       screenshots,
     });
+    setScreenshotItems(
+      (screenshots || []).map((url) => ({
+        id: safeId(),
+        kind: 'url',
+        url,
+      }))
+    );
     setDialogOpen(true);
   };
 
@@ -131,25 +163,79 @@ export default function AdminProjectsPage() {
   };
 
   const handleSave = async () => {
-    const payload = {
-      ...form,
-      tags: typeof form.tags === 'string' ? form.tags.split(',').map((t) => t.trim()).filter(Boolean) : form.tags,
-      tech_details: parseTechDetails(form.tech_details),
-      screenshots: Array.isArray(form.screenshots) ? form.screenshots : [],
-    };
     setSaving(true);
+    setUploading(true);
+    setUploadError(null);
     try {
       if (editing) {
+        if ((screenshotItems || []).length > MAX_PROJECT_SCREENSHOTS) {
+          throw new Error(`Select up to ${MAX_PROJECT_SCREENSHOTS} images.`);
+        }
+
+        const uploaded = new Map();
+        // Upload in the UI order, so we can map results back to the right index.
+        for (const item of screenshotItems || []) {
+          if (item?.kind !== 'file') continue;
+          const url = await uploadProjectScreenshot(editing.id, item.file);
+          uploaded.set(item.id, url);
+        }
+
+        const finalScreenshots = (screenshotItems || [])
+          .map((item) => {
+            if (item?.kind === 'url') return item.url;
+            return uploaded.get(item.id);
+          })
+          .filter(Boolean);
+
+        const payload = {
+          ...form,
+          tags: typeof form.tags === 'string' ? form.tags.split(',').map((t) => t.trim()).filter(Boolean) : form.tags,
+          tech_details: parseTechDetails(form.tech_details),
+          screenshots: finalScreenshots,
+        };
+
         await adminEndpoints.projects.update(editing.id, payload);
       } else {
-        await adminEndpoints.projects.create(payload);
+        if ((screenshotItems || []).length > MAX_PROJECT_SCREENSHOTS) {
+          throw new Error(`Select up to ${MAX_PROJECT_SCREENSHOTS} images.`);
+        }
+
+        const createPayload = {
+          ...form,
+          tags: typeof form.tags === 'string' ? form.tags.split(',').map((t) => t.trim()).filter(Boolean) : form.tags,
+          tech_details: parseTechDetails(form.tech_details),
+          screenshots: [],
+        };
+
+        const created = await adminEndpoints.projects.create(createPayload);
+        const createdId = created?.id;
+        if (!createdId) throw new Error('Project created, but no id was returned.');
+
+        const uploaded = new Map();
+        for (const item of screenshotItems || []) {
+          if (item?.kind !== 'file') continue;
+          const url = await uploadProjectScreenshot(createdId, item.file);
+          uploaded.set(item.id, url);
+        }
+
+        const finalScreenshots = (screenshotItems || [])
+          .map((item) => {
+            if (item?.kind === 'url') return item.url;
+            return uploaded.get(item.id);
+          })
+          .filter(Boolean);
+
+        await adminEndpoints.projects.update(createdId, { screenshots: finalScreenshots });
       }
       setDialogOpen(false);
+      setScreenshotItems([]);
       load();
     } catch (e) {
       console.error(e);
+      setUploadError(e?.message || 'Save failed.');
     } finally {
       setSaving(false);
+      setUploading(false);
     }
   };
 
@@ -167,32 +253,63 @@ export default function AdminProjectsPage() {
 
   const update = (key, value) => setForm((f) => ({ ...f, [key]: value }));
 
-  const handleScreenshotUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file || !editing?.id) return;
+  const handleScreenshotFilesSelected = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
     const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    if (!allowed.includes(file.type)) {
+    const firstInvalid = files.find((f) => !allowed.includes(f.type));
+    if (firstInvalid) {
       setUploadError('Use JPEG, PNG, WebP or GIF.');
       return;
     }
     setUploadError(null);
-    setUploading(true);
-    try {
-      const url = await uploadProjectScreenshot(editing.id, file);
-      setForm((f) => ({ ...f, screenshots: [...(f.screenshots || []), url] }));
-    } catch (err) {
-      setUploadError(err.message || 'Upload failed.');
-    } finally {
-      setUploading(false);
-      e.target.value = '';
+
+    const remainingSlots = MAX_PROJECT_SCREENSHOTS - (screenshotItems || []).length;
+    if (remainingSlots <= 0) {
+      setUploadError(`You can add up to ${MAX_PROJECT_SCREENSHOTS} images.`);
+      return;
     }
+
+    const toAdd = files.slice(0, remainingSlots);
+    if (files.length > toAdd.length) {
+      setUploadError(`Only ${toAdd.length} image(s) added (max ${MAX_PROJECT_SCREENSHOTS}).`);
+    }
+
+    const newItems = toAdd.map((file) => ({
+      id: safeId(),
+      kind: 'file',
+      file,
+      previewUrl: URL.createObjectURL(file),
+    }));
+
+    setScreenshotItems((prev) => [...(prev || []), ...newItems]);
+    e.target.value = '';
   };
 
   const removeScreenshot = (index) => {
-    setForm((f) => ({
-      ...f,
-      screenshots: (f.screenshots || []).filter((_, i) => i !== index),
-    }));
+    setScreenshotItems((prev) => {
+      const item = prev?.[index];
+      if (item?.kind === 'file' && item?.previewUrl) {
+        try {
+          URL.revokeObjectURL(item.previewUrl);
+        } catch (_) {
+          // ignore
+        }
+      }
+      return (prev || []).filter((_, i) => i !== index);
+    });
+  };
+
+  const moveScreenshot = (index, delta) => {
+    setScreenshotItems((prev) => {
+      const next = [...(prev || [])];
+      const target = index + delta;
+      if (target < 0 || target >= next.length) return next;
+      const [item] = next.splice(index, 1);
+      next.splice(target, 0, item);
+      return next;
+    });
   };
 
   return (
@@ -258,7 +375,16 @@ export default function AdminProjectsPage() {
         />
       )}
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) {
+            revokeScreenshotPreviews(screenshotItems);
+            setScreenshotItems([]);
+          }
+          setDialogOpen(nextOpen);
+        }}
+      >
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto border-[var(--border)] bg-[var(--surface)] text-[var(--white)]">
           <DialogHeader>
             <DialogTitle>{editing ? 'Edit project' : 'New project'}</DialogTitle>
@@ -359,55 +485,91 @@ export default function AdminProjectsPage() {
               <legend className="flex items-center gap-2 mb-2 font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--sungold)]">
                 <span className="w-5 h-px bg-[var(--sungold)]" aria-hidden /> Screenshots
               </legend>
-              <p className="font-mono text-[11px] text-[var(--subtle)]">First image = hero on work/[slug]; all shown in Screenshots section.</p>
-              {editing?.id ? (
-                <>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    onChange={handleScreenshotUpload}
-                    className="hidden"
-                    aria-label="Upload screenshot"
-                  />
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={uploading}
-                      className="border-[var(--border-md)] text-[var(--white)]"
-                    >
-                      <ImagePlus className="w-4 h-4 mr-1" aria-hidden />
-                      {uploading ? 'Uploading…' : 'Add image'}
-                    </Button>
-                    {uploadError && <span className="font-mono text-[11px] text-[var(--terracotta)]">{uploadError}</span>}
-                  </div>
-                  {(form.screenshots || []).length > 0 && (
-                    <ul className="grid grid-cols-2 sm:grid-cols-3 gap-2 list-none p-0 m-0">
-                      {(form.screenshots || []).map((url, i) => (
-                        <li key={url} className="relative group border border-[var(--border)] bg-[var(--elevated)] overflow-hidden aspect-video">
-                          <OptimizedImage src={url} alt="" className="w-full h-full object-cover" />
+              <p className="font-mono text-[11px] text-[var(--subtle)]">
+                Up to {MAX_PROJECT_SCREENSHOTS} images. First image = hero on work/[slug]. Selected images are uploaded when you click <span className="text-[var(--sungold)]">Save</span>.
+              </p>
+              <>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={handleScreenshotFilesSelected}
+                  className="hidden"
+                  aria-label="Select screenshots"
+                />
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="border-[var(--border-md)] text-[var(--white)]"
+                  >
+                    <ImagePlus className="w-4 h-4 mr-1" aria-hidden />
+                    {uploading ? 'Uploading…' : 'Add images'}
+                  </Button>
+                  {uploadError && <span className="font-mono text-[11px] text-[var(--terracotta)]">{uploadError}</span>}
+                </div>
+
+                {(screenshotItems || []).length > 0 && (
+                  <ul className="grid grid-cols-2 sm:grid-cols-3 gap-2 list-none p-0 m-0">
+                    {(screenshotItems || []).map((item, i) => {
+                      const src = item?.kind === 'url' ? item.url : item?.previewUrl;
+                      return (
+                        <li
+                          key={item.id}
+                          className="relative group border border-[var(--border)] bg-[var(--elevated)] overflow-hidden aspect-video"
+                        >
+                          <OptimizedImage src={src} alt="" className="w-full h-full object-cover" />
+
+                          <div className="absolute top-1 left-1 flex gap-1">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => moveScreenshot(i, -1)}
+                              disabled={uploading || i === 0}
+                              className="bg-[var(--void)]/70 hover:bg-[var(--void)]/70 text-[var(--sungold)] hover:text-white"
+                              aria-label={`Move screenshot ${i + 1} up`}
+                            >
+                              <ChevronUp className="w-4 h-4" aria-hidden />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => moveScreenshot(i, 1)}
+                              disabled={uploading || i === (screenshotItems || []).length - 1}
+                              className="bg-[var(--void)]/70 hover:bg-[var(--void)]/70 text-[var(--sungold)] hover:text-white"
+                              aria-label={`Move screenshot ${i + 1} down`}
+                            >
+                              <ChevronDown className="w-4 h-4" aria-hidden />
+                            </Button>
+                          </div>
+
                           <button
                             type="button"
                             onClick={() => removeScreenshot(i)}
                             className="absolute top-1 right-1 p-1 rounded-none bg-[var(--void)]/90 text-[var(--terracotta)] hover:bg-[var(--terracotta)] hover:text-white transition-colors"
                             aria-label={`Remove screenshot ${i + 1}`}
+                            disabled={uploading}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
+
                           {i === 0 && (
-                            <span className="absolute bottom-1 left-1 font-mono text-[9px] px-1.5 py-0.5 bg-[var(--void)]/90 text-[var(--sungold)]">Hero</span>
+                            <span className="absolute bottom-1 left-1 font-mono text-[9px] px-1.5 py-0.5 bg-[var(--void)]/90 text-[var(--sungold)]">
+                              Hero
+                            </span>
                           )}
                         </li>
-                      ))}
-                    </ul>
-                  )}
-                </>
-              ) : (
-                <p className="font-mono text-[11px] text-[var(--muted)]">Save the project first, then edit to add screenshots.</p>
-              )}
+                      );
+                    })}
+                  </ul>
+                )}
+              </>
             </fieldset>
           </div>
           <DialogFooter>
