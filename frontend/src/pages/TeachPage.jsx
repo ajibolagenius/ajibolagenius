@@ -7,6 +7,7 @@ import Badge from '../components/portfolio/Badge';
 import SectionKicker from '../components/portfolio/SectionKicker';
 import SortSelect from '../components/portfolio/SortSelect';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { useLocale } from '../contexts/LocaleContext';
 import { buildTeachPageSchema } from '../lib/structuredData';
@@ -220,6 +221,7 @@ const TeachPage = () => {
   usePageMeta({
     title: 'Courses & Mentorship',
     description: 'I teach what I know and share what I learn. Remote courses designed for the Nigerian developer ready to level up.',
+    image: DEFAULT_OG_IMAGE_PATH,
     structuredData: buildTeachPageSchema(displayCourses),
     canonical: '/teach',
   });

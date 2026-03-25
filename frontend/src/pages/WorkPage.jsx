@@ -12,6 +12,7 @@ import { byString, byDate, applySort } from '../lib/sortHelpers';
 import { paginate } from '../lib/paginate';
 import ListPagination from '../components/portfolio/ListPagination';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { ProjectsSkeleton } from '../components/portfolio/SkeletonLayouts';
 import OptimizedImage from '../components/portfolio/OptimizedImage';
@@ -214,6 +215,7 @@ const WorkPage = () => {
   usePageMeta({
     title: 'Selected Work',
     description: 'A collection of products and experiments — from social platforms to creative coding explorations.',
+    image: DEFAULT_OG_IMAGE_PATH,
     canonical: '/work',
   });
 

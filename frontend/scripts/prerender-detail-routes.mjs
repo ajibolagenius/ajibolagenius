@@ -18,6 +18,8 @@ import {
   DEFAULT_OG_IMAGE_PATH,
   OG_IMAGE_HEIGHT,
   OG_IMAGE_WIDTH,
+  STATIC_DEFAULT_OG_IMAGE_HEIGHT,
+  STATIC_DEFAULT_OG_IMAGE_WIDTH,
 } from '../src/lib/siteBrand.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -112,6 +114,13 @@ function blogJsonLd(post, imageUrl) {
   };
 }
 
+function ogDimensionsForUrl(imageUrl) {
+  const u = imageUrl || '';
+  if (u.includes('/functions/v1/og-image')) return [OG_IMAGE_WIDTH, OG_IMAGE_HEIGHT];
+  if (u.endsWith('og-image.png')) return [STATIC_DEFAULT_OG_IMAGE_WIDTH, STATIC_DEFAULT_OG_IMAGE_HEIGHT];
+  return [OG_IMAGE_WIDTH, OG_IMAGE_HEIGHT];
+}
+
 function patchHtmlForPage({
   html,
   title,
@@ -124,6 +133,7 @@ function patchHtmlForPage({
 }) {
   const absoluteUrl = siteUrl ? `${siteUrl}${canonicalPath.startsWith('/') ? '' : '/'}${canonicalPath}` : canonicalPath;
   const absOg = ogImage;
+  const [ogW, ogH] = ogDimensionsForUrl(absOg);
 
   let next = html
     .replace(/<title>[^<]*<\/title>/i, `<title>${escapeAttr(title)}</title>`)
@@ -135,8 +145,8 @@ function patchHtmlForPage({
     .replace(/<meta name="twitter:title" content="[^"]*"\s*\/?>/i, `<meta name="twitter:title" content="${escapeAttr(title)}" />`)
     .replace(/<meta name="twitter:description" content="[^"]*"\s*\/?>/i, `<meta name="twitter:description" content="${escapeAttr(description)}" />`)
     .replace(/<meta name="twitter:image" content="[^"]*"\s*\/?>/i, `<meta name="twitter:image" content="${escapeAttr(absOg)}" />`)
-    .replace(/<meta property="og:image:width" content="[^"]*"\s*\/?>/i, `<meta property="og:image:width" content="${String(OG_IMAGE_WIDTH)}" />`)
-    .replace(/<meta property="og:image:height" content="[^"]*"\s*\/?>/i, `<meta property="og:image:height" content="${String(OG_IMAGE_HEIGHT)}" />`);
+    .replace(/<meta property="og:image:width" content="[^"]*"\s*\/?>/i, `<meta property="og:image:width" content="${String(ogW)}" />`)
+    .replace(/<meta property="og:image:height" content="[^"]*"\s*\/?>/i, `<meta property="og:image:height" content="${String(ogH)}" />`);
 
   next = next.replace(/<meta property="article:[^>]+>\s*/gi, '');
   next = next.replace(/<script id="page-structured-data"[^>]*>[\s\S]*?<\/script>\s*/gi, '');

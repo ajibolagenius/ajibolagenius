@@ -6,6 +6,7 @@ import SectionKicker from '../components/portfolio/SectionKicker';
 import FilterButtons from '../components/portfolio/FilterButtons';
 import SortSelect from '../components/portfolio/SortSelect';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { GallerySkeleton } from '../components/portfolio/SkeletonLayouts';
 import { byString, applySort } from '../lib/sortHelpers';
@@ -150,6 +151,7 @@ const GalleryPage = () => {
   usePageMeta({
     title: 'Gallery',
     description: 'Images and videos: UI, 3D, and graphic work.',
+    image: DEFAULT_OG_IMAGE_PATH,
     canonical: '/gallery',
   });
 

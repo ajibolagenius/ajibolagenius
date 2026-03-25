@@ -8,6 +8,8 @@ import {
   DEFAULT_PAGE_TITLE,
   DEFAULT_META_DESCRIPTION,
   DEFAULT_OG_IMAGE_PATH,
+  STATIC_DEFAULT_OG_IMAGE_WIDTH,
+  STATIC_DEFAULT_OG_IMAGE_HEIGHT,
 } from './src/lib/siteBrand.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -34,7 +36,9 @@ export default defineConfig(({ mode }) => {
           .replace(/__HTML_OG_DESCRIPTION__/g, escapeAttr(DEFAULT_META_DESCRIPTION))
           .replace(/__HTML_TWITTER_TITLE__/g, escapeAttr(DEFAULT_PAGE_TITLE))
           .replace(/__HTML_TWITTER_DESCRIPTION__/g, escapeAttr(DEFAULT_META_DESCRIPTION))
-          .replace(/__HTML_OG_IMAGE__/g, escapeAttr(absOgImage));
+          .replace(/__HTML_OG_IMAGE__/g, escapeAttr(absOgImage))
+          .replace(/__HTML_OG_IMAGE_WIDTH__/g, String(STATIC_DEFAULT_OG_IMAGE_WIDTH))
+          .replace(/__HTML_OG_IMAGE_HEIGHT__/g, String(STATIC_DEFAULT_OG_IMAGE_HEIGHT));
       },
     },
     VitePWA({

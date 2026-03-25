@@ -5,7 +5,7 @@ import { fetchProject } from '../services/api';
 import Badge from '../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
-import { buildOgImageUrl } from '../lib/siteConfig';
+import { buildOgImageUrl, DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
 import { absolutizeUrl } from '../lib/pageMeta';
 import OptimizedImage from '../components/portfolio/OptimizedImage';
 import { track } from '../services/analytics';
@@ -81,7 +81,7 @@ const WorkDetailPage = () => {
       ? {
           title: project.name,
           description: project.description || 'Project by Ajibola Akelebe.',
-          image: projectOgImage || undefined,
+          image: projectOgImage || DEFAULT_OG_IMAGE_PATH,
           canonical: `/work/${project.slug || slug}`,
         }
       : {

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Send, MessageSquare, MapPin, Mail, Github, Twitter, Linkedin } from 'lucide-react';
 import { submitContact, fetchPersonalInfo } from '../services/api';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { useLocale } from '../contexts/LocaleContext';
 import SectionKicker from '../components/portfolio/SectionKicker';
@@ -59,6 +60,7 @@ const ContactPage = () => {
   usePageMeta({
     title: 'Contact',
     description: 'Get in touch — design and engineering inquiries, collaboration, or just say hello.',
+    image: DEFAULT_OG_IMAGE_PATH,
     canonical: '/contact',
   });
 

@@ -12,6 +12,7 @@ import { byString, byDate, applySort } from '../lib/sortHelpers';
 import { paginate } from '../lib/paginate';
 import ListPagination from '../components/portfolio/ListPagination';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { WritingSkeleton } from '../components/portfolio/SkeletonLayouts';
 
@@ -74,6 +75,7 @@ const WritingPage = () => {
   usePageMeta({
     title: 'Blog & Thoughts',
     description: 'Writing about design, development, teaching, and the intersection of African identity and technology.',
+    image: DEFAULT_OG_IMAGE_PATH,
     canonical: '/writing',
   });
 

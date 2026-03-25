@@ -5,6 +5,7 @@ import { Search, FileText, Briefcase, BookOpen } from 'lucide-react';
 import { fetchBlogPosts, fetchProjects, fetchCourses } from '../services/api';
 import SectionKicker from '../components/portfolio/SectionKicker';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
 import { track } from '../services/analytics';
 import { Skeleton } from '../components/ui/skeleton';
 
@@ -90,6 +91,7 @@ export default function SearchPage() {
   usePageMeta({
     title: 'Search',
     description: 'Search blog posts, projects, and courses.',
+    image: DEFAULT_OG_IMAGE_PATH,
     canonical: '/search',
   });
 

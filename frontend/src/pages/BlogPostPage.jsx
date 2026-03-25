@@ -7,7 +7,7 @@ import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { track } from '../services/analytics';
 import { buildBlogPostingSchema } from '../lib/structuredData';
-import { buildOgImageUrl, getShareTwitterHandle } from '../lib/siteConfig';
+import { buildOgImageUrl, getShareTwitterHandle, DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
 import { WritingSkeleton } from '../components/portfolio/SkeletonLayouts';
 import SectionKicker from '../components/portfolio/SectionKicker';
 
@@ -181,7 +181,7 @@ const BlogPostPage = () => {
       ? {
           title: post.title,
           description: post.meta_description || post.excerpt || post.description || 'Article by Ajibola Akelebe.',
-          image: post.og_image || dynamicOg || undefined,
+          image: post.og_image || dynamicOg || DEFAULT_OG_IMAGE_PATH,
           ogType: 'article',
           canonical: `/writing/${post.slug || slug}`,
           article: {

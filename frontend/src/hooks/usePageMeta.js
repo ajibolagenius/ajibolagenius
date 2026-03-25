@@ -13,6 +13,8 @@ import { setPageMeta, resetPageMeta, setStructuredData, clearStructuredData } fr
  *   canonical?: string;
  *   ogType?: 'website' | 'article';
  *   article?: { publishedTime?: string; modifiedTime?: string; section?: string; tag?: string };
+ *   ogImageWidth?: number;
+ *   ogImageHeight?: number;
  *   structuredData?: object | null;
  * }} opts
  */
@@ -31,6 +33,8 @@ export function usePageMeta(opts) {
     opts?.canonical,
     opts?.ogType,
     opts?.article ? JSON.stringify(opts.article) : null,
+    opts?.ogImageWidth,
+    opts?.ogImageHeight,
     opts?.structuredData ? JSON.stringify(opts.structuredData) : null,
   ]);
 }

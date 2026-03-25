@@ -5,6 +5,7 @@ import Projects from '../components/portfolio/Projects';
 import HomeCTA from '../components/portfolio/HomeCTA';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { buildPersonSchema } from '../lib/structuredData';
+import { DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
 
 /**
  * Home — Hero (with ticker) · About (stats + Skills & Tools) · Featured projects · CTA
@@ -13,6 +14,7 @@ const HomePage = () => {
   usePageMeta({
     title: 'Design & Engineering',
     description: 'Developer and designer based in Nigeria, building for a global audience. I teach what I know and ship what I learn.',
+    image: DEFAULT_OG_IMAGE_PATH,
     structuredData: buildPersonSchema(),
   });
   return (

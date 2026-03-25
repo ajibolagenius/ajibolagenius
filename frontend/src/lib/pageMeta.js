@@ -9,6 +9,8 @@ import {
   DEFAULT_OG_IMAGE_PATH,
   OG_IMAGE_WIDTH,
   OG_IMAGE_HEIGHT,
+  STATIC_DEFAULT_OG_IMAGE_WIDTH,
+  STATIC_DEFAULT_OG_IMAGE_HEIGHT,
   getTwitterSiteMeta,
 } from './siteConfig';
 
@@ -53,6 +55,18 @@ function removeArticleMeta() {
   document.querySelectorAll('meta[property^="article:"]').forEach((n) => n.remove());
 }
 
+function ogImageDimensions(imageUrl, opts) {
+  if (opts.ogImageWidth != null && opts.ogImageHeight != null) {
+    return { w: opts.ogImageWidth, h: opts.ogImageHeight };
+  }
+  const u = imageUrl || '';
+  if (u.includes('/functions/v1/og-image')) return { w: OG_IMAGE_WIDTH, h: OG_IMAGE_HEIGHT };
+  if (u.endsWith('/og-image.png') || u.endsWith('og-image.png')) {
+    return { w: STATIC_DEFAULT_OG_IMAGE_WIDTH, h: STATIC_DEFAULT_OG_IMAGE_HEIGHT };
+  }
+  return { w: OG_IMAGE_WIDTH, h: OG_IMAGE_HEIGHT };
+}
+
 function setCanonical(href) {
   let el = document.querySelector('link[rel="canonical"]');
   if (!el) {
@@ -73,6 +87,8 @@ function setCanonical(href) {
  *   canonical?: string;
  *   ogType?: 'website' | 'article';
  *   article?: { publishedTime?: string; modifiedTime?: string; section?: string; tag?: string };
+ *   ogImageWidth?: number;
+ *   ogImageHeight?: number;
  * }} opts
  */
 export function setPageMeta(opts = {}) {
@@ -88,14 +104,15 @@ export function setPageMeta(opts = {}) {
   const canonical = opts.canonical !== undefined ? opts.canonical : (typeof window !== 'undefined' ? window.location.pathname : '');
   const absoluteUrl = canonical.startsWith('http') ? canonical : `${base}${canonical.startsWith('/') ? '' : '/'}${canonical}`;
   const ogType = opts.ogType || OG_TYPE_WEBSITE;
+  const { w: ogW, h: ogH } = ogImageDimensions(image, opts);
 
   document.title = title;
   ensureMeta('description', 'content', description);
   ensureMeta('og:title', 'content', title);
   ensureMeta('og:description', 'content', description);
   ensureMeta('og:image', 'content', image);
-  ensureMeta('og:image:width', 'content', String(OG_IMAGE_WIDTH));
-  ensureMeta('og:image:height', 'content', String(OG_IMAGE_HEIGHT));
+  ensureMeta('og:image:width', 'content', String(ogW));
+  ensureMeta('og:image:height', 'content', String(ogH));
   ensureMeta('og:url', 'content', absoluteUrl);
   ensureMeta('og:type', 'content', ogType);
   ensureMeta('og:site_name', 'content', SITE_NAME);

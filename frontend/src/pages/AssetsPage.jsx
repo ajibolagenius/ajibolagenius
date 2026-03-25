@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 import SectionKicker from '../components/portfolio/SectionKicker';
 import FilterButtons from '../components/portfolio/FilterButtons';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { byNumber, applySort } from '../lib/sortHelpers';
 
@@ -111,6 +112,7 @@ export default function AssetsPage() {
   usePageMeta({
     title: 'Assets & Downloads',
     description: 'Design files, resources, and links shared by Ajibola Akelebe.',
+    image: DEFAULT_OG_IMAGE_PATH,
     canonical: '/assets',
   });
 

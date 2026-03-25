@@ -33,7 +33,9 @@ export function buildPersonSchema(opts = {}) {
     name: opts.name || SITE_NAME,
     description: opts.description || DEFAULT_META_DESCRIPTION,
     url: base,
-    image: opts.image ? (opts.image.startsWith('http') ? opts.image : `${base}${opts.image.startsWith('/') ? '' : '/'}${opts.image}`) : `${base}/og-image.png`,
+    image: opts.image
+      ? (opts.image.startsWith('http') ? opts.image : `${base}${opts.image.startsWith('/') ? '' : '/'}${opts.image}`)
+      : `${base}${DEFAULT_OG_IMAGE_PATH}`,
   };
 }
 
