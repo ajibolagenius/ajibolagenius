@@ -172,8 +172,8 @@ const BlogPostPage = () => {
     post
       ? {
           title: post.title,
-          description: post.excerpt || post.description || 'Read this article by Ajibola Akelebe.',
-          image: `https://peincqeqcufbkoccyneo.supabase.co/functions/v1/og-image?title=${encodeURIComponent(post.title)}&category=${encodeURIComponent(post.category || 'Thought')}`,
+          description: post.meta_description || post.excerpt || post.description || 'Article by Ajibola Akelebe.',
+          image: post.og_image || `https://peincqeqcufbkoccyneo.supabase.co/functions/v1/og-image?title=${encodeURIComponent(post.title)}&category=${encodeURIComponent(post.category || 'Thought')}`,
           ogType: 'article',
           canonical: `/writing/${post.slug || slug}`,
           structuredData: buildBlogPostingSchema(post),
@@ -197,18 +197,7 @@ const BlogPostPage = () => {
     }
   }, [post?.slug, post?.title, slug]);
 
-  usePageMeta(
-    post
-      ? {
-          title: post.title,
-          description: post.meta_description || post.excerpt || post.description || 'Article by Ajibola Akelebe.',
-          image: post.og_image || undefined,
-          canonical: `/writing/${post.slug || slug}`,
-          ogType: 'article',
-          structuredData: buildBlogPostingSchema(post),
-        }
-      : { title: 'Article', description: 'Article by Ajibola Akelebe.', canonical: slug ? `/writing/${slug}` : '/writing' }
-  );
+
 
   const { html: bodyWithIds, tocEntries } = React.useMemo(() => {
     if (!post?.body) return { html: '', tocEntries: [] };
