@@ -115,38 +115,39 @@ export default function AdminBlogEditorPage() {
   };
 
   const handleSave = async () => {
-    setOgImageUploading(Boolean(ogImageFile));
-    const readTime = computeReadTime(form.body);
-    const tagsArr = typeof form.tags === 'string'
-      ? form.tags.split(',').map((t) => t.trim()).filter(Boolean)
-      : form.tags;
-    const published = form.published !== false;
-
-    let ogImageUrl = (form.og_image ?? '').trim();
-    if (ogImageFile) {
-      const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-      if (!allowed.includes(ogImageFile.type)) {
-        setOgImageUploading(false);
-        throw new Error('OG image must be JPEG/PNG/WebP/GIF.');
-      }
-      // Upload to public storage, then store its public URL in `blog_posts.og_image`.
-      const uploaded = await uploadAssetFile(ogImageFile);
-      ogImageUrl = uploaded?.publicUrl || ogImageUrl;
-    }
-
-    const payload = {
-      ...form,
-      tags: tagsArr,
-      read_time: readTime,
-      published,
-      published_at: published && !originalPost?.published_at && !form.published_at
-        ? new Date().toISOString()
-        : (form.published_at || originalPost?.published_at || null),
-      meta_description: form.meta_description ?? '',
-      og_image: ogImageUrl ?? '',
-    };
-    setSaving(true);
     try {
+      setSaving(true);
+      setOgImageUploading(Boolean(ogImageFile));
+
+      const readTime = computeReadTime(form.body);
+      const tagsArr = typeof form.tags === 'string'
+        ? form.tags.split(',').map((t) => t.trim()).filter(Boolean)
+        : form.tags;
+      const published = form.published !== false;
+
+      let ogImageUrl = (form.og_image ?? '').trim();
+      if (ogImageFile) {
+        const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        if (!allowed.includes(ogImageFile.type)) {
+          throw new Error('OG image must be JPEG/PNG/WebP/GIF.');
+        }
+        // Upload to public storage, then store its public URL in `blog_posts.og_image`.
+        const uploaded = await uploadAssetFile(ogImageFile);
+        ogImageUrl = uploaded?.publicUrl || ogImageUrl;
+      }
+
+      const payload = {
+        ...form,
+        tags: tagsArr,
+        read_time: readTime,
+        published,
+        published_at: published && !originalPost?.published_at && !form.published_at
+          ? new Date().toISOString()
+          : (form.published_at || originalPost?.published_at || null),
+        meta_description: form.meta_description ?? '',
+        og_image: ogImageUrl ?? '',
+      };
+
       if (isEditing) await adminEndpoints.blogPosts.update(id, payload);
       else await adminEndpoints.blogPosts.create(payload);
       navigate('/admin/blog');
@@ -392,6 +393,8 @@ export default function AdminBlogEditorPage() {
                       size="sm"
                       onClick={() => {
                         setOgImageFile(null);
+                        // Allow re-selecting the same file by clearing the underlying input value.
+                        if (ogImageInputRef.current) ogImageInputRef.current.value = '';
                         if (ogImagePreviewUrl) {
                           try {
                             URL.revokeObjectURL(ogImagePreviewUrl);
