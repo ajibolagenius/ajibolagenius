@@ -374,16 +374,7 @@ export const testimonials = [
     }
 ];
 
-export const navLinks = [
-    { label: "Work", href: "/work" },
-    { label: "Teach", href: "/teach" },
-    { label: "Writing", href: "/writing" },
-    { label: "Gallery", href: "/gallery" },
-    { label: "Assets", href: "/assets" },
-    { label: "CV", href: "/cv" },
-    { label: "Search", href: "/search" },
-    { label: "Contact", href: "/contact" }
-];
+export { navLinks } from './defaultNav.js';
 
 export const blogPosts = [
     {

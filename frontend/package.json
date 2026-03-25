@@ -65,7 +65,7 @@
   "scripts": {
     "dev": "vite",
     "start": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/prerender-detail-routes.mjs",
     "preview": "vite preview",
     "seed:courses": "node scripts/seed-courses.js",
     "seed:testimonials": "node scripts/seed-testimonials.js",

@@ -4,6 +4,7 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import {
+  SITE_NAME,
   DEFAULT_PAGE_TITLE,
   DEFAULT_META_DESCRIPTION,
   DEFAULT_OG_IMAGE_PATH,
@@ -39,9 +40,9 @@ export default defineConfig(({ mode }) => {
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'Ajibola Akelebe — Design & Engineering',
-        short_name: 'Ajibola Akelebe',
-        description: 'Developer and designer based in Nigeria, building for a global audience.',
+        name: DEFAULT_PAGE_TITLE,
+        short_name: SITE_NAME,
+        description: DEFAULT_META_DESCRIPTION,
         theme_color: '#07070F',
         background_color: '#07070F',
         display: 'standalone',

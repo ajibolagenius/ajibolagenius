@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, MessageSquare, MapPin, Mail } from 'lucide-react';
 import { submitContact, fetchPersonalInfo } from '../../services/api';
-import { personalInfo as fbInfo } from '../../data/mock';
+import { getPersonalInfoQueryFallback } from '../../lib/personalInfoFallbacks';
 import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
+
+const fbInfo = getPersonalInfoQueryFallback();
 
 const Contact = () => {
   const [visible, setVisible] = useState(false);

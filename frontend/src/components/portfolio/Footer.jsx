@@ -1,7 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Github, Twitter, Linkedin } from 'lucide-react';
-import { personalInfo as fbInfo, navLinks } from '../../data/mock';
+import { navLinks } from '../../data/defaultNav';
+import { getPersonalInfoQueryFallback } from '../../lib/personalInfoFallbacks';
+import { SITE_NAME } from '../../lib/siteConfig';
 import { footerStackNames } from '../../data/techStack';
 import Badge from './Badge';
 import { BADGE_VARIANTS } from '../../constants';
@@ -12,8 +14,10 @@ import { useLocale } from '../../contexts/LocaleContext';
 /**
  * Footer — Design System layout.
  * Deep bg, border-top, minified: brand · tagline · social | nav links | stack badges; copyright row.
- * Uses personal_info from Supabase (admin); falls back to mock.
+ * Uses personal_info from Supabase (admin). Fallback: mock only if VITE_USE_MOCK_FALLBACK=true.
  */
+
+const fbInfo = getPersonalInfoQueryFallback();
 
 const SOCIAL_CONFIG = [
   { Icon: Github, key: 'github', label: 'GitHub' },
@@ -31,8 +35,10 @@ const Footer = () => {
     label,
   }));
 
-  const name = info?.name ?? fbInfo.name ?? 'Ajibola Akelebe';
-  const tagline = [info?.tagline ?? fbInfo.tagline, info?.tagline_suffix ?? fbInfo.taglineSuffix].filter(Boolean).join(' ').trim() || 'Design & Engineering, No boundaries.';
+  const name = (info?.name ?? fbInfo.name ?? '').trim() || SITE_NAME;
+  const tagline =
+    [info?.tagline ?? fbInfo.tagline, info?.tagline_suffix ?? fbInfo.taglineSuffix].filter(Boolean).join(' ').trim() ||
+    'Design & Engineering, No boundaries.';
 
   return (
     <footer className="bg-[var(--deep)] border-t border-[var(--border)] py-6 md:py-8">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { navLinks } from '../../data/mock';
+import { navLinks } from '../../data/defaultNav';
 import { NAV_HEIGHT } from '../../constants';
 import ThemeToggle from './ThemeToggle';
 import { useLocale } from '../../contexts/LocaleContext';

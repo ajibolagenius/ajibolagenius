@@ -3,7 +3,27 @@
  * Used with setStructuredData / usePageMeta for rich search results.
  */
 import { getBaseUrl } from './pageMeta';
-import { SITE_NAME, DEFAULT_META_DESCRIPTION } from './siteConfig';
+import {
+  SITE_NAME,
+  DEFAULT_META_DESCRIPTION,
+  DEFAULT_OG_IMAGE_PATH,
+  buildOgImageUrl,
+} from './siteConfig';
+
+function absolutizeImageRef(pathOrUrl, base) {
+  if (!pathOrUrl) return `${base}${DEFAULT_OG_IMAGE_PATH}`;
+  if (pathOrUrl.startsWith('http')) return pathOrUrl;
+  return `${base}${pathOrUrl.startsWith('/') ? '' : '/'}${pathOrUrl}`;
+}
+
+/** Same image resolution as usePageMeta for blog posts (og_image → dynamic OG → static default). */
+export function resolveBlogPostingImage(post, baseUrl) {
+  const base = baseUrl || getBaseUrl();
+  if (post.og_image) return absolutizeImageRef(post.og_image, base);
+  const dynamic = buildOgImageUrl(post.title, post.category || 'Thought');
+  if (dynamic) return dynamic;
+  return absolutizeImageRef(DEFAULT_OG_IMAGE_PATH, base);
+}
 
 export function buildPersonSchema(opts = {}) {
   const base = getBaseUrl();
@@ -20,9 +40,7 @@ export function buildPersonSchema(opts = {}) {
 export function buildBlogPostingSchema(post, baseUrl) {
   const base = baseUrl || getBaseUrl();
   const url = `${base}/writing/${post.slug || ''}`;
-  const image = post.og_image
-    ? (post.og_image.startsWith('http') ? post.og_image : `${base}${post.og_image.startsWith('/') ? '' : '/'}${post.og_image}`)
-    : `${base}/og-image.png`;
+  const image = resolveBlogPostingImage(post, base);
   return {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -39,7 +57,7 @@ export function buildBlogPostingSchema(post, baseUrl) {
     publisher: {
       '@type': 'Person',
       name: SITE_NAME,
-      image: `${base}/og-image.png`,
+      image: absolutizeImageRef(DEFAULT_OG_IMAGE_PATH, base),
     },
   };
 }
