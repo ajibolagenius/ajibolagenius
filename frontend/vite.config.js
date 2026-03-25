@@ -18,9 +18,17 @@ function escapeAttr(text) {
   return String(text).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 }
 
+function resolvePublicSiteUrlForBuild(env) {
+  const a = (env.VITE_SITE_URL || process.env.URL || '').trim().replace(/\/$/, '');
+  if (a) return a;
+  const v = (process.env.VERCEL_URL || '').trim();
+  if (v) return `https://${v.replace(/^https?:\/\//i, '').replace(/\/$/, '')}`;
+  return '';
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, __dirname, '');
-  const siteUrl = (env.VITE_SITE_URL || '').replace(/\/$/, '');
+  const siteUrl = resolvePublicSiteUrlForBuild(env);
   const absOgImage = siteUrl ? `${siteUrl}${DEFAULT_OG_IMAGE_PATH}` : DEFAULT_OG_IMAGE_PATH;
 
   return {

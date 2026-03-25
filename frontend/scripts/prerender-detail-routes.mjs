@@ -5,7 +5,8 @@
  * 1) Listing routes (always): dist/work/index.html, dist/writing/index.html, etc. — no DB required.
  * 2) Detail routes (optional): dist/writing/<slug>/index.html, dist/work/<slug>/index.html — needs Supabase.
  *
- * Env: VITE_SITE_URL strongly recommended (absolute og:url). VITE_SUPABASE_* for detail prerender only.
+ * Env: VITE_SITE_URL or URL = canonical site (best). On Vercel, VERCEL_URL is used automatically if unset.
+ * VITE_SUPABASE_* required only for blog/work *detail* prerender.
  * Writes dist/_redirects (Netlify). Vercel: static files in dist/ are served before SPA fallback when
  * Output Directory is dist — ensure project Root Directory points at frontend if monorepo.
  * Set SKIP_PRERENDER_DETAIL=1 to skip this entire script.
@@ -59,7 +60,20 @@ if (process.env.SKIP_PRERENDER_DETAIL === '1') {
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
 const anonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
-const siteUrl = (process.env.VITE_SITE_URL || '').replace(/\/$/, '');
+
+/**
+ * Absolute origin for OG/canonical in emitted HTML. Many crawlers (WhatsApp, FB) ignore relative og:image.
+ * Order: VITE_SITE_URL → URL (Netlify etc.) → https://VERCEL_URL (set on Vercel builds).
+ */
+function resolvePublicSiteUrl() {
+  const a = (process.env.VITE_SITE_URL || process.env.URL || '').trim().replace(/\/$/, '');
+  if (a) return a;
+  const v = (process.env.VERCEL_URL || '').trim();
+  if (v) return `https://${v.replace(/^https?:\/\//i, '').replace(/\/$/, '')}`;
+  return '';
+}
+
+const siteUrl = resolvePublicSiteUrl();
 const distDir = path.join(frontendDir, 'dist');
 const indexPath = path.join(distDir, 'index.html');
 
@@ -275,7 +289,9 @@ async function main() {
   }
 
   if (!siteUrl) {
-    console.warn('[prerender] VITE_SITE_URL unset — og:url / canonical may be relative; set for production OG previews.');
+    console.warn(
+      '[prerender] No public URL (set VITE_SITE_URL or deploy on Vercel with VERCEL_URL) — og:image / og:url will be RELATIVE; WhatsApp and many checkers will skip og:image.'
+    );
   }
 
   const baseHtml = fs.readFileSync(indexPath, 'utf8');

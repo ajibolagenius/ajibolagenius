@@ -1,6 +1,5 @@
 /**
- * User activity tracking: sends events to Supabase (in-house admin charts) and PostHog (sessions, funnels).
- * Every event is persisted to the analytics_events table for backup and retrieval; admin can export from /admin/analytics.
+ * User activity tracking: persists events to Supabase (analytics_events) for admin charts / export.
  * Call from public site only; do not track /admin paths.
  */
 import { supabase } from '../lib/supabase';
@@ -13,12 +12,6 @@ const isPlaceholder = () => {
 export function track(eventType, props = {}) {
   const path = typeof props.path === 'string' ? props.path : (typeof window !== 'undefined' ? window.location?.pathname : '');
   const payload = { ...props };
-
-  if (typeof window !== 'undefined' && window.posthog && typeof window.posthog.capture === 'function') {
-    try {
-      window.posthog.capture(eventType, payload);
-    } catch (_) {}
-  }
 
   if (isPlaceholder()) return;
   supabase
