@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Clock, Copy, Share2, Check, Twitter, MessageCircle, List, ChevronDown, ChevronUp } from 'lucide-react';
+import Balancer from 'react-wrap-balancer';
 import { fetchBlogPost, fetchBlogPosts } from '../services/api';
 import Badge from '../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../constants';
@@ -22,7 +23,7 @@ function isHtmlBody(body) {
 
 /** Prose styles for WYSIWYG HTML output (headings, lists, blockquote, links). */
 const articleProseClass = [
-  'article-body font-body text-[16px] leading-[1.8] text-[var(--muted)] max-w-full break-words',
+  'article-body font-body text-[16px] leading-[1.8] text-[var(--muted)] max-w-full break-normal [overflow-wrap:break-word] text-pretty',
   '[&_h1]:font-display [&_h1]:text-3xl [&_h1]:font-extrabold [&_h1]:text-[var(--white)] [&_h1]:mt-12 [&_h1]:mb-6 [&_h1]:tracking-tight',
   '[&_h2]:font-display [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-[var(--white)] [&_h2]:mt-10 [&_h2]:mb-4 [&_h2]:tracking-tight',
   '[&_h3]:font-display [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-[var(--white)] [&_h3]:mt-8 [&_h3]:mb-3',
@@ -81,7 +82,7 @@ function ArticleBody({ body, htmlWithIds }) {
       );
     } else {
       elements.push(
-        <p key={i} className="font-body text-[15px] leading-[1.8] mb-6 text-[var(--muted)]">
+        <p key={i} className="font-body text-[15px] leading-[1.8] mb-6 text-[var(--muted)] text-pretty">
           {trimmed}
         </p>
       );
@@ -301,7 +302,7 @@ const BlogPostPage = () => {
           )}
 
           <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--white)]" style={{ fontSize: 'clamp(32px, 6vw, 56px)' }}>
-            {post.title}
+            <Balancer>{post.title}</Balancer>
           </h1>
 
           <div className="flex flex-wrap items-center justify-between gap-6 mb-10 pb-8 border-b border-[var(--border-md)]">
@@ -427,7 +428,7 @@ const BlogPostPage = () => {
               >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--stardust)]/5 blur-[40px] rounded-full group-hover:bg-[var(--stardust)]/10 transition-all" />
                 <h3 className="font-display text-xl md:text-2xl font-bold text-[var(--white)] group-hover:text-[var(--sungold)] transition-colors mb-2">
-                  {nextPost.title}
+                  <Balancer>{nextPost.title}</Balancer>
                 </h3>
                 <p className="font-body text-[14px] text-[var(--muted)] line-clamp-2">
                   {nextPost.excerpt || nextPost.description}
