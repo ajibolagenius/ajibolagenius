@@ -3,6 +3,7 @@
  * Requires user to be signed in via Supabase Auth; RLS enforces access.
  */
 import { supabase } from '../lib/supabase';
+import { compressImageForUpload, IMAGE_UPLOAD_PRESETS } from '../lib/compressImageForUpload';
 
 function handleResponse({ data, error }) {
   if (error) {
@@ -63,12 +64,14 @@ const ASSETS_BUCKET = 'assets';
  * @returns {Promise<string>} Public URL of the uploaded file
  */
 export async function uploadProjectScreenshot(projectId, file) {
-  const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+  const { file: uploadFile, contentType } = await compressImageForUpload(file, IMAGE_UPLOAD_PRESETS.projectScreenshot);
+  const ext = uploadFile.name.split('.').pop()?.toLowerCase() || 'jpg';
   const name = `${crypto.randomUUID()}.${ext}`;
   const path = `${projectId}/${name}`;
-  const { error } = await supabase.storage.from(PROJECT_SCREENSHOTS_BUCKET).upload(path, file, {
+  const { error } = await supabase.storage.from(PROJECT_SCREENSHOTS_BUCKET).upload(path, uploadFile, {
     cacheControl: '3600',
     upsert: false,
+    contentType,
   });
   if (error) throw error;
   const { data } = supabase.storage.from(PROJECT_SCREENSHOTS_BUCKET).getPublicUrl(path);
@@ -81,12 +84,17 @@ export async function uploadProjectScreenshot(projectId, file) {
  * @returns {Promise<string>} Public URL of the uploaded file
  */
 export async function uploadGalleryMedia(file) {
-  const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+  const isImage = file.type?.startsWith('image/');
+  const { file: uploadFile, contentType } = isImage
+    ? await compressImageForUpload(file, IMAGE_UPLOAD_PRESETS.galleryImage)
+    : { file, contentType: file.type || 'application/octet-stream' };
+  const ext = uploadFile.name.split('.').pop()?.toLowerCase() || (isImage ? 'jpg' : 'bin');
   const name = `${crypto.randomUUID()}.${ext}`;
   const path = name;
-  const { error } = await supabase.storage.from(GALLERY_MEDIA_BUCKET).upload(path, file, {
+  const { error } = await supabase.storage.from(GALLERY_MEDIA_BUCKET).upload(path, uploadFile, {
     cacheControl: '3600',
     upsert: false,
+    contentType: isImage ? contentType : file.type || undefined,
   });
   if (error) throw error;
   const { data } = supabase.storage.from(GALLERY_MEDIA_BUCKET).getPublicUrl(path);
@@ -116,18 +124,31 @@ const ASSET_EXT_TO_MIME = {
  * @returns {Promise<{ publicUrl: string, path: string, fileName: string }>}
  */
 export async function uploadAssetFile(file) {
-  const fileName = file.name || 'download';
-  const ext = fileName.split('.').pop()?.toLowerCase() || 'bin';
+  const originalName = file.name || 'download';
+  const isImage = file.type?.startsWith('image/');
+  const { file: uploadFile, contentType: imageContentType } = isImage
+    ? await compressImageForUpload(file, IMAGE_UPLOAD_PRESETS.assetImage)
+    : { file, contentType: null };
+
+  const ext =
+    uploadFile.name.split('.').pop()?.toLowerCase() ||
+    originalName.split('.').pop()?.toLowerCase() ||
+    'bin';
   const path = `${crypto.randomUUID()}.${ext}`;
-  const contentType = file.type || ASSET_EXT_TO_MIME[ext] || 'application/octet-stream';
-  const { error } = await supabase.storage.from(ASSETS_BUCKET).upload(path, file, {
+  const contentType =
+    imageContentType ||
+    file.type ||
+    ASSET_EXT_TO_MIME[ext] ||
+    'application/octet-stream';
+
+  const { error } = await supabase.storage.from(ASSETS_BUCKET).upload(path, uploadFile, {
     cacheControl: '3600',
     upsert: false,
     contentType,
   });
   if (error) throw error;
   const { data } = supabase.storage.from(ASSETS_BUCKET).getPublicUrl(path);
-  return { publicUrl: data.publicUrl, path, fileName };
+  return { publicUrl: data.publicUrl, path, fileName: uploadFile.name || originalName };
 }
 
 export const adminEndpoints = {
