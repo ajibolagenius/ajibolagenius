@@ -3,12 +3,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // @ts-ignore: Deno module
 import { Resvg, initWasm } from "https://esm.sh/@resvg/resvg-wasm@2.6.2";
+import { DM_SANS_700_WOFF2_B64, SYNE_800_WOFF2_B64 } from "./bundledFontB64.ts";
 
 const SITE_NAME = Deno.env.get("OG_SITE_BRAND_NAME") || "Ajibola Akelebe";
-
-/** Browser-like UA so Google Fonts CSS returns woff2 URLs. */
-const FONT_CSS_UA =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
 let wasmInitialized = false;
 async function initializeWasm() {
@@ -19,52 +16,14 @@ async function initializeWasm() {
   wasmInitialized = true;
 }
 
-/** resvg does not fetch remote @import fonts; embed woff2 as data: for visible text. */
-const fontDataUriCache = new Map<string, string>();
-
-function uint8ToBase64(bytes: Uint8Array): string {
-  const chunk = 8192;
-  let binary = "";
-  for (let i = 0; i < bytes.length; i += chunk) {
-    const sub = bytes.subarray(i, i + chunk);
-    binary += String.fromCharCode.apply(
-      null,
-      sub as unknown as number[],
-    );
-  }
-  return btoa(binary);
-}
-
-async function googleFontAsDataUri(cssFamilyParam: string, weight: number): Promise<string> {
-  const key = `${cssFamilyParam}:${weight}`;
-  const hit = fontDataUriCache.get(key);
-  if (hit) return hit;
-
-  const cssUrl =
-    `https://fonts.googleapis.com/css2?family=${cssFamilyParam}:wght@${weight}&display=swap`;
-  const cssRes = await fetch(cssUrl, { headers: { "User-Agent": FONT_CSS_UA } });
-  const css = await cssRes.text();
-  const m = css.match(/src:\s*url\((https:\/\/fonts\.gstatic\.com\/[^)]+?\.woff2)\)/);
-  if (!m) {
-    throw new Error(`No woff2 URL in Google Fonts CSS for ${key}`);
-  }
-  const fontRes = await fetch(m[1]);
-  if (!fontRes.ok) throw new Error(`woff2 fetch failed: ${m[1]}`);
-  const buf = new Uint8Array(await fontRes.arrayBuffer());
-  const dataUri = `data:font/woff2;base64,${uint8ToBase64(buf)}`;
-  fontDataUriCache.set(key, dataUri);
-  return dataUri;
-}
-
+/** Latin woff2 embedded as base64 so the deploy bundle always includes glyphs (readFile may omit sibling files). */
 let embeddedStylesPromise: Promise<string> | null = null;
 
 function getEmbeddedFontStyles(): Promise<string> {
   if (!embeddedStylesPromise) {
-    embeddedStylesPromise = (async () => {
-      const [syne, dm] = await Promise.all([
-        googleFontAsDataUri("Syne", 800),
-        googleFontAsDataUri("DM+Sans", 700),
-      ]);
+    embeddedStylesPromise = Promise.resolve().then(() => {
+      const syne = `data:font/woff2;base64,${SYNE_800_WOFF2_B64}`;
+      const dm = `data:font/woff2;base64,${DM_SANS_700_WOFF2_B64}`;
       return `
     @font-face {
       font-family: 'Syne';
@@ -83,7 +42,7 @@ function getEmbeddedFontStyles(): Promise<string> {
     .brand { font-family: 'DM Sans', sans-serif; font-weight: 700; fill: #F2EFE8; font-size: 32px; letter-spacing: -0.02em; }
     .tagline { font-family: 'DM Sans', sans-serif; font-weight: 700; fill: rgba(242, 239, 232, 0.4); font-size: 20px; letter-spacing: 0.15em; }
       `.trim();
-    })();
+    });
   }
   return embeddedStylesPromise;
 }
@@ -110,7 +69,7 @@ serve(async (req: Request) => {
   try {
     fontStyles = await getEmbeddedFontStyles();
   } catch (e) {
-    console.error("og-image font load error:", e);
+    console.error("og-image bundled font load error:", e);
     fontStyles = `
     .title { font-family: sans-serif; font-weight: 800; fill: #F2EFE8; font-size: 64px; text-transform: uppercase; }
     .category { font-family: sans-serif; font-weight: 700; fill: #E8A020; font-size: 18px; letter-spacing: 0.35em; }
@@ -168,7 +127,10 @@ ${fontStyles}
     await initializeWasm();
     const resvg = new Resvg(svg, {
       fitTo: { mode: "width", value: 1200 },
-      font: { loadSystemFonts: false },
+      font: {
+        loadSystemFonts: true,
+        defaultSansSerifFamily: "Liberation Sans",
+      },
     });
     const pngData = resvg.render();
     const pngBuffer = pngData.asPng();

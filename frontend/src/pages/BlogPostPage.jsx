@@ -8,6 +8,7 @@ import { usePageMeta } from '../hooks/usePageMeta';
 import { track } from '../services/analytics';
 import { buildBlogPostingSchema } from '../lib/structuredData';
 import { buildOgImageUrl, getShareTwitterHandle, DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
+import { blogPostShareDescription, blogPostCustomOgImage } from '../lib/blogMeta';
 import { WritingSkeleton } from '../components/portfolio/SkeletonLayouts';
 import SectionKicker from '../components/portfolio/SectionKicker';
 
@@ -171,17 +172,16 @@ const BlogPostPage = () => {
     window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
   };
 
+  const customOg = post ? blogPostCustomOgImage(post) : '';
   const dynamicOg =
-    post && !post.og_image
-      ? buildOgImageUrl(post.title, post.category || 'Thought')
-      : null;
+    post && !customOg ? buildOgImageUrl(post.title, post.category || 'Thought') : null;
 
   usePageMeta(
     post
       ? {
           title: post.title,
-          description: post.meta_description || post.excerpt || post.description || 'Article by Ajibola Akelebe.',
-          image: post.og_image || dynamicOg || DEFAULT_OG_IMAGE_PATH,
+          description: blogPostShareDescription(post, 'Article by Ajibola Akelebe.'),
+          image: customOg || dynamicOg || DEFAULT_OG_IMAGE_PATH,
           ogType: 'article',
           canonical: `/writing/${post.slug || slug}`,
           article: {

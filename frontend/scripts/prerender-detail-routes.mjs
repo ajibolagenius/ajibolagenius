@@ -28,6 +28,7 @@ import {
   STATIC_DEFAULT_OG_IMAGE_HEIGHT,
   STATIC_DEFAULT_OG_IMAGE_WIDTH,
 } from '../src/lib/siteBrand.js';
+import { blogPostShareDescription, blogPostCustomOgImage } from '../src/lib/blogMeta.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -146,7 +147,8 @@ function buildOgImageFnUrl(title, category) {
 }
 
 function blogOgImage(post) {
-  if (post.og_image) return absolutize(post.og_image, siteUrl);
+  const custom = blogPostCustomOgImage(post);
+  if (custom) return absolutize(custom, siteUrl);
   const dynamic = buildOgImageFnUrl(post.title, post.category || 'Thought');
   if (dynamic) return dynamic;
   return absolutize(DEFAULT_OG_IMAGE_PATH, siteUrl);
@@ -171,7 +173,7 @@ function blogJsonLd(post, imageUrl) {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: post.title,
-    description: post.meta_description || post.excerpt || post.description || post.title,
+    description: blogPostShareDescription(post, post.title),
     image: imageUrl,
     url,
     datePublished: post.date || post.published_at,
@@ -323,7 +325,7 @@ async function main() {
     const slug = post.slug;
     if (!slug) continue;
     const title = `${post.title} — ${SITE_NAME}`;
-    const description = post.meta_description || post.excerpt || post.description || DEFAULT_META_DESCRIPTION;
+    const description = blogPostShareDescription(post, DEFAULT_META_DESCRIPTION);
     const image = blogOgImage(post);
     const html = patchHtmlForPage({
       html: baseHtml,

@@ -9,6 +9,7 @@ import {
   DEFAULT_OG_IMAGE_PATH,
   buildOgImageUrl,
 } from './siteConfig';
+import { blogPostShareDescription, blogPostCustomOgImage } from './blogMeta';
 
 function absolutizeImageRef(pathOrUrl, base) {
   if (!pathOrUrl) return `${base}${DEFAULT_OG_IMAGE_PATH}`;
@@ -19,7 +20,8 @@ function absolutizeImageRef(pathOrUrl, base) {
 /** Same image resolution as usePageMeta for blog posts (og_image → dynamic OG → static default). */
 export function resolveBlogPostingImage(post, baseUrl) {
   const base = baseUrl || getBaseUrl();
-  if (post.og_image) return absolutizeImageRef(post.og_image, base);
+  const custom = blogPostCustomOgImage(post);
+  if (custom) return absolutizeImageRef(custom, base);
   const dynamic = buildOgImageUrl(post.title, post.category || 'Thought');
   if (dynamic) return dynamic;
   return absolutizeImageRef(DEFAULT_OG_IMAGE_PATH, base);
@@ -47,7 +49,7 @@ export function buildBlogPostingSchema(post, baseUrl) {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: post.title,
-    description: post.meta_description || post.excerpt || post.description || post.title,
+    description: blogPostShareDescription(post, post.title),
     image,
     url,
     datePublished: post.date || post.published_at,
