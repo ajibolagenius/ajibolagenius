@@ -51,7 +51,7 @@ const ProjectCard = ({ project }) => {
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--void)]/40 to-transparent" />
-        
+
         <span className="relative z-10 font-display text-[10px] tracking-[0.2em] uppercase px-4 py-2 bg-[var(--void)]/80 backdrop-blur-md text-[var(--white)] border border-[var(--border)] transition-colors group-hover:border-[var(--sungold)]/40 group-hover:text-[var(--sungold)]">
           {project.label || 'Project'}
         </span>
@@ -107,7 +107,7 @@ const FeaturedSpotlight = ({ project }) => {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-[var(--sungold)] opacity-[0.02] blur-[140px] rounded-full pointer-events-none transition-opacity duration-700 group-hover/section:opacity-[0.04]" />
 
       <div className="relative z-10 max-w-[1160px] mx-auto px-4 md:px-8">
-        <div 
+        <div
           className="relative grid grid-cols-1 lg:grid-cols-[1fr_0.8fr] gap-0 border border-[var(--border-md)] bg-[var(--surface)]/50 backdrop-blur-sm overflow-hidden cursor-pointer transition-all duration-500 hover:border-[var(--sungold)]/40 hover:bg-[var(--elevated)]/60 group/card"
           onClick={() => navigate(href)}
         >
@@ -117,7 +117,7 @@ const FeaturedSpotlight = ({ project }) => {
 
           <div className="p-6 md:p-10 flex flex-col justify-center">
             <div className="flex items-center gap-3 mb-6">
-              <Badge variant="gold">◆ Featured Case Study</Badge>
+              <Badge variant="gold">◆ Featured</Badge>
               <div className="h-px w-12 bg-[var(--border-hi)]" />
               <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--stardust)]">
                 {project.category}
@@ -127,11 +127,11 @@ const FeaturedSpotlight = ({ project }) => {
             <h2 className="font-display font-extrabold leading-[1.05] tracking-tight mb-5 text-[var(--white)] group-hover/card:text-[var(--sungold)] transition-colors duration-300" style={{ fontSize: 'clamp(28px, 4.5vw, 48px)' }}>
               {project.name}
             </h2>
-            
+
             <p className="font-body text-[16px] leading-[1.65] mb-6 text-[var(--muted)] group-hover/card:text-[var(--subtle)] transition-colors line-clamp-3">
               {project.description}
             </p>
-            
+
             {excerpt && (
               <p className="font-body text-[13px] leading-[1.6] mb-8 text-[var(--dim)] italic border-l-2 border-[var(--border-md)] pl-4">
                 "{excerpt}"
@@ -243,7 +243,7 @@ const WorkPage = () => {
         </div>
 
         {/* Technical Scanline effect */}
-        <motion.div 
+        <motion.div
           initial={{ top: '-10%' }}
           animate={{ top: '110%' }}
           transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
