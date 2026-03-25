@@ -1,9 +1,10 @@
+/// <reference path="../notify-course-open/deno.d.ts" />
 // @ts-ignore: Deno module
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // @ts-ignore: Deno module
 import { Resvg, initWasm } from "https://esm.sh/@resvg/resvg-wasm@2.6.2";
 
-const SITE_NAME = "Ajibola Akelebe";
+const SITE_NAME = Deno.env.get("OG_SITE_BRAND_NAME") || "Ajibola Akelebe";
 
 let wasmInitialized = false;
 async function initializeWasm() {

@@ -12,6 +12,7 @@ import { setPageMeta, resetPageMeta, setStructuredData, clearStructuredData } fr
  *   image?: string;
  *   canonical?: string;
  *   ogType?: 'website' | 'article';
+ *   article?: { publishedTime?: string; modifiedTime?: string; section?: string; tag?: string };
  *   structuredData?: object | null;
  * }} opts
  */
@@ -24,11 +25,12 @@ export function usePageMeta(opts) {
       clearStructuredData();
     };
   }, [
-    opts?.title, 
-    opts?.description, 
-    opts?.image, 
-    opts?.canonical, 
-    opts?.ogType, 
-    opts?.structuredData ? JSON.stringify(opts.structuredData) : null
+    opts?.title,
+    opts?.description,
+    opts?.image,
+    opts?.canonical,
+    opts?.ogType,
+    opts?.article ? JSON.stringify(opts.article) : null,
+    opts?.structuredData ? JSON.stringify(opts.structuredData) : null,
   ]);
 }

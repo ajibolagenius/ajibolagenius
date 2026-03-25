@@ -7,6 +7,7 @@ import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { track } from '../services/analytics';
 import { buildBlogPostingSchema } from '../lib/structuredData';
+import { buildOgImageUrl, getShareTwitterHandle } from '../lib/siteConfig';
 import { WritingSkeleton } from '../components/portfolio/SkeletonLayouts';
 import SectionKicker from '../components/portfolio/SectionKicker';
 
@@ -164,24 +165,36 @@ const BlogPostPage = () => {
 
   const handleShare = () => {
     const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(`Reading "${post?.title}" by @ajibola_akelebe`);
+    const handle = getShareTwitterHandle();
+    const mention = handle ? ` by @${handle}` : '';
+    const text = encodeURIComponent(`Reading "${post?.title}"${mention}`);
     window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
   };
+
+  const dynamicOg =
+    post && !post.og_image
+      ? buildOgImageUrl(post.title, post.category || 'Thought')
+      : null;
 
   usePageMeta(
     post
       ? {
           title: post.title,
           description: post.meta_description || post.excerpt || post.description || 'Article by Ajibola Akelebe.',
-          image: post.og_image || `https://peincqeqcufbkoccyneo.supabase.co/functions/v1/og-image?title=${encodeURIComponent(post.title)}&category=${encodeURIComponent(post.category || 'Thought')}`,
+          image: post.og_image || dynamicOg || undefined,
           ogType: 'article',
           canonical: `/writing/${post.slug || slug}`,
+          article: {
+            publishedTime: post.published_at || post.date || undefined,
+            modifiedTime: post.updated_at || post.published_at || post.date || undefined,
+            section: post.category || undefined,
+          },
           structuredData: buildBlogPostingSchema(post),
         }
-      : { 
-          title: 'Article', 
-          description: 'Technical writing by Ajibola Akelebe.', 
-          canonical: `/writing/${slug}` 
+      : {
+          title: 'Article',
+          description: 'Technical writing by Ajibola Akelebe.',
+          canonical: `/writing/${slug}`,
         }
   );
 

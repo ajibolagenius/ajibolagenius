@@ -3,14 +3,15 @@
  * Used with setStructuredData / usePageMeta for rich search results.
  */
 import { getBaseUrl } from './pageMeta';
+import { SITE_NAME, DEFAULT_META_DESCRIPTION } from './siteConfig';
 
 export function buildPersonSchema(opts = {}) {
   const base = getBaseUrl();
   return {
     '@context': 'https://schema.org',
     '@type': 'Person',
-    name: opts.name || 'Ajibola Akelebe',
-    description: opts.description || 'Developer and designer based in Nigeria, building for a global audience. I teach what I know and ship what I learn.',
+    name: opts.name || SITE_NAME,
+    description: opts.description || DEFAULT_META_DESCRIPTION,
     url: base,
     image: opts.image ? (opts.image.startsWith('http') ? opts.image : `${base}${opts.image.startsWith('/') ? '' : '/'}${opts.image}`) : `${base}/og-image.png`,
   };
@@ -33,11 +34,11 @@ export function buildBlogPostingSchema(post, baseUrl) {
     dateModified: post.updated_at || post.date || post.published_at,
     author: {
       '@type': 'Person',
-      name: 'Ajibola Akelebe',
+      name: SITE_NAME,
     },
     publisher: {
       '@type': 'Person',
-      name: 'Ajibola Akelebe',
+      name: SITE_NAME,
       image: `${base}/og-image.png`,
     },
   };
@@ -51,7 +52,7 @@ export function buildCourseSchema(course, baseUrl) {
     description: course.description,
     provider: {
       '@type': 'Person',
-      name: 'Ajibola Akelebe',
+      name: SITE_NAME,
     },
     ...(course.duration && { timeRequired: course.duration }),
   };
@@ -63,7 +64,7 @@ export function buildTeachPageSchema(courses, baseUrl) {
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: 'Courses by Ajibola Akelebe',
+    name: `Courses by ${SITE_NAME}`,
     description: 'Teaching what I know — courses and mentorship.',
     url: `${base}/teach`,
     numberOfItems: courses.length,

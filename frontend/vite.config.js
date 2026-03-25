@@ -1,14 +1,41 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import {
+  DEFAULT_PAGE_TITLE,
+  DEFAULT_META_DESCRIPTION,
+  DEFAULT_OG_IMAGE_PATH,
+} from './src/lib/siteConfig.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export default defineConfig({
+function escapeAttr(text) {
+  return String(text).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+}
+
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, __dirname, '');
+  const siteUrl = (env.VITE_SITE_URL || '').replace(/\/$/, '');
+  const absOgImage = siteUrl ? `${siteUrl}${DEFAULT_OG_IMAGE_PATH}` : DEFAULT_OG_IMAGE_PATH;
+
+  return {
   plugins: [
     react(),
+    {
+      name: 'html-og-placeholders',
+      transformIndexHtml(html) {
+        return html
+          .replace(/__HTML_PAGE_TITLE__/g, escapeAttr(DEFAULT_PAGE_TITLE))
+          .replace(/__HTML_META_DESCRIPTION__/g, escapeAttr(DEFAULT_META_DESCRIPTION))
+          .replace(/__HTML_OG_TITLE__/g, escapeAttr(DEFAULT_PAGE_TITLE))
+          .replace(/__HTML_OG_DESCRIPTION__/g, escapeAttr(DEFAULT_META_DESCRIPTION))
+          .replace(/__HTML_TWITTER_TITLE__/g, escapeAttr(DEFAULT_PAGE_TITLE))
+          .replace(/__HTML_TWITTER_DESCRIPTION__/g, escapeAttr(DEFAULT_META_DESCRIPTION))
+          .replace(/__HTML_OG_IMAGE__/g, escapeAttr(absOgImage));
+      },
+    },
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
@@ -52,4 +79,5 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
   },
+};
 });

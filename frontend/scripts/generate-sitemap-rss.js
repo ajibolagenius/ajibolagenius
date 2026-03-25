@@ -2,7 +2,7 @@
  * Generate public/sitemap.xml and public/rss.xml from Supabase (blog posts, projects).
  * Run from frontend directory: node scripts/generate-sitemap-rss.js
  * Requires VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY (or SUPABASE_URL + SUPABASE_ANON_KEY).
- * Optional: VITE_SITE_URL for absolute URLs (default https://ajibolagenius.pro).
+ * Optional: VITE_SITE_URL for absolute URLs (falls back to http://localhost:3000).
  */
 
 const { createClient } = require('@supabase/supabase-js');

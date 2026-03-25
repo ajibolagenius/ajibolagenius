@@ -5,6 +5,8 @@ import { fetchProject } from '../services/api';
 import Badge from '../components/portfolio/Badge';
 import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { buildOgImageUrl } from '../lib/siteConfig';
+import { absolutizeUrl } from '../lib/pageMeta';
 import OptimizedImage from '../components/portfolio/OptimizedImage';
 import { track } from '../services/analytics';
 import { ProjectsSkeleton } from '../components/portfolio/SkeletonLayouts';
@@ -63,18 +65,29 @@ const WorkDetailPage = () => {
     setLightboxIndex((i) => Math.min(i, Math.max(0, screenshotsLength - 1)));
   }, [screenshotsLength]);
 
+  const projectOgImage =
+    project &&
+    (() => {
+      const shots = (project.screenshots || [])
+        .map((s) => (typeof s === 'string' ? s : s?.url))
+        .filter(Boolean);
+      const hero = shots[0];
+      if (hero) return absolutizeUrl(hero);
+      return buildOgImageUrl(project.name, 'Project');
+    })();
+
   usePageMeta(
     project
       ? {
           title: project.name,
           description: project.description || 'Project by Ajibola Akelebe.',
-          image: `https://peincqeqcufbkoccyneo.supabase.co/functions/v1/og-image?title=${encodeURIComponent(project.name)}&category=${encodeURIComponent('Project')}`,
+          image: projectOgImage || undefined,
           canonical: `/work/${project.slug || slug}`,
         }
-      : { 
-          title: 'Project', 
-          description: 'Project by Ajibola Akelebe.', 
-          canonical: `/work/${slug}` 
+      : {
+          title: 'Project',
+          description: 'Project by Ajibola Akelebe.',
+          canonical: `/work/${slug}`,
         }
   );
 
