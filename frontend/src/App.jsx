@@ -24,6 +24,7 @@ const AssetsPage = lazy(() => import('./pages/AssetsPage'));
 
 const AdminProjectsPage = lazy(() => import('./pages/admin/AdminProjectsPage'));
 const AdminBlogPage = lazy(() => import('./pages/admin/AdminBlogPage'));
+const AdminBlogEditorPage = lazy(() => import('./pages/admin/AdminBlogEditorPage'));
 const AdminGalleryPage = lazy(() => import('./pages/admin/AdminGalleryPage'));
 const AdminCoursesPage = lazy(() => import('./pages/admin/AdminCoursesPage'));
 const AdminTimelinePage = lazy(() => import('./pages/admin/AdminTimelinePage'));
@@ -52,6 +53,8 @@ function App() {
               <Route index element={<AdminDashboard />} />
               <Route path="projects" element={<Suspense fallback={adminFallback}><AdminProjectsPage /></Suspense>} />
               <Route path="blog" element={<Suspense fallback={adminFallback}><AdminBlogPage /></Suspense>} />
+              <Route path="blog/new" element={<Suspense fallback={adminFallback}><AdminBlogEditorPage /></Suspense>} />
+              <Route path="blog/edit/:id" element={<Suspense fallback={adminFallback}><AdminBlogEditorPage /></Suspense>} />
               <Route path="gallery" element={<Suspense fallback={adminFallback}><AdminGalleryPage /></Suspense>} />
               <Route path="courses" element={<Suspense fallback={adminFallback}><AdminCoursesPage /></Suspense>} />
               <Route path="timeline" element={<Suspense fallback={adminFallback}><AdminTimelinePage /></Suspense>} />

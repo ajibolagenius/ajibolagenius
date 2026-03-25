@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { MessageSquare, Copy, Check, Mail, User, FileText } from 'lucide-react';
+import { MessageSquare, Copy, Check, Mail, User, FileText, Trash2 } from 'lucide-react';
+import { Button } from '../../components/ui/button';
+import { Checkbox } from '../../components/ui/checkbox';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../components/ui/alert-dialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import ListPagination from '../../components/portfolio/ListPagination';
 import { paginate } from '../../lib/paginate';
@@ -24,11 +27,15 @@ export default function AdminMessagesPage() {
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
-  useEffect(() => {
+  const load = () => {
     setLoading(true);
     adminEndpoints.contactMessages.list().then(setList).catch(() => setList([])).finally(() => setLoading(false));
-  }, []);
+  };
+  useEffect(load, []);
 
   const { items: paginatedList, totalPages, start, end, total } = useMemo(
     () => paginate(list, page, ADMIN_PAGE_SIZE),
@@ -43,6 +50,39 @@ export default function AdminMessagesPage() {
   };
 
   const toggleExpand = (id) => setExpandedId((prev) => (prev === id ? null : id));
+
+  const toggleSelect = (id) => {
+    setSelectedIds((s) => {
+      const n = new Set(s);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    const onPage = paginatedList.map((m) => m.id);
+    const allSelected = onPage.length > 0 && onPage.every((id) => selectedIds.has(id));
+    setSelectedIds((s) => {
+      const n = new Set(s);
+      if (allSelected) onPage.forEach((id) => n.delete(id));
+      else onPage.forEach((id) => n.add(id));
+      return n;
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    setBulkDeleting(true);
+    try {
+      for (const id of selectedIds) {
+        await adminEndpoints.contactMessages.delete(id);
+      }
+      setSelectedIds(new Set());
+      setDeleteOpen(false);
+      load();
+    } catch (e) { console.error(e); } finally { setBulkDeleting(false); }
+  };
 
   return (
     <div>
@@ -63,10 +103,33 @@ export default function AdminMessagesPage() {
         </div>
       ) : (
         <>
-          <div className="flex items-center gap-2 mb-4">
-            <span className="font-mono text-[11px] text-[var(--subtle)] uppercase">Total</span>
-            <span className="font-display text-[18px] font-bold text-[var(--stardust)]">{list.length}</span>
-            <span className="font-mono text-[11px] text-[var(--muted)]">messages</span>
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  aria-label="Select all on page"
+                  checked={paginatedList.length > 0 && paginatedList.every((m) => selectedIds.has(m.id))}
+                  onCheckedChange={toggleSelectAll}
+                  className="border-[var(--border-md)] data-[state=checked]:bg-[var(--stardust)]"
+                />
+                <span className="font-mono text-[11px] text-[var(--subtle)]">Select all</span>
+              </div>
+              <span className="font-mono text-[11px] text-[var(--subtle)] uppercase">Total</span>
+              <span className="font-display text-[18px] font-bold text-[var(--stardust)]">{list.length}</span>
+              <span className="font-mono text-[11px] text-[var(--muted)]">messages</span>
+            </div>
+            {selectedIds.size > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setDeleteOpen(true)}
+                disabled={bulkDeleting}
+                className="border-[var(--terracotta)] text-[var(--terracotta)] hover:bg-[var(--terracotta)]/10 gap-2"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                {bulkDeleting ? 'Deleting…' : `Delete ${selectedIds.size} selected`}
+              </Button>
+            )}
           </div>
           <motion.div
             className="grid grid-cols-1 lg:grid-cols-2 gap-4"
@@ -76,17 +139,24 @@ export default function AdminMessagesPage() {
           >
             {paginatedList.map((m) => {
               const isExpanded = expandedId === m.id;
+              const isSelected = selectedIds.has(m.id);
               const messagePreview = (m.message || '').slice(0, 120);
               const showExpand = (m.message || '').length > 120;
               return (
                 <motion.div
                   key={m.id}
                   variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } }}
-                  className="group flex flex-col p-4 border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--stardust)]/30 hover:shadow-[var(--shadow-sharp-sm)] transition-all duration-200 relative"
+                  className={`group flex flex-col p-4 border bg-[var(--surface)] hover:shadow-[var(--shadow-sharp-sm)] transition-all duration-200 relative ${isSelected ? 'border-[var(--stardust)] bg-[var(--stardust)]/5' : 'border-[var(--border)] hover:border-[var(--stardust)]/30'}`}
                 >
                   {/* Corner accent */}
                   <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-[var(--stardust)] opacity-0 group-hover:opacity-50 transition-opacity duration-300" />
                   <div className="flex items-start gap-3 mb-2">
+                    <Checkbox
+                      aria-label={`Select message from ${m.name}`}
+                      checked={isSelected}
+                      onCheckedChange={() => toggleSelect(m.id)}
+                      className="mt-1 border-[var(--border-md)] data-[state=checked]:bg-[var(--stardust)]"
+                    />
                     <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-[var(--elevated)] border border-[var(--border)]">
                       <MessageSquare className="w-4 h-4 text-[var(--stardust)]" />
                     </div>
@@ -138,6 +208,21 @@ export default function AdminMessagesPage() {
           <ListPagination page={page} totalPages={totalPages} onPageChange={setPage} range={{ start, end, total }} />
         </>
       )}
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent className="border-[var(--border)] bg-[var(--surface)]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-[var(--white)]">Delete {selectedIds.size} message{selectedIds.size !== 1 ? 's' : ''}?</AlertDialogTitle>
+            <AlertDialogDescription className="text-[var(--muted)]">This action cannot be undone. The selected messages will be permanently removed.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-[var(--border)] text-[var(--white)]">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkDelete} disabled={bulkDeleting} className="bg-[var(--terracotta)] text-white">
+              {bulkDeleting ? 'Deleting…' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

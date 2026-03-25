@@ -215,14 +215,17 @@ export const adminEndpoints = {
   contactMessages: {
     list: () =>
       supabase.from('contact_messages').select('*').order('created_at', { ascending: false }).then(handleResponse),
+    delete: (id) => remove('contact_messages', id).then(() => ({ status: 'ok' })),
   },
   newsletterSubscribers: {
     list: () =>
       supabase.from('newsletter_subscribers').select('*').order('created_at', { ascending: false }).then(handleResponse),
+    delete: (id) => remove('newsletter_subscribers', id).then(() => ({ status: 'ok' })),
   },
   courseWaitlist: {
     list: () =>
       supabase.from('course_waitlist').select('*').order('created_at', { ascending: false }).then(handleResponse),
+    delete: (id) => remove('course_waitlist', id).then(() => ({ status: 'ok' })),
   },
   /** Invoke Edge Function to email waitlist when a course is marked open. Call after saving course with open_for_enrolment true. */
   notifyCourseOpen: (courseSlug, courseName) =>
