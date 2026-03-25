@@ -7,7 +7,7 @@ import {
   DEFAULT_PAGE_TITLE,
   DEFAULT_META_DESCRIPTION,
   DEFAULT_OG_IMAGE_PATH,
-} from './src/lib/siteConfig.js';
+} from './src/lib/siteBrand.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
