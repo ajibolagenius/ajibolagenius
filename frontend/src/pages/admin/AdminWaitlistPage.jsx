@@ -221,7 +221,7 @@ export default function AdminWaitlistPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="border-[var(--border)] text-[var(--white)]">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleBulkDelete} disabled={bulkDeleting} className="bg-[var(--terracotta)] text-white">
+            <AlertDialogAction onClick={(e) => { e.preventDefault(); handleBulkDelete(); }} disabled={bulkDeleting} className="bg-[var(--terracotta)] text-white">
               {bulkDeleting ? 'Deleting…' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>

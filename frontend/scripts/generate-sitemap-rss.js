@@ -33,7 +33,8 @@ loadEnvFile(frontendDir) || loadEnvFile(process.cwd());
 
 const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const anonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
-const baseUrl = (process.env.VITE_SITE_URL || 'https://ajibolagenius.pro').replace(/\/$/, '');
+const SITE_URL = process.env.VITE_SITE_URL || process.env.URL || 'http://localhost:3000';
+const baseUrl = SITE_URL.replace(/\/$/, '');
 
 if (!url || !anonKey) {
   console.error('Missing Supabase env. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY (or SUPABASE_*).');

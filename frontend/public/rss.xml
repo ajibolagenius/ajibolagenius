@@ -2,11 +2,11 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Ajibola Akelebe — Design &amp; Engineering</title>
-    <link>https://ajibolagenius.pro</link>
+    <link>http://localhost:3000</link>
     <description>Blog and writing about design, development, and technology.</description>
     <language>en</language>
-    <lastBuildDate>2026-03-14T23:12:49.978Z</lastBuildDate>
-    <atom:link href="https://ajibolagenius.pro/rss.xml" rel="self" type="application/rss+xml"/>
+    <lastBuildDate>2026-03-25T17:24:52.217Z</lastBuildDate>
+    <atom:link href="http://localhost:3000/rss.xml" rel="self" type="application/rss+xml"/>
 
   </channel>
 </rss>

@@ -18,7 +18,7 @@ export function getBaseUrl() {
   if (typeof window !== 'undefined') {
     return window.location.origin;
   }
-  return 'https://ajibolagenius.pro';
+  return '';
 }
 
 const META_KEYS = {
@@ -82,7 +82,8 @@ export function setPageMeta(opts = {}) {
     image = `${base}${image.startsWith('/') ? '' : '/'}${image}`;
   }
   
-  const canonical = opts.canonical || '';
+  // Default canonical to exact visiting URL path if not explicitly provided
+  const canonical = opts.canonical !== undefined ? opts.canonical : (typeof window !== 'undefined' ? window.location.pathname : '');
   const absoluteUrl = canonical.startsWith('http') ? canonical : `${base}${canonical.startsWith('/') ? '' : '/'}${canonical}`;
   const ogType = opts.ogType || OG_TYPE_WEBSITE;
 

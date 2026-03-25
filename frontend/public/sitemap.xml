@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://ajibolagenius.pro/</loc>
+    <loc>http://localhost:3000/</loc>
   </url>
   <url>
-    <loc>https://ajibolagenius.pro/work</loc>
+    <loc>http://localhost:3000/work</loc>
   </url>
   <url>
-    <loc>https://ajibolagenius.pro/teach</loc>
+    <loc>http://localhost:3000/teach</loc>
   </url>
   <url>
-    <loc>https://ajibolagenius.pro/writing</loc>
+    <loc>http://localhost:3000/writing</loc>
   </url>
   <url>
-    <loc>https://ajibolagenius.pro/gallery</loc>
+    <loc>http://localhost:3000/gallery</loc>
   </url>
   <url>
-    <loc>https://ajibolagenius.pro/cv</loc>
+    <loc>http://localhost:3000/cv</loc>
   </url>
   <url>
-    <loc>https://ajibolagenius.pro/contact</loc>
+    <loc>http://localhost:3000/contact</loc>
   </url>
   <url>
-    <loc>https://ajibolagenius.pro/search</loc>
+    <loc>http://localhost:3000/search</loc>
   </url>
 </urlset>
