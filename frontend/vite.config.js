@@ -67,9 +67,11 @@ export default defineConfig(({ mode }) => {
         ],
       },
       workbox: {
-        // Do not precache HTML: after a deploy, an old cached shell still points at removed
-        // hashed chunks → 404 on lazy routes (e.g. WritingPage-*.js). JS/CSS stay precached.
-        globPatterns: ['**/*.{js,css,ico,png,jpg,jpeg,svg,woff2}'],
+        // Precache only the root shell (pattern `index.html` matches dist/index.html, not
+        // prerendered work/writing/**/index.html — those stay network-served). Workbox’s default
+        // navigateFallback uses createHandlerBoundToURL('index.html'), which throws if that URL
+        // is not in the precache manifest (non-precached-url).
+        globPatterns: ['**/*.{js,css,ico,png,jpg,jpeg,svg,woff2}', 'index.html'],
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
