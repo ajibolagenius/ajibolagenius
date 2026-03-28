@@ -7,8 +7,10 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
  * @param {number} totalPages - Total number of pages
  * @param {(page: number) => void} onPageChange
  * @param {{ start: number, end: number, total: number }} [range] - Optional "Showing start–end of total"
+ * @param {'default'|'workV2'} [variant]
  */
-const ListPagination = ({ page, totalPages, onPageChange, range }) => {
+const ListPagination = ({ page, totalPages, onPageChange, range, variant = 'default' }) => {
+  const v2 = variant === 'workV2';
   if (totalPages <= 1) return null;
 
   const prevDisabled = page <= 1;
@@ -51,7 +53,7 @@ const ListPagination = ({ page, totalPages, onPageChange, range }) => {
               <button
                 type="button"
                 onClick={() => onPageChange(1)}
-                className="font-mono text-[11px] w-9 h-9 flex items-center justify-center rounded-none border border-[var(--border)] bg-transparent text-[var(--subtle)] hover:text-[var(--sungold)] hover:border-[rgba(232,160,32,0.3)]"
+                className={`font-mono text-[11px] w-9 h-9 flex items-center justify-center rounded-none border border-[var(--border)] bg-transparent text-[var(--subtle)] ${v2 ? 'hover:text-[var(--work-accent)] hover:border-[var(--work-accent-border)]' : 'hover:text-[var(--sungold)] hover:border-[rgba(232,160,32,0.3)]'}`}
               >
                 1
               </button>
@@ -66,11 +68,19 @@ const ListPagination = ({ page, totalPages, onPageChange, range }) => {
               onClick={() => onPageChange(n)}
               aria-current={n === page ? 'page' : undefined}
               className="font-mono text-[11px] w-9 h-9 flex items-center justify-center rounded-none border transition-all duration-200"
-              style={{
-                background: n === page ? 'rgba(232,160,32,0.15)' : 'transparent',
-                color: n === page ? 'var(--sungold)' : 'var(--subtle)',
-                borderColor: n === page ? 'rgba(232,160,32,0.3)' : 'var(--border)',
-              }}
+              style={
+                v2
+                  ? {
+                      background: n === page ? 'var(--work-accent)' : 'transparent',
+                      color: n === page ? 'var(--work-accent-on)' : 'var(--subtle)',
+                      borderColor: n === page ? 'var(--work-accent)' : 'var(--border)',
+                    }
+                  : {
+                      background: n === page ? 'rgba(232,160,32,0.15)' : 'transparent',
+                      color: n === page ? 'var(--sungold)' : 'var(--subtle)',
+                      borderColor: n === page ? 'rgba(232,160,32,0.3)' : 'var(--border)',
+                    }
+              }
             >
               {n}
             </button>
@@ -83,7 +93,7 @@ const ListPagination = ({ page, totalPages, onPageChange, range }) => {
               <button
                 type="button"
                 onClick={() => onPageChange(totalPages)}
-                className="font-mono text-[11px] w-9 h-9 flex items-center justify-center rounded-none border border-[var(--border)] bg-transparent text-[var(--subtle)] hover:text-[var(--sungold)] hover:border-[rgba(232,160,32,0.3)]"
+                className={`font-mono text-[11px] w-9 h-9 flex items-center justify-center rounded-none border border-[var(--border)] bg-transparent text-[var(--subtle)] ${v2 ? 'hover:text-[var(--work-accent)] hover:border-[var(--work-accent-border)]' : 'hover:text-[var(--sungold)] hover:border-[rgba(232,160,32,0.3)]'}`}
               >
                 {totalPages}
               </button>

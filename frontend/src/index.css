@@ -100,6 +100,47 @@
   --background: 0 0% 3%;
   --foreground: 40 15% 93%;
   --radius: 0;
+
+  /* — Design System v2 — Work / portfolio accent (Afro × spectrum) — */
+  --accent-spectrum: oklch(0.5 0.2737 280.59);
+  --accent-spectrum-on: oklch(0.98 0.02 280);
+  --font-work-pixel: 'Silkscreen', system-ui, sans-serif;
+}
+
+/* ============================================
+   Work UI scope — v2 accent + grid (Selected Work / Projects)
+   Parent sets tokens; children use var(--work-accent).
+   ============================================ */
+
+.work-ui-scope {
+  --work-accent: var(--accent-spectrum);
+  --work-accent-on: var(--accent-spectrum-on);
+  --work-accent-muted: color-mix(in oklch, var(--work-accent) 22%, transparent);
+  --work-accent-border: color-mix(in oklch, var(--work-accent) 45%, transparent);
+  --work-grid-line: color-mix(in oklch, var(--work-accent) 14%, transparent);
+}
+
+html.light .work-ui-scope {
+  --work-grid-line: color-mix(in oklch, var(--work-accent) 12%, transparent);
+}
+
+.work-v2-hero-grid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--work-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--work-grid-line) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: -1px -1px;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.font-work-pixel {
+  font-family: var(--font-work-pixel);
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
 /* ============================================

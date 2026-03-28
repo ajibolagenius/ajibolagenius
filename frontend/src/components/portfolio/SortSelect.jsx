@@ -6,8 +6,14 @@ import React from 'react';
  * @param {string} value - Current selected value
  * @param {(value: string) => void} onChange
  * @param {string} [label] - e.g. "Sort"
+ * @param {'default'|'workV2'} [variant]
  */
-const SortSelect = ({ options, value, onChange, label = 'Sort' }) => (
+const SortSelect = ({ options, value, onChange, label = 'Sort', variant = 'default' }) => {
+  const v2 = variant === 'workV2';
+  const selectClass = v2
+    ? 'font-mono text-[11px] tracking-[0.1em] uppercase px-4 py-2 cursor-pointer rounded-none bg-transparent border border-[var(--border)] text-[var(--subtle)] hover:border-[var(--work-accent-border)] focus:outline-none focus:ring-2 focus:ring-[var(--work-accent)] focus:ring-offset-2 focus:ring-offset-[var(--void)] focus:border-[var(--work-accent-border)] [&:not([value=\'\'])]:text-[var(--white)]'
+    : 'font-mono text-[11px] tracking-[0.1em] uppercase px-4 py-2 cursor-pointer rounded-none bg-transparent border border-[var(--border)] text-[var(--subtle)] hover:border-[var(--border-md)] focus:outline-none focus:ring-2 focus:ring-[var(--sungold)] focus:ring-offset-2 focus:ring-offset-[var(--void)] focus:border-[rgba(232,160,32,0.3)] [&:not([value=\'\'])]:text-[var(--white)]';
+  return (
   <div className="flex items-center gap-2 flex-wrap" role="group" aria-label={label}>
     {label && (
       <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--subtle)]">
@@ -18,7 +24,7 @@ const SortSelect = ({ options, value, onChange, label = 'Sort' }) => (
       value={value}
       onChange={(e) => onChange(e.target.value)}
       aria-label={label}
-      className="font-mono text-[11px] tracking-[0.1em] uppercase px-4 py-2 cursor-pointer rounded-none bg-transparent border border-[var(--border)] text-[var(--subtle)] hover:border-[var(--border-md)] focus:outline-none focus:ring-2 focus:ring-[var(--sungold)] focus:ring-offset-2 focus:ring-offset-[var(--void)] focus:border-[rgba(232,160,32,0.3)] [&:not([value=''])]:text-[var(--white)]"
+      className={selectClass}
       style={{
         minWidth: '140px',
       }}
@@ -30,6 +36,7 @@ const SortSelect = ({ options, value, onChange, label = 'Sort' }) => (
       ))}
     </select>
   </div>
-);
+  );
+};
 
 export default SortSelect;

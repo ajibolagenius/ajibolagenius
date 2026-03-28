@@ -55,20 +55,31 @@ export function AboutSkeleton({ snapshot = false }) {
   );
 }
 
-/* ─── Projects ─── */
+/* ─── Projects (v2 card layout) — use inside .work-ui-scope for accent-aligned chrome if needed ─── */
 export function ProjectsSkeleton({ count = 3 }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
       {[...Array(count)].map((_, i) => (
-        <div key={i} className="border border-[var(--border)] p-6">
-          <Skeleton className="w-[80px] h-[10px] mb-3" />
-          <Skeleton className="w-[70%] h-[20px] mb-2" />
-          <Skeleton className="w-full h-[14px] mb-1" />
-          <Skeleton className="w-[85%] h-[14px] mb-4" />
-          <div className="flex gap-2">
-            <Skeleton className="w-[60px] h-[22px]" />
-            <Skeleton className="w-[60px] h-[22px]" />
-            <Skeleton className="w-[60px] h-[22px]" />
+        <div key={i} className="flex flex-col border border-[var(--border)] bg-[var(--elevated)] min-h-[300px]">
+          <div className="flex justify-between items-center px-4 py-3 border-b border-[var(--border)]">
+            <Skeleton className="w-[72px] h-[10px]" />
+            <Skeleton className="w-8 h-8" />
+          </div>
+          <div className="flex-1 min-h-[120px] flex items-center justify-center bg-[var(--surface)] p-6">
+            <Skeleton className="w-24 h-24 rounded-none" />
+          </div>
+          <div className="px-4 pt-3 pb-2 border-t border-[var(--border)]">
+            <Skeleton className="w-[85%] h-[18px] mb-2" />
+            <Skeleton className="w-full h-[12px] mb-1" />
+            <Skeleton className="w-[70%] h-[12px]" />
+          </div>
+          <div className="grid grid-cols-2 gap-px bg-[var(--border)]">
+            {[...Array(4)].map((__, j) => (
+              <div key={j} className="bg-[var(--elevated)] px-2 py-2">
+                <Skeleton className="w-[40%] h-[6px] mx-auto mb-1" />
+                <Skeleton className="w-[55%] h-[12px] mx-auto" />
+              </div>
+            ))}
           </div>
         </div>
       ))}
