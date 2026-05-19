@@ -2552,3 +2552,98 @@
                 scroll-behavior: auto !important;
             }
         }
+
+        /* ── SPA Integration & Specificity Overrides ── */
+        .bp-body {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--navy);
+            font-family: var(--f-body);
+            color: var(--white);
+            cursor: none;
+            z-index: 99999;
+        }
+
+        .bp-body h1,
+        .bp-body h2,
+        .bp-body h3,
+        .bp-body h4,
+        .bp-body p,
+        .bp-body span,
+        .bp-body a,
+        .bp-body li {
+            font-family: inherit;
+        }
+
+        .bp-body .slide.active .anim {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+        }
+
+        .bp-body h2.slide-title {
+            color: var(--navy) !important;
+        }
+
+        .bp-body h2.slide-title.light {
+            color: var(--white) !important;
+        }
+
+        .bp-body .truth-head {
+            color: var(--navy) !important;
+        }
+
+        .bp-body .truth-desc {
+            color: #3A4060 !important;
+        }
+
+        .bp-body .bullet-text {
+            color: #C5CCEE !important;
+        }
+
+        .bp-body .step-label {
+            color: var(--white) !important;
+        }
+
+        .bp-body .step-desc {
+            color: var(--muted) !important;
+        }
+
+        .bp-body .example-prompt {
+            color: #A0AADD !important;
+        }
+
+        .bp-body .lane-title {
+            color: var(--navy) !important;
+        }
+
+        .bp-body .lane-desc {
+            color: #3A4060 !important;
+        }
+
+        .bp-body .usecase-title {
+            color: var(--white) !important;
+        }
+
+        .bp-body .usecase-desc {
+            color: #C5CCEE !important;
+        }
+
+        .bp-body .card-title {
+            color: var(--navy) !important;
+        }
+
+        .bp-body .card-title.light {
+            color: var(--white) !important;
+        }
+
+        .bp-body .card-text {
+            color: #3A4060 !important;
+        }
+
+        .bp-body .card-text.light {
+            color: #C5CCEE !important;
+        }
+

@@ -123,6 +123,11 @@ const STATIC_LIST_ROUTES = [
     pageTitle: 'Assets & Downloads',
     description: 'Design files, resources, and links shared by Ajibola Akelebe.',
   },
+  {
+    path: '/beyond_pop',
+    pageTitle: 'Beyond P.O.P — AI for Work, Skill & Opportunity',
+    description: 'An interactive presentation deck exploring how artificial intelligence is transforming work, skill acquisition, and opportunities.',
+  },
 ];
 
 function escapeAttr(text) {
