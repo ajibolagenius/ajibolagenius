@@ -29,8 +29,8 @@ const BottomNav = () => {
     { label: 'Gallery', href: '/gallery' },
     { label: 'Assets', href: '/assets' },
     { label: 'CV', href: '/cv' },
-    { label: 'Search', href: '/search' },
     { label: 'Contact', href: '/contact' },
+    { label: 'Search', href: '/search' },
   ];
 
   return (

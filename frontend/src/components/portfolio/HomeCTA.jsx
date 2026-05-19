@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MessageCircle, BookOpen } from 'lucide-react';
+import { MessageCircle, BookOpen, PenLine } from 'lucide-react';
 import { track } from '../../services/analytics';
 
 /**
@@ -14,23 +14,31 @@ const HomeCTA = () => {
         <div className="flex items-center gap-2 mb-3">
           <div className="w-5 h-px bg-[var(--sungold)]" />
           <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--sungold)]">
-            CTA
+            Next
           </span>
         </div>
         <h2 className="font-display font-extrabold leading-[1.1] tracking-[-0.02em] mb-3 text-[var(--white)]" style={{ fontSize: 'clamp(28px, 4vw, 42px)' }}>
-          Let&apos;s build something
+          Keep the conversation moving
         </h2>
         <p className="font-body text-[15px] leading-[1.7] mb-10 max-w-[520px] text-[var(--muted)]">
-          Get in touch for projects, or explore courses and mentorship.
+          Work, writing, and teaching stay open. Use the links below for the next step.
         </p>
         <div className="flex flex-wrap gap-3">
           <Link
             to="/contact"
             onClick={() => track('cta_click', { cta: 'contact', page: 'home' })}
             className="btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] border-0 cursor-pointer no-underline transition-all duration-200 bg-[var(--sungold)] text-[var(--void)]"
-          >
+            >
             <MessageCircle size={14} />
             Contact
+          </Link>
+          <Link
+            to="/writing"
+            onClick={() => track('cta_click', { cta: 'writing', page: 'home' })}
+            className="btn-ghost inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] border border-[var(--border-md)] cursor-pointer no-underline transition-all duration-200 bg-transparent text-[var(--white)]"
+          >
+            <PenLine size={14} />
+            Writing
           </Link>
           <Link
             to="/teach"

@@ -6,10 +6,10 @@ import { AboutSkeleton } from './SkeletonLayouts';
 const About = ({ snapshot = false }) => {
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
-  const { data: info, loading: l1 } = useRealtimeQuery('personal_info', fetchPersonalInfo);
-  const { data: skillsData, loading: l2 } = useRealtimeQuery('skills', fetchSkills);
-  const { data: projectsData, loading: l3 } = useRealtimeQuery('projects', fetchProjects);
-  const { data: coursesData, loading: l4 } = useRealtimeQuery('courses', fetchCourses);
+  const { data: info, loading: l1 } = useRealtimeQuery('personal_info', fetchPersonalInfo, null, { enabled: !snapshot });
+  const { data: skillsData, loading: l2 } = useRealtimeQuery('skills', fetchSkills, [], { enabled: !snapshot });
+  const { data: projectsData, loading: l3 } = useRealtimeQuery('projects', fetchProjects, [], { enabled: !snapshot });
+  const { data: coursesData, loading: l4 } = useRealtimeQuery('courses', fetchCourses, [], { enabled: !snapshot });
 
   const loading = l1 || l2 || l3 || l4;
   const skills = Array.isArray(skillsData) && skillsData.length > 0 ? skillsData : [];
@@ -22,7 +22,10 @@ const About = ({ snapshot = false }) => {
     { label: 'Years Experience', value: '6+' },
   ];
 
-  const bodyCopy = info?.description || '';
+  const headline = info?.tagline || 'I build things that work and things that feel right.';
+  const bodyCopy =
+    info?.description ||
+    'Developer and designer based in Nigeria, building for a global audience. I teach what I know and ship what I learn. My work sits at the intersection of African identity and modern technology - fusing cultural depth with technical precision.';
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -63,7 +66,7 @@ const About = ({ snapshot = false }) => {
               className="font-display font-extrabold leading-[1.1] tracking-[-0.02em] mb-3 text-[var(--white)]"
               style={{ fontSize: 'clamp(28px, 4vw, 42px)' }}
             >
-              {'I build things that work and things that feel right.' || info?.tagline || 'About Me'}
+              {headline}
             </h2>
 
             {/* Description — snapshot: 2–3 sentences on Home (design-system Site Map) */}
@@ -71,7 +74,7 @@ const About = ({ snapshot = false }) => {
               className="font-body text-[15px] leading-[1.7] max-w-[520px] text-[var(--muted)]"
               style={{ marginBottom: snapshot ? 24 : 40 }}
             >
-              {'Developer and designer based in Nigeria, building for a global audience. I teach what I know and ship what I learn. My work sits at the intersection of African identity and modern technology — fusing cultural depth with technical precision.' || bodyCopy}
+              {bodyCopy}
             </p>
 
             {!snapshot && (

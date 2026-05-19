@@ -4,7 +4,6 @@ import { ArrowRight, Download } from 'lucide-react';
 import { fetchPersonalInfo } from '../../services/api';
 import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
 import { useLocale } from '../../contexts/LocaleContext';
-import GitHubGraph from './GitHubGraph';
 import Ticker from './Ticker';
 import { HeroSkeleton } from './SkeletonLayouts';
 
@@ -93,9 +92,6 @@ const Hero = () => {
                 {t('hero_download_cv')}
               </Link>
             </div>
-
-            {/* GitHub contribution graph */}
-            <GitHubGraph username="ajibolagenius" />
           </div>
         </div>
       </div>
