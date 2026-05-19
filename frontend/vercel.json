@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/beyond_pop.html",
+      "destination": "/beyond_pop.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
