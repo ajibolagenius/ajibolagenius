@@ -23,18 +23,6 @@ const FILTER_OPTIONS = [
   { label: 'Other', value: 'other' },
 ];
 
-const BEYOND_POP_ASSET = {
-  id: 'beyond-pop-presentation',
-  title: 'Beyond P.O.P — AI for Work, Skill & Opportunity',
-  category: 'Presentation Slide',
-  asset_type: 'link',
-  description: 'An interactive presentation deck exploring how artificial intelligence is transforming work, skill acquisition, and opportunities.',
-  external_url: '/beyond_pop',
-  button_label: 'View Presentation',
-  sort_order: -100, // Position it at the very beginning of the list
-  open_in_same_tab: false, // Set to true to load in the same tab, false to open in a new tab
-};
-
 function getFileUrl(filePath) {
   if (!filePath) return null;
   const { data } = supabase.storage.from('assets').getPublicUrl(filePath);
@@ -129,29 +117,7 @@ export default function AssetsPage() {
   });
 
   const assets = useMemo(() => {
-    const list = Array.isArray(fetchedAssets) ? [...fetchedAssets] : [];
-    
-    // Check if there is already a Beyond P.O.P asset in the fetched list
-    const existingIndex = list.findIndex(
-      (a) => a.id === BEYOND_POP_ASSET.id || 
-             (a.title && a.title.includes("Beyond P.O.P")) || 
-             (a.external_url && a.external_url.includes("beyond_pop"))
-    );
-    
-    if (existingIndex !== -1) {
-      // Merge visual attributes and normalize the native route to guarantee premium presentation
-      list[existingIndex] = {
-        ...list[existingIndex],
-        external_url: '/beyond_pop',
-        button_label: 'View Presentation',
-        open_in_same_tab: false
-      };
-    } else {
-      // Push hardcoded presentation card if missing from database
-      list.push(BEYOND_POP_ASSET);
-    }
-    
-    return list;
+    return Array.isArray(fetchedAssets) ? [...fetchedAssets] : [];
   }, [fetchedAssets]);
 
   const filtered = useMemo(() => {

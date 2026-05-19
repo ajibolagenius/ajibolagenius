@@ -1,14 +1,6 @@
 {
   "rewrites": [
     {
-      "source": "/beyond_pop",
-      "destination": "/beyond_pop/index.html"
-    },
-    {
-      "source": "/beyond_pop/",
-      "destination": "/beyond_pop/index.html"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
