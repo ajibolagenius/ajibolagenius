@@ -1,9 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { usePageMeta } from '../hooks/usePageMeta';
 import './BeyondPopPage.css';
 
 export default function BeyondPopPage() {
   const navigate = useNavigate();
+  usePageMeta({
+    title: 'Beyond P.O.P — AI for Work, Skill & Opportunity',
+    description:
+      'An interactive presentation deck exploring how artificial intelligence is transforming work, skill acquisition, and opportunities.',
+    canonical: '/beyond_pop',
+  });
+
   const [current, setCurrent] = useState(0);
   const [showNotes, setShowNotes] = useState(false);
   const [focusMode, setFocusMode] = useState(false);

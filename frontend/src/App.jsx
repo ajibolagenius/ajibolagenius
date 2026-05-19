@@ -83,6 +83,7 @@ function App() {
               <Route path="assets" element={<Suspense fallback={adminFallback}><AssetsPage /></Suspense>} />
             </Route>
             <Route path="beyond_pop" element={<Suspense fallback={adminFallback}><BeyondPopPage /></Suspense>} />
+            <Route path="beyond_pop/index.html" element={<Suspense fallback={adminFallback}><BeyondPopPage /></Suspense>} />
             <Route path="beyond_pop.html" element={<Suspense fallback={adminFallback}><BeyondPopPage /></Suspense>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
