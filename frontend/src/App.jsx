@@ -21,6 +21,7 @@ const CVPage = lazy(() => import('./pages/CVPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
 const AssetsPage = lazy(() => import('./pages/AssetsPage'));
+const BeyondPopPage = lazy(() => import('./pages/BeyondPopPage'));
 
 const AdminProjectsPage = lazy(() => import('./pages/admin/AdminProjectsPage'));
 const AdminBlogPage = lazy(() => import('./pages/admin/AdminBlogPage'));
@@ -81,6 +82,8 @@ function App() {
               <Route path="search" element={<Suspense fallback={adminFallback}><SearchPage /></Suspense>} />
               <Route path="assets" element={<Suspense fallback={adminFallback}><AssetsPage /></Suspense>} />
             </Route>
+            <Route path="beyond_pop" element={<Suspense fallback={adminFallback}><BeyondPopPage /></Suspense>} />
+            <Route path="beyond_pop.html" element={<Suspense fallback={adminFallback}><BeyondPopPage /></Suspense>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           </LocaleProvider>
