@@ -72,6 +72,7 @@ export default defineConfig(({ mode }) => {
         // navigateFallback uses createHandlerBoundToURL('index.html'), which throws if that URL
         // is not in the precache manifest (non-precached-url).
         globPatterns: ['**/*.{js,css,ico,png,jpg,jpeg,svg,woff2}', 'index.html'],
+        navigateFallbackDenylist: [/^\/beyond_pop\.html$/],
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
