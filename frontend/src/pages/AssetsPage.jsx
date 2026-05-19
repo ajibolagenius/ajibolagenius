@@ -23,6 +23,18 @@ const FILTER_OPTIONS = [
   { label: 'Other', value: 'other' },
 ];
 
+const BEYOND_POP_ASSET = {
+  id: 'beyond-pop-presentation',
+  title: 'Beyond P.O.P — AI for Work, Skill & Opportunity',
+  category: 'Presentation Slide',
+  asset_type: 'link',
+  description: 'An interactive presentation deck exploring how artificial intelligence is transforming work, skill acquisition, and opportunities.',
+  external_url: '/beyond_pop.html',
+  button_label: 'View Presentation',
+  sort_order: -100, // Position it at the very beginning of the list
+  open_in_same_tab: false, // Set to true to load in the same tab, false to open in a new tab
+};
+
 function getFileUrl(filePath) {
   if (!filePath) return null;
   const { data } = supabase.storage.from('assets').getPublicUrl(filePath);
@@ -39,8 +51,8 @@ function AssetCard({ asset }) {
     : isLink
       ? (asset.external_url?.trim() || null)
       : null;
-  const label = isFile ? (asset.file_name || asset.title) : isLink ? 'Open link' : null;
-  const openInNewTab = isLink;
+  const label = asset.button_label || (isFile ? (asset.file_name || asset.title) : isLink ? 'Open link' : null);
+  const openInNewTab = isLink && !asset.open_in_same_tab;
 
   return (
     <motion.article
@@ -107,7 +119,7 @@ function AssetCard({ asset }) {
 
 export default function AssetsPage() {
   const [typeFilter, setTypeFilter] = useState('all');
-  const { data: assets, loading, error } = useRealtimeQuery('assets', fetchAssets, []);
+  const { data: fetchedAssets, loading, error } = useRealtimeQuery('assets', fetchAssets, []);
 
   usePageMeta({
     title: 'Assets & Downloads',
@@ -115,6 +127,14 @@ export default function AssetsPage() {
     image: DEFAULT_OG_IMAGE_PATH,
     canonical: '/assets',
   });
+
+  const assets = useMemo(() => {
+    const list = Array.isArray(fetchedAssets) ? [...fetchedAssets] : [];
+    if (!list.some((a) => a.id === BEYOND_POP_ASSET.id)) {
+      list.push(BEYOND_POP_ASSET);
+    }
+    return list;
+  }, [fetchedAssets]);
 
   const filtered = useMemo(() => {
     const list = Array.isArray(assets) ? assets : [];
