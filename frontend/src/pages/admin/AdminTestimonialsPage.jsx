@@ -212,7 +212,7 @@ export default function AdminTestimonialsPage() {
                 className="rounded border-[var(--border-md)] bg-[var(--elevated)] text-[var(--sungold)] focus:ring-[var(--sungold)]"
               />
               <Label htmlFor="testimonial-approved" className="font-body text-[13px] cursor-pointer">
-                Approved (show on Teach page)
+                Approved (show on Course page)
               </Label>
             </div>
           </div>

@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/work', label: 'Work', icon: Briefcase },
-  { href: '/teach', label: 'Teach', icon: GraduationCap },
+  { href: '/teach', label: 'Course', icon: GraduationCap },
   { href: '/writing', label: 'Writing', icon: Pencil },
 ];
 
@@ -37,14 +37,14 @@ const BottomNav = () => {
     <>
       {/* Backdrop for closing 'More' Menu */}
       {moreOpen && (
-        <div 
-          className="fixed inset-0 z-30 md:hidden" 
+        <div
+          className="fixed inset-0 z-30 md:hidden"
           onClick={() => setMoreOpen(false)}
         />
       )}
 
       {/* Sliding 'More' Menu */}
-      <div 
+      <div
         className={`fixed inset-x-0 bottom-16 z-40 bg-[var(--nav-mobile-bg)] backdrop-blur-[20px] border-t border-[var(--border)] transition-transform duration-300 ease-in-out md:hidden flex flex-col ${moreOpen ? 'translate-y-0' : 'translate-y-full'}`}
       >
         <div className="flex flex-col p-4 gap-2">
@@ -79,7 +79,7 @@ const BottomNav = () => {
             </button>
           );
         })}
-        
+
         {/* 'More' Toggle Button */}
         <button
           onClick={() => setMoreOpen(!moreOpen)}

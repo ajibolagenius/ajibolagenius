@@ -6,7 +6,7 @@ export const strings = {
   en: {
     skip_to_content: 'Skip to content',
     nav_work: 'Work',
-    nav_teach: 'Teach',
+    nav_teach: 'Course',
     nav_writing: 'Writing',
     nav_gallery: 'Gallery',
     nav_assets: 'Assets',

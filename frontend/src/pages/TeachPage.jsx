@@ -52,7 +52,7 @@ const CourseCard = ({ course, whatsapp, index = 0 }) => {
     >
       {/* Technical corner accent */}
       {hovered && isOpen && (
-        <div 
+        <div
           className="absolute top-0 right-0 w-2 h-2 border-t border-r transition-opacity duration-300"
           style={{ borderColor: accentColor }}
         />
@@ -233,14 +233,14 @@ const TeachPage = () => {
         {/* Nebula Glow Backdrop */}
         <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[60%] bg-[var(--nebula)] opacity-[0.08] blur-[120px] rounded-full pointer-events-none" />
         <div className="absolute bottom-[-10%] left-[-5%] w-[30%] h-[50%] bg-[var(--sungold)] opacity-[0.03] blur-[100px] rounded-full pointer-events-none" />
-        
+
         <div className="max-w-[1160px] mx-auto px-4 md:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
-            <SectionKicker label="Teach" accent="sungold" />
+            <SectionKicker label="Course" accent="sungold" />
             <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--white)] max-w-[800px]" style={{ fontSize: 'clamp(40px, 8vw, 80px)' }}>
               {t('teach_heading')}
             </h1>
@@ -284,7 +284,7 @@ const TeachPage = () => {
         </div>
 
         {/* Technical Scanline effect */}
-        <motion.div 
+        <motion.div
           initial={{ top: '-10%' }}
           animate={{ top: '110%' }}
           transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}

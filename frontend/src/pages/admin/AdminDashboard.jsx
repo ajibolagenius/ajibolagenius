@@ -21,7 +21,7 @@ const quickLinks = [
   { path: '/admin/projects', label: 'Projects', desc: 'Work and case studies' },
   { path: '/admin/blog', label: 'Blog', desc: 'Articles and posts' },
   { path: '/admin/gallery', label: 'Gallery', desc: 'Visual archive' },
-  { path: '/admin/courses', label: 'Courses', desc: 'Teach section' },
+  { path: '/admin/courses', label: 'Courses', desc: 'Course section' },
   { path: '/admin/timeline', label: 'Timeline', desc: 'CV entries' },
   { path: '/admin/testimonials', label: 'Testimonials', desc: 'Student quotes' },
   { path: '/admin/personal-info', label: 'Personal Info', desc: 'Hero & contact' },
