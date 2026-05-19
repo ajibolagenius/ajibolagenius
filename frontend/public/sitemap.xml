@@ -1,27 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://localhost:3000/</loc>
+    <loc>https://ajibolagenius.vercel.app/</loc>
   </url>
   <url>
-    <loc>http://localhost:3000/work</loc>
+    <loc>https://ajibolagenius.vercel.app/work</loc>
   </url>
   <url>
-    <loc>http://localhost:3000/teach</loc>
+    <loc>https://ajibolagenius.vercel.app/teach</loc>
   </url>
   <url>
-    <loc>http://localhost:3000/writing</loc>
+    <loc>https://ajibolagenius.vercel.app/writing</loc>
   </url>
   <url>
-    <loc>http://localhost:3000/gallery</loc>
+    <loc>https://ajibolagenius.vercel.app/gallery</loc>
   </url>
   <url>
-    <loc>http://localhost:3000/cv</loc>
+    <loc>https://ajibolagenius.vercel.app/cv</loc>
   </url>
   <url>
-    <loc>http://localhost:3000/contact</loc>
+    <loc>https://ajibolagenius.vercel.app/contact</loc>
   </url>
   <url>
-    <loc>http://localhost:3000/search</loc>
+    <loc>https://ajibolagenius.vercel.app/search</loc>
+  </url>
+  <url>
+    <loc>https://ajibolagenius.vercel.app/assets</loc>
   </url>
 </urlset>

@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase';
 import SectionKicker from '../components/portfolio/SectionKicker';
 import FilterButtons from '../components/portfolio/FilterButtons';
 import { usePageMeta } from '../hooks/usePageMeta';
-import { DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
+import { buildStaticPageMeta } from '../lib/routeMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { byNumber, applySort } from '../lib/sortHelpers';
 
@@ -125,12 +125,7 @@ export default function AssetsPage() {
   const [typeFilter, setTypeFilter] = useState('all');
   const { data: fetchedAssets, loading, error } = useRealtimeQuery('assets', fetchAssets, []);
 
-  usePageMeta({
-    title: 'Assets & Downloads',
-    description: 'Design files, resources, and links shared by Ajibola Akelebe.',
-    image: DEFAULT_OG_IMAGE_PATH,
-    canonical: '/assets',
-  });
+  usePageMeta(buildStaticPageMeta('/assets'));
 
   const assets = useMemo(() => {
     return Array.isArray(fetchedAssets) ? fetchedAssets.map(normalizeAsset) : [];

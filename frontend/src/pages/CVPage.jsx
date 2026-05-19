@@ -8,7 +8,7 @@ import Badge from '../components/portfolio/Badge';
 import SectionKicker from '../components/portfolio/SectionKicker';
 import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
-import { DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
+import { buildStaticPageMeta } from '../lib/routeMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { CVSkeleton } from '../components/portfolio/SkeletonLayouts';
 import { Skeleton } from '../components/ui/skeleton';
@@ -73,12 +73,7 @@ const CVPage = () => {
     ? certifications.map((c) => (typeof c === 'string' ? c : c.title))
     : [];
 
-  usePageMeta({
-    title: 'CV',
-    description: 'Experience, education, and skills — design and engineering.',
-    image: DEFAULT_OG_IMAGE_PATH,
-    canonical: '/cv',
-  });
+  usePageMeta(buildStaticPageMeta('/cv'));
 
   return (
     <>

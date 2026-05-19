@@ -11,7 +11,7 @@
  * Output Directory is dist — ensure project Root Directory points at frontend if monorepo.
  * Set SKIP_PRERENDER_DETAIL=1 to skip this entire script.
  *
- * Keep pageTitle + description in sync with *Page.jsx usePageMeta.
+ * Keep STATIC_ROUTE_META in sync with *Page.jsx usePageMeta.
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -28,6 +28,7 @@ import {
   STATIC_DEFAULT_OG_IMAGE_HEIGHT,
   STATIC_DEFAULT_OG_IMAGE_WIDTH,
 } from '../src/lib/siteBrand.js';
+import { STATIC_ROUTE_META } from '../src/lib/routeMeta.js';
 import { blogPostShareDescription, blogPostCustomOgImage } from '../src/lib/blogMeta.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -71,59 +72,14 @@ function resolvePublicSiteUrl() {
   if (a) return a;
   const v = (process.env.VERCEL_URL || '').trim();
   if (v) return `https://${v.replace(/^https?:\/\//i, '').replace(/\/$/, '')}`;
-  return '';
+  return 'https://ajibolagenius.vercel.app';
 }
 
 const siteUrl = resolvePublicSiteUrl();
 const distDir = path.join(frontendDir, 'dist');
 const indexPath = path.join(distDir, 'index.html');
 
-/** Listing paths — titles match usePageMeta `title` (before " — SITE_NAME" suffix). */
-const STATIC_LIST_ROUTES = [
-  {
-    path: '/work',
-    pageTitle: 'Selected Work',
-    description:
-      'A collection of products and experiments — from social platforms to creative coding explorations.',
-  },
-  {
-    path: '/writing',
-    pageTitle: 'Blog & Thoughts',
-    description:
-      'Writing about design, development, teaching, and the intersection of African identity and technology.',
-  },
-  {
-    path: '/teach',
-    pageTitle: 'Courses & Mentorship',
-    description:
-      'I teach what I know and share what I learn. Remote courses designed for the Nigerian developer ready to level up.',
-  },
-  {
-    path: '/gallery',
-    pageTitle: 'Gallery',
-    description: 'Images and videos: UI, 3D, and graphic work.',
-  },
-  {
-    path: '/contact',
-    pageTitle: 'Contact',
-    description: 'Get in touch — design and engineering inquiries, collaboration, or just say hello.',
-  },
-  {
-    path: '/cv',
-    pageTitle: 'CV',
-    description: 'Experience, education, and skills — design and engineering.',
-  },
-  {
-    path: '/search',
-    pageTitle: 'Search',
-    description: 'Search blog posts, projects, and courses.',
-  },
-  {
-    path: '/assets',
-    pageTitle: 'Assets & Downloads',
-    description: 'Design files, resources, and links shared by Ajibola Akelebe.',
-  },
-];
+const STATIC_LIST_ROUTES = STATIC_ROUTE_META;
 
 function escapeAttr(text) {
   return String(text).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
@@ -137,19 +93,24 @@ function absolutize(href, base) {
   return `${b}${href.startsWith('/') ? '' : '/'}${href}`;
 }
 
-function buildOgImageFnUrl(title, category) {
+function buildOgImageFnUrl(title, category, subtitle) {
   const base = (supabaseUrl || '').trim().replace(/\/$/, '');
   if (!base || base.includes('placeholder')) return null;
   const u = new URL(`${base}/functions/v1/og-image`);
   u.searchParams.set('title', title || SITE_TAGLINE);
   u.searchParams.set('category', String(category || 'Thought'));
+  if (subtitle) u.searchParams.set('subtitle', String(subtitle));
   return u.toString();
 }
 
 function blogOgImage(post) {
   const custom = blogPostCustomOgImage(post);
   if (custom) return absolutize(custom, siteUrl);
-  const dynamic = buildOgImageFnUrl(post.title, post.category || 'Thought');
+  const dynamic = buildOgImageFnUrl(
+    post.title,
+    post.category || 'Thought',
+    blogPostShareDescription(post, 'Article by Ajibola Akelebe.')
+  );
   if (dynamic) return dynamic;
   return absolutize(DEFAULT_OG_IMAGE_PATH, siteUrl);
 }
@@ -160,7 +121,7 @@ function projectOgImage(project) {
     .filter(Boolean);
   const hero = shots[0];
   if (hero) return absolutize(hero, siteUrl);
-  const dynamic = buildOgImageFnUrl(project.name, 'Project');
+  const dynamic = buildOgImageFnUrl(project.name, 'Project', project.description || 'Project by Ajibola Akelebe');
   if (dynamic) return dynamic;
   return absolutize(DEFAULT_OG_IMAGE_PATH, siteUrl);
 }
@@ -180,6 +141,21 @@ function blogJsonLd(post, imageUrl) {
     dateModified: post.updated_at || post.date || post.published_at,
     author: { '@type': 'Person', name: SITE_NAME },
     publisher: { '@type': 'Person', name: SITE_NAME, image: absolutize(DEFAULT_OG_IMAGE_PATH, base) },
+  };
+}
+
+function projectJsonLd(project, imageUrl) {
+  const base = siteUrl.replace(/\/$/, '');
+  const path = `/work/${project.slug || ''}`;
+  const url = base ? `${base}${path}` : path;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CreativeWork',
+    name: project.name,
+    description: project.description || 'Project by Ajibola Akelebe.',
+    image: imageUrl,
+    url,
+    creator: { '@type': 'Person', name: SITE_NAME },
   };
 }
 
@@ -217,13 +193,21 @@ function patchHtmlForPage({
     .replace(/<meta property="og:image:width" content="[^"]*"\s*\/?>/i, `<meta property="og:image:width" content="${String(ogW)}" />`)
     .replace(/<meta property="og:image:height" content="[^"]*"\s*\/?>/i, `<meta property="og:image:height" content="${String(ogH)}" />`);
 
+  next = next.replace(/<link rel="canonical"[^>]*>\s*/gi, '');
+  next = next.replace(/<meta property="og:url"[^>]*>\s*/gi, '');
+  next = next.replace(/<meta property="og:site_name"[^>]*>\s*/gi, '');
+  next = next.replace(/<meta name="twitter:site"[^>]*>\s*/gi, '');
   next = next.replace(/<meta property="article:[^>]+>\s*/gi, '');
   next = next.replace(/<script id="page-structured-data"[^>]*>[\s\S]*?<\/script>\s*/gi, '');
 
   const inject = [];
+  const twitterSite = (process.env.VITE_TWITTER_SITE || '').trim().replace(/^@/, '');
   inject.push(`<link rel="canonical" href="${escapeAttr(absoluteUrl)}" />`);
   inject.push(`<meta property="og:url" content="${escapeAttr(absoluteUrl)}" />`);
   inject.push(`<meta property="og:site_name" content="${escapeAttr(SITE_NAME)}" />`);
+  if (twitterSite) {
+    inject.push(`<meta name="twitter:site" content="@${escapeAttr(twitterSite)}" />`);
+  }
 
   if (articleMeta?.publishedTime) {
     inject.push(`<meta property="article:published_time" content="${escapeAttr(articleMeta.publishedTime)}" />`);
@@ -247,16 +231,18 @@ function patchHtmlForPage({
 }
 
 function writeStaticListingHtml(baseHtml) {
-  const defaultOgAbs = absolutize(DEFAULT_OG_IMAGE_PATH, siteUrl);
   let n = 0;
   for (const route of STATIC_LIST_ROUTES) {
-    const title = `${route.pageTitle} — ${SITE_NAME}`;
+    const title = `${route.title} — ${SITE_NAME}`;
+    const ogImage =
+      buildOgImageFnUrl(route.title, route.category, route.subtitle) ||
+      absolutize(DEFAULT_OG_IMAGE_PATH, siteUrl);
     const html = patchHtmlForPage({
       html: baseHtml,
       title,
       description: route.description,
       canonicalPath: route.path,
-      ogImage: defaultOgAbs,
+      ogImage,
       ogType: 'website',
       articleMeta: null,
       jsonLd: null,
@@ -271,7 +257,7 @@ function writeStaticListingHtml(baseHtml) {
 }
 
 function writeRedirects() {
-  const exact = STATIC_LIST_ROUTES.map(
+  const exact = STATIC_LIST_ROUTES.filter((r) => r.path !== '/').map(
     (r) => `${r.path}  ${r.path}/index.html  200`
   );
   const lines = [
@@ -361,7 +347,7 @@ async function main() {
       ogImage: image,
       ogType: 'website',
       articleMeta: null,
-      jsonLd: null,
+      jsonLd: projectJsonLd(project, image),
     });
     const dir = path.join(distDir, 'work', slug);
     fs.mkdirSync(dir, { recursive: true });

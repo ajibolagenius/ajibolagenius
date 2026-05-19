@@ -7,6 +7,7 @@ import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { buildOgImageUrl, DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
 import { absolutizeUrl } from '../lib/pageMeta';
+import { buildCreativeWorkSchema } from '../lib/structuredData';
 import OptimizedImage from '../components/portfolio/OptimizedImage';
 import { track } from '../services/analytics';
 import { ProjectsSkeleton } from '../components/portfolio/SkeletonLayouts';
@@ -73,7 +74,7 @@ const WorkDetailPage = () => {
         .filter(Boolean);
       const hero = shots[0];
       if (hero) return absolutizeUrl(hero);
-      return buildOgImageUrl(project.name, 'Project');
+      return buildOgImageUrl(project.name, 'Project', project.description || 'Project by Ajibola Akelebe');
     })();
 
   usePageMeta(
@@ -83,6 +84,7 @@ const WorkDetailPage = () => {
           description: project.description || 'Project by Ajibola Akelebe.',
           image: projectOgImage || DEFAULT_OG_IMAGE_PATH,
           canonical: `/work/${project.slug || slug}`,
+          structuredData: buildCreativeWorkSchema(project),
         }
       : {
           title: 'Project',

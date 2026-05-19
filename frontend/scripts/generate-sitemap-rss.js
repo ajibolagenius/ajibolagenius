@@ -2,7 +2,7 @@
  * Generate public/sitemap.xml and public/rss.xml from Supabase (blog posts, projects).
  * Run from frontend directory: node scripts/generate-sitemap-rss.js
  * Requires VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY (or SUPABASE_URL + SUPABASE_ANON_KEY).
- * Optional: VITE_SITE_URL for absolute URLs (falls back to http://localhost:3000).
+ * Optional: VITE_SITE_URL for absolute URLs (falls back to production domain).
  */
 
 const { createClient } = require('@supabase/supabase-js');
@@ -33,7 +33,7 @@ loadEnvFile(frontendDir) || loadEnvFile(process.cwd());
 
 const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const anonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
-const SITE_URL = process.env.VITE_SITE_URL || process.env.URL || 'http://localhost:3000';
+const SITE_URL = process.env.VITE_SITE_URL || process.env.URL || 'https://ajibolagenius.vercel.app';
 const baseUrl = SITE_URL.replace(/\/$/, '');
 
 if (!url || !anonKey) {
@@ -43,7 +43,7 @@ if (!url || !anonKey) {
 
 const supabase = createClient(url, anonKey);
 
-const STATIC_PATHS = ['/', '/work', '/teach', '/writing', '/gallery', '/cv', '/contact', '/search'];
+const STATIC_PATHS = ['/', '/work', '/teach', '/writing', '/gallery', '/cv', '/contact', '/search', '/assets'];
 
 function escapeXml(s) {
   if (s == null) return '';

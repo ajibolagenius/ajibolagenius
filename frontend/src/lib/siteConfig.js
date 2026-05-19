@@ -30,12 +30,18 @@ export function getSupabaseUrl(env) {
  * Absolute URL to the edge function that renders PNG OG images (1200×630).
  * @returns {string | null}
  */
-export function buildOgImageUrl(title, category, env) {
+export function buildOgImageUrl(title, category, subtitleOrEnv, maybeEnv) {
+  const subtitle = typeof subtitleOrEnv === 'string' ? subtitleOrEnv : '';
+  const env =
+    subtitleOrEnv && typeof subtitleOrEnv === 'object' && maybeEnv === undefined
+      ? subtitleOrEnv
+      : maybeEnv;
   const base = getSupabaseUrl(env);
   if (!base) return null;
   const url = new URL(`${base}/functions/v1/og-image`);
   url.searchParams.set('title', title || SITE_TAGLINE);
   url.searchParams.set('category', String(category || 'Thought'));
+  if (subtitle) url.searchParams.set('subtitle', subtitle);
   return url.toString();
 }
 

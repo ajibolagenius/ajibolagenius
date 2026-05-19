@@ -176,7 +176,9 @@ const BlogPostPage = () => {
 
   const customOg = post ? blogPostCustomOgImage(post) : '';
   const dynamicOg =
-    post && !customOg ? buildOgImageUrl(post.title, post.category || 'Thought') : null;
+    post && !customOg
+      ? buildOgImageUrl(post.title, post.category || 'Thought', blogPostShareDescription(post, 'Article by Ajibola Akelebe.'))
+      : null;
 
   usePageMeta(
     post

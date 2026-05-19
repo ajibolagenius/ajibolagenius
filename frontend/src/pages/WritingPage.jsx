@@ -12,7 +12,7 @@ import { byString, byDate, applySort } from '../lib/sortHelpers';
 import { paginate } from '../lib/paginate';
 import ListPagination from '../components/portfolio/ListPagination';
 import { usePageMeta } from '../hooks/usePageMeta';
-import { DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
+import { buildStaticPageMeta } from '../lib/routeMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { WritingSkeleton } from '../components/portfolio/SkeletonLayouts';
 import { getBlogReadTimeDisplay } from '../lib/blogReadTime';
@@ -73,12 +73,7 @@ const WritingPage = () => {
     setTimeout(() => setNlMsg(''), 4000);
   };
 
-  usePageMeta({
-    title: 'Blog & Thoughts',
-    description: 'Writing about design, development, teaching, and the intersection of African identity and technology.',
-    image: DEFAULT_OG_IMAGE_PATH,
-    canonical: '/writing',
-  });
+  usePageMeta(buildStaticPageMeta('/writing'));
 
   if (postsLoading && displayPosts.length === 0) {
     return (

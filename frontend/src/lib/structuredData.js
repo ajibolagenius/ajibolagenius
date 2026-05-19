@@ -22,7 +22,11 @@ export function resolveBlogPostingImage(post, baseUrl) {
   const base = baseUrl || getBaseUrl();
   const custom = blogPostCustomOgImage(post);
   if (custom) return absolutizeImageRef(custom, base);
-  const dynamic = buildOgImageUrl(post.title, post.category || 'Thought');
+  const dynamic = buildOgImageUrl(
+    post.title,
+    post.category || 'Thought',
+    blogPostShareDescription(post, 'Article by Ajibola Akelebe.')
+  );
   if (dynamic) return dynamic;
   return absolutizeImageRef(DEFAULT_OG_IMAGE_PATH, base);
 }
@@ -62,6 +66,32 @@ export function buildBlogPostingSchema(post, baseUrl) {
       '@type': 'Person',
       name: SITE_NAME,
       image: absolutizeImageRef(DEFAULT_OG_IMAGE_PATH, base),
+    },
+  };
+}
+
+export function buildCreativeWorkSchema(project, baseUrl) {
+  const base = baseUrl || getBaseUrl();
+  const slug = project.slug || project.id || '';
+  const screenshots = Array.isArray(project.screenshots) ? project.screenshots : [];
+  const firstImage = screenshots
+    .map((s) => (typeof s === 'string' ? s : s?.url))
+    .find(Boolean);
+  const image =
+    firstImage ||
+    buildOgImageUrl(project.name, 'Project', project.description || 'Project by Ajibola Akelebe') ||
+    DEFAULT_OG_IMAGE_PATH;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CreativeWork',
+    name: project.name,
+    description: project.description || 'Project by Ajibola Akelebe.',
+    url: `${base}/work/${slug}`,
+    image: absolutizeImageRef(image, base),
+    creator: {
+      '@type': 'Person',
+      name: SITE_NAME,
     },
   };
 }

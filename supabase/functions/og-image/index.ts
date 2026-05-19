@@ -39,6 +39,7 @@ function getEmbeddedFontStyles(): Promise<string> {
     }
     .title { font-family: 'Syne', sans-serif; font-weight: 800; fill: #F2EFE8; font-size: 80px; text-transform: uppercase; }
     .category { font-family: 'DM Sans', sans-serif; font-weight: 700; fill: #E8A020; font-size: 18px; letter-spacing: 0.35em; }
+    .subtitle { font-family: 'DM Sans', sans-serif; font-weight: 700; fill: rgba(242, 239, 232, 0.72); font-size: 27px; }
     .brand { font-family: 'DM Sans', sans-serif; font-weight: 700; fill: #F2EFE8; font-size: 32px; letter-spacing: -0.02em; }
     .tagline { font-family: 'DM Sans', sans-serif; font-weight: 700; fill: rgba(242, 239, 232, 0.4); font-size: 20px; letter-spacing: 0.15em; }
       `.trim();
@@ -48,22 +49,14 @@ function getEmbeddedFontStyles(): Promise<string> {
 }
 
 serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: responseHeaders() });
+  }
+
   const url = new URL(req.url);
-  const title = url.searchParams.get("title") || "Design & Engineering";
-  const category = (url.searchParams.get("category") || "Thought").toUpperCase();
-
-  const escape = (str: string) =>
-    str.replace(/[&<>"']/g, (m) =>
-      ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&apos;",
-      }[m] || m));
-
-  const escapedTitle = escape(title);
-  const escapedCategory = escape(category);
+  const title = sanitizeText(url.searchParams.get("title") || "Design & Engineering", 120);
+  const category = sanitizeText(url.searchParams.get("category") || "Thought", 34).toUpperCase();
+  const subtitle = sanitizeText(url.searchParams.get("subtitle") || "", 150);
 
   let fontStyles: string;
   try {
@@ -73,6 +66,7 @@ serve(async (req: Request) => {
     fontStyles = `
     .title { font-family: sans-serif; font-weight: 800; fill: #F2EFE8; font-size: 64px; text-transform: uppercase; }
     .category { font-family: sans-serif; font-weight: 700; fill: #E8A020; font-size: 18px; letter-spacing: 0.35em; }
+    .subtitle { font-family: sans-serif; font-weight: 700; fill: rgba(242, 239, 232, 0.72); font-size: 27px; }
     .brand { font-family: sans-serif; font-weight: 700; fill: #F2EFE8; font-size: 32px; }
     .tagline { font-family: sans-serif; font-weight: 400; fill: rgba(242, 239, 232, 0.4); font-size: 20px; letter-spacing: 0.15em; }
     `.trim();
@@ -108,13 +102,14 @@ ${fontStyles}
       <g transform="translate(100, 0)">
         <g transform="translate(0, 180)">
           <rect width="24" height="2" fill="#E8A020" />
-          <text x="40" y="7" class="category">${escapedCategory}</text>
+          <text x="40" y="7" class="category">${escapeXml(category)}</text>
         </g>
-        <g transform="translate(0, 305)">
-          ${renderWrappedTitle(escapedTitle, 0, 0, 950, 95)}
+        <g transform="translate(0, 300)">
+          ${renderWrappedTitle(title, 0, 0)}
+          ${subtitle ? renderWrappedSubtitle(subtitle, 0, 205) : ""}
         </g>
         <g transform="translate(0, 545)">
-          <text class="brand">${escape(SITE_NAME)}</text>
+          <text class="brand">${escapeXml(SITE_NAME)}</text>
           <text x="280" y="-2" class="tagline" opacity="0.6">//</text>
           <text x="335" y="-2" class="tagline">DESIGN &amp; ENGINEERING</text>
         </g>
@@ -135,10 +130,7 @@ ${fontStyles}
     const pngData = resvg.render();
     const pngBuffer = pngData.asPng();
     return new Response(pngBuffer, {
-      headers: {
-        "Content-Type": "image/png",
-        "Cache-Control": "public, max-age=86400",
-      },
+      headers: responseHeaders(),
     });
   } catch (err) {
     console.error("Resvg conversion error:", err);
@@ -146,15 +138,40 @@ ${fontStyles}
   }
 });
 
-function renderWrappedTitle(text: string, x: number, y: number, _maxWidth: number, lineHeight: number) {
+function responseHeaders() {
+  return {
+    "Content-Type": "image/png",
+    "Cache-Control": "public, max-age=86400, s-maxage=604800, stale-while-revalidate=604800",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+  };
+}
+
+function sanitizeText(value: string, maxLength: number) {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  if (normalized.length <= maxLength) return normalized;
+  return `${normalized.slice(0, Math.max(0, maxLength - 1)).trimEnd()}…`;
+}
+
+function escapeXml(str: string) {
+  return str.replace(/[&<>"']/g, (m) =>
+    ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&apos;",
+    }[m] || m));
+}
+
+function wrapText(text: string, maxLineChars: number, maxLines: number) {
   const words = text.split(/\s+/).filter(Boolean);
   const lines: string[] = [];
   let currentLineArr: string[] = [];
-  const MAX_LINE_CHARS = 16;
 
   for (const word of words) {
     const testLine = [...currentLineArr, word].join(" ");
-    if (testLine.length <= MAX_LINE_CHARS || currentLineArr.length === 0) {
+    if (testLine.length <= maxLineChars || currentLineArr.length === 0) {
       currentLineArr.push(word);
     } else {
       lines.push(currentLineArr.join(" "));
@@ -162,8 +179,30 @@ function renderWrappedTitle(text: string, x: number, y: number, _maxWidth: numbe
     }
   }
   if (currentLineArr.length > 0) lines.push(currentLineArr.join(" "));
-  const displayLines = lines.slice(0, 3);
-  return displayLines
-    .map((line, i) => `<text x="${x}" y="${y + i * lineHeight}" class="title">${line}</text>`)
+
+  const displayLines = lines.slice(0, maxLines);
+  if (lines.length > maxLines && displayLines.length > 0) {
+    const last = displayLines[displayLines.length - 1];
+    displayLines[displayLines.length - 1] = `${last.slice(0, Math.max(0, maxLineChars - 1)).trimEnd()}…`;
+  }
+
+  return displayLines;
+}
+
+function renderWrappedTitle(text: string, x: number, y: number) {
+  const lines = wrapText(text, 18, 3);
+  const longestLine = lines.reduce((max, line) => Math.max(max, line.length), 0);
+  const fontSize = longestLine > 17 || lines.length > 2 ? 72 : longestLine > 13 ? 80 : 88;
+  const lineHeight = fontSize + 14;
+
+  return lines
+    .map((line, i) => `<text x="${x}" y="${y + i * lineHeight}" class="title" style="font-size:${fontSize}px">${escapeXml(line)}</text>`)
+    .join("");
+}
+
+function renderWrappedSubtitle(text: string, x: number, y: number) {
+  const lines = wrapText(text, 58, 2);
+  return lines
+    .map((line, i) => `<text x="${x}" y="${y + i * 36}" class="subtitle">${escapeXml(line)}</text>`)
     .join("");
 }
