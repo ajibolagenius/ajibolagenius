@@ -23,6 +23,22 @@ const FILTER_OPTIONS = [
   { label: 'Other', value: 'other' },
 ];
 
+const BEYOND_POP_URL = 'http://beyondpop.surge.sh';
+
+function isBeyondPopAsset(asset) {
+  const title = String(asset?.title || '').toLowerCase();
+  const url = String(asset?.external_url || '').toLowerCase();
+  return title.includes('beyond p.o.p') || url.includes('beyond_pop') || url.includes('beyondpop');
+}
+
+function normalizeAsset(asset) {
+  if (!isBeyondPopAsset(asset)) return asset;
+  return {
+    ...asset,
+    external_url: BEYOND_POP_URL,
+  };
+}
+
 function getFileUrl(filePath) {
   if (!filePath) return null;
   const { data } = supabase.storage.from('assets').getPublicUrl(filePath);
@@ -117,7 +133,7 @@ export default function AssetsPage() {
   });
 
   const assets = useMemo(() => {
-    return Array.isArray(fetchedAssets) ? [...fetchedAssets] : [];
+    return Array.isArray(fetchedAssets) ? fetchedAssets.map(normalizeAsset) : [];
   }, [fetchedAssets]);
 
   const filtered = useMemo(() => {
