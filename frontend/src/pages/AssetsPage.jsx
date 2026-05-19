@@ -130,9 +130,27 @@ export default function AssetsPage() {
 
   const assets = useMemo(() => {
     const list = Array.isArray(fetchedAssets) ? [...fetchedAssets] : [];
-    if (!list.some((a) => a.id === BEYOND_POP_ASSET.id)) {
+    
+    // Check if there is already a Beyond P.O.P asset in the fetched list
+    const existingIndex = list.findIndex(
+      (a) => a.id === BEYOND_POP_ASSET.id || 
+             (a.title && a.title.includes("Beyond P.O.P")) || 
+             (a.external_url && a.external_url.includes("beyond_pop"))
+    );
+    
+    if (existingIndex !== -1) {
+      // Merge visual attributes and normalize the native route to guarantee premium presentation
+      list[existingIndex] = {
+        ...list[existingIndex],
+        external_url: '/beyond_pop',
+        button_label: 'View Presentation',
+        open_in_same_tab: false
+      };
+    } else {
+      // Push hardcoded presentation card if missing from database
       list.push(BEYOND_POP_ASSET);
     }
+    
     return list;
   }, [fetchedAssets]);
 
