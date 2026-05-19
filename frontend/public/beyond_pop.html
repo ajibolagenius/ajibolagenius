@@ -1,0 +1,3040 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beyond P.O.P — AI for Work, Skill & Opportunity</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ─────────────────────────────────────── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --navy: #0C1342;
+            --slate: #1B2461;
+            --teal: #00C98D;
+            --teal2: #00A873;
+            --white: #FFFFFF;
+            --light: #F2F4FC;
+            --muted: #8A94B0;
+            --card: #EAEEF8;
+            --amber: #F5A623;
+            --purple: #7C3AED;
+            --coral: #DC2626;
+            --blue: #2563EB;
+            --cyan: #0891B2;
+            --gold: #D97706;
+            --green: #059669;
+            --f-display: 'Bebas Neue', sans-serif;
+            --f-head: 'Syne', sans-serif;
+            --f-body: 'DM Sans', sans-serif;
+            --ease: cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: var(--navy);
+        }
+
+        body {
+            font-family: var(--f-body);
+            color: var(--white);
+            cursor: none;
+        }
+
+        /* ── Custom Cursor ───────────────────────────────────── */
+        #cursor {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--teal);
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s, width 0.2s, height 0.2s, opacity 0.2s;
+            mix-blend-mode: screen;
+        }
+
+        #cursor.big {
+            width: 40px;
+            height: 40px;
+            opacity: 0.5;
+        }
+
+        /* ── Grain Overlay ───────────────────────────────────── */
+        #grain {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0.035;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            background-size: 200px;
+        }
+
+        /* ── Progress Bar ────────────────────────────────────── */
+        #progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--teal);
+            z-index: 200;
+            transition: width 0.5s var(--ease);
+            box-shadow: 0 0 10px var(--teal);
+        }
+
+        /* ── Slide Counter ───────────────────────────────────── */
+        #counter {
+            position: fixed;
+            top: 20px;
+            right: 28px;
+            z-index: 200;
+            font-family: var(--f-head);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--muted);
+            letter-spacing: 0.1em;
+            transition: color 0.3s;
+        }
+
+        #counter span {
+            color: var(--teal);
+        }
+
+        /* ── Nav Dots ────────────────────────────────────────── */
+        #dots {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 200;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--muted);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            outline: none;
+        }
+
+        .dot.active {
+            background: var(--teal);
+            transform: scale(1.4);
+            box-shadow: 0 0 6px var(--teal);
+        }
+
+        /* ── Nav Arrows ──────────────────────────────────────── */
+        .nav-btn {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--muted);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 200;
+            transition: all 0.2s;
+            font-size: 18px;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover {
+            background: var(--teal);
+            color: var(--navy);
+            border-color: var(--teal);
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        #prev {
+            left: 18px;
+        }
+
+        #next {
+            right: 18px;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        /* ── Slide Engine ────────────────────────────────────── */
+        #deck {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: stretch;
+            opacity: 0;
+            transform: translateX(60px);
+            transition: opacity 0.55s var(--ease), transform 0.55s var(--ease);
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: all;
+            z-index: 10;
+        }
+
+        .slide.exit-left {
+            opacity: 0;
+            transform: translateX(-60px);
+            z-index: 5;
+        }
+
+        .slide.enter-from-left {
+            transform: translateX(-60px);
+        }
+
+        /* ── Slide Inner Animations ──────────────────────────── */
+        .slide.active .anim {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .anim {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+        }
+
+        .anim:nth-child(1) {
+            transition-delay: 0.1s;
+        }
+
+        .anim:nth-child(2) {
+            transition-delay: 0.2s;
+        }
+
+        .anim:nth-child(3) {
+            transition-delay: 0.3s;
+        }
+
+        .anim:nth-child(4) {
+            transition-delay: 0.35s;
+        }
+
+        .anim:nth-child(5) {
+            transition-delay: 0.4s;
+        }
+
+        .anim:nth-child(6) {
+            transition-delay: 0.45s;
+        }
+
+        .anim:nth-child(7) {
+            transition-delay: 0.5s;
+        }
+
+        /* ── Common Layout ───────────────────────────────────── */
+        .s-inner {
+            width: 100%;
+            padding: 0 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0;
+        }
+
+        .s-inner.centered {
+            align-items: center;
+            text-align: center;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--teal);
+            color: var(--navy);
+            font-family: var(--f-head);
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            padding: 4px 10px;
+            border-radius: 2px;
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            align-self: flex-start;
+        }
+
+        .badge.light {
+            background: rgba(0, 201, 141, 0.15);
+            color: var(--teal);
+            border: 1px solid rgba(0, 201, 141, 0.3);
+        }
+
+        h1.display {
+            font-family: var(--f-display);
+            font-size: clamp(80px, 11vw, 140px);
+            line-height: 0.9;
+            letter-spacing: 0.02em;
+            color: var(--white);
+        }
+
+        h1.display .accent {
+            color: var(--teal);
+            display: block;
+        }
+
+        h2.slide-title {
+            font-family: var(--f-head);
+            font-size: clamp(28px, 3.7vw, 44px);
+            font-weight: 800;
+            color: var(--navy);
+            line-height: 1.15;
+            margin-bottom: 32px;
+        }
+
+        h2.slide-title.light {
+            color: var(--white);
+        }
+
+        p.lead {
+            font-size: 17px;
+            color: var(--muted);
+            line-height: 1.7;
+            max-width: 600px;
+        }
+
+        .teal-line {
+            width: 48px;
+            height: 3px;
+            background: var(--teal);
+            margin: 16px 0 20px;
+            box-shadow: 0 0 8px var(--teal);
+        }
+
+        /* ── Cards ───────────────────────────────────────────── */
+        .card {
+            background: var(--white);
+            border-radius: 6px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .card.dark {
+            background: var(--slate);
+        }
+
+        .card-accent {
+            height: 4px;
+        }
+
+        .card-body {
+            padding: 20px 22px;
+        }
+
+        .card-label {
+            font-family: var(--f-head);
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .card-title {
+            font-family: var(--f-head);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--navy);
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+
+        .card-title.light {
+            color: var(--white);
+        }
+
+        .card-text {
+            font-size: 13.5px;
+            color: #3A4060;
+            line-height: 1.62;
+        }
+
+        .card-text.light {
+            color: #C5CCEE;
+        }
+
+        /* ── Row layout ──────────────────────────────────────── */
+        .row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .grid-32 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        /* ─────────────────────────────────────────────────────
+   SLIDE 1 — TITLE
+─────────────────────────────────────────────────────── */
+        #s1 {
+            background: var(--navy);
+        }
+
+        #s1 .left-bar {
+            width: 6px;
+            flex-shrink: 0;
+            background: var(--teal);
+            box-shadow: 0 0 30px var(--teal);
+        }
+
+        #s1 .s-inner {
+            padding-left: 72px;
+            padding-right: 80px;
+            justify-content: center;
+        }
+
+        #s1 .pills {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+
+        .pill {
+            padding: 6px 16px;
+            border: 1px solid rgba(139, 148, 176, 0.3);
+            border-radius: 100px;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--muted);
+            font-family: var(--f-head);
+            letter-spacing: 0.06em;
+            background: rgba(27, 36, 97, 0.5);
+            backdrop-filter: blur(4px);
+            text-transform: uppercase;
+        }
+
+        #s1 .subtitle {
+            font-size: 17px;
+            color: #C5CCEE;
+            font-weight: 300;
+            margin-top: 6px;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        #s1 .tagline {
+            font-size: 12px;
+            color: var(--muted);
+            font-style: italic;
+            margin-top: 8px;
+            max-width: 480px;
+        }
+
+        #s1 .glow-orb {
+            position: absolute;
+            right: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 201, 141, 0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* ─────────────────────────────────────────────────────
+   SLIDE 2 — NEW REALITY
+─────────────────────────────────────────────────────── */
+        #s2 {
+            background: var(--light);
+        }
+
+        #s2 .s-inner {
+            padding-top: 40px;
+            padding-bottom: 40px;
+            gap: 24px;
+            justify-content: center;
+        }
+
+        #s2 h2.slide-title {
+            margin-bottom: 0;
+        }
+
+        #s2 .truth-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .truth-card {
+            background: var(--white);
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(12, 19, 66, 0.08);
+        }
+
+        .truth-header {
+            background: var(--navy);
+            padding: 10px 20px;
+        }
+
+        .truth-num {
+            font-family: var(--f-head);
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            color: var(--teal);
+            text-transform: uppercase;
+        }
+
+        .truth-body {
+            padding: 22px;
+        }
+
+        .truth-head {
+            font-family: var(--f-head);
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--navy);
+            margin-bottom: 12px;
+            line-height: 1.25;
+        }
+
+        .truth-desc {
+            font-size: 13.5px;
+            color: #3A4060;
+            line-height: 1.65;
+        }
+
+        .core-msg {
+            background: rgba(0, 201, 141, 0.1);
+            border: 1px solid rgba(0, 201, 141, 0.25);
+            border-radius: 4px;
+            padding: 12px 20px;
+            text-align: center;
+            font-size: 13.5px;
+            color: var(--slate);
+            font-style: italic;
+            font-weight: 500;
+        }
+
+        /* ─────────────────────────────────────────────────────
+   SLIDE 3 — PRACTICAL SKILL
+─────────────────────────────────────────────────────── */
+        #s3 {
+            background: var(--navy);
+        }
+
+        #s3 .s-inner {
+            gap: 24px;
+            justify-content: center;
+        }
+
+        #s3 .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 20px;
+            flex: 1;
+            max-height: 78%;
+        }
+
+        .intern-card {
+            background: var(--slate);
+            border-radius: 8px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .intern-title {
+            font-family: var(--f-head);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+        }
+
+        .intern-bullets {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bullet-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .bullet-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--teal);
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+
+        .bullet-text {
+            font-size: 13.5px;
+            color: #C5CCEE;
+            line-height: 1.55;
+        }
+
+        .formula-card {
+            background: var(--slate);
+            border-radius: 8px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .formula-title {
+            font-family: var(--f-head);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--teal);
+        }
+
+        .formula-step {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .step-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            background: var(--teal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-family: var(--f-head);
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--navy);
+        }
+
+        .step-label {
+            font-family: var(--f-head);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--white);
+            width: 72px;
+            flex-shrink: 0;
+        }
+
+        .step-desc {
+            font-size: 12.5px;
+            color: var(--muted);
+            line-height: 1.45;
+        }
+
+        .example-prompt {
+            background: rgba(21, 32, 85, 0.8);
+            border: 1px solid rgba(0, 201, 141, 0.3);
+            border-radius: 4px;
+            padding: 10px 14px;
+            font-size: 12.5px;
+            color: #A0AADD;
+            font-style: italic;
+            line-height: 1.55;
+            margin-top: auto;
+        }
+
+        /* ─────────────────────────────────────────────────────
+   SLIDE 4 — CHOOSE YOUR LANE
+─────────────────────────────────────────────────────── */
+        #deleted_s4 {
+            background: var(--light);
+        }
+
+        #deleted_s4 .s-inner {
+            gap: 22px;
+            justify-content: center;
+        }
+
+        #deleted_s4 h2.slide-title {
+            margin-bottom: 0;
+        }
+
+        .lane-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .lane-card {
+            background: var(--white);
+            border-radius: 6px;
+            padding: 18px 18px 18px 22px;
+            box-shadow: 0 3px 16px rgba(12, 19, 66, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lane-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--teal);
+        }
+
+        .lane-icon {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .lane-name {
+            font-family: var(--f-head);
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--navy);
+            margin-bottom: 6px;
+        }
+
+        .lane-desc {
+            font-size: 13px;
+            color: #3A4060;
+            line-height: 1.5;
+        }
+
+        #deleted_s4 .footnote {
+            font-size: 11px;
+            color: var(--muted);
+            font-style: italic;
+            text-align: center;
+        }
+
+        /* ─────────────────────────────────────────────────────
+   SLIDE 5 — USE CASES
+─────────────────────────────────────────────────────── */
+        #s4 {
+            background: var(--navy);
+        }
+
+        #s4 .s-inner {
+            gap: 22px;
+            justify-content: center;
+        }
+
+        #s4 .usecase-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .usecase-card {
+            background: var(--slate);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .usecase-header {
+            padding: 10px 16px;
+            font-family: var(--f-head);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            color: var(--white);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .usecase-body {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .uc-bullets {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .uc-item {
+            font-size: 13px;
+            color: #D0D8F0;
+            line-height: 1.5;
+            display: flex;
+            gap: 8px;
+        }
+
+        .uc-item::before {
+            content: '›';
+            color: var(--teal);
+            flex-shrink: 0;
+            font-weight: 700;
+        }
+
+        .uc-stack {
+            font-size: 10.5px;
+            color: var(--teal);
+            font-style: italic;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 10px;
+        }
+
+        /* ─────────────────────────────────────────────────────
+   SLIDE 6 — CONTENT PLAYBOOK
+─────────────────────────────────────────────────────── */
+        #s5 {
+            background: var(--light);
+        }
+
+        #s5 .s-inner {
+            gap: 22px;
+            justify-content: center;
+        }
+
+        #s5 h2.slide-title {
+            margin-bottom: 0;
+        }
+
+        #s5 .steps-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .step-card {
+            background: var(--white);
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 3px 16px rgba(12, 19, 66, 0.08);
+        }
+
+        .step-top {
+            background: var(--navy);
+            padding: 18px 0;
+            text-align: center;
+        }
+
+        .step-big {
+            font-family: var(--f-display);
+            font-size: 56px;
+            color: var(--teal);
+            line-height: 1;
+        }
+
+        .step-content {
+            padding: 18px;
+        }
+
+        .step-name {
+            font-family: var(--f-head);
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--navy);
+            margin-bottom: 4px;
+        }
+
+        .step-tool {
+            font-size: 10px;
+            color: var(--teal);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .step-desc {
+            font-size: 11.5px;
+            color: #3A4060;
+            line-height: 1.6;
+        }
+
+        #s5 .footnote {
+            font-size: 11px;
+            font-style: italic;
+            font-weight: 600;
+            color: var(--slate);
+            text-align: center;
+        }
+
+        /* ─────────────────────────────────────────────────────
+   SLIDE 7 — 6 SKILLS
+─────────────────────────────────────────────────────── */
+        #deleted_s7 {
+            background: var(--navy);
+        }
+
+        #deleted_s7 .s-inner {
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .skill-card {
+            background: var(--slate);
+            border-radius: 6px;
+            padding: 18px 18px 18px 22px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+        }
+
+        .skill-num {
+            font-family: var(--f-head);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            margin-bottom: 4px;
+        }
+
+        .skill-name {
+            font-family: var(--f-head);
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 4px;
+        }
+
+        .skill-tool {
+            font-size: 10px;
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+
+        .skill-desc {
+            font-size: 12.5px;
+            color: #C5CCEE;
+            line-height: 1.5;
+        }
+
+        /* ─────────────────────────────────────────────────────
+   SLIDE 8 — RESPONSIBLE USE
+─────────────────────────────────────────────────────── */
+        #s6 {
+            background: var(--light);
+        }
+
+        #s6 .s-inner {
+            gap: 20px;
+            justify-content: center;
+        }
+
+        #s6 h2.slide-title {
+            margin-bottom: 0;
+        }
+
+        #s6 .two-col {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .principle-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .principle {
+            display: grid;
+            grid-template-columns: 32px 140px 1fr;
+            gap: 14px;
+            align-items: center;
+            padding: 12px;
+            background: var(--white);
+            border-radius: 6px;
+            box-shadow: 0 2px 12px rgba(12, 19, 66, 0.07);
+        }
+
+        .p-num {
+            width: 32px;
+            height: 32px;
+            background: var(--navy);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--f-head);
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--teal);
+        }
+
+        .p-title {
+            font-family: var(--f-head);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--navy);
+        }
+
+        .p-desc {
+            font-size: 11.5px;
+            color: #3A4060;
+            line-height: 1.55;
+        }
+
+        .salt-card {
+            background: var(--navy);
+            border-radius: 8px;
+            padding: 32px 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 16px;
+            height: 100%;
+        }
+
+        .salt-quote {
+            font-family: var(--f-head);
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--teal);
+            line-height: 1.35;
+        }
+
+        .salt-label {
+            font-size: 11px;
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        /* ─────────────────────────────────────────────────────
+   SLIDE 9 — 30-DAY PLAN
+─────────────────────────────────────────────────────── */
+        #s7 {
+            background: var(--navy);
+        }
+
+        #s7 .s-inner {
+            gap: 20px;
+            justify-content: center;
+        }
+
+        #s7 .week-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .week-row {
+            background: var(--slate);
+            border-radius: 6px;
+            padding: 18px 22px;
+            display: grid;
+            grid-template-columns: 80px 180px 1fr;
+            gap: 20px;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .week-strip {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+        }
+
+        .week-badge {
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-family: var(--f-head);
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .week-title {
+            font-family: var(--f-head);
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--white);
+        }
+
+        .week-desc {
+            font-size: 12.5px;
+            color: #C5CCEE;
+            line-height: 1.6;
+        }
+
+        .plan-footer {
+            text-align: center;
+            font-size: 12px;
+            color: var(--muted);
+            font-style: italic;
+            background: rgba(0, 201, 141, 0.08);
+            border: 1px solid rgba(0, 201, 141, 0.2);
+            border-radius: 4px;
+            padding: 10px;
+        }
+
+        /* ─────────────────────────────────────────────────────
+   SLIDE 10 — PROJECT IDEAS
+─────────────────────────────────────────────────────── */
+        #s8 {
+            background: var(--light);
+        }
+
+        #s8 .s-inner {
+            gap: 20px;
+            justify-content: center;
+        }
+
+        #s8 h2.slide-title {
+            margin-bottom: 0;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        .proj-card {
+            background: var(--white);
+            border-radius: 6px;
+            padding: 16px 16px 16px 20px;
+            box-shadow: 0 3px 14px rgba(12, 19, 66, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .proj-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--teal);
+        }
+
+        .proj-field {
+            font-family: var(--f-head);
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--navy);
+            margin-bottom: 6px;
+        }
+
+        .proj-desc {
+            font-size: 12px;
+            color: #3A4060;
+            line-height: 1.6;
+        }
+
+        /* ─────────────────────────────────────────────────────
+   SLIDE 11 — RESOURCE HUB
+─────────────────────────────────────────────────────── */
+        #deleted_s11 {
+            background: var(--navy);
+        }
+
+        #deleted_s11 .s-inner {
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .res-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        .res-card {
+            background: var(--slate);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .res-header {
+            padding: 10px 16px;
+            font-family: var(--f-head);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--white);
+            text-transform: uppercase;
+        }
+
+        .res-body {
+            padding: 16px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+
+
+        .res-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 2px;
+        }
+
+        .res-url {
+            font-size: 10.5px;
+            color: var(--teal);
+            font-style: italic;
+        }
+
+        /* ─────────────────────────────────────────────────────
+   SLIDE 12 — ACTION / CLOSING
+─────────────────────────────────────────────────────── */
+        #s11 {
+            background: var(--navy);
+        }
+
+        #s11 .left-bar {
+            width: 6px;
+            flex-shrink: 0;
+            background: var(--teal);
+            box-shadow: 0 0 30px var(--teal);
+        }
+
+        #s11 .s-inner {
+            padding-left: 72px;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        #s11 h2.slide-title {
+            margin-bottom: 0;
+        }
+
+        #s11 .action-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .action-row {
+            display: grid;
+            grid-template-columns: 44px 200px 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .action-num {
+            width: 44px;
+            height: 44px;
+            background: var(--teal);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--f-head);
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--navy);
+        }
+
+        .action-title {
+            font-family: var(--f-head);
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--white);
+        }
+
+        .action-desc {
+            font-size: 13px;
+            color: #C5CCEE;
+            line-height: 1.55;
+        }
+
+        .closing {
+            background: var(--slate);
+            border-radius: 6px;
+            padding: 14px 22px;
+            font-family: var(--f-head);
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--teal);
+            font-style: italic;
+            text-align: center;
+        }
+
+        #s11 .glow-orb {
+            position: absolute;
+            left: -80px;
+            bottom: -100px;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 201, 141, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+
+        .speaker-note {
+            display: none;
+        }
+
+        #speakerNote {
+            position: fixed;
+            left: 50%;
+            bottom: 58px;
+            transform: translateX(-50%);
+            z-index: 300;
+            display: none;
+            width: min(920px, calc(100vw - 160px));
+            max-height: 34vh;
+            overflow: auto;
+            padding: 20px 24px;
+            background: rgba(12, 19, 66, 0.96);
+            border: 1px solid rgba(0, 201, 141, 0.45);
+            border-left: 5px solid var(--teal);
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+            color: #EAF1FF;
+            font-size: 15px;
+            line-height: 1.65;
+        }
+
+        #speakerNote.visible {
+            display: block;
+        }
+
+        .demo-card {
+            background: var(--slate);
+            border-radius: 8px;
+            padding: 22px;
+            border: 1px solid rgba(0, 201, 141, 0.25);
+        }
+
+        .demo-prompt {
+            background: rgba(12, 19, 66, 0.9);
+            border: 1px solid rgba(0, 201, 141, 0.35);
+            border-radius: 6px;
+            padding: 18px;
+            color: #DDE7FF;
+            font-size: 15px;
+            line-height: 1.7;
+            font-style: italic;
+        }
+
+        .demo-steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        .demo-step {
+            background: var(--slate);
+            border-radius: 6px;
+            padding: 18px;
+            border-left: 4px solid var(--teal);
+        }
+
+        .demo-step-title {
+            font-family: var(--f-head);
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 6px;
+        }
+
+        .demo-step-desc {
+            font-size: 13px;
+            line-height: 1.55;
+            color: #C5CCEE;
+        }
+
+        .proof-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .proof-card {
+            background: var(--slate);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .proof-header {
+            padding: 10px 16px;
+            background: var(--teal);
+            color: var(--navy);
+            font-family: var(--f-head);
+            font-weight: 800;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .proof-body {
+            padding: 18px;
+        }
+
+        .proof-title {
+            font-family: var(--f-head);
+            color: var(--white);
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .proof-desc {
+            color: #C5CCEE;
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        .nav-btn:focus-visible,
+        .dot:focus-visible {
+            outline: 3px solid var(--amber);
+            outline-offset: 3px;
+        }
+
+        /* ── Projection Accessibility Pass ─────────────────────────────
+   Raise readable text sizes and element dimensions for live projection. */
+        #counter {
+            font-size: 24px;
+        }
+
+        #keyhint {
+            font-size: 18px;
+            color: rgba(197, 204, 238, 0.72);
+        }
+
+        .nav-btn {
+            width: 72px;
+            height: 72px;
+            font-size: 36px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+        }
+
+        .dot.active {
+            transform: scale(1.65);
+        }
+
+        .s-inner {
+            padding-left: 120px;
+            padding-right: 120px;
+        }
+
+        .s-inner[style] {
+            gap: 40px !important;
+        }
+
+        .badge {
+            font-size: 16px;
+            padding: 8px 16px;
+            letter-spacing: 0.16em;
+            margin-bottom: 24px;
+        }
+
+        h1.display {
+            font-size: clamp(140px, 14vw, 200px);
+        }
+
+        h2.slide-title {
+            font-size: clamp(54px, 5vw, 76px);
+            line-height: 1.1;
+            margin-bottom: 24px;
+        }
+
+        p.lead {
+            font-size: 32px;
+            max-width: 900px;
+        }
+
+        .card-body {
+            padding: 32px 36px;
+        }
+
+        .card-label,
+        .truth-num,
+        .skill-num,
+        .week-badge,
+        .res-header,
+        .proof-header {
+            font-size: 16px !important;
+            letter-spacing: 0.15em;
+            padding: 10px 16px;
+        }
+
+        .truth-num,
+        .skill-num {
+            padding: 0;
+            margin-bottom: 8px;
+        }
+
+        .usecase-header {
+            font-size: 16px;
+            padding: 16px 24px;
+        }
+
+        .card-title,
+        .truth-head,
+        .intern-title,
+        .lane-name,
+        .step-name,
+        .skill-name,
+        .p-title,
+        .week-title,
+        .proj-field,
+        .res-name,
+        .action-title,
+        .demo-step-title,
+        .proof-title {
+            font-size: 28px;
+            line-height: 1.25;
+            margin-bottom: 12px;
+        }
+
+        .card-text,
+        .truth-desc,
+        .bullet-text,
+        .step-desc,
+        .lane-desc,
+        .uc-item,
+        .skill-desc,
+        .p-desc,
+        .week-desc,
+        .proj-desc,
+        .action-desc,
+        .demo-step-desc,
+        .proof-desc {
+            font-size: 22px;
+            line-height: 1.5;
+        }
+
+        #s1 .subtitle {
+            font-size: 32px;
+            max-width: 900px;
+            line-height: 1.35;
+            margin-top: 16px;
+        }
+
+        #s1 .tagline {
+            font-size: 22px;
+            max-width: 800px;
+            line-height: 1.45;
+            margin-top: 16px;
+        }
+
+        #s1 .pills {
+            gap: 20px;
+            margin-top: 48px;
+        }
+
+        .pill {
+            font-size: 18px;
+            padding: 12px 24px;
+        }
+
+        #s1 .anim p[style] {
+            font-size: 16px !important;
+            margin-top: 24px;
+        }
+
+        .core-msg,
+        .plan-footer,
+        #deleted_s4 .footnote,
+        #s5 .footnote,
+        #s8 .footnote {
+            font-size: 22px !important;
+            line-height: 1.5;
+            padding: 16px 24px;
+        }
+
+        #s3 .two-col {
+            grid-template-columns: 0.95fr 1.25fr;
+            gap: 36px;
+            max-height: 85%;
+        }
+
+        .intern-card,
+        .formula-card,
+        .demo-card {
+            padding: 36px;
+            gap: 20px;
+        }
+
+        .formula-title {
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+
+        .formula-step {
+            gap: 20px;
+        }
+
+        .step-num {
+            width: 44px;
+            height: 44px;
+            font-size: 20px;
+            border-radius: 8px;
+        }
+
+        .step-label {
+            font-size: 20px;
+            width: 100px;
+        }
+
+        .example-prompt,
+        .demo-prompt {
+            font-size: 22px;
+            line-height: 1.55;
+            padding: 18px 24px;
+            margin-top: 20px;
+        }
+
+        .lane-icon {
+            font-size: 42px;
+            margin-bottom: 12px;
+        }
+
+        .uc-stack,
+        .skill-tool,
+        .step-tool,
+        .res-url,
+        .salt-label {
+            font-size: 18px;
+            line-height: 1.4;
+            margin-top: 12px;
+        }
+
+        .uc-item {
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .usecase-body {
+            padding: 24px;
+            gap: 16px;
+        }
+
+        .step-big {
+            font-size: 84px;
+            padding-bottom: 10px;
+        }
+
+        .skill-card,
+        .proj-card,
+        .lane-card {
+            padding: 28px 28px 28px 32px;
+        }
+
+        .skills-grid,
+        .projects-grid,
+        .proof-grid,
+        .lane-grid,
+        .usecase-grid,
+        .steps-row,
+        .res-grid {
+            gap: 28px;
+        }
+
+        #deleted_s7 .s-inner,
+        #s8 .s-inner,
+        #s-proof .s-inner {
+            padding-top: 48px !important;
+            padding-bottom: 48px !important;
+        }
+
+        #deleted_s7 .slide-title,
+        #s8 .slide-title,
+        #s-proof .slide-title {
+            font-size: clamp(44px, 5vw, 64px);
+        }
+
+        .principle-list {
+            gap: 24px;
+        }
+
+        .principle {
+            grid-template-columns: 52px 220px 1fr;
+            padding: 24px;
+            gap: 20px;
+        }
+
+        .p-num {
+            width: 52px;
+            height: 52px;
+            font-size: 22px;
+            border-radius: 8px;
+        }
+
+        .salt-quote {
+            font-size: 34px;
+            line-height: 1.4;
+        }
+
+        .salt-card {
+            padding: 48px 40px;
+            gap: 24px;
+        }
+
+        .week-list {
+            gap: 24px;
+        }
+
+        .week-row {
+            grid-template-columns: 120px 280px 1fr;
+            padding: 28px 32px;
+            gap: 28px;
+        }
+
+        .week-badge {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .res-body {
+            padding: 24px;
+            gap: 20px;
+        }
+
+        .action-list {
+            gap: 24px;
+        }
+
+        .action-row {
+            grid-template-columns: 72px 280px 1fr;
+            gap: 28px;
+        }
+
+        .action-num {
+            width: 72px;
+            height: 72px;
+            font-size: 32px;
+            border-radius: 12px;
+        }
+
+        .closing {
+            font-size: 26px;
+            padding: 24px 32px;
+            margin-top: 16px;
+        }
+
+        #speakerNote {
+            width: min(1200px, calc(100vw - 200px));
+            font-size: 24px;
+            line-height: 1.6;
+            padding: 28px 32px;
+        }
+
+        /* ── Focus Mode ────────────────────────────────────────── */
+        body.focus-mode .card,
+        body.focus-mode .truth-card,
+        body.focus-mode .step-card,
+        body.focus-mode .skill-card,
+        body.focus-mode .lane-card,
+        body.focus-mode .usecase-card,
+        body.focus-mode .week-row,
+        body.focus-mode .res-card,
+        body.focus-mode .proj-card {
+            opacity: 0.2;
+            filter: grayscale(100%);
+            transition: all 0.3s var(--ease);
+        }
+
+        body.focus-mode .card:hover,
+        body.focus-mode .truth-card:hover,
+        body.focus-mode .step-card:hover,
+        body.focus-mode .skill-card:hover,
+        body.focus-mode .lane-card:hover,
+        body.focus-mode .usecase-card:hover,
+        body.focus-mode .week-row:hover,
+        body.focus-mode .res-card:hover,
+        body.focus-mode .proj-card:hover {
+            opacity: 1;
+            filter: grayscale(0%);
+            transform: scale(1.05);
+            z-index: 50;
+            box-shadow: 0 10px 40px rgba(0, 201, 141, 0.25);
+        }
+
+        /* ── Jump Overlay ──────────────────────────────────────── */
+        #jump-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(12, 19, 66, 0.9);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            backdrop-filter: blur(10px);
+        }
+
+        #jump-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .jump-box {
+            background: var(--slate);
+            border: 2px solid var(--teal);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5);
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        #jump-overlay.active .jump-box {
+            transform: translateY(0);
+        }
+
+        .jump-title {
+            font-family: var(--f-head);
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 20px;
+        }
+
+        .jump-input {
+            background: rgba(12, 19, 66, 0.5);
+            border: 1px solid rgba(138, 148, 176, 0.3);
+            border-radius: 8px;
+            font-size: 36px;
+            color: var(--teal);
+            font-family: var(--f-display);
+            text-align: center;
+            width: 120px;
+            height: 80px;
+            outline: none;
+        }
+
+        .jump-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 20px rgba(0, 201, 141, 0.2);
+        }
+
+        .hint-text {
+            font-size: 14px;
+            color: var(--muted);
+            margin-top: 12px;
+        }
+
+        /* ── Touch Controls ────────────────────────────────────── */
+        #touch-controls {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            gap: 16px;
+            z-index: 200;
+        }
+
+        .touch-btn {
+            background: rgba(12, 19, 66, 0.85);
+            border: 2px solid rgba(0, 201, 141, 0.5);
+            color: var(--white);
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s, border-color 0.2s;
+            backdrop-filter: blur(8px);
+        }
+
+        .touch-btn:hover,
+        .touch-btn:active {
+            background: var(--teal);
+            border-color: var(--teal);
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            #touch-controls {
+                right: 50%;
+                transform: translateX(50%);
+                bottom: 16px;
+            }
+
+            .touch-btn {
+                width: 64px;
+                height: 64px;
+                font-size: 28px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                transition-duration: 0.001ms !important;
+                animation-duration: 0.001ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        .connect-link {
+            display: flex; align-items: center; gap: 16px; background: var(--slate);
+            padding: 18px 24px; border-radius: 12px; text-decoration: none;
+            border: 2px solid rgba(255,255,255,0.05); transition: all 0.3s var(--ease);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .connect-link:hover {
+            background: var(--navy); border-color: var(--teal);
+            transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,201,141,0.2);
+        }
+        .connect-link span:first-child { font-size: 24px; }
+        .connect-link span:last-child { color: var(--white); font-size: 16px; font-weight: 800; }
+
+        /* ── Scrollbar hide ──────────────────────────────────── */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        @keyframes imageSlide {
+
+            0%,
+            45% {
+                transform: translateX(0);
+            }
+
+            50%,
+            95% {
+                transform: translateX(-50%);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        /* ── Responsive Mobile ──────────────────────────────── */
+        @media (max-width: 1024px) {
+            h1.display {
+                font-size: clamp(50px, 8vw, 80px) !important;
+            }
+
+            h2.slide-title {
+                font-size: clamp(24px, 4vw, 32px) !important;
+            }
+
+            .lane-grid,
+            .projects-grid,
+            .res-grid {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 16px !important;
+            }
+
+            .steps-row,
+            .skills-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 16px !important;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr !important;
+            }
+
+            .s-inner {
+                padding: 24px !important;
+                gap: 16px !important;
+            }
+
+            #s14 .anim {
+                grid-template-columns: 1fr !important;
+                gap: 24px !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            .lane-grid,
+            .projects-grid,
+            .res-grid,
+            .steps-row,
+            .skills-grid,
+            .two-col,
+            .action-row,
+            .truth-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .action-row {
+                display: flex;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .week-row {
+                grid-template-columns: 1fr !important;
+                padding: 16px !important;
+                gap: 12px !important;
+            }
+
+            .pills {
+                flex-wrap: wrap !important;
+                justify-content: center !important;
+            }
+
+            .slide-title {
+                text-align: center !important;
+            }
+
+            .step-big {
+                font-size: 40px !important;
+            }
+
+            .card,
+            .step-card,
+            .truth-card,
+            .skill-card,
+            .usecase-card,
+            .res-card {
+                padding: 16px !important;
+            }
+
+            #s14 img {
+                border-width: 2px !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Cursor -->
+    <div id="cursor"></div>
+    <!-- Grain -->
+    <div id="grain"></div>
+    <!-- Progress -->
+    <div id="progress" style="width:0"></div>
+    <!-- Counter -->
+    <div id="counter"><span id="cur">01</span> / <span id="total">00</span></div>
+
+    <!-- Jump Overlay -->
+    <div id="jump-overlay">
+        <div class="jump-box">
+            <button id="btn-close-jump" aria-label="Close"
+                style="position:absolute; top:12px; right:16px; background:none; border:none; font-size:28px; color:var(--muted); cursor:pointer; line-height:1; transition:color 0.2s;"
+                onmouseover="this.style.color='var(--teal)'"
+                onmouseout="this.style.color='var(--muted)'">&times;</button>
+            <div class="jump-title">Jump to Slide</div>
+            <input type="number" id="jump-input" class="jump-input" min="1" max="100" autocomplete="off" />
+            <div class="hint-text">Type number and press Enter</div>
+        </div>
+    </div>
+
+    <!-- Touch Controls for iPad -->
+    <div id="touch-controls">
+        <button id="btn-notes" class="touch-btn" aria-label="Toggle Notes" title="Speaker Notes (N)">📝</button>
+        <button id="btn-focus" class="touch-btn" aria-label="Toggle Focus Mode" title="Focus Mode (H)">🔦</button>
+        <button id="btn-jump" class="touch-btn" aria-label="Jump to Slide" title="Jump (J)">🔢</button>
+    </div>
+
+    <!-- Nav -->
+    <button class="nav-btn" id="prev" aria-label="Previous slide" disabled>←</button>
+    <button class="nav-btn" id="next" aria-label="Next slide">→</button>
+
+    <!-- Dots -->
+    <div id="dots"></div>
+    <div id="speakerNote" aria-live="polite"></div>
+
+    <!-- DECK ─────────────────────────────────────── -->
+    <div id="deck">
+
+        <!-- ■ SLIDE 1 — TITLE ─────────────────────────── -->
+        <div class="slide active" id="s1">
+            <div class="left-bar"></div>
+            <div class="glow-orb"></div>
+            <div class="s-inner">
+                <div class="anim">
+                    <h1 class="display">BEYOND<span class="accent">P.O.P.</span></h1>
+                </div>
+                <div class="anim">
+                    <p class="subtitle">Using AI to Build Work, Skill &amp; Opportunity After NYSC</p>
+                </div>
+                <div class="anim">
+                    <p class="tagline">For every corps member — technical, creative, business-minded, or still figuring
+                        it out.</p>
+                </div>
+                <div class="anim pills">
+                    <span class="pill">Mindset</span>
+                    <span class="pill">Use Cases</span>
+                    <span class="pill">Tools</span>
+                    <span class="pill">30-Day Plan</span>
+                </div>
+                <div class="anim" style="margin-top:10px;">
+                    <p style="font-size:10px;color:var(--muted);letter-spacing:0.12em;font-family:var(--f-head);">
+                        POST-NYSC CAREER TALK</p>
+                </div>
+            </div>
+            <aside class="speaker-note">Open by asking how many people feel pressure about what comes after service.
+                Frame the session as practical, not hype: everyone should leave with one useful AI skill and one project
+                they can build within 7 days.</aside>
+        </div>
+
+        <!-- ■ SLIDE 2 — NEW REALITY ───────────────────── -->
+        <div class="slide" id="s2">
+            <div class="s-inner" style="padding-top:48px;padding-bottom:48px;">
+                <div class="anim"><span class="badge"
+                        style="background:var(--navy);color:var(--teal);border:1px solid rgba(0,201,141,0.3);">The New
+                        Reality</span></div>
+                <div class="anim">
+                    <h2 class="slide-title">What makes you useful, employable &amp; hard to ignore?</h2>
+                </div>
+                <div class="anim truth-grid">
+                    <div class="truth-card">
+                        <div class="truth-header"><span class="truth-num">Truth 01</span></div>
+                        <div class="truth-body">
+                            <div class="truth-head">Your certificate opens the door.</div>
+                            <div class="truth-desc">Your skill, evidence, and speed keep you in the room. The POP is the
+                                starting gun — not the finish line.</div>
+                        </div>
+                    </div>
+                    <div class="truth-card">
+                        <div class="truth-header"><span class="truth-num">Truth 02</span></div>
+                        <div class="truth-body">
+                            <div class="truth-head">AI will not replace serious people.</div>
+                            <div class="truth-desc">But people who use AI well will outperform those who ignore it. That
+                                gap compounds every single day.</div>
+                        </div>
+                    </div>
+                    <div class="truth-card">
+                        <div class="truth-header"><span class="truth-num">Truth 03</span></div>
+                        <div class="truth-body">
+                            <div class="truth-head">No tech degree required.</div>
+                            <div class="truth-desc">You don't need to become a programmer first. Start by using AI to
+                                improve what you already do.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="anim core-msg">Core message: Learn AI as a practical work partner — not as hype.</div>
+            </div>
+            <aside class="speaker-note">Use the core question: "In the next 12 months, what will make you useful,
+                employable, and hard to ignore?" Emphasize that the answer is evidence of what they can do, not only
+                certificates.</aside>
+        </div>
+
+        <!-- ■ SLIDE 3 — PRACTICAL SKILL ──────────────── -->
+        <div class="slide" id="s3">
+            <div class="s-inner" style="padding-top:44px;padding-bottom:44px;gap:18px;">
+                <div class="anim"><span class="badge">Practical Skill</span></div>
+                <div class="anim">
+                    <h2 class="slide-title light">AI in Plain Language &amp; The Prompt Formula</h2>
+                </div>
+                <div class="anim two-col" style="flex:1;">
+                    <div class="intern-card">
+                        <div class="intern-title">The Pro-Max Digital Intern</div>
+                        <div class="intern-bullets">
+                            <div class="bullet-item">
+                                <div class="bullet-dot"></div>
+                                <div class="bullet-text">Reads, writes, analyzes, codes, brainstorms — 24/7</div>
+                            </div>
+                            <div class="bullet-item">
+                                <div class="bullet-dot"></div>
+                                <div class="bullet-text">Has read the entire internet; just needs clear instructions
+                                </div>
+                            </div>
+                            <div class="bullet-item">
+                                <div class="bullet-dot"></div>
+                                <div class="bullet-text">Drafts CVs, emails, proposals, presentations in minutes</div>
+                            </div>
+                            <div class="bullet-item">
+                                <div class="bullet-dot"></div>
+                                <div class="bullet-text">Researches any industry or market trend instantly</div>
+                            </div>
+                            <div class="bullet-item">
+                                <div class="bullet-dot"></div>
+                                <div class="bullet-text">Your judgment remains the final quality control</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="formula-card">
+                        <div class="formula-title">The Prompt Formula — Works in ChatGPT, Claude, Gemini</div>
+                        <div class="formula-step">
+                            <div class="step-num">1</div>
+                            <div class="step-label">Role</div>
+                            <div class="step-desc" style="color:white;">Tell AI who to act as — e.g. career coach,
+                                editor, researcher</div>
+                        </div>
+                        <div class="formula-step">
+                            <div class="step-num">2</div>
+                            <div class="step-label">Context</div>
+                            <div class="step-desc" style="color:white;">Give relevant background about your situation
+                            </div>
+                        </div>
+                        <div class="formula-step">
+                            <div class="step-num">3</div>
+                            <div class="step-label">Task</div>
+                            <div class="step-desc" style="color:white;">State exactly what you want produced</div>
+                        </div>
+                        <div class="formula-step">
+                            <div class="step-num">4</div>
+                            <div class="step-label">Format</div>
+                            <div class="step-desc" style="color:white;">Specify how the answer should look (list, table,
+                                bullets…)</div>
+                        </div>
+                        <div class="formula-step">
+                            <div class="step-num">5</div>
+                            <div class="step-label">Review</div>
+                            <div class="step-desc" style="color:white;">Ask it to improve, verify, or simplify the
+                                output</div>
+                        </div>
+                        <div class="example-prompt">💬 "Act as a career coach. I just finished my NYSC program and
+                            graduated with a degree in [field]. Give me 5 ways I can use AI to become more valuable,
+                            with one 7-day practical project."</div>
+                    </div>
+                </div>
+            </div>
+            <aside class="speaker-note">Use the Pro-Max digital intern analogy. AI still needs context, clear
+                instructions, examples, and supervision. Their judgment remains the final quality control.</aside>
+        </div>
+
+        <!-- ■ SLIDE 5 — USE CASES ────────────────────── -->
+        <div class="slide" id="s4">
+            <div class="s-inner" style="padding-top:44px;padding-bottom:44px;gap:18px;">
+                <div class="anim"><span class="badge">Tool Stacks by Role</span></div>
+                <div class="anim">
+                    <h2 class="slide-title light">Practical AI Use Cases Across Every Career Path</h2>
+                </div>
+                <div class="anim usecase-grid">
+                    <div class="usecase-card">
+                        <div class="usecase-header" style="background:#7C3AED;">🎬 Content Creators</div>
+                        <div class="usecase-body">
+                            <div class="uc-bullets">
+                                <div class="uc-item">Plan weekly content from one niche idea</div>
+                                <div class="uc-item">Turn rough thoughts into scripts, hooks &amp; CTAs</div>
+                                <div class="uc-item">Create faceless content with AI voiceovers &amp; avatars</div>
+                            </div>
+                            <div class="uc-stack">Stack: YarnGPT · ElevenLabs · Synthesia · HeyGen · CapCut</div>
+                        </div>
+                    </div>
+                    <div class="usecase-card">
+                        <div class="usecase-header" style="background:#0891B2;">💻 Tech &amp; Developers</div>
+                        <div class="usecase-body">
+                            <div class="uc-bullets">
+                                <div class="uc-item">Debug, explain &amp; complete code in any language</div>
+                                <div class="uc-item">Build portfolio projects faster with AI scaffolding</div>
+                                <div class="uc-item">Turn raw data into insights, charts &amp; SQL queries</div>
+                            </div>
+                            <div class="uc-stack">Stack: Cursor · ChatGPT · Claude · Anthropic Academy</div>
+                        </div>
+                    </div>
+                    <div class="usecase-card">
+                        <div class="usecase-header" style="background:#D97706;">🏪 Entrepreneurs</div>
+                        <div class="usecase-body">
+                            <div class="uc-bullets">
+                                <div class="uc-item">Launch a website from a prompt — no agency needed</div>
+                                <div class="uc-item">Write better product descriptions &amp; sales messages</div>
+                                <div class="uc-item">Set up Instagram DM flows for 24/7 lead capture</div>
+                            </div>
+                            <div class="uc-stack">Stack: 10Web · Dora AI · Butternut AI · ManyChat</div>
+                        </div>
+                    </div>
+                    <div class="usecase-card">
+                        <div class="usecase-header" style="background:#059669;">🏠 VAs &amp; Remote Workers</div>
+                        <div class="usecase-body">
+                            <div class="uc-bullets">
+                                <div class="uc-item">Turn voice notes &amp; calls into clean summaries</div>
+                                <div class="uc-item">Draft client emails, SOPs &amp; weekly reports instantly</div>
+                                <div class="uc-item">Automate repetitive tasks across 1,700+ apps</div>
+                            </div>
+                            <div class="uc-stack">Stack: Wispr Flow · n8n · ChatGPT</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <aside class="speaker-note">Keep this slide as role-specific pathways, not a random tool dump. Each audience
+                member should be able to see a practical first use case for their own lane.</aside>
+        </div>
+
+        <!-- ■ SLIDE 6 — CONTENT PLAYBOOK ─────────────── -->
+        <div class="slide" id="s5">
+            <div class="s-inner" style="padding-top:44px;padding-bottom:44px;gap:22px;">
+                <div class="anim"><span class="badge"
+                        style="background:var(--navy);color:var(--teal);border:1px solid rgba(0,201,141,0.3);">Content
+                        Playbook</span></div>
+                <div class="anim">
+                    <h2 class="slide-title">How a Solo Creator Competes with Production Studios</h2>
+                </div>
+                <div class="anim steps-row">
+                    <div class="step-card">
+                        <div class="step-top">
+                            <div class="step-big">01</div>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-name">Script It</div>
+                            <div class="step-tool">ChatGPT / YarnGPT</div>
+                            <div class="step-desc">Write a punchy, relatable explainer script in your chosen niche</div>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-top">
+                            <div class="step-big">02</div>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-name">Voice It</div>
+                            <div class="step-tool">ElevenLabs.io</div>
+                            <div class="step-desc">Paste script → choose a voice → download studio-quality audio in
+                                seconds</div>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-top">
+                            <div class="step-big">03</div>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-name">Animate It</div>
+                            <div class="step-tool">Gemini + Grok AI</div>
+                            <div class="step-desc">Build viral stickman or explainer animations from images + video AI
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-top">
+                            <div class="step-big">04</div>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-name">Publish It</div>
+                            <div class="step-tool">CapCut / Premiere</div>
+                            <div class="step-desc">Edit, add captions &amp; schedule. Repeat the formula weekly</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="anim footnote">Consistency beats perfection. Run the formula weekly.</div>
+            </div>
+            <aside class="speaker-note">This is the viral content playbook from the legacy material. The point is that
+                one person can now produce a credible draft without a studio budget.</aside>
+        </div>
+
+        <!-- ■ SLIDE 8 — RESPONSIBLE USE ──────────────── -->
+        <div class="slide" id="s6">
+            <div class="s-inner" style="padding-top:44px;padding-bottom:44px;gap:20px;">
+                <div class="anim"><span class="badge"
+                        style="background:var(--navy);color:var(--teal);border:1px solid rgba(0,201,141,0.3);">Professional
+                        Standard</span></div>
+                <div class="anim">
+                    <h2 class="slide-title" style="margin-bottom:0;">Use AI Responsibly</h2>
+                </div>
+                <div class="anim two-col" style="align-items:start;gap:24px;flex:1;">
+                    <div class="principle-list">
+                        <div class="principle">
+                            <div class="p-num">1</div>
+                            <div class="p-title">Fact-Check Everything</div>
+                            <div class="p-desc">AI can confidently generate wrong information. Verify before submitting
+                                client work or public content.</div>
+                        </div>
+                        <div class="principle">
+                            <div class="p-num">2</div>
+                            <div class="p-title">Protect Privacy</div>
+                            <div class="p-desc">Never paste confidential client, company, or personal data carelessly
+                                into public AI tools.</div>
+                        </div>
+                        <div class="principle">
+                            <div class="p-num">3</div>
+                            <div class="p-title">Add Local Context</div>
+                            <div class="p-desc">Make outputs fit your audience, culture, and real conditions — not
+                                generic Western defaults.</div>
+                        </div>
+                        <div class="principle">
+                            <div class="p-num">4</div>
+                            <div class="p-title">Avoid Lazy Copying</div>
+                            <div class="p-desc">Use AI as a draft partner, not your final brain. Add your voice,
+                                judgment &amp; editing.</div>
+                        </div>
+                        <div class="principle">
+                            <div class="p-num">5</div>
+                            <div class="p-title">Build Evidence</div>
+                            <div class="p-desc">Save your best prompts, projects, and results. AI output without proof
+                                of authorship is invisible.</div>
+                        </div>
+                    </div>
+                    <div class="salt-card">
+                        <div style="font-size:32px;">🧂</div>
+                        <div class="salt-quote">"AI is the ingredient.<br>You are the chef."</div>
+                        <div class="salt-label">The Salt Principle</div>
+                    </div>
+                </div>
+            </div>
+            <aside class="speaker-note">Use the salt principle: AI is the ingredient, you are the chef. Explain that AI
+                can confidently make mistakes, so judgment, empathy, and local context are quality control.</aside>
+        </div>
+
+        <!-- ■ SLIDE 9 — 30-DAY PLAN ──────────────────── -->
+        <div class="slide" id="s7">
+            <div class="s-inner" style="padding-top:44px;padding-bottom:44px;gap:18px;">
+                <div class="anim"><span class="badge">30-Day Plan</span></div>
+                <div class="anim">
+                    <h2 class="slide-title light" style="margin-bottom:0;">Your AI Integration Roadmap</h2>
+                </div>
+                <div class="anim week-list">
+                    <div class="week-row">
+                        <div class="week-strip" style="background:var(--teal);"></div>
+                        <div><span class="week-badge" style="background:var(--teal);color:var(--navy);">Week 1</span>
+                        </div>
+                        <div class="week-title">Learn Prompting</div>
+                        <div class="week-desc">Create 10 prompts tailored to your field. Experiment with the
+                            Role–Context–Task–Format–Review formula and save your best results.</div>
+                    </div>
+                    <div class="week-row">
+                        <div class="week-strip" style="background:#7C3AED;"></div>
+                        <div><span class="week-badge" style="background:#7C3AED;color:#fff;">Week 2</span></div>
+                        <div class="week-title">Build One Proof</div>
+                        <div class="week-desc">Make a CV upgrade, mini website, content pack, dashboard, or business
+                            automation. Something you can show to someone.</div>
+                    </div>
+                    <div class="week-row">
+                        <div class="week-strip" style="background:#F5A623;"></div>
+                        <div><span class="week-badge" style="background:#F5A623;color:#000;">Week 3</span></div>
+                        <div class="week-title">Automate One Task</div>
+                        <div class="week-desc">Pick one repetitive task and create a simple AI-assisted workflow using
+                            n8n, ManyChat, or a Custom GPT.</div>
+                    </div>
+                    <div class="week-row">
+                        <div class="week-strip" style="background:#DC2626;"></div>
+                        <div><span class="week-badge" style="background:#DC2626;color:#fff;">Week 4</span></div>
+                        <div class="week-title">Publish Evidence</div>
+                        <div class="week-desc">Share your before/after, lessons, and next steps on LinkedIn or your
+                            portfolio. Your network is your net worth.</div>
+                    </div>
+                </div>
+                <div class="anim plan-footer">The goal is not to "know AI". The goal is to show what AI helped you do.
+                </div>
+            </div>
+            <aside class="speaker-note">This is the bridge from motivation to evidence. The goal is not to know AI; the
+                goal is to show what AI helped them do.</aside>
+        </div>
+
+        <!-- ■ SLIDE 10 — PROJECT IDEAS ───────────────── -->
+        <div class="slide" id="s8">
+            <div class="s-inner" style="padding-top:44px;padding-bottom:44px;gap:20px;">
+                <div class="anim"><span class="badge"
+                        style="background:var(--navy);color:var(--teal);border:1px solid rgba(0,201,141,0.3);">Project
+                        Ideas</span></div>
+                <div class="anim">
+                    <h2 class="slide-title" style="margin-bottom:0;">Turn Learning Into Proof — By Your Background</h2>
+                </div>
+                <div class="anim projects-grid">
+                    <div class="proj-card">
+                        <div class="proj-field">📚 Education</div>
+                        <div class="proj-desc">AI-generated lesson pack + quiz bank for a topic in your subject</div>
+                    </div>
+                    <div class="proj-card">
+                        <div class="proj-field">🏥 Health</div>
+                        <div class="proj-desc">Patient education flyers + draft FAQ chatbot for a common condition</div>
+                    </div>
+                    <div class="proj-card">
+                        <div class="proj-field">🌿 Agriculture</div>
+                        <div class="proj-desc">Market price tracker + advisory content plan for local farmers</div>
+                    </div>
+                    <div class="proj-card">
+                        <div class="proj-field">💼 Finance / Admin</div>
+                        <div class="proj-desc">Expense tracker with automated monthly insight report</div>
+                    </div>
+                    <div class="proj-card">
+                        <div class="proj-field">🎙️ Media</div>
+                        <div class="proj-desc">30-day niche content calendar + 4 scripted posts ready to publish</div>
+                    </div>
+                    <div class="proj-card">
+                        <div class="proj-field">⚙️ Engineering</div>
+                        <div class="proj-desc">Maintenance checklist + safety training guide for a real system</div>
+                    </div>
+                </div>
+                <div class="anim footnote"
+                    style="font-size:11px;font-style:italic;font-weight:600;color:var(--slate);text-align:center;">Rule:
+                    Your first AI project should solve a small real problem — not impress everybody.</div>
+            </div>
+            <aside class="speaker-note">Tell them to start with a small real problem. A useful project is better than an
+                impressive-sounding project that nobody can use.</aside>
+        </div>
+
+        <!-- ■ SLIDE 12 — LIVE DEMO ───────────────────── -->
+        <div class="slide" id="s9">
+            <div class="s-inner" style="padding-top:44px;padding-bottom:44px;gap:20px;">
+                <div class="anim"><span class="badge">Live Demo</span></div>
+                <div class="anim">
+                    <h2 class="slide-title light" style="margin-bottom:0;">One Prompt, Many Careers</h2>
+                </div>
+                <div class="anim demo-card">
+                    <div class="demo-prompt">"Act as a career coach. I just finished NYSC. My field is <strong>[insert
+                            field]</strong>. Give me 5 ways I can use AI to become more valuable, with one practical
+                        project I can complete in 7 days."</div>
+                    <div class="demo-steps">
+                        <div class="demo-step">
+                            <div class="demo-step-title">1. Ask</div>
+                            <div class="demo-step-desc">Run the prompt with one field from the room.</div>
+                        </div>
+                        <div class="demo-step">
+                            <div class="demo-step-title">2. Improve</div>
+                            <div class="demo-step-desc">Ask AI to make the answer practical, low-budget, and locally
+                                relevant.</div>
+                        </div>
+                        <div class="demo-step">
+                            <div class="demo-step-title">3. Act</div>
+                            <div class="demo-step-desc">Choose one 7-day project from the output.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <aside class="speaker-note">Ask for one volunteer field from the room. Run the prompt if internet is
+                available. If not, read the prompt and ask the room what the 7-day project might be. Then improve it by
+                asking for Nigerian context, low-budget tools, and a visible portfolio output.</aside>
+        </div>
+
+        <!-- ■ SLIDE 13 — WORKFLOW PROOF ───────────────── -->
+        <div class="slide" id="s10">
+            <div class="s-inner" style="padding-top:44px;padding-bottom:44px;gap:20px;">
+                <div class="anim"><span class="badge">Build Proof</span></div>
+                <div class="anim">
+                    <h2 class="slide-title light" style="margin-bottom:0;">Turn AI Use Into Visible Work</h2>
+                </div>
+                <div class="anim proof-grid">
+                    <div class="proof-card">
+                        <div class="proof-header">Tech, Data &amp; Product</div>
+                        <div class="proof-body">
+                            <div class="proof-title">Understand → Ask → Build → Document</div>
+                            <div class="proof-desc">Use AI to explain, debug, structure, and document a mini app,
+                                dashboard, report, or technical write-up.</div>
+                        </div>
+                    </div>
+                    <div class="proof-card">
+                        <div class="proof-header" style="background:#D97706;color:#fff;">Business</div>
+                        <div class="proof-body">
+                            <div class="proof-title">Offer → Website → Replies → Leads</div>
+                            <div class="proof-desc">Clarify what you sell, draft a simple web presence, answer customers
+                                faster, and capture conversations.</div>
+                        </div>
+                    </div>
+                    <div class="proof-card">
+                        <div class="proof-header" style="background:#059669;color:#fff;">Admin &amp; VA</div>
+                        <div class="proof-body">
+                            <div class="proof-title">Capture → Convert → Organize → Automate</div>
+                            <div class="proof-desc">Turn voice notes, meetings, and repeat tasks into clean reports,
+                                SOPs, templates, and workflows.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="anim plan-footer" style="color:white;">Visible proof beats private learning.</div>
+            </div>
+            <aside class="speaker-note">Use this as the practical proof bridge from the comprehensive notes. For coders,
+                talk about debugging and codebase onboarding. For business owners, focus on offer clarity. For VAs,
+                emphasize reliability and reducing client chaos.</aside>
+        </div>
+
+        <!-- ■ SLIDE 14 — ACTION / CLOSING ────────────── -->
+        <div class="slide" id="s11">
+            <div class="left-bar"></div>
+            <div class="glow-orb"></div>
+            <div class="s-inner">
+                <div class="anim"><span class="badge">Action Slide</span></div>
+                <div class="anim">
+                    <h2 class="slide-title light" style="margin-bottom:8px;">What To Do Today</h2>
+                </div>
+                <div class="anim action-list">
+                    <div class="action-row">
+                        <div class="action-num">1</div>
+                        <div class="action-title">Choose One Lane</div>
+                        <div class="action-desc">Employment, business, freelancing, content, tech, admin, education, or
+                            research.</div>
+                    </div>
+                    <div class="action-row">
+                        <div class="action-num">2</div>
+                        <div class="action-title">Choose One Tool</div>
+                        <div class="action-desc">Pick the tool that matches the work you want to improve first. Start
+                            this week.</div>
+                    </div>
+                    <div class="action-row">
+                        <div class="action-num">3</div>
+                        <div class="action-title">Create One Proof</div>
+                        <div class="action-desc">Build a practical project you can show within 7 days. Show the before
+                            and after.</div>
+                    </div>
+                    <div class="action-row">
+                        <div class="action-num">4</div>
+                        <div class="action-title">Share &amp; Stay Curious</div>
+                        <div class="action-desc">AI tools evolve monthly. Set aside 30 min/week. Your network is your
+                            net worth.</div>
+                    </div>
+                </div>
+                <div class="anim closing">Start small. Build evidence. Let AI multiply the skill you already have.</div>
+            </div>
+            <aside class="speaker-note">Close with the personal angle: after NYSC, nobody owes you clarity. But with the
+                right tools, consistent practice, and visible proof, they can create their own advantage. Ask everyone
+                to write down their lane, tool, and 7-day project before leaving.</aside>
+        </div>
+
+        <!-- ■ SLIDE 12 — ULTIMATE AI TOOLKIT ─────────── -->
+        <div class="slide" id="s12">
+            <div class="s-inner" style="padding-top:44px;padding-bottom:44px;gap:20px;">
+                <div class="anim"><span class="badge" style="background:var(--teal);color:var(--navy);">Appendix
+                        A</span></div>
+                <div class="anim">
+                    <h2 class="slide-title light">The Ultimate AI Toolkit</h2>
+                </div>
+                <div class="anim lane-grid" style="grid-template-columns: repeat(3, 1fr); gap: 24px;">
+                    <div class="res-card">
+                        <div class="res-header" style="background:#7C3AED;">Content Creation</div>
+                        <div class="res-body" style="grid-template-columns:1fr; gap:16px;">
+                            <div class="res-item">
+                                <div class="res-name">ElevenLabs (Voiceovers)</div>
+                                <div class="res-url">elevenlabs.io</div>
+                            </div>
+                            <div class="res-item">
+                                <div class="res-name">Synthesia (AI Avatars)</div>
+                                <div class="res-url">synthesia.io</div>
+                            </div>
+                            <div class="res-item">
+                                <div class="res-name">YarnGPT (African Context)</div>
+                                <div class="res-url">yarngpt.ai</div>
+                            </div>
+                            <div class="res-item">
+                                <div class="res-name">Sora (Text-to-Video)</div>
+                                <div class="res-url">openai.com/sora</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="res-card">
+                        <div class="res-header" style="background:#0891B2;">Website Builders</div>
+                        <div class="res-body" style="grid-template-columns:1fr; gap:16px;">
+                            <div class="res-item">
+                                <div class="res-name">10Web</div>
+                                <div class="res-url">10web.io</div>
+                            </div>
+                            <div class="res-item">
+                                <div class="res-name">Dora AI</div>
+                                <div class="res-url">dora.run/ai</div>
+                            </div>
+                            <div class="res-item">
+                                <div class="res-name">Butternut AI</div>
+                                <div class="res-url">butternut.ai</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="res-card">
+                        <div class="res-header" style="background:#059669;">Core Workflow</div>
+                        <div class="res-body" style="grid-template-columns:1fr; gap:16px;">
+                            <div class="res-item">
+                                <div class="res-name">n8n (Automation)</div>
+                                <div class="res-url">n8n.io</div>
+                            </div>
+                            <div class="res-item">
+                                <div class="res-name">ManyChat (DM Flows)</div>
+                                <div class="res-url">manychat.com</div>
+                            </div>
+                            <div class="res-item">
+                                <div class="res-name">Cursor (Coding)</div>
+                                <div class="res-url">cursor.com</div>
+                            </div>
+                            <div class="res-item">
+                                <div class="res-name">Wispr Flow (Voice Notes)</div>
+                                <div class="res-url">wisprflow.ai</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ■ SLIDE 13 — NEXT-GEN & CASE STUDIES ─────── -->
+        <div class="slide" id="s13">
+            <div class="s-inner" style="padding-top:44px;padding-bottom:44px;gap:20px;">
+                <div class="anim"><span class="badge" style="background:#D97706;color:#fff;">Appendix B</span></div>
+                <div class="anim">
+                    <h2 class="slide-title light">Next-Gen Resources &amp; Case Studies</h2>
+                </div>
+                <div class="anim lane-grid" style="grid-template-columns: 1fr 1fr; gap: 40px;">
+                    <div>
+                        <h3 style="color:var(--teal); margin-bottom:16px; font-family:var(--f-head);">AI & Coding For
+                            Kids</h3>
+                        <div class="projects-grid" style="grid-template-columns: 1fr; gap:12px;">
+                            <div class="proj-card" style="padding:16px;">
+                                <div class="proj-field">LittleLit</div>
+                                <div class="proj-desc">AI storytelling & games (littlelit.ai)</div>
+                            </div>
+                            <div class="proj-card" style="padding:16px;">
+                                <div class="proj-field">ChatGPT for Kids</div>
+                                <div class="proj-desc">Safe interface (chatgpt4kids.org)</div>
+                            </div>
+                            <div class="proj-card" style="padding:16px;">
+                                <div class="proj-field">Elements of AI</div>
+                                <div class="proj-desc">Free course (elementsofai.com)</div>
+                            </div>
+                            <div class="proj-card" style="padding:16px;">
+                                <div class="proj-field">Scratch</div>
+                                <div class="proj-desc">Visual coding (scratch.mit.edu)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 style="color:var(--teal); margin-bottom:16px; font-family:var(--f-head);">Video References
+                        </h3>
+                        <div class="uc-bullets" style="gap:16px;">
+                            <div class="uc-item" style="font-size:20px; color:var(--white);">1. Strategy Case 1: <a
+                                    href="https://www.youtube.com/watch?v=LkC0rkA0sxo" target="_blank"
+                                    style="color:var(--teal);">Watch Video</a></div>
+                            <div class="uc-item" style="font-size:20px; color:var(--white);">2. Strategy Case 2: <a
+                                    href="https://www.youtube.com/watch?v=pr91PIsrwy0" target="_blank"
+                                    style="color:var(--teal);">Watch Video</a></div>
+                            <div class="uc-item" style="font-size:20px; color:var(--white);">3. Strategy Case 3: <a
+                                    href="https://www.youtube.com/watch?v=s4b8iU3ecTs" target="_blank"
+                                    style="color:var(--teal);">Watch Video</a></div>
+                        </div>
+                        <div class="core-msg" style="margin-top:32px; font-size:16px; color:white;">Review these
+                            real-world AI
+                            applications to see the exact workflow in action.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ■ SLIDE 14 — ABOUT ME ──────────────────────── -->
+        <div class="slide" id="s14">
+            <div class="s-inner" style="padding-top:44px;padding-bottom:44px;">
+                <div class="anim"
+                    style="display:grid; grid-template-columns: 1.1fr 1fr; gap: 80px; align-items: center; height: 100%;">
+
+                    <!-- Left side: Images (Infinite Slider) -->
+                    <div
+                        style="position:relative; width: 100%; aspect-ratio: 1/1; overflow: hidden; border-radius: 20px; border: 4px solid var(--teal); box-shadow: 0 20px 60px rgba(0,201,141,0.2);">
+                        <div style="display: flex; width: 200%; height: 100%; animation: imageSlide 4s infinite;">
+                            <img src="https://peincqeqcufbkoccyneo.supabase.co/storage/v1/object/public/gallery-media/a0d59774-0f13-406d-9dcd-9f363d74ebc3.png"
+                                alt="Ajibola Akelebe"
+                                style="width: 50%; height: 100%; object-fit: cover; flex-shrink: 0;" />
+                            <img src="https://peincqeqcufbkoccyneo.supabase.co/storage/v1/object/public/gallery-media/0ad52a9b-3c40-497c-bd4b-c32d3432bb8c.webp"
+                                alt="Avatar" style="width: 50%; height: 100%; object-fit: cover; flex-shrink: 0;" />
+                        </div>
+                    </div>
+
+                    <!-- Right side: Text -->
+                    <div style="text-align: left;">
+                        <h2 class="slide-title light" style="margin-bottom:8px; text-align:left; font-size: 52px; font-weight: 800; line-height: 1.1;">
+                            Ajibola Akelebe <br><span
+                                style="color:var(--teal); font-size:32px; font-weight:800;">(Don_Genius)</span></h2>
+
+                        <!-- Section 1: Role -->
+                        <div
+                            style="margin-top: 32px; margin-bottom: 28px; display: flex; align-items: center; gap: 16px;">
+                            <div
+                                style="width: 52px; height: 52px; border-radius: 12px; background: rgba(0,201,141,0.15); display: flex; align-items: center; justify-content: center; font-size: 24px; border: 2px solid rgba(0,201,141,0.4); flex-shrink: 0;">
+                                💡</div>
+                            <p
+                                style="color:var(--white); font-weight: 800; margin: 0; font-size: 18px; line-height: 1.4;">
+                                AI Enthusiast, Designer, Developer &amp; Tech Educator</p>
+                        </div>
+
+                        <!-- Section 2: Bio -->
+                        <div style="margin-bottom: 40px; display: flex; gap: 16px;">
+                            <div
+                                style="width: 52px; height: 52px; border-radius: 12px; background: rgba(124,58,237,0.15); display: flex; align-items: center; justify-content: center; font-size: 24px; border: 2px solid rgba(124,58,237,0.4); flex-shrink: 0;">
+                                🌍</div>
+                            <p
+                                style="font-size: 16px; color: var(--white); font-weight: 600; line-height: 1.8; margin: 0; padding-top: 4px;">
+                                A developer and designer based in Nigeria, creating for a global audience. I teach what
+                                I know and share what I learn.</p>
+                        </div>
+
+                        <!-- Section 3: Connect -->
+                        <h3
+                            style="font-family: var(--f-head); font-size: 15px; font-weight: 800; color: var(--teal); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 20px;">
+                            Connect &amp; Collaborate</h3>
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                            <a href="https://ajibolagenius.vercel.app" target="_blank" class="connect-link">
+                                <span>🌐</span>
+                                <span>Portfolio — ajibolagenius.vercel.app</span>
+                            </a>
+                            <a href="https://github.com/ajibolagenius" target="_blank" class="connect-link">
+                                <span>💻</span>
+                                <span>GitHub — @ajibolagenius</span>
+                            </a>
+                            <a href="https://x.com/ajibolagenius" target="_blank" class="connect-link">
+                                <span>🐦</span>
+                                <span>X — @ajibolagenius</span>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /deck -->
+
+    <script>
+        // ── State ──────────────────────────────────────────────────────
+        const slides = document.querySelectorAll('.slide');
+        const TOTAL = slides.length;
+        let current = 0;
+        let animating = false;
+
+        const dotsEl = document.getElementById('dots');
+        const prevBtn = document.getElementById('prev');
+        const nextBtn = document.getElementById('next');
+        const progress = document.getElementById('progress');
+        const curEl = document.getElementById('cur');
+        const totalEl = document.getElementById('total');
+        const cursor = document.getElementById('cursor');
+        const speakerNote = document.getElementById('speakerNote');
+
+        totalEl.textContent = String(TOTAL).padStart(2, '0');
+
+        // ── Build Dots ─────────────────────────────────────────────────
+        for (let i = 0; i < TOTAL; i++) {
+            const d = document.createElement('button');
+            d.className = 'dot' + (i === 0 ? ' active' : '');
+            d.setAttribute('aria-label', `Slide ${i + 1}`);
+            if (i === 0) d.setAttribute('aria-current', 'true');
+            d.addEventListener('click', () => goTo(i));
+            dotsEl.appendChild(d);
+        }
+        const dots = document.querySelectorAll('.dot');
+
+        // ── Navigation & iPad Sync (HTTP Polling) ──────────────────────
+        function pollSyncServer() {
+            fetch('/get_state').then(r => r.json()).then(data => {
+                if (typeof data.slide === 'number' && data.slide !== current) {
+                    goTo(data.slide, true);
+                }
+                if (typeof data.focus === 'boolean') {
+                    const isFocused = document.body.classList.contains('focus-mode');
+                    if (data.focus !== isFocused) {
+                        document.body.classList.toggle('focus-mode', data.focus);
+                    }
+                }
+            }).catch(e => { /* Ignore errors */ });
+        }
+        setInterval(pollSyncServer, 500);
+
+        function toggleFocusMode() {
+            const isFocused = document.body.classList.contains('focus-mode');
+            document.body.classList.toggle('focus-mode', !isFocused);
+            fetch('/set_state', { method: 'POST', body: JSON.stringify({ focus: !isFocused }) }).catch(e => { });
+        }
+
+        function goTo(idx, fromSync = false) {
+            if (animating || idx === current || idx < 0 || idx >= TOTAL) return;
+            if (!fromSync) {
+                fetch('/set_state', { method: 'POST', body: JSON.stringify({ slide: idx }) }).catch(e => { });
+            }
+            animating = true;
+
+            const dir = idx > current ? 1 : -1;
+            const leaving = slides[current];
+            const entering = slides[idx];
+
+            // Set enter start position
+            entering.style.transform = `translateX(${dir * 60}px)`;
+            entering.style.opacity = '0';
+            entering.style.display = '';
+
+            // Force reflow
+            void entering.offsetWidth;
+
+            // Exit leaving
+            leaving.style.transition = 'opacity 0.45s cubic-bezier(0.65,0,0.35,1), transform 0.45s cubic-bezier(0.65,0,0.35,1)';
+            leaving.style.opacity = '0';
+            leaving.style.transform = `translateX(${dir * -60}px)`;
+
+            // Enter new
+            entering.style.transition = 'opacity 0.45s cubic-bezier(0.65,0,0.35,1), transform 0.45s cubic-bezier(0.65,0,0.35,1)';
+            entering.style.opacity = '1';
+            entering.style.transform = 'translateX(0)';
+
+            setTimeout(() => {
+                leaving.classList.remove('active');
+                leaving.style.opacity = '';
+                leaving.style.transform = '';
+                leaving.style.transition = '';
+
+                entering.classList.add('active');
+                entering.style.opacity = '';
+                entering.style.transform = '';
+                entering.style.transition = '';
+
+                current = idx;
+                updateUI();
+                animating = false;
+            }, 480);
+        }
+
+        function updateUI() {
+            // Dots
+            dots.forEach((d, i) => {
+                d.classList.toggle('active', i === current);
+                if (i === current) d.setAttribute('aria-current', 'true');
+                else d.removeAttribute('aria-current');
+            });
+            // Counter
+            curEl.textContent = String(current + 1).padStart(2, '0');
+            // Progress
+            progress.style.width = ((current + 1) / TOTAL * 100) + '%';
+            // Buttons
+            prevBtn.disabled = current === 0;
+            nextBtn.disabled = current === TOTAL - 1;
+            // Dark/light cursor adaptation
+            const isLight = ['s2', 's5', 's6', 's8'].includes(slides[current].id);
+            cursor.style.background = isLight ? 'var(--navy)' : 'var(--teal)';
+            updateSpeakerNote();
+        }
+
+        function updateSpeakerNote() {
+            if (!speakerNote.classList.contains('visible')) return;
+            const note = slides[current].querySelector('.speaker-note');
+            speakerNote.textContent = note ? note.textContent.trim() : 'No speaker note for this slide.';
+        }
+
+        function toggleSpeakerNote() {
+            speakerNote.classList.toggle('visible');
+            updateSpeakerNote();
+        }
+
+        prevBtn.addEventListener('click', () => goTo(current - 1));
+        nextBtn.addEventListener('click', () => goTo(current + 1));
+
+        // ── Keyboard & Touch Controls ───────────────────────────────────
+        document.addEventListener('keydown', e => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+            else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp' || e.key === 'Backspace') { e.preventDefault(); goTo(current - 1); }
+            else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+            else if (e.key === 'End') { e.preventDefault(); goTo(TOTAL - 1); }
+            else if (e.key.toLowerCase() === 'n') toggleSpeakerNote();
+            else if (e.key.toLowerCase() === 'h') toggleFocusMode();
+            else if (e.key.toLowerCase() === 'j') showJumpOverlay();
+            else if (e.key === 'Escape') {
+                speakerNote.classList.remove('visible');
+                hideJumpOverlay();
+            }
+        });
+
+        document.getElementById('btn-notes')?.addEventListener('click', toggleSpeakerNote);
+        document.getElementById('btn-focus')?.addEventListener('click', toggleFocusMode);
+        document.getElementById('btn-jump')?.addEventListener('click', showJumpOverlay);
+        document.getElementById('btn-close-jump')?.addEventListener('click', hideJumpOverlay);
+
+        // ── Jump Menu ───────────────────────────────────────────────────
+        const jumpOverlay = document.getElementById('jump-overlay');
+        const jumpInput = document.getElementById('jump-input');
+        function showJumpOverlay() {
+            jumpOverlay.classList.add('active');
+            jumpInput.value = '';
+            setTimeout(() => jumpInput.focus(), 50);
+        }
+        function hideJumpOverlay() {
+            jumpOverlay.classList.remove('active');
+            jumpInput.blur();
+        }
+        if (jumpInput) {
+            jumpInput.addEventListener('keydown', e => {
+                e.stopPropagation(); // prevent slide navigation while typing
+                if (e.key === 'Enter') {
+                    const num = parseInt(jumpInput.value, 10);
+                    if (!isNaN(num) && num >= 1 && num <= TOTAL) goTo(num - 1);
+                    hideJumpOverlay();
+                } else if (e.key === 'Escape') {
+                    hideJumpOverlay();
+                }
+            });
+        }
+
+        // ── Touch / Swipe ───────────────────────────────────────────────
+        let touchX = 0;
+        document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+        document.addEventListener('touchend', e => {
+            const dx = e.changedTouches[0].clientX - touchX;
+            if (Math.abs(dx) > 50) { dx < 0 ? goTo(current + 1) : goTo(current - 1); }
+        });
+
+        // ── Custom Cursor ────────────────────────────────────────────────
+        document.addEventListener('mousemove', e => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+        document.querySelectorAll('button, .dot, .lane-card, .truth-card, .step-card, .skill-card, .proj-card, .usecase-card, .week-row, .principle, .res-card, .demo-step, .proof-card').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('big'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('big'));
+        });
+
+        // ── Init ─────────────────────────────────────────────────────────
+        // Trigger anim for first slide
+        setTimeout(() => {
+            slides[0].querySelectorAll('.anim').forEach(el => {
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            });
+        }, 100);
+
+        updateUI();
+    </script>
+</body>
+
+</html>
