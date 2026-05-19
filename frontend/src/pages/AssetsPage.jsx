@@ -29,7 +29,7 @@ const BEYOND_POP_ASSET = {
   category: 'Presentation Slide',
   asset_type: 'link',
   description: 'An interactive presentation deck exploring how artificial intelligence is transforming work, skill acquisition, and opportunities.',
-  external_url: '/beyond_pop.html',
+  external_url: '/beyond_pop',
   button_label: 'View Presentation',
   sort_order: -100, // Position it at the very beginning of the list
   open_in_same_tab: false, // Set to true to load in the same tab, false to open in a new tab

@@ -75,7 +75,7 @@ export default defineConfig(({ mode }) => {
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
-        navigateFallbackDenylist: [/^\/beyond_pop\.html$/],
+        navigateFallbackDenylist: [/^\/beyond_pop(\/.*)?$/],
         runtimeCaching: [
           { urlPattern: /^https:\/\/fonts\.(gstatic|googleapis)\.com\/.*/i, handler: 'CacheFirst', options: { cacheName: 'google-fonts', expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 } } },
         ],
