@@ -3,42 +3,39 @@
 @tailwind utilities;
 
 /* ============================================
-   Ajibola Akelebe Design System v1.0 — Updated
-   Afrofuturism × Dark Cosmic
-   Flat colour, sharp edges, solid fills only.
+   Ajibola Akelebe Editorial Studio
+   Public frontend: warm paper, ink text, restrained accents.
    ============================================ */
 
 :root {
-  /* — Afro Warm (Primary Identity) — */
-  --sungold: #E8A020;
-  --terracotta: #C94B2D;
-  --bronze: #A0622A;
-  --kente-red: #D63B1F;
-  --warm-glow: rgba(232, 160, 32, 0.08);
+  /* — Neutral / editorial base — */
+  --void: #F5EFE6;
+  --deep: #E6DDCF;
+  --surface: #FFFDF9;
+  --elevated: #F5EFE6;
+  --overlay: #EEE6D8;
 
-  /* — Cosmic Cool (Secondary Identity) — */
-  --nebula: #5B4FD8;
-  --violet: #8B72F0;
-  --stardust: #1CB8D4;
-  --cosmic-glow: rgba(91, 79, 216, 0.12);
-
-  /* — Dark Surfaces — */
-  --void: #07070F;
-  --deep: #0C0C1A;
-  --surface: #111126;
-  --elevated: #17172E;
-  --overlay: #1E1E3A;
+  /* — Ink text — */
+  --white: #151515;
+  --muted: rgba(21, 21, 21, 0.64);
+  --subtle: rgba(21, 21, 21, 0.42);
+  --dim: rgba(21, 21, 21, 0.16);
 
   /* — Borders — */
-  --border: rgba(255, 255, 255, 0.06);
-  --border-md: rgba(255, 255, 255, 0.12);
-  --border-hi: rgba(255, 255, 255, 0.22);
+  --border: rgba(21, 21, 21, 0.08);
+  --border-md: rgba(21, 21, 21, 0.14);
+  --border-hi: rgba(21, 21, 21, 0.24);
 
-  /* — Text — */
-  --white: #F2EFE8;
-  --muted: rgba(242, 239, 232, 0.55);
-  --subtle: rgba(242, 239, 232, 0.3);
-  --dim: rgba(242, 239, 232, 0.12);
+  /* — Accent palette — */
+  --sungold: #A46A12;
+  --terracotta: #B54C31;
+  --bronze: #8D653A;
+  --kente-red: #A93E29;
+  --warm-glow: rgba(164, 106, 18, 0.08);
+  --nebula: #5A54C8;
+  --violet: #6F63E8;
+  --stardust: #127D92;
+  --cosmic-glow: rgba(90, 84, 200, 0.12);
 
   /* — Typography (Design System) — */
   --font-display: 'Syne', sans-serif;
@@ -84,12 +81,12 @@
   --chart-5: 258 80% 67%; /* violet */
 
   /* — Semantic (theme-invariant or nav) — */
-  --on-sungold: #07070F;
-  --nav-bg: rgba(7, 7, 15, 0.85);
-  --nav-bg-scrolled: rgba(7, 7, 15, 0.92);
-  --nav-mobile-bg: rgba(7, 7, 15, 0.97);
-  --modal-backdrop: rgba(7, 7, 15, 0.92);
-  --grid-line: rgba(232, 160, 32, 0.03);
+  --on-sungold: #FFFDF9;
+  --nav-bg: rgba(245, 239, 230, 0.82);
+  --nav-bg-scrolled: rgba(245, 239, 230, 0.94);
+  --nav-mobile-bg: rgba(245, 239, 230, 0.98);
+  --modal-backdrop: rgba(21, 21, 21, 0.86);
+  --grid-line: rgba(21, 21, 21, 0.06);
 
   /* — Easing — */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -97,11 +94,11 @@
   --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Tailwind overrides */
-  --background: 0 0% 3%;
-  --foreground: 40 15% 93%;
+  --background: 35 38% 94%;
+  --foreground: 0 0% 9%;
   --radius: 0;
 
-  /* — Design System v2 — Work / portfolio accent (Afro × spectrum) — */
+  /* — Work accent (public v2) — */
   --accent-spectrum: oklch(0.5 0.2737 280.59);
   --accent-spectrum-on: oklch(0.98 0.02 280);
   --font-work-pixel: 'Silkscreen', system-ui, sans-serif;
@@ -143,42 +140,56 @@ html.light .work-ui-scope {
   letter-spacing: 0.04em;
 }
 
-/* ============================================
-   Light Mode — Design System 02b
-   Same identity; inverted surfaces and text.
-   ============================================ */
+html.dark {
+  --void: #07070F;
+  --deep: #0C0C1A;
+  --surface: #111126;
+  --elevated: #17172E;
+  --overlay: #1E1E3A;
+
+  --border: rgba(255, 255, 255, 0.06);
+  --border-md: rgba(255, 255, 255, 0.12);
+  --border-hi: rgba(255, 255, 255, 0.22);
+
+  --white: #F2EFE8;
+  --muted: rgba(242, 239, 232, 0.58);
+  --subtle: rgba(242, 239, 232, 0.34);
+  --dim: rgba(242, 239, 232, 0.14);
+
+  --sungold: #E8A020;
+  --terracotta: #C94B2D;
+  --bronze: #A0622A;
+  --kente-red: #D63B1F;
+  --warm-glow: rgba(232, 160, 32, 0.08);
+  --nebula: #5B4FD8;
+  --violet: #8B72F0;
+  --stardust: #1CB8D4;
+  --cosmic-glow: rgba(91, 79, 216, 0.12);
+
+  --on-sungold: #07070F;
+  --nav-bg: rgba(7, 7, 15, 0.82);
+  --nav-bg-scrolled: rgba(7, 7, 15, 0.94);
+  --nav-mobile-bg: rgba(7, 7, 15, 0.98);
+  --modal-backdrop: rgba(7, 7, 15, 0.92);
+  --grid-line: rgba(232, 160, 32, 0.03);
+
+  --background: 0 0% 3%;
+  --foreground: 40 15% 93%;
+
+  --shadow-sharp-sm: 0 2px 0 rgba(0, 0, 0, 0.35);
+  --shadow-sharp-md: 0 4px 0 rgba(0, 0, 0, 0.4);
+  --shadow-sharp-lg: 0 6px 0 rgba(0, 0, 0, 0.45);
+  --shadow-sharp-gold: 0 4px 0 rgba(232, 160, 32, 0.25);
+  --shadow-sharp-cosmic: 0 4px 0 rgba(91, 79, 216, 0.35);
+  --shadow-sharp-ring: 0 0 0 3px rgba(232, 160, 32, 0.2);
+}
 
 html.light {
-  --void: #FAF9F7;
-  --deep: #F0EDE8;
-  --surface: #FFFFFF;
-  --elevated: #F5F3EF;
-  --overlay: #EBE8E3;
+  color-scheme: light;
+}
 
-  --border: rgba(12, 12, 26, 0.08);
-  --border-md: rgba(12, 12, 26, 0.14);
-  --border-hi: rgba(12, 12, 26, 0.25);
-
-  --white: #0C0C1A;
-  --muted: rgba(12, 12, 26, 0.6);
-  --subtle: rgba(12, 12, 26, 0.4);
-  --dim: rgba(12, 12, 26, 0.12);
-
-  --shadow-sharp-sm: 0 2px 0 rgba(0, 0, 0, 0.08);
-  --shadow-sharp-md: 0 4px 0 rgba(0, 0, 0, 0.1);
-  --shadow-sharp-lg: 0 6px 0 rgba(0, 0, 0, 0.12);
-  --shadow-sharp-gold: 0 4px 0 rgba(232, 160, 32, 0.35);
-  --shadow-sharp-cosmic: 0 4px 0 rgba(91, 79, 216, 0.35);
-  --shadow-sharp-ring: 0 0 0 3px rgba(232, 160, 32, 0.25);
-
-  --nav-bg: rgba(250, 249, 247, 0.85);
-  --nav-bg-scrolled: rgba(250, 249, 247, 0.95);
-  --nav-mobile-bg: rgba(250, 249, 247, 0.98);
-  --modal-backdrop: rgba(7, 7, 15, 0.88);
-  --grid-line: rgba(12, 12, 26, 0.06);
-
-  --background: 40 20% 98%;
-  --foreground: 240 20% 5%;
+html.dark {
+  color-scheme: dark;
 }
 
 /* ============================================
@@ -214,10 +225,11 @@ body::before {
   background-image:
     linear-gradient(var(--grid-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: 40px 40px;
+  background-size: 48px 48px;
   background-position: 0 0;
   pointer-events: none;
   z-index: 0;
+  opacity: 0.6;
 }
 
 /* Base safe area support for standard iOS notches */
@@ -274,7 +286,7 @@ a:focus-visible {
    ============================================ */
 
 ::selection {
-  background: rgba(232, 160, 32, 0.3);
+  background: rgba(164, 106, 18, 0.22);
   color: var(--on-sungold);
 }
 
@@ -329,7 +341,7 @@ html.light ::-webkit-scrollbar-thumb:hover {
    ============================================ */
 
 .btn-primary:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow: var(--shadow-sharp-gold);
 }
 
@@ -338,7 +350,7 @@ html.light ::-webkit-scrollbar-thumb:hover {
 }
 
 .btn-ghost:hover {
-  border-color: rgba(255, 255, 255, 0.22) !important;
+  border-color: var(--border-hi) !important;
   background: var(--elevated) !important;
 }
 
@@ -347,7 +359,7 @@ html.light ::-webkit-scrollbar-thumb:hover {
 }
 
 .btn-cosmic:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow: var(--shadow-sharp-cosmic);
 }
 
@@ -395,6 +407,91 @@ html.light ::-webkit-scrollbar-thumb:hover {
   background: rgba(201, 75, 45, 0.15);
   color: #E07060;
   border: 1px solid rgba(201, 75, 45, 0.3);
+}
+
+/* ============================================
+   Editorial primitives
+   ============================================ */
+
+.editorial-shell {
+  background:
+    radial-gradient(circle at top left, rgba(164, 106, 18, 0.05), transparent 24%),
+    radial-gradient(circle at top right, rgba(90, 84, 200, 0.04), transparent 22%),
+    var(--void);
+}
+
+.editorial-section {
+  padding-top: var(--sp-12);
+  padding-bottom: var(--sp-12);
+  border-bottom: 1px solid var(--border);
+}
+
+@media (min-width: 768px) {
+  .editorial-section {
+    padding-top: var(--sp-20);
+    padding-bottom: var(--sp-20);
+  }
+}
+
+.editorial-band {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+}
+
+.editorial-panel {
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  border: 1px solid var(--border);
+}
+
+.editorial-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: border-color 180ms var(--ease-out), background 180ms var(--ease-out), transform 180ms var(--ease-out);
+}
+
+.editorial-row:hover {
+  border-color: var(--border-hi);
+  background: var(--elevated);
+  transform: translateY(-1px);
+}
+
+.editorial-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.editorial-kicker-line {
+  width: 1.5rem;
+  height: 1px;
+  background: var(--sungold);
+}
+
+.editorial-kicker-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sungold);
+}
+
+.editorial-note {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--subtle);
+}
+
+.editorial-body {
+  color: var(--muted);
 }
 
 /* ============================================

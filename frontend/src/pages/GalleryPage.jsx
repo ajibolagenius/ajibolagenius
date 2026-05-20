@@ -152,11 +152,7 @@ const GalleryPage = () => {
 
   return (
     <>
-      <section className="relative pt-12 pb-8 md:pt-24 md:pb-16 border-b border-[var(--border)] overflow-hidden">
-        {/* Nebula Glow Backdrop */}
-        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[120%] bg-[var(--nebula)] opacity-[0.05] blur-[160px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[80%] bg-[var(--sungold)] opacity-[0.03] blur-[140px] rounded-full pointer-events-none" />
-
+      <section className="editorial-section overflow-hidden">
         <div className="relative z-10 max-w-[1160px] mx-auto px-4 md:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -164,28 +160,31 @@ const GalleryPage = () => {
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
             <SectionKicker label="Gallery" accent="sungold" />
-            <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--white)] max-w-[800px]" style={{ fontSize: 'clamp(40px, 8vw, 80px)' }}>
+            <h1 className="font-display font-extrabold leading-[0.95] tracking-[-0.04em] mb-5 text-[var(--white)] max-w-[11ch]" style={{ fontSize: 'clamp(2.5rem, 8vw, 5rem)' }}>
               Gallery
             </h1>
-            <p className="font-body text-[17px] leading-[1.7] max-w-[600px] text-[var(--muted)]">
-              A curated collection of visual experiments, UI studies, and technical art.
+            <p className="font-body text-[17px] leading-[1.7] max-w-[620px] text-[var(--muted)]">
+              A visual archive of experiments, UI studies, and technical art.
             </p>
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-[780px]">
+              {[
+                ['Mode', 'visual archive'],
+                ['Layout', 'quiet grid'],
+                ['Media', 'image, video, motion'],
+              ].map(([label, value]) => (
+                <div key={label} className="editorial-panel p-4">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--subtle)] mb-2">{label}</div>
+                  <div className="font-display text-[15px] text-[var(--white)]">{value}</div>
+                </div>
+              ))}
+            </div>
           </motion.div>
         </div>
-
-        {/* Technical Scanline effect */}
-        <motion.div 
-          initial={{ top: '-10%' }}
-          animate={{ top: '110%' }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-          className="absolute left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--sungold)]/10 to-transparent pointer-events-none z-0"
-        />
       </section>
 
-      <section className="py-12 md:py-20 relative overflow-hidden">
-        {/* Subtle grid accent for the whole section */}
-        <div className="absolute inset-0 opacity-[0.15] pointer-events-none" 
-             style={{ backgroundImage: 'linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+      <section className="editorial-section relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.08] pointer-events-none" 
+             style={{ backgroundImage: 'linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)', backgroundSize: '64px 64px' }} />
 
         <div className="relative z-10 max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">

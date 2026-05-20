@@ -16,9 +16,9 @@ const ACCENT = {
 const SectionKicker = ({ label, accent = 'sungold' }) => {
   const { line, text } = ACCENT[accent] || ACCENT.sungold;
   return (
-    <div className="flex items-center gap-2 mb-3">
-      <div className={`w-5 h-px ${line}`} />
-      <span className={`font-mono text-[11px] tracking-[0.2em] uppercase ${text}`}>
+    <div className="editorial-kicker">
+      <div className={`editorial-kicker-line ${line}`} />
+      <span className={`editorial-kicker-label ${text}`}>
         {label}
       </span>
     </div>

@@ -64,10 +64,9 @@ function AssetCard({ asset }) {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      className="group relative flex flex-col h-full min-h-0 border border-[var(--border)] bg-[var(--surface)] p-4 md:p-5 transition-all duration-200 hover:border-[var(--sungold)]/30 hover:shadow-[var(--shadow-sharp-sm)]"
+      className="editorial-panel group relative flex flex-col h-full min-h-0 p-4 md:p-5 transition-all duration-200 hover:border-[var(--sungold)]/30"
       aria-labelledby={`asset-title-${asset.id}`}
     >
-      <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-[var(--sungold)] opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 pointer-events-none" />
       <div className="flex flex-col gap-3 relative z-0 flex-1 min-h-0">
         <div className="flex items-start justify-between gap-2 min-w-0">
           <div className="min-w-0 flex-1">
@@ -144,10 +143,7 @@ export default function AssetsPage() {
 
   return (
     <>
-      <section className="relative pt-12 pb-8 md:pt-24 md:pb-16 border-b border-[var(--border)] overflow-hidden">
-        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[120%] bg-[var(--nebula)] opacity-[0.05] blur-[160px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[80%] bg-[var(--sungold)] opacity-[0.03] blur-[140px] rounded-full pointer-events-none" />
-
+      <section className="editorial-section border-b border-[var(--border)] overflow-hidden">
         <div className="relative z-10 max-w-[1160px] mx-auto px-4 md:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -164,23 +160,9 @@ export default function AssetsPage() {
           </motion.div>
         </div>
 
-        <motion.div
-          initial={{ top: '-10%' }}
-          animate={{ top: '110%' }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-          className="absolute left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--sungold)]/10 to-transparent pointer-events-none z-0"
-        />
       </section>
 
-      <section className="py-12 md:py-20 relative overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-[0.15] pointer-events-none"
-          style={{
-            backgroundImage: 'linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)',
-            backgroundSize: '60px 60px',
-          }}
-        />
-
+      <section className="editorial-section relative overflow-hidden">
         <div className="relative z-10 max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-12">
             <FilterButtons options={FILTER_OPTIONS} value={typeFilter} onChange={setTypeFilter} label="Type" />

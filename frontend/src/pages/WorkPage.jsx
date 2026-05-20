@@ -32,11 +32,9 @@ const FeaturedSpotlight = ({ project }) => {
 
   return (
     <div className="relative py-6 md:py-10 border-b border-[var(--border)] overflow-hidden group/section">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-[var(--work-accent)] opacity-[0.04] blur-[140px] rounded-full pointer-events-none transition-opacity duration-700 group-hover/section:opacity-[0.07]" />
-
       <div className="relative z-10 max-w-[1160px] mx-auto px-4 md:px-8">
         <div
-          className="relative grid grid-cols-1 lg:grid-cols-[1fr_0.85fr] gap-0 border border-[var(--border-md)] bg-[var(--surface)]/60 backdrop-blur-sm overflow-hidden cursor-pointer transition-all duration-500 hover:border-[var(--work-accent-border)] hover:bg-[var(--elevated)]/70 group/card"
+          className="relative grid grid-cols-1 lg:grid-cols-[1fr_0.85fr] gap-0 editorial-panel overflow-hidden cursor-pointer transition-all duration-300 hover:border-[var(--work-accent-border)] hover:-translate-y-0.5 group/card"
           onClick={() => navigate(href)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -47,9 +45,6 @@ const FeaturedSpotlight = ({ project }) => {
           role="link"
           tabIndex={0}
         >
-          <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[var(--work-accent)] opacity-0 group-hover/card:opacity-100 transition-all duration-500 translate-x-px -translate-y-px" />
-          <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-[var(--work-accent)] opacity-0 group-hover/card:opacity-100 transition-all duration-500 -translate-x-px translate-y-px" />
-
           <div className="p-6 md:p-10 flex flex-col justify-center">
             <div className="flex items-center gap-3 mb-6 flex-wrap">
               <span className="font-mono text-[9px] font-bold tracking-[0.12em] uppercase px-2 py-1 bg-[var(--work-accent)] text-[var(--work-accent-on)]">
@@ -92,7 +87,7 @@ const FeaturedSpotlight = ({ project }) => {
             </span>
           </div>
 
-          <div className="min-h-[240px] lg:min-h-full relative overflow-hidden bg-[var(--elevated)] border-t lg:border-t-0 lg:border-l border-[var(--border)]">
+          <div className="min-h-[240px] lg:min-h-full relative overflow-hidden bg-[var(--surface)] border-t lg:border-t-0 lg:border-l border-[var(--border)]">
             {heroUrl ? (
               <OptimizedImage
                 src={heroUrl}
@@ -101,13 +96,13 @@ const FeaturedSpotlight = ({ project }) => {
                 priority
               />
             ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-[var(--surface)] to-[var(--deep)] flex items-center justify-center">
+              <div className="absolute inset-0 bg-gradient-to-br from-[var(--surface)] to-[var(--elevated)] flex items-center justify-center">
                 <span className="font-work-pixel text-[clamp(2rem,5vw,3rem)] text-[var(--muted)]" aria-hidden>
                   {(project.name || '?').slice(0, 2).toUpperCase()}
                 </span>
               </div>
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-[var(--void)]/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--void)]/10 to-transparent" />
           </div>
         </div>
       </div>
@@ -172,54 +167,47 @@ const WorkPage = () => {
     { label: 'Design', value: 'design' },
   ];
 
-  const projectCountLabel = String(projects.length).padStart(2, '0');
-
   usePageMeta(buildStaticPageMeta('/work'));
 
   return (
     <div className="work-ui-scope">
-      <section className="relative pt-10 pb-10 md:pt-24 md:pb-16 border-b border-[var(--border)] overflow-hidden work-v2-hero-grid">
-        <div className="absolute top-[-15%] right-[-8%] w-[40%] h-[50%] bg-[var(--work-accent)] opacity-[0.06] blur-[120px] rounded-full pointer-events-none" />
-
+      <section className="editorial-section overflow-hidden">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, ease: 'easeOut' }}
-            className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8 lg:gap-12"
+            className="flex flex-col gap-8"
           >
             <div className="flex-1 min-w-0">
               <SectionKicker label="Projects" accent="spectrum" />
               <h1
-                className="font-work-pixel text-[var(--white)] leading-[0.95] mb-6 uppercase"
-                style={{ fontSize: 'clamp(2rem, 8vw, 4.25rem)' }}
+                className="font-display font-extrabold leading-[0.95] tracking-[-0.04em] mb-5 text-[var(--white)] max-w-[11ch]"
+                style={{ fontSize: 'clamp(2.5rem, 8vw, 5rem)' }}
               >
-                Selected_Work
+                Selected work
               </h1>
-              <p className="font-body text-[16px] md:text-[17px] leading-[1.7] max-w-[560px] text-[var(--muted)]">
-                Architectural products and experiments—engineering precision woven with African design identity. Grid-native
-                layout, sharp type, spectrum accent.
+              <p className="font-body text-[16px] md:text-[17px] leading-[1.7] max-w-[620px] text-[var(--muted)]">
+                A curated archive of products and experiments. The strongest pieces lead; the rest stay accessible but quiet.
               </p>
-            </div>
-            <div className="shrink-0 w-full max-w-[200px] border border-[var(--border-md)] bg-[var(--surface)]/80 p-5 md:p-6">
-              <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[var(--subtle)] mb-2">Index</div>
-              <div className="font-work-pixel text-[2.5rem] md:text-[3rem] leading-none text-[var(--white)]">
-                {projectCountLabel}
+              <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-[780px]">
+                {[
+                  ['Featured', 'best work first'],
+                  ['Format', 'dense index, quiet filters'],
+                  ['Tone', 'editorial, not decorative'],
+                ].map(([label, value]) => (
+                  <div key={label} className="editorial-panel p-4">
+                    <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-[var(--subtle)] mb-2">{label}</div>
+                    <div className="font-display text-[15px] text-[var(--white)]">{value}</div>
+                  </div>
+                ))}
               </div>
-              <div className="font-mono text-[11px] text-[var(--work-accent)] mt-2 tracking-wide">Projects catalogued</div>
             </div>
           </motion.div>
         </div>
-
-        <motion.div
-          initial={{ top: '-10%' }}
-          animate={{ top: '110%' }}
-          transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
-          className="absolute left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--work-accent)]/25 to-transparent pointer-events-none z-0"
-        />
       </section>
 
-      <section className="py-10 md:py-14">
+      <section className="py-10 md:py-14 border-b border-[var(--border)]">
         {featuredForSpotlight && (
           <div className="mb-12 md:mb-16">
             <FeaturedSpotlight project={featuredForSpotlight} />
@@ -227,7 +215,7 @@ const WorkPage = () => {
         )}
 
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="flex flex-col gap-4 mb-8 p-4 border border-[var(--border-md)] bg-[var(--surface)]/50">
+          <div className="flex flex-col gap-4 mb-8 p-4 editorial-panel">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <FilterButtons
                 options={filterOptions}

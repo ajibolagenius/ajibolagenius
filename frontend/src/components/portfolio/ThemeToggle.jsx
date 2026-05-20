@@ -15,7 +15,7 @@ export default function ThemeToggle() {
   useEffect(() => {
     if (!mounted || !resolvedTheme) return;
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', resolvedTheme === 'light' ? '#FAF9F7' : '#07070F');
+    if (meta) meta.setAttribute('content', resolvedTheme === 'light' ? '#F5EFE6' : '#07070F');
   }, [mounted, resolvedTheme]);
 
   const isLight = mounted && resolvedTheme === 'light';

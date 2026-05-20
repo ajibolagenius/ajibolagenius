@@ -44,7 +44,7 @@ const Projects = ({ featuredOnly = false }) => {
     <section
       id="projects"
       ref={sectionRef}
-      className="work-ui-scope py-12 md:py-20 border-b border-[var(--border)]"
+      className="work-ui-scope editorial-section"
     >
       <div className="max-w-[1160px] mx-auto px-4 md:px-8">
         <div className="flex items-center gap-2 mb-3">
@@ -60,7 +60,7 @@ const Projects = ({ featuredOnly = false }) => {
           {featuredOnly ? 'Featured Projects' : 'Selected Projects'}
         </h2>
         <p className="font-body text-[15px] leading-[1.7] mb-8 max-w-[520px] text-[var(--muted)]">
-          A selection of products and experiments I&apos;ve built — from social platforms to creative coding explorations.
+          A small set of work that shows how I think, build, and ship.
         </p>
         {!featuredOnly && (
           <div className="flex gap-2 mb-10 flex-wrap" role="group" aria-label="Filter by type">
@@ -103,7 +103,7 @@ const Projects = ({ featuredOnly = false }) => {
           <div className="mt-10 flex justify-start">
             <Link
               to="/work"
-              className="inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] border border-[var(--border-md)] text-[var(--white)] no-underline transition-all duration-200 hover:border-[var(--work-accent-border)] hover:text-[var(--work-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--work-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
+              className="inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] border border-[var(--border-md)] bg-[var(--surface)] text-[var(--white)] no-underline transition-all duration-200 hover:border-[var(--work-accent-border)] hover:text-[var(--work-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--work-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
             >
               View all projects →
             </Link>

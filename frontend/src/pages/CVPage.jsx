@@ -77,11 +77,7 @@ const CVPage = () => {
 
   return (
     <>
-      <section className="relative pt-12 pb-8 md:pt-24 md:pb-16 border-b border-[var(--border)] overflow-hidden">
-        {/* Nebula Glow Backdrop */}
-        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[120%] bg-[var(--nebula)] opacity-[0.05] blur-[160px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[80%] bg-[var(--sungold)] opacity-[0.03] blur-[140px] rounded-full pointer-events-none" />
-
+      <section className="editorial-section overflow-hidden">
         <div className="relative z-10 max-w-[1160px] mx-auto px-4 md:px-8">
           {loading ? (
             <>
@@ -100,11 +96,11 @@ const CVPage = () => {
               transition={{ duration: 0.6, ease: "easeOut" }}
             >
               <SectionKicker label="CV / Resumé" accent="stardust" />
-              <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--white)] max-w-[800px]" style={{ fontSize: 'clamp(40px, 8vw, 80px)' }}>
-                Experience <span className="text-[var(--sungold)]">&</span> Skills
+              <h1 className="font-display font-extrabold leading-[0.95] tracking-[-0.04em] mb-5 text-[var(--white)] max-w-[11ch]" style={{ fontSize: 'clamp(2.5rem, 8vw, 5rem)' }}>
+                CV
               </h1>
-              <p className="font-body text-[17px] leading-[1.7] max-w-[600px] mb-8 text-[var(--muted)]">
-                A technical overview of my journey, stack, and design philosophy—fusing cultural identity with digital precision.
+              <p className="font-body text-[17px] leading-[1.7] max-w-[620px] mb-8 text-[var(--muted)]">
+                A compact record of experience, education, and skills. The printable version stays close to the source.
               </p>
               <div className="flex flex-wrap gap-3">
                 <motion.a
@@ -131,16 +127,9 @@ const CVPage = () => {
           )}
         </div>
 
-        {/* Technical Scanline effect */}
-        <motion.div 
-          initial={{ top: '-10%' }}
-          animate={{ top: '110%' }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-          className="absolute left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--sungold)]/20 to-transparent pointer-events-none z-0"
-        />
       </section>
 
-      <section className="py-12 md:py-16 relative overflow-hidden" ref={sectionRef}>
+      <section className="editorial-section relative overflow-hidden" ref={sectionRef}>
         {/* Subtle grid accent */}
         <div className="absolute inset-0 opacity-[0.1] pointer-events-none" 
              style={{ backgroundImage: 'linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)', backgroundSize: '80px 80px' }} />

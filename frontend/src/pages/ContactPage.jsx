@@ -10,7 +10,7 @@ import SectionKicker from '../components/portfolio/SectionKicker';
 import { ContactSkeleton } from '../components/portfolio/SkeletonLayouts';
 
 const INPUT_CLASS =
-  'w-full bg-[var(--elevated)] border border-[var(--border-md)] px-4 py-[10px] font-body text-[14px] text-[var(--white)] placeholder:text-[var(--subtle)] outline-none transition-all duration-200 rounded-none focus:border-[var(--sungold)] focus:shadow-[var(--shadow-sharp-ring)]';
+  'w-full bg-[var(--surface)] border border-[var(--border)] px-4 py-[10px] font-body text-[14px] text-[var(--white)] placeholder:text-[var(--subtle)] outline-none transition-all duration-200 rounded-none focus:border-[var(--sungold)] focus:shadow-[var(--shadow-sharp-ring)]';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
@@ -68,11 +68,7 @@ const ContactPage = () => {
 
   return (
     <>
-      <section className="relative pt-12 pb-8 md:pt-24 md:pb-16 border-b border-[var(--border)] overflow-hidden">
-        {/* Nebula Glow Backdrop */}
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[70%] bg-[var(--nebula)] opacity-[0.05] blur-[150px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-[-10%] right-[-5%] w-[35%] h-[55%] bg-[var(--sungold)] opacity-[0.02] blur-[120px] rounded-full pointer-events-none" />
-
+      <section className="editorial-section overflow-hidden">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -80,29 +76,17 @@ const ContactPage = () => {
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
             <SectionKicker label={t('contact_kicker')} accent="sungold" />
-            <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--white)] max-w-[800px]" style={{ fontSize: 'clamp(40px, 8vw, 80px)' }}>
+            <h1 className="font-display font-extrabold leading-[0.95] tracking-[-0.04em] mb-5 text-[var(--white)] max-w-[11ch]" style={{ fontSize: 'clamp(2.5rem, 8vw, 5rem)' }}>
               {t('contact_heading')}
             </h1>
-            <p className="font-body text-[17px] leading-[1.7] max-w-[600px] text-[var(--muted)]">
+            <p className="font-body text-[17px] leading-[1.7] max-w-[620px] text-[var(--muted)]">
               {t('contact_subheading')}
             </p>
           </motion.div>
         </div>
-
-        {/* Technical Scanline effect */}
-        <motion.div 
-          initial={{ top: '-10%' }}
-          animate={{ top: '110%' }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-          className="absolute left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--sungold)]/10 to-transparent pointer-events-none z-0"
-        />
       </section>
 
-      <section className="py-12 md:py-16 relative overflow-hidden">
-        {/* Subtle grid accent */}
-        <div className="absolute inset-0 opacity-[0.08] pointer-events-none" 
-             style={{ backgroundImage: 'linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)', backgroundSize: '80px 80px' }} />
-
+      <section className="editorial-section relative overflow-hidden">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-12">
             {/* Contact form */}
@@ -210,10 +194,9 @@ const ContactPage = () => {
               {/* Availability status */}
               <motion.div
                 variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}
-                className="p-5 flex items-center gap-3 bg-[var(--warm-glow)] border border-[rgba(232,160,32,0.2)] relative group"
+                className="editorial-panel p-5 flex items-center gap-3"
               >
-                <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-[var(--sungold)] opacity-40" />
-                <div className="w-2 h-2 bg-[var(--sungold)] shrink-0 animate-pulse" style={{ boxShadow: '0 0 8px rgba(232,160,32,0.5)' }} />
+                <div className="w-2 h-2 bg-[var(--sungold)] shrink-0" />
                 <span className="font-mono text-[11px] tracking-[0.08em] text-[var(--sungold)]">
                   {data.availability || 'Available for projects'}
                 </span>
@@ -230,12 +213,10 @@ const ContactPage = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       whileHover={{ scale: 1.02 }}
-                      className="p-4 flex items-center gap-3 no-underline bg-[var(--surface)] border border-[var(--border)] transition-all duration-200 hover:border-[rgba(232,160,32,0.25)] hover:bg-[var(--elevated)] relative group/social"
+                      className="editorial-panel p-4 flex items-center gap-3 no-underline transition-all duration-200 hover:border-[var(--sungold)]/25"
                     >
-                      {/* Corner accent on hover */}
-                      <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-[var(--sungold)] opacity-0 group-hover/social:opacity-60 transition-opacity duration-300" />
                       <link.icon size={18} className="text-[var(--sungold)] shrink-0" />
-                      <span className="font-mono text-[11px] text-[var(--muted)] group-hover/social:text-[var(--white)] transition-colors">{link.label}</span>
+                      <span className="font-mono text-[11px] text-[var(--muted)] transition-colors">{link.label}</span>
                     </motion.a>
                   ))}
                 </div>
@@ -244,9 +225,8 @@ const ContactPage = () => {
               {/* Email */}
               <motion.div
                 variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}
-                className="p-5 bg-[var(--surface)] border border-[var(--border)] relative group hover:border-[var(--border-md)] transition-colors"
+                className="editorial-panel p-5 transition-colors"
               >
-                <div className="absolute -top-px -left-px w-3 h-3 border-t border-l border-[var(--sungold)] opacity-40" />
                 <div className="flex items-center gap-2 mb-2">
                   <Mail size={16} className="text-[var(--sungold)]" />
                   <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--subtle)]">Email</span>
@@ -259,9 +239,8 @@ const ContactPage = () => {
               {/* Location */}
               <motion.div
                 variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }}
-                className="p-5 bg-[var(--surface)] border border-[var(--border)] relative group hover:border-[var(--border-md)] transition-colors"
+                className="editorial-panel p-5 transition-colors"
               >
-                <div className="absolute -top-px -left-px w-3 h-3 border-t border-l border-[var(--stardust)] opacity-40" />
                 <div className="flex items-center gap-2 mb-2">
                   <MapPin size={16} className="text-[var(--stardust)]" />
                   <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--subtle)]">Location</span>
@@ -277,7 +256,7 @@ const ContactPage = () => {
                 href={social.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-primary flex items-center justify-center gap-2 font-display text-[13px] font-semibold px-5 py-4 no-underline bg-[var(--sungold)] text-[var(--void)] border-0 rounded-none transition-all duration-200 hover:shadow-[var(--shadow-sharp-gold)]"
+                className="editorial-panel flex items-center justify-center gap-2 font-display text-[13px] font-semibold px-5 py-4 no-underline bg-[var(--sungold)] text-[var(--void)] border-0 rounded-none transition-all duration-200 hover:shadow-[var(--shadow-sharp-gold)]"
               >
                 <MessageSquare size={18} /> WhatsApp quick link
               </motion.a>

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { MessageSquare, Quote, ChevronDown, ChevronUp, Bell } from 'lucide-react';
+import { MessageSquare, Quote, ChevronDown, ChevronUp } from 'lucide-react';
 import { fetchCourses, fetchTestimonials, fetchPersonalInfo, submitCourseWaitlist } from '../services/api';
 import { faqItems } from '../data/mock';
 import Badge from '../components/portfolio/Badge';
@@ -32,7 +32,6 @@ const TEACH_SORT_OPTIONS = [
 ];
 
 const CourseCard = ({ course, whatsapp, index = 0 }) => {
-  const [hovered, setHovered] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const { t } = useLocale();
   const isOpen = course.open_for_enrolment === true;
@@ -41,22 +40,11 @@ const CourseCard = ({ course, whatsapp, index = 0 }) => {
 
   return (
     <div
-      className={`transition-all duration-300 overflow-hidden border cursor-pointer relative group ${isOpen ? 'border-[var(--border)]' : 'border-[var(--border)] opacity-75'}`}
+      className={`editorial-panel transition-all duration-300 overflow-hidden cursor-pointer relative group ${isOpen ? '' : 'opacity-75'}`}
       style={{
-        background: hovered ? 'var(--elevated)' : 'var(--surface)',
-        borderLeft: `2px solid ${isOpen ? accentColor : 'var(--border-md)'}`,
-        boxShadow: hovered ? `0 10px 30px -10px ${accentColor}20` : 'none'
+        borderLeft: `2px solid ${isOpen ? accentColor : 'var(--border-md)'}`
       }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
     >
-      {/* Technical corner accent */}
-      {hovered && isOpen && (
-        <div
-          className="absolute top-0 right-0 w-2 h-2 border-t border-r transition-opacity duration-300"
-          style={{ borderColor: accentColor }}
-        />
-      )}
       <div
         className={`p-5 grid grid-cols-[1fr_auto] items-center gap-4 ${!isOpen ? 'text-[var(--muted)]' : ''}`}
         onClick={() => setExpanded(!expanded)}
@@ -81,7 +69,7 @@ const CourseCard = ({ course, whatsapp, index = 0 }) => {
         </div>
         <div className="flex flex-col items-end gap-2">
           <span
-            className={`font-display text-[22px] font-extrabold whitespace-nowrap tracking-tight transition-transform duration-300 ${hovered ? 'scale-105' : ''} ${isOpen ? '' : 'text-[var(--muted)]'}`}
+            className={`font-display text-[22px] font-extrabold whitespace-nowrap tracking-tight ${isOpen ? '' : 'text-[var(--muted)]'}`}
             style={isOpen ? { color: accentColor } : undefined}
           >
             {course.price}
@@ -126,10 +114,7 @@ const CourseCard = ({ course, whatsapp, index = 0 }) => {
 const FaqItem = ({ item, open, onToggle, index }) => {
   const idBase = `faq-${index}`;
   return (
-    <div
-      className="transition-all duration-300 border border-[var(--border)] overflow-hidden"
-      style={{ background: open ? 'var(--elevated)' : 'var(--surface)' }}
-    >
+    <div className="editorial-panel transition-all duration-300 overflow-hidden">
       <button
         type="button"
         className="w-full p-6 flex items-center justify-between gap-6 text-left cursor-pointer border-0 bg-transparent font-display text-[15px] font-bold text-[var(--white)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--sungold)] group"
@@ -225,12 +210,7 @@ const TeachPage = () => {
 
   return (
     <>
-      {/* Teaching Philosophy Header */}
-      <section className="relative pt-12 pb-8 md:pt-24 md:pb-16 border-b border-[var(--border)] overflow-hidden">
-        {/* Nebula Glow Backdrop */}
-        <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[60%] bg-[var(--nebula)] opacity-[0.08] blur-[120px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-[-10%] left-[-5%] w-[30%] h-[50%] bg-[var(--sungold)] opacity-[0.03] blur-[100px] rounded-full pointer-events-none" />
-
+      <section className="editorial-section overflow-hidden">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -238,7 +218,7 @@ const TeachPage = () => {
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
             <SectionKicker label="Course" accent="sungold" />
-            <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--white)] max-w-[800px]" style={{ fontSize: 'clamp(40px, 8vw, 80px)' }}>
+            <h1 className="font-display font-extrabold leading-[0.95] tracking-[-0.04em] mb-5 text-[var(--white)] max-w-[11ch]" style={{ fontSize: 'clamp(2.5rem, 8vw, 5rem)' }}>
               {t('teach_heading')}
             </h1>
             <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-8 md:gap-16 items-start">
@@ -249,48 +229,31 @@ const TeachPage = () => {
                 <p className="font-body text-[17px] leading-[1.7] max-w-[600px] text-[var(--muted)]">
                   Start with <em>why</em>, not just <em>what</em>. Projects beat theory every time. Community is everything — the groups outlast the courses. Pricing is set for Nigerian reality, not Silicon Valley budgets.
                 </p>
-                <div className="flex flex-wrap items-center gap-6 mt-8">
-                  <div className="flex flex-col">
-                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--stardust)] mb-1">Students</span>
-                    <span className="font-display text-[20px] font-bold text-[var(--white)]">300+</span>
-                  </div>
-                  <div className="w-px h-8 bg-[var(--border)]" />
-                  <div className="flex flex-col">
-                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--stardust)] mb-1">Format</span>
-                    <span className="font-display text-[20px] font-bold text-[var(--white)]">Remote</span>
-                  </div>
-                  <div className="w-px h-8 bg-[var(--border)]" />
-                  <div className="flex flex-col">
-                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--stardust)] mb-1">Impact</span>
-                    <span className="font-display text-[20px] font-bold text-[var(--white)]">Global</span>
-                  </div>
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-[780px]">
+                  {[
+                    ['Students', '300+'],
+                    ['Format', 'Remote'],
+                    ['Impact', 'Global'],
+                  ].map(([label, value]) => (
+                    <div key={label} className="editorial-panel p-4">
+                      <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--subtle)] mb-2">{label}</div>
+                      <div className="font-display text-[15px] text-[var(--white)]">{value}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="bg-[var(--surface)] border border-[var(--border-md)] p-6 relative">
-                <div className="absolute -top-px -left-px w-4 h-4 border-t border-l border-[var(--sungold)]" />
-                <p className="font-mono text-[11px] leading-[1.6] text-[var(--subtle)] italic">
-                  {'"The best way to learn is to build. The second best way is to teach what you just built."' || t('teach_sidebar_quote') }
-                </p>
-                <div className="mt-4 flex items-center gap-2">
-                  <div className="w-4 h-px bg-[var(--sungold)]" />
-                  <span className="font-mono text-[10px] uppercase text-[var(--sungold)]">Guiding Principle</span>
-                </div>
+              <div className="editorial-panel p-6 relative">
+              <p className="font-mono text-[11px] leading-[1.6] text-[var(--subtle)] italic">
+                {'"The best way to learn is to build. The second best way is to teach what you just built."' || t('teach_sidebar_quote') }
+              </p>
               </div>
             </div>
           </motion.div>
         </div>
-
-        {/* Technical Scanline effect */}
-        <motion.div
-          initial={{ top: '-10%' }}
-          animate={{ top: '110%' }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-          className="absolute left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--sungold)]/10 to-transparent pointer-events-none z-0"
-        />
       </section>
 
       {/* Course grid (9 courses) */}
-      <section className="py-12 md:py-16 border-b border-[var(--border)]">
+      <section className="editorial-section">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
             <div className="flex items-center gap-2">
@@ -318,14 +281,9 @@ const TeachPage = () => {
       </section>
 
       {/* Enrol CTA → WhatsApp */}
-      <section className="py-12 md:py-16 border-b border-[var(--border)]">
+      <section className="editorial-section">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8 text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="w-6 h-px bg-[var(--sungold)]" />
-            <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--sungold)]">
-              Get Started
-            </span>
-          </div>
+          <SectionKicker label="Get Started" accent="sungold" />
           <h2 className="font-display font-extrabold leading-[1.1] tracking-[-0.02em] mb-3 text-[var(--white)]" style={{ fontSize: 'clamp(24px, 3vw, 32px)' }}>
             Ready to enrol?
           </h2>
@@ -344,21 +302,16 @@ const TeachPage = () => {
       </section>
 
       {/* Course waitlist */}
-      <section className="py-12 md:py-16 border-b border-[var(--border)]">
+      <section className="editorial-section">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-6 h-px bg-[var(--nebula)]" aria-hidden />
-            <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--nebula)]">
-              Notify me
-            </span>
-          </div>
+          <SectionKicker label="Notify me" accent="violet" />
           <h2 className="font-display font-extrabold leading-[1.1] tracking-[-0.02em] mb-3 text-[var(--white)]" style={{ fontSize: 'clamp(24px, 3vw, 32px)' }}>
             {t('teach_notify_heading')}
           </h2>
           <p className="font-body text-[15px] leading-[1.7] mb-6 max-w-[480px] text-[var(--muted)]">
             Leave your email and we&apos;ll let you know when the course you&apos;re interested in is open for enrolment.
           </p>
-          <form onSubmit={handleWaitlistSubmit} className="flex flex-col sm:flex-row gap-0 max-w-[640px] border border-[var(--border-md)] p-1 bg-[var(--surface)]" aria-label="Course waitlist">
+          <form onSubmit={handleWaitlistSubmit} className="editorial-panel flex flex-col sm:flex-row gap-0 max-w-[640px] p-1" aria-label="Course waitlist">
             <div className="flex-1 flex flex-col min-w-0">
               <input
                 id="waitlist-email"
@@ -403,27 +356,21 @@ const TeachPage = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="py-12 md:py-16 border-b border-[var(--border)]">
+      <section className="editorial-section">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="flex items-center gap-2 mb-8">
-            <div className="w-6 h-px bg-[var(--violet)]" />
-            <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--violet)]">
-              What Students Say
-            </span>
-          </div>
+          <SectionKicker label="What Students Say" accent="violet" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayTestimonials.length === 0 ? (
               <p className="font-body text-[14px] text-[var(--muted)] col-span-full">No testimonials yet.</p>
             ) : (
               displayTestimonials.map((t, i) => (
-                <div key={t.id ?? `testimonial-${i}`} className="group p-8 bg-[var(--surface)] border border-[var(--border)] transition-all duration-300 hover:border-[var(--sungold)]/30 hover:bg-[var(--elevated)] relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-[var(--sungold)] opacity-[0.02] blur-2xl group-hover:opacity-[0.05] transition-opacity" />
-                  <Quote size={24} className="mb-6 text-[var(--sungold)] opacity-40 group-hover:opacity-100 transition-opacity" />
+                <div key={t.id ?? `testimonial-${i}`} className="editorial-panel group p-8 transition-all duration-300">
+                  <Quote size={24} className="mb-6 text-[var(--sungold)] opacity-40 transition-opacity" />
                   <p className="font-body text-[15px] leading-[1.8] mb-8 text-[var(--subtle)] group-hover:text-[var(--white)] transition-colors">
                     &ldquo;{t.text}&rdquo;
                   </p>
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-[var(--elevated)] border border-[var(--border-md)] flex items-center justify-center font-display text-[14px] font-bold text-[var(--sungold)] uppercase">
+                    <div className="w-10 h-10 bg-[var(--surface)] border border-[var(--border-md)] flex items-center justify-center font-display text-[14px] font-bold text-[var(--sungold)] uppercase">
                       {t.name.charAt(0)}
                     </div>
                     <div>

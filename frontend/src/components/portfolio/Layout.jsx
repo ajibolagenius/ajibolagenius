@@ -18,7 +18,7 @@ const Layout = ({ children }) => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex flex-col relative z-[1]">
+    <div className="min-h-screen flex flex-col relative z-[1] editorial-shell">
       <SmoothScrollProvider />
       <a
         href="#main-content"
@@ -31,7 +31,7 @@ const Layout = ({ children }) => {
         {t('skip_to_content')}
       </a>
       <Navbar />
-      <main ref={mainRef} id="main-content" className="flex-1 pt-[56px] pb-[64px] md:pb-0" tabIndex={-1}>
+      <main ref={mainRef} id="main-content" className="flex-1 pt-[56px] pb-[72px] md:pb-0" tabIndex={-1}>
         <PullToRefresh onRefresh={() => setTimeout(() => window.location.reload(), 800)}>
           {children}
         </PullToRefresh>

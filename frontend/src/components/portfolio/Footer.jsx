@@ -4,17 +4,12 @@ import { Github, Twitter, Linkedin } from 'lucide-react';
 import { navLinks } from '../../data/defaultNav';
 import { getPersonalInfoQueryFallback } from '../../lib/personalInfoFallbacks';
 import { SITE_NAME } from '../../lib/siteConfig';
-import { footerStackNames } from '../../data/techStack';
-import Badge from './Badge';
-import { BADGE_VARIANTS } from '../../constants';
 import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
 import { fetchPersonalInfo } from '../../services/api';
 import { useLocale } from '../../contexts/LocaleContext';
 
 /**
- * Footer — Design System layout.
- * Deep bg, border-top, minified: brand · tagline · social | nav links | stack badges; copyright row.
- * Uses personal_info from Supabase (admin). Fallback: mock only if VITE_USE_MOCK_FALLBACK=true.
+ * Footer — public editorial system.
  */
 
 const fbInfo = getPersonalInfoQueryFallback();
@@ -81,13 +76,6 @@ const Footer = () => {
               >
                 {t('nav_' + href.slice(1)) || label}
               </Link>
-            ))}
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {footerStackNames.map((name, i) => (
-              <Badge key={name} variant={BADGE_VARIANTS[i % BADGE_VARIANTS.length]}>
-                {name}
-              </Badge>
             ))}
           </div>
         </div>

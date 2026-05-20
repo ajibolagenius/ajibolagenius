@@ -46,9 +46,9 @@ export default function WorkProjectCard({ project, revealIndex = null, visible =
     <Link
       to={href}
       style={animationStyle}
-      className="group relative flex flex-col min-h-[320px] bg-[var(--elevated)] border border-[var(--border)] overflow-hidden rounded-none transition-[border-color,box-shadow] duration-300 no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--work-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)] hover:border-[var(--work-accent-border)] hover:shadow-[0_0_0_1px_var(--work-accent-muted)]"
+      className="group relative flex flex-col min-h-[320px] bg-[var(--surface)] border border-[var(--border)] overflow-hidden rounded-none transition-[border-color,box-shadow,transform] duration-300 no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--work-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)] hover:border-[var(--work-accent-border)] hover:shadow-[var(--shadow-sharp-sm)] hover:-translate-y-0.5"
     >
-      <div className="flex items-center justify-between gap-2 px-4 pt-3 pb-2 border-b border-[var(--border)] bg-[var(--surface)]/40">
+      <div className="flex items-center justify-between gap-2 px-4 pt-3 pb-2 border-b border-[var(--border)] bg-[var(--elevated)]/60">
         <span className="font-mono text-[10px] tracking-[0.15em] uppercase text-[var(--work-accent)] truncate">
           {topLabel}
         </span>
@@ -67,7 +67,7 @@ export default function WorkProjectCard({ project, revealIndex = null, visible =
         </div>
       </div>
 
-      <div className="relative flex-1 min-h-[120px] flex items-center justify-center bg-[var(--surface)] overflow-hidden">
+      <div className="relative flex-1 min-h-[120px] flex items-center justify-center bg-[linear-gradient(180deg,var(--surface),var(--elevated))] overflow-hidden">
         {heroUrl ? (
           <OptimizedImage
             src={heroUrl}
@@ -82,7 +82,7 @@ export default function WorkProjectCard({ project, revealIndex = null, visible =
             {(project.name || '?').slice(0, 3).toUpperCase()}
           </span>
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[var(--void)]/30 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[var(--void)]/18 pointer-events-none" />
       </div>
 
       <div className="flex flex-col flex-1 border-t border-[var(--border)]">
@@ -96,7 +96,7 @@ export default function WorkProjectCard({ project, revealIndex = null, visible =
         </div>
         <div className="mt-auto grid grid-cols-2 gap-px bg-[var(--border)]">
           {metrics.map((m) => (
-            <div key={m.k} className="bg-[var(--elevated)] px-2 py-2 sm:py-2.5 text-center min-w-0">
+            <div key={m.k} className="bg-[var(--surface)] px-2 py-2 sm:py-2.5 text-center min-w-0">
               <div className="font-mono text-[7px] sm:text-[8px] tracking-[0.08em] uppercase text-[var(--dim)] mb-0.5">
                 {m.k}
               </div>

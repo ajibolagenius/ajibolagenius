@@ -9,7 +9,7 @@ import { track } from '../../services/analytics';
  */
 const HomeCTA = () => {
   return (
-    <section id="cta" className="py-12 md:py-20 border-b border-[var(--border)]">
+    <section id="cta" className="editorial-section">
       <div className="max-w-[1160px] mx-auto px-4 md:px-8">
         <div className="flex items-center gap-2 mb-3">
           <div className="w-5 h-px bg-[var(--sungold)]" />
@@ -43,7 +43,7 @@ const HomeCTA = () => {
           <Link
             to="/teach"
             onClick={() => track('cta_click', { cta: 'courses', page: 'home' })}
-            className="btn-cosmic inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] border-0 cursor-pointer no-underline transition-all duration-200 bg-[var(--nebula)] text-[var(--white)]"
+            className="btn-ghost inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] border border-[var(--border-md)] cursor-pointer no-underline transition-all duration-200 bg-[var(--surface)] text-[var(--white)]"
           >
             <BookOpen size={14} />
             View courses

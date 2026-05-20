@@ -274,21 +274,12 @@ const BlogPostPage = () => {
       {/* Reading progress bar — article scroll */}
       <div
         className="fixed top-0 left-0 right-0 h-0.5 bg-[var(--sungold)] z-[998] pointer-events-none transition-all duration-300"
-        style={{
-          width: `${readProgress * 100}%`,
-          boxShadow: readProgress > 0 ? '0 0 8px var(--sungold)' : 'none'
-        }}
+        style={{ width: `${readProgress * 100}%` }}
         aria-hidden
       />
 
       {/* Post title + meta + tags / category */}
-      <section className="relative pt-20 pb-12 md:pt-28 md:pb-16 border-b border-[var(--border)] overflow-hidden">
-        {/* Nebula Backdrop */}
-        <div className="absolute inset-0 z-0 pointer-events-none opacity-15">
-          <div className="absolute top-[-10%] left-[-5%] w-[50%] h-[60%] bg-[var(--nebula)] blur-[100px] rounded-full" />
-          <div className="absolute bottom-[-5%] right-[-10%] w-[40%] h-[50%] bg-[var(--violet)] blur-[80px] rounded-full opacity-50" />
-        </div>
-
+      <section className="editorial-section overflow-hidden pt-20 md:pt-28">
         <div className="max-w-[720px] mx-auto px-4 md:px-8 relative z-10">
           <div className="mb-12">
             <Link
@@ -303,13 +294,13 @@ const BlogPostPage = () => {
             <SectionKicker label={post.category} accent="sungold" />
           )}
 
-          <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--white)]" style={{ fontSize: 'clamp(32px, 6vw, 56px)' }}>
+          <h1 className="font-display font-extrabold leading-[0.95] tracking-[-0.04em] mb-5 text-[var(--white)]" style={{ fontSize: 'clamp(2.2rem, 6vw, 4rem)' }}>
             <Balancer>{post.title}</Balancer>
           </h1>
 
-          <div className="flex flex-wrap items-center justify-between gap-6 mb-10 pb-8 border-b border-[var(--border-md)]">
+          <div className="editorial-panel p-5 md:p-6 flex flex-wrap items-center justify-between gap-6 mb-10">
             <div className="flex flex-wrap items-center gap-4 font-mono text-[11px] text-[var(--subtle)]">
-              <span className="bg-[var(--overlay)] px-2 py-1 border border-[var(--border)]">{post.date}</span>
+              <span className="bg-[var(--surface)] px-2 py-1 border border-[var(--border)]">{post.date}</span>
               {readTime && (
                 <span className="flex items-center gap-1">
                   <Clock size={12} className="text-[var(--sungold)]" /> {readTime}
@@ -320,33 +311,24 @@ const BlogPostPage = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={handleCopy}
-                className="p-2 text-[var(--muted)] hover:text-[var(--sungold)] transition-colors bg-[var(--surface)] border border-[var(--border)] rounded-full group relative"
+                className="editorial-panel p-2 text-[var(--muted)] hover:text-[var(--sungold)] transition-colors group"
                 title="Copy link"
               >
                 {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
-                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[var(--void)] text-[var(--white)] text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-[var(--border)]">
-                  {copied ? 'Copied!' : 'Copy Link'}
-                </span>
               </button>
               <button
                 onClick={handleShare}
-                className="p-2 text-[var(--muted)] hover:text-[var(--sungold)] transition-colors bg-[var(--surface)] border border-[var(--border)] rounded-full group relative"
+                className="editorial-panel p-2 text-[var(--muted)] hover:text-[var(--sungold)] transition-colors group"
                 title="Share on X"
               >
                 <Twitter size={14} />
-                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[var(--void)] text-[var(--white)] text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-[var(--border)]">
-                  Share on X
-                </span>
               </button>
               <button
                 onClick={handleWhatsAppShare}
-                className="p-2 text-[var(--muted)] hover:text-green-500 transition-colors bg-[var(--surface)] border border-[var(--border)] rounded-full group relative"
+                className="editorial-panel p-2 text-[var(--muted)] hover:text-green-500 transition-colors group"
                 title="Share on WhatsApp"
               >
                 <MessageCircle size={14} />
-                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[var(--void)] text-[var(--white)] text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-[var(--border)]">
-                  WhatsApp
-                </span>
               </button>
             </div>
           </div>
@@ -368,7 +350,7 @@ const BlogPostPage = () => {
         <div className="max-w-[720px] md:max-w-[960px] mx-auto px-4 md:px-8 flex flex-col md:flex-row md:items-start md:gap-16">
           <div ref={articleRef} className="min-w-0 flex-1">
             {post.excerpt && (
-              <div className="mb-10 pl-4 border-l-4 border-[var(--sungold)]">
+              <div className="editorial-panel mb-10 p-5">
                 <p className="font-body text-[17px] leading-[1.75] text-[var(--white)] font-medium">
                   {post.excerpt}
                 </p>
@@ -379,7 +361,7 @@ const BlogPostPage = () => {
 
           {tocEntries.length > 0 && (
             <nav
-              className="md:w-52 md:flex-shrink-0 md:sticky md:top-24 border border-[var(--border)] bg-[var(--surface)] md:bg-transparent md:border-0"
+              className="md:w-52 md:flex-shrink-0 md:sticky md:top-24 editorial-panel"
               aria-label="Table of contents"
             >
               {/* Mobile: collapsible so body is not pushed down */}
@@ -396,7 +378,7 @@ const BlogPostPage = () => {
                 {tocOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               </button>
               <div id="toc-list" className={tocOpen ? 'block' : 'hidden md:block'}>
-                <p className="font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--subtle)] mb-3 pt-0 md:pt-0 px-4 md:px-0 pb-2 md:pb-3 border-b border-[var(--border)] md:border-0">
+                <p className="font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--subtle)] mb-3 pt-4 px-4 md:px-0">
                   On this page
                 </p>
                 <ul className="list-none p-0 m-0 space-y-2 py-4 md:py-0 md:pt-0 px-4 md:px-0">
@@ -419,16 +401,15 @@ const BlogPostPage = () => {
       </section>
 
       {/* Footer CTA & Next Post */}
-      <section className="py-20 border-t border-[var(--border)] bg-[var(--surface)]/10">
+      <section className="editorial-section border-t border-[var(--border)]">
         <div className="max-w-[720px] mx-auto px-4 md:px-8">
           {nextPost && (
             <div className="mb-16">
               <SectionKicker label="Continue Reading" accent="stardust" />
               <Link
                 to={`/writing/${nextPost.slug || nextPost.id}`}
-                className="group block p-8 border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--stardust)] transition-all relative overflow-hidden"
+                className="group block p-8 editorial-panel transition-all relative overflow-hidden"
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--stardust)]/5 blur-[40px] rounded-full group-hover:bg-[var(--stardust)]/10 transition-all" />
                 <h3 className="font-display text-xl md:text-2xl font-bold text-[var(--white)] group-hover:text-[var(--sungold)] transition-colors mb-2">
                   <Balancer>{nextPost.title}</Balancer>
                 </h3>

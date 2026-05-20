@@ -32,13 +32,8 @@ const Hero = () => {
   return (
     <section
       ref={heroRef}
-      className="relative flex flex-col overflow-hidden h-[calc(100dvh-120px)] md:h-[calc(100dvh-56px)]"
+      className="relative flex flex-col overflow-hidden h-[calc(100dvh-120px)] md:h-[calc(100dvh-56px)] editorial-band"
     >
-      {/* Nebula Glow Backdrop */}
-      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[var(--nebula)] opacity-[0.06] blur-[160px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-5%] right-[-5%] w-[40%] h-[50%] bg-[var(--sungold)] opacity-[0.03] blur-[140px] rounded-full pointer-events-none" />
-      <div className="absolute top-[20%] right-[15%] w-[30%] h-[40%] bg-[var(--stardust)] opacity-[0.02] blur-[100px] rounded-full pointer-events-none" />
-
       {/* Main hero content — flex-1 + min-h-0 so it actually shrinks, keeping ticker visible */}
       <div className="flex-1 min-h-0 flex items-center relative z-10 overflow-hidden">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8 w-full">
@@ -50,29 +45,29 @@ const Hero = () => {
             }}
           >
             <div
-              className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.15em] uppercase mb-6 px-[14px] py-[6px] border border-[rgba(232,160,32,0.3)]"
+              className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.18em] uppercase mb-6 px-[12px] py-[6px] border border-[var(--border-md)] bg-[var(--surface)]"
               style={{ color: 'var(--sungold)' }}
             >
               <span className="text-[7px]">◆</span>
-              Portfolio {new Date().getFullYear()}
+              Editorial Studio {new Date().getFullYear()}
             </div>
 
             <h1
-              className="hero-h1 font-display font-extrabold leading-[0.95] tracking-[-0.03em] mb-6"
+              className="hero-h1 font-display font-extrabold leading-[0.92] tracking-[-0.04em] mb-6 max-w-[11ch]"
             >
-              <span className="text-[var(--sungold)] block">
-                {data.tagline || data.tagline_suffix}
+              <span className="block text-[var(--white)]">
+                {data.tagline || data.tagline_suffix || 'I build things that work'}
               </span>
-              <span className="block text-[var(--violet)]">
-                {data.tagline_suffix || data.taglineSuffix}
+              <span className="block text-[var(--subtle)]">
+                {data.tagline_suffix || data.taglineSuffix || 'and things that feel right.'}
               </span>
             </h1>
 
-            <p className="font-body text-[17px] leading-[1.7] mb-8 max-w-[480px] text-[var(--muted)]">
+            <p className="font-body text-[17px] leading-[1.7] mb-8 max-w-[560px] text-[var(--muted)]">
               {data.description}
             </p>
 
-            <p className="font-mono text-[11px] tracking-[0.12em] uppercase mb-10 text-[var(--subtle)]">
+            <p className="font-mono text-[10px] tracking-[0.14em] uppercase mb-10 text-[var(--subtle)]">
               {data.role}
             </p>
 
@@ -91,6 +86,19 @@ const Hero = () => {
                 <Download size={14} />
                 {t('hero_download_cv')}
               </Link>
+            </div>
+
+            <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-[720px]">
+              {[
+                ['Selected', 'Work, writing, teaching'],
+                ['Base', 'Nigeria / remote / global'],
+                ['Mode', 'Minimal, editorial, readable'],
+              ].map(([label, value]) => (
+                <div key={label} className="editorial-panel p-4">
+                  <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-[var(--subtle)] mb-2">{label}</div>
+                  <div className="font-display text-[15px] text-[var(--white)] leading-[1.35]">{value}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

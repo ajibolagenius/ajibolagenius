@@ -92,11 +92,7 @@ export default function SearchPage() {
 
   return (
     <div className="min-h-[60vh]">
-      <section className="relative pt-12 pb-8 md:pt-24 md:pb-16 border-b border-[var(--border)] overflow-hidden">
-        {/* Nebula Glow Backdrop */}
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[70%] bg-[var(--nebula)] opacity-[0.05] blur-[150px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-[-10%] right-[-5%] w-[35%] h-[55%] bg-[var(--stardust)] opacity-[0.02] blur-[120px] rounded-full pointer-events-none" />
-
+      <section className="editorial-section overflow-hidden">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -104,9 +100,12 @@ export default function SearchPage() {
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
             <SectionKicker label="Search" accent="stardust" />
-            <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--white)] max-w-[800px]" style={{ fontSize: 'clamp(40px, 8vw, 80px)' }}>
+            <h1 className="font-display font-extrabold leading-[0.95] tracking-[-0.04em] mb-5 text-[var(--white)] max-w-[11ch]" style={{ fontSize: 'clamp(2.5rem, 8vw, 5rem)' }}>
               Search
             </h1>
+            <p className="font-body text-[17px] leading-[1.7] max-w-[620px] mb-6 text-[var(--muted)]">
+              Search the public portfolio across writing, projects, and courses.
+            </p>
             <form onSubmit={handleSubmit} className="max-w-xl" role="search" aria-label="Site search">
               <label htmlFor="search-query" className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--subtle)] block mb-2">
                 Search blog, work, courses
@@ -134,17 +133,9 @@ export default function SearchPage() {
             </form>
           </motion.div>
         </div>
-
-        {/* Technical Scanline effect */}
-        <motion.div 
-          initial={{ top: '-10%' }}
-          animate={{ top: '110%' }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-          className="absolute left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--stardust)]/10 to-transparent pointer-events-none z-0"
-        />
       </section>
 
-      <section className="py-12 md:py-16 relative overflow-hidden">
+      <section className="editorial-section relative overflow-hidden">
         {/* Subtle grid accent */}
         <div className="absolute inset-0 opacity-[0.08] pointer-events-none" 
              style={{ backgroundImage: 'linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)', backgroundSize: '80px 80px' }} />

@@ -85,12 +85,7 @@ const WritingPage = () => {
 
   return (
     <>
-      {/* Page header */}
-      <section className="relative pt-12 pb-8 md:pt-24 md:pb-16 border-b border-[var(--border)] overflow-hidden">
-        {/* Nebula Glow Backdrop */}
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[70%] bg-[var(--nebula)] opacity-[0.05] blur-[150px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-[-10%] right-[-5%] w-[35%] h-[55%] bg-[var(--sungold)] opacity-[0.02] blur-[120px] rounded-full pointer-events-none" />
-
+      <section className="editorial-section overflow-hidden">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -98,39 +93,37 @@ const WritingPage = () => {
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
             <SectionKicker label="Writing" accent="sungold" />
-            <h1 className="font-display font-extrabold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--white)] max-w-[800px]" style={{ fontSize: 'clamp(40px, 8vw, 80px)' }}>
-              Blog & Thoughts
+            <h1 className="font-display font-extrabold leading-[0.95] tracking-[-0.04em] mb-5 text-[var(--white)] max-w-[11ch]" style={{ fontSize: 'clamp(2.5rem, 8vw, 5rem)' }}>
+              Writing
             </h1>
-            <p className="font-body text-[17px] leading-[1.7] max-w-[600px] text-[var(--muted)]">
-              Exploring the intersection of <span className="text-[var(--white)] font-medium">African identity</span>, <span className="text-[var(--white)] font-medium">design systems</span>, and the future of <span className="text-[var(--white)] font-medium">software engineering</span>.
+            <p className="font-body text-[17px] leading-[1.7] max-w-[620px] text-[var(--muted)]">
+              Essays, build notes, and technical writing. The most useful pieces stay near the top.
             </p>
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-[780px]">
+              {[
+                ['Focus', 'design, code, teaching'],
+                ['Reading', 'clean hierarchy, long-form'],
+                ['Signal', 'thoughts that build trust'],
+              ].map(([label, value]) => (
+                <div key={label} className="editorial-panel p-4">
+                  <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-[var(--subtle)] mb-2">{label}</div>
+                  <div className="font-display text-[15px] text-[var(--white)]">{value}</div>
+                </div>
+              ))}
+            </div>
           </motion.div>
         </div>
-
-        {/* Technical Scanline effect */}
-        <motion.div 
-          initial={{ top: '-10%' }}
-          animate={{ top: '110%' }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-          className="absolute left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--sungold)]/10 to-transparent pointer-events-none z-0"
-        />
       </section>
 
 
       {/* Featured post hero */}
       {featured && (
-        <section className="py-12 md:py-24 border-b border-[var(--border)] relative overflow-hidden group">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-[var(--sungold)] opacity-[0.02] blur-[140px] rounded-full pointer-events-none transition-opacity duration-700 group-hover:opacity-[0.04]" />
-          
+        <section className="editorial-section relative overflow-hidden group">
           <div className="max-w-[1160px] mx-auto px-4 md:px-8 relative z-10">
             <div
-              className="relative p-8 md:p-14 cursor-pointer transition-all duration-500 border border-[var(--border-md)] bg-[var(--surface)]/50 backdrop-blur-sm hover:border-[var(--sungold)]/40 hover:bg-[var(--elevated)]/60 group/card"
+              className="relative p-8 md:p-14 cursor-pointer transition-all duration-300 editorial-panel group/card"
               onClick={() => navigate(`/writing/${featured.slug || featured.id}`)}
             >
-              {/* Technical corner accents */}
-              <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[var(--sungold)] opacity-0 group-hover/card:opacity-100 transition-all duration-500 translate-x-1 -translate-y-1" />
-              <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-[var(--sungold)] opacity-0 group-hover/card:opacity-100 transition-all duration-500 -translate-x-1 translate-y-1" />
-
               <div className="flex items-center gap-3 mb-6">
                 <Badge variant="gold">◆ Featured</Badge>
                 <div className="h-px w-12 bg-[var(--border-hi)]" />
@@ -166,7 +159,7 @@ const WritingPage = () => {
       )}
 
       {/* Category filter + Post list with tags */}
-      <section className="py-12 md:py-16 border-b border-[var(--border)]">
+      <section className="editorial-section">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="flex flex-wrap items-center gap-4 mb-6">
             <FilterButtons options={categoryOptions} value={filter} onChange={(v) => { setFilter(v); setPage(1); }} label="Category" />
@@ -180,15 +173,12 @@ const WritingPage = () => {
             {listPosts.length === 0 && !featured && (
               <p className="font-body text-[15px] text-[var(--muted)]">No posts yet.</p>
             )}
-            {paginatedPosts.map(post => (
-              <Link
-                key={post.slug || post.id}
-                to={`/writing/${post.slug || post.id}`}
-                className="group relative block p-6 no-underline transition-all duration-300 border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--elevated)] hover:border-[var(--sungold)]/30"
-              >
-                {/* Technical hover line */}
-                <div className="absolute left-0 top-0 w-0.5 h-0 bg-[var(--sungold)] transition-all duration-300 group-hover:h-full" />
-                
+              {paginatedPosts.map(post => (
+                <Link
+                  key={post.slug || post.id}
+                  to={`/writing/${post.slug || post.id}`}
+                  className="group relative block p-6 no-underline transition-all duration-300 editorial-panel"
+                >
                 <div className="flex items-start justify-between gap-6">
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -210,7 +200,7 @@ const WritingPage = () => {
                       {post.excerpt}
                     </p>
                     
-                    <div className="flex items-center gap-6 font-mono text-[11px] text-[var(--dim)] decoration-[var(--border-hi)] decoration-dashed underline-offset-4">
+                    <div className="flex items-center gap-6 font-mono text-[11px] text-[var(--dim)] underline-offset-4">
                       <span>{post.date}</span>
                       <span className="flex items-center gap-2">
                         <Clock size={12} className="text-[var(--stardust)]" /> {getBlogReadTimeDisplay(post)}
@@ -237,12 +227,9 @@ const WritingPage = () => {
       </section>
 
       {/* Newsletter subscribe */}
-      <section className="py-20 md:py-32">
+      <section className="editorial-section">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="relative p-8 md:p-16 border border-[var(--border)] bg-[var(--surface)] overflow-hidden">
-            {/* Background Glow */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--violet)] opacity-[0.03] blur-[100px] pointer-events-none" />
-            
+          <div className="relative p-8 md:p-16 editorial-panel overflow-hidden">
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-12 items-center">
               <div>
                 <div className="flex items-center gap-2 mb-6">
@@ -260,7 +247,7 @@ const WritingPage = () => {
               </div>
 
               <div className="w-full max-w-[520px]">
-                <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-0 border border-[var(--border-md)] p-1 bg-[var(--deep)]/50 backdrop-blur-sm shadow-2xl" aria-label="Newsletter signup">
+                <form onSubmit={handleSubscribe} className="editorial-panel flex flex-col sm:flex-row gap-0 p-1" aria-label="Newsletter signup">
                   <input
                     id="newsletter-email"
                     type="email"
@@ -275,7 +262,7 @@ const WritingPage = () => {
                   <button
                     type="submit"
                     disabled={nlSubmitting}
-                    className="inline-flex items-center justify-center gap-2 font-display text-[12px] font-bold uppercase tracking-[0.15em] px-10 py-[15px] bg-[var(--violet)] text-[var(--white)] border-0 rounded-none transition-all hover:bg-[#9d89f5] hover:shadow-[0_0_20px_rgba(139,114,240,0.3)] disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98]"
+                    className="inline-flex items-center justify-center gap-2 font-display text-[12px] font-bold uppercase tracking-[0.15em] px-10 py-[15px] bg-[var(--violet)] text-[var(--white)] border-0 rounded-none transition-all hover:bg-[#9d89f5] disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98]"
                   >
                     {nlSubmitting ? 'Subscribing…' : 'Join Now'}
                   </button>

@@ -127,24 +127,17 @@ const WorkDetailPage = () => {
 
   return (
     <>
-      {/* Hero Section with Nebula Backdrop */}
-      <section className="relative border-b border-[var(--border)] overflow-hidden">
+      <section className="editorial-section overflow-hidden">
         <button
           type="button"
           onClick={() => navigate('/work')}
-          className="absolute top-6 left-6 z-20 inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.1em] uppercase cursor-pointer bg-[var(--void)]/70 backdrop-blur-md border border-[var(--border)] px-4 py-2 text-[var(--muted)] hover:text-[var(--sungold)] transition-all hover:border-[var(--sungold)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)]"
+          className="absolute top-6 left-6 z-20 inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.1em] uppercase cursor-pointer bg-[var(--surface)] backdrop-blur-md border border-[var(--border)] px-4 py-2 text-[var(--muted)] hover:text-[var(--sungold)] transition-all hover:border-[var(--sungold)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)]"
           aria-label="Back to projects"
         >
           <ArrowLeft size={14} /> Back to Projects
         </button>
 
-        <div className="relative min-h-[320px] md:min-h-[480px] flex items-center justify-center bg-[var(--surface)] overflow-hidden">
-          {/* Nebula Glow Backdrop */}
-          <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
-             <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[70%] bg-[var(--nebula)] blur-[120px] rounded-full" />
-             <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[60%] bg-[var(--violet)] blur-[100px] rounded-full opacity-60" />
-          </div>
-
+        <div className="relative min-h-[320px] md:min-h-[480px] flex items-center justify-center">
           <div className="relative z-10 w-full h-full max-w-[1240px] px-4 md:px-8 flex items-center justify-center">
             {heroImage ? (
               <button
@@ -229,7 +222,7 @@ const WorkDetailPage = () => {
       )}
 
       {/* Content Section */}
-      <section className="py-12 md:py-20 border-b border-[var(--border)]">
+      <section className="editorial-section">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-12 lg:gap-24">
             {/* Left Column: Info */}
@@ -280,7 +273,7 @@ const WorkDetailPage = () => {
                 { label: 'Duration', value: project.duration },
                 { label: 'Year', value: project.year }
               ].filter(m => m.value).map((meta, i) => (
-                <div key={i} className="group p-6 bg-[var(--surface)] border border-[var(--border)] relative overflow-hidden">
+                <div key={i} className="group p-6 editorial-panel relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-1 h-0 bg-[var(--sungold)] group-hover:h-full transition-all duration-300" />
                   <div className="font-mono text-[10px] tracking-[0.2em] uppercase mb-2 text-[var(--subtle)]">{meta.label}</div>
                   <div className="font-display text-[15px] font-bold text-[var(--white)] tracking-wide">{meta.value}</div>
@@ -293,7 +286,7 @@ const WorkDetailPage = () => {
 
       {/* Narrative Section */}
       {(project.problem || project.solution) && (
-        <section className="py-16 md:py-24 border-b border-[var(--border)] bg-[var(--void)]">
+        <section className="editorial-section">
           <div className="max-w-[1160px] mx-auto px-4 md:px-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20">
               {project.problem && (
@@ -323,7 +316,7 @@ const WorkDetailPage = () => {
 
       {/* Technical Architecture */}
       {techDetails.length > 0 && (
-        <section className="py-16 md:py-24 border-b border-[var(--border)]">
+        <section className="editorial-section">
           <div className="max-w-[1160px] mx-auto px-4 md:px-8">
             <div className="flex items-center gap-3 mb-10">
               <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[var(--stardust)]">Architecture</span>
@@ -348,7 +341,7 @@ const WorkDetailPage = () => {
       )}
 
       {/* Screenshots Gallery */}
-      <section className="py-16 md:py-24 bg-[var(--surface)]/30">
+        <section className="editorial-section">
         <div className="max-w-[1160px] mx-auto px-4 md:px-8">
           <div className="flex items-center justify-between gap-3 mb-12">
             <div className="flex items-center gap-3">

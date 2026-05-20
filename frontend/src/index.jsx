@@ -7,7 +7,7 @@ import App from "./App";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <ThemeProvider attribute="class" defaultTheme="dark" storageKey="don-genius-theme" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="light" storageKey="don-genius-theme" enableSystem>
       <App />
     </ThemeProvider>
   </React.StrictMode>,
