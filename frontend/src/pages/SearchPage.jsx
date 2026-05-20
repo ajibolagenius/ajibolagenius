@@ -1,32 +1,30 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { useSearchParams, Link } from 'react-router-dom';
-import { Search, FileText, Briefcase, BookOpen } from 'lucide-react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Search } from 'lucide-react';
 import { fetchBlogPosts, fetchProjects, fetchCourses } from '../services/api';
-import SectionKicker from '../components/portfolio/SectionKicker';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { buildStaticPageMeta } from '../lib/routeMeta';
-import { track } from '../services/analytics';
-import { Skeleton } from '../components/ui/skeleton';
 
 function matchQuery(str, q) {
   if (!str || typeof str !== 'string') return false;
   return str.toLowerCase().includes(q.toLowerCase());
 }
 
-function matchQueryList(list, q) {
-  if (!Array.isArray(list)) return false;
-  return list.some((item) => matchQuery(typeof item === 'string' ? item : item?.name ?? item?.title, q));
-}
-
 export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const q = searchParams.get('q') || '';
   const [query, setQuery] = useState(q);
   const [posts, setPosts] = useState([]);
   const [projects, setProjects] = useState([]);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setRevealed(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     setQuery(searchParams.get('q') || '');
@@ -47,7 +45,9 @@ export default function SearchPage() {
         setLoading(false);
       }
     });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const searchTerm = (query || '').trim();
@@ -58,23 +58,18 @@ export default function SearchPage() {
         (p) =>
           matchQuery(p.title, searchTerm) ||
           matchQuery(p.excerpt, searchTerm) ||
-          matchQuery(p.slug, searchTerm) ||
-          matchQueryList(p.tags, searchTerm) ||
           matchQuery(p.category, searchTerm)
       ),
       projects: projects.filter(
         (p) =>
           matchQuery(p.name, searchTerm) ||
           matchQuery(p.description, searchTerm) ||
-          matchQuery(p.slug, searchTerm) ||
-          matchQuery(p.label, searchTerm) ||
           matchQuery(p.category, searchTerm)
       ),
       courses: courses.filter(
         (p) =>
           matchQuery(p.name, searchTerm) ||
-          matchQuery(p.description, searchTerm) ||
-          matchQuery(p.slug || p.id, searchTerm)
+          matchQuery(p.description, searchTerm)
       ),
     };
   }, [searchTerm, posts, projects, courses]);
@@ -83,165 +78,188 @@ export default function SearchPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const v = (e.target?.query?.value || query).trim();
+    const v = query.trim();
     setSearchParams(v ? { q: v } : {});
-    if (v) track('search', { query: v });
   };
 
   usePageMeta(buildStaticPageMeta('/search'));
 
   return (
-    <div className="min-h-[60vh]">
-      <section className="editorial-section overflow-hidden">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-          >
-            <SectionKicker label="Search" accent="stardust" />
-            <h1 className="font-display font-extrabold leading-[0.95] tracking-[-0.04em] mb-5 text-[var(--white)] max-w-[11ch]" style={{ fontSize: 'clamp(2.5rem, 8vw, 5rem)' }}>
-              Search
-            </h1>
-            <p className="font-body text-[17px] leading-[1.7] max-w-[620px] mb-6 text-[var(--muted)]">
-              Search the public portfolio across writing, projects, and courses.
-            </p>
-            <form onSubmit={handleSubmit} className="max-w-xl" role="search" aria-label="Site search">
-              <label htmlFor="search-query" className="font-mono text-[10px] tracking-[0.12em] uppercase text-[var(--subtle)] block mb-2">
-                Search blog, work, courses
-              </label>
-              <div className="flex gap-2">
-                <input
-                  id="search-query"
-                  type="search"
-                  name="query"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search blog, work, courses…"
-                  className="flex-1 bg-[var(--elevated)] border border-[var(--border-md)] px-4 py-3 font-body text-[14px] text-[var(--white)] placeholder:text-[var(--subtle)] outline-none focus:border-[var(--stardust)]"
-                  aria-label="Search"
-                  autoFocus
-                />
-                <button
-                  type="submit"
-                  className="px-5 py-3 bg-[var(--stardust)] text-[var(--void)] font-display font-semibold text-[13px] border-0 cursor-pointer hover:opacity-90 transition-opacity"
-                  aria-label="Submit search"
-                >
-                  <Search size={18} />
-                </button>
-              </div>
-            </form>
-          </motion.div>
+    <div className="page-content">
+      {/* Page Header */}
+      <section style={{ borderBottom: 'var(--rule)', padding: '56px 0 40px' }}>
+        <div className={`reveal ${revealed ? 'in' : ''}`}>
+          <div className="hero-kicker">
+            <span className="hero-kicker-dot"></span>
+            Global Index Search
+          </div>
+          <h1 className="hero-title" style={{ fontSize: 'clamp(52px, 8vw, 100px)', lineHeight: 0.9 }}>
+            The <em>Search</em>
+          </h1>
+          <div className="hero-rule" style={{ margin: '24px 0 20px' }}>
+            <div className="hero-rule-line"></div>
+            <span className="hero-rule-label">DON_GENIUS — QUERY</span>
+            <div className="hero-rule-line"></div>
+          </div>
+
+          <form onSubmit={handleSubmit} style={{ display: 'flex', border: '1px solid var(--ink)', maxWidth: '520px' }}>
+            <input
+              type="text"
+              placeholder="Query projects, journal, or courses..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              style={{
+                flex: 1,
+                fontFamily: 'var(--font-body)',
+                fontSize: '13px',
+                padding: '12px 16px',
+                border: 'none',
+                background: 'transparent',
+                outline: 'none',
+                color: 'var(--ink)',
+              }}
+              required
+            />
+            <button
+              type="submit"
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '10px',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                padding: '0 24px',
+                background: 'var(--ink)',
+                color: 'var(--cream)',
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Search size={14} />
+            </button>
+          </form>
         </div>
       </section>
 
-      <section className="editorial-section relative overflow-hidden">
-        {/* Subtle grid accent */}
-        <div className="absolute inset-0 opacity-[0.08] pointer-events-none" 
-             style={{ backgroundImage: 'linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)', backgroundSize: '80px 80px' }} />
+      {/* Results panel */}
+      <section style={{ padding: '48px 0 80px' }}>
+        {loading ? (
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)' }}>
+            Analyzing Database Registry...
+          </div>
+        ) : !searchTerm ? (
+          <div style={{ padding: '60px 0', textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)' }}>
+            Enter a search term above to analyze records.
+          </div>
+        ) : totalCount === 0 ? (
+          <div style={{ padding: '60px 0', textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)' }}>
+            No visual, academic, or software logs matched query term "{searchTerm}".
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
+            {results.projects.length > 0 && (
+              <div>
+                <h3
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '10px',
+                    letterSpacing: '0.2em',
+                    textTransform: 'uppercase',
+                    borderBottom: 'var(--rule-thin)',
+                    paddingBottom: '8px',
+                    marginBottom: '16px',
+                    fontWeight: 'bold',
+                    color: 'var(--red)',
+                  }}
+                >
+                  Selected Work ({results.projects.length})
+                </h3>
 
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8 relative z-10">
-          {loading ? (
-            <div className="space-y-4">
-              {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
-            </div>
-          ) : !searchTerm ? (
-            <div className="text-center py-16">
-              <div className="w-12 h-12 mx-auto mb-4 border border-[var(--border-md)] flex items-center justify-center">
-                <Search size={20} className="text-[var(--stardust)] opacity-60" />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {results.projects.map((p, idx) => (
+                    <div
+                      key={p.id || idx}
+                      onClick={() => navigate(`/work/${p.slug || p.id}`)}
+                      style={{ border: '1px solid var(--ink)', padding: '16px', background: 'var(--surface)', cursor: 'pointer' }}
+                    >
+                      <h4 style={{ fontFamily: 'var(--font-display)', fontSize: '15px', fontWeight: 'bold' }}>{p.name}</h4>
+                      <p className="hero-desc" style={{ fontSize: '12px', marginTop: '4px' }}>{p.description}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <p className="font-body text-[15px] text-[var(--muted)]">Enter a term above to search blog posts, projects, and courses.</p>
-            </div>
-          ) : totalCount === 0 ? (
-            <div className="text-center py-16">
-              <div className="w-12 h-12 mx-auto mb-4 border border-[var(--border-md)] flex items-center justify-center relative">
-                <div className="absolute -top-px -left-px w-3 h-3 border-t border-l border-[var(--stardust)] opacity-40" />
-                <Search size={20} className="text-[var(--muted)] opacity-40" />
+            )}
+
+            {results.posts.length > 0 && (
+              <div>
+                <h3
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '10px',
+                    letterSpacing: '0.2em',
+                    textTransform: 'uppercase',
+                    borderBottom: 'var(--rule-thin)',
+                    paddingBottom: '8px',
+                    marginBottom: '16px',
+                    fontWeight: 'bold',
+                    color: 'var(--red)',
+                  }}
+                >
+                  Journal Entries ({results.posts.length})
+                </h3>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {results.posts.map((p, idx) => (
+                    <div
+                      key={p.id || idx}
+                      onClick={() => navigate(`/writing/${p.slug || p.id}`)}
+                      style={{ border: '1px solid var(--ink)', padding: '16px', background: 'var(--surface)', cursor: 'pointer' }}
+                    >
+                      <h4 style={{ fontFamily: 'var(--font-display)', fontSize: '15px', fontWeight: 'bold' }}>{p.title}</h4>
+                      <p className="hero-desc" style={{ fontSize: '12px', marginTop: '4px' }}>{p.excerpt}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <p className="font-body text-[15px] text-[var(--muted)]">No results for &ldquo;{searchTerm}&rdquo;. Try another term.</p>
-            </div>
-          ) : (
-            <motion.div
-              className="space-y-12"
-              initial="hidden"
-              animate="visible"
-              variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.15 } } }}
-            >
-              {results.posts.length > 0 && (
-                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
-                  <h2 className="flex items-center gap-3 font-display text-[18px] font-bold text-[var(--white)] mb-4">
-                    <FileText size={18} className="text-[var(--sungold)]" />
-                    Blog
-                    <span className="font-mono text-[11px] font-normal text-[var(--muted)]">({results.posts.length})</span>
-                    <div className="flex-1 h-px bg-[var(--border)]" />
-                  </h2>
-                  <ul className="list-none p-0 m-0 space-y-3">
-                    {results.posts.map((p) => (
-                      <li key={p.id}>
-                        <Link
-                          to={`/writing/${p.slug || p.id}`}
-                          className="block p-4 border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--sungold)]/30 hover:bg-[var(--elevated)] transition-all duration-200 no-underline relative group"
-                        >
-                          <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-[var(--sungold)] opacity-0 group-hover:opacity-60 transition-opacity duration-300" />
-                          <span className="font-display text-[15px] font-semibold text-[var(--white)] group-hover:text-[var(--sungold)] transition-colors">{p.title}</span>
-                          {p.excerpt && <p className="font-body text-[13px] text-[var(--muted)] mt-1 line-clamp-2">{p.excerpt}</p>}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              )}
-              {results.projects.length > 0 && (
-                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
-                  <h2 className="flex items-center gap-3 font-display text-[18px] font-bold text-[var(--white)] mb-4">
-                    <Briefcase size={18} className="text-[var(--sungold)]" />
-                    Work
-                    <span className="font-mono text-[11px] font-normal text-[var(--muted)]">({results.projects.length})</span>
-                    <div className="flex-1 h-px bg-[var(--border)]" />
-                  </h2>
-                  <ul className="list-none p-0 m-0 space-y-3">
-                    {results.projects.map((p) => (
-                      <li key={p.id}>
-                        <Link
-                          to={`/work/${p.slug}`}
-                          className="block p-4 border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--sungold)]/30 hover:bg-[var(--elevated)] transition-all duration-200 no-underline relative group"
-                        >
-                          <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-[var(--sungold)] opacity-0 group-hover:opacity-60 transition-opacity duration-300" />
-                          <span className="font-display text-[15px] font-semibold text-[var(--white)] group-hover:text-[var(--sungold)] transition-colors">{p.name}</span>
-                          {p.description && <p className="font-body text-[13px] text-[var(--muted)] mt-1 line-clamp-2">{p.description}</p>}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              )}
-              {results.courses.length > 0 && (
-                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
-                  <h2 className="flex items-center gap-3 font-display text-[18px] font-bold text-[var(--white)] mb-4">
-                    <BookOpen size={18} className="text-[var(--sungold)]" />
-                    Courses
-                    <span className="font-mono text-[11px] font-normal text-[var(--muted)]">({results.courses.length})</span>
-                    <div className="flex-1 h-px bg-[var(--border)]" />
-                  </h2>
-                  <ul className="list-none p-0 m-0 space-y-3">
-                    {results.courses.map((p) => (
-                      <li key={p.id}>
-                        <Link
-                          to="/teach"
-                          className="block p-4 border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--sungold)]/30 hover:bg-[var(--elevated)] transition-all duration-200 no-underline relative group"
-                        >
-                          <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-[var(--sungold)] opacity-0 group-hover:opacity-60 transition-opacity duration-300" />
-                          <span className="font-display text-[15px] font-semibold text-[var(--white)] group-hover:text-[var(--sungold)] transition-colors">{p.name}</span>
-                          {p.description && <p className="font-body text-[13px] text-[var(--muted)] mt-1 line-clamp-2">{p.description}</p>}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              )}
-            </motion.div>
-          )}
-        </div>
+            )}
+
+            {results.courses.length > 0 && (
+              <div>
+                <h3
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '10px',
+                    letterSpacing: '0.2em',
+                    textTransform: 'uppercase',
+                    borderBottom: 'var(--rule-thin)',
+                    paddingBottom: '8px',
+                    marginBottom: '16px',
+                    fontWeight: 'bold',
+                    color: 'var(--red)',
+                  }}
+                >
+                  Interactive Courses ({results.courses.length})
+                </h3>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {results.courses.map((p, idx) => (
+                    <div
+                      key={p.id || idx}
+                      onClick={() => navigate('/teach')}
+                      style={{ border: '1px solid var(--ink)', padding: '16px', background: 'var(--surface)', cursor: 'pointer' }}
+                    >
+                      <h4 style={{ fontFamily: 'var(--font-display)', fontSize: '15px', fontWeight: 'bold' }}>{p.name}</h4>
+                      <p className="hero-desc" style={{ fontSize: '12px', marginTop: '4px' }}>{p.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </section>
     </div>
   );

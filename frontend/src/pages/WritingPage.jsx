@@ -1,28 +1,13 @@
-import React, { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
-import { Clock, ArrowRight } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Clock, Search } from 'lucide-react';
 import { fetchBlogPosts, subscribeNewsletter } from '../services/api';
-import Badge from '../components/portfolio/Badge';
-import SectionKicker from '../components/portfolio/SectionKicker';
-import FilterButtons from '../components/portfolio/FilterButtons';
-import SortSelect from '../components/portfolio/SortSelect';
-import { BADGE_VARIANTS } from '../constants';
-import { byString, byDate, applySort } from '../lib/sortHelpers';
-import { paginate } from '../lib/paginate';
-import ListPagination from '../components/portfolio/ListPagination';
+import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
+import { blogPosts as mockFallback } from '../data/mock';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { buildStaticPageMeta } from '../lib/routeMeta';
-import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
-import { WritingSkeleton } from '../components/portfolio/SkeletonLayouts';
-import { getBlogReadTimeDisplay } from '../lib/blogReadTime';
-
-const WRITING_SORT_OPTIONS = [
-  { value: 'date-desc', label: 'Newest first' },
-  { value: 'date-asc', label: 'Oldest first' },
-  { value: 'title-asc', label: 'Title A–Z' },
-  { value: 'title-desc', label: 'Title Z–A' },
-];
+import ListPagination from '../components/portfolio/ListPagination';
+import { paginate } from '../lib/paginate';
 
 const WRITING_PAGE_SIZE = 9;
 
@@ -31,30 +16,64 @@ const WritingPage = () => {
   const [filter, setFilter] = useState('All');
   const [sortBy, setSortBy] = useState('date-desc');
   const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
   const [nlEmail, setNlEmail] = useState('');
   const [nlMsg, setNlMsg] = useState('');
   const [nlSubmitting, setNlSubmitting] = useState(false);
-  const { data: posts, loading: postsLoading, error: postsError, refetch: refetchPosts } = useRealtimeQuery('blog_posts', fetchBlogPosts);
+  const [revealed, setRevealed] = useState(false);
 
-  const displayPosts = Array.isArray(posts) && posts.length > 0 ? posts : [];
-  const categoryList = ['All', ...[...new Set(displayPosts.map(p => (p.category || '').trim()).filter(Boolean))].sort()];
-  const categoryOptions = categoryList.map((c) => ({ label: c, value: c }));
-  const filtered = filter === 'All' ? displayPosts : displayPosts.filter((p) => (p.category || '').trim() === filter);
-  const featured = filtered[0] ?? null;
-  const listPostsUnsorted = filtered.filter((p) => (p.slug || p.id) !== (featured?.slug || featured?.id));
+  const { data } = useRealtimeQuery('blog_posts', fetchBlogPosts, mockFallback);
+  const posts = Array.isArray(data) && data.length > 0 ? data : mockFallback;
 
-  const listPosts = useMemo(() => {
-    const comp = sortBy === 'date-desc' ? byDate('date', 'desc')
-      : sortBy === 'date-asc' ? byDate('date', 'asc')
-      : sortBy === 'title-asc' ? byString('title', 'asc')
-      : byString('title', 'desc');
-    return applySort(listPostsUnsorted, comp);
-  }, [listPostsUnsorted, sortBy]);
+  useEffect(() => {
+    const timer = setTimeout(() => setRevealed(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
 
+  usePageMeta(buildStaticPageMeta('/writing'));
+
+  // Filtering
+  const filteredPosts = useMemo(() => {
+    const list = filter === 'All' ? posts : posts.filter((p) => (p.category || '').trim() === filter);
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return list;
+    return list.filter(
+      (p) =>
+        (p.title || '').toLowerCase().includes(q) ||
+        (p.excerpt || '').toLowerCase().includes(q) ||
+        (p.category || '').toLowerCase().includes(q)
+    );
+  }, [posts, filter, searchQuery]);
+
+  // Sorting
+  const sortedPosts = useMemo(() => {
+    const list = [...filteredPosts];
+    return list.sort((a, b) => {
+      if (sortBy === 'date-desc') {
+        return new Date(b.date || 0) - new Date(a.date || 0);
+      }
+      if (sortBy === 'date-asc') {
+        return new Date(a.date || 0) - new Date(b.date || 0);
+      }
+      const titleA = (a.title || '').toLowerCase();
+      const titleB = (b.title || '').toLowerCase();
+      if (sortBy === 'title-asc') {
+        return titleA.localeCompare(titleB);
+      }
+      return titleB.localeCompare(titleA);
+    });
+  }, [filteredPosts, sortBy]);
+
+  // Pagination
   const { items: paginatedPosts, totalPages, start, end, total } = useMemo(
-    () => paginate(listPosts, page, WRITING_PAGE_SIZE),
-    [listPosts, page]
+    () => paginate(sortedPosts, page, WRITING_PAGE_SIZE),
+    [sortedPosts, page]
   );
+
+  const categoryList = useMemo(() => {
+    const categories = posts.map((p) => (p.category || '').trim()).filter(Boolean);
+    return ['All', ...Array.from(new Set(categories)).sort()];
+  }, [posts]);
 
   const handleSubscribe = async (e) => {
     e.preventDefault();
@@ -63,7 +82,7 @@ const WritingPage = () => {
     setNlMsg('');
     try {
       const res = await subscribeNewsletter(nlEmail.trim());
-      setNlMsg(res?.message || 'Subscribed! You\'ll hear from me soon.');
+      setNlMsg(res?.message || "Subscribed! You'll hear from me soon.");
       setNlEmail('');
     } catch {
       setNlMsg('Something went wrong. Try again.');
@@ -73,212 +92,294 @@ const WritingPage = () => {
     setTimeout(() => setNlMsg(''), 4000);
   };
 
-  usePageMeta(buildStaticPageMeta('/writing'));
-
-  if (postsLoading && displayPosts.length === 0) {
-    return (
-      <div className="py-32 px-4 max-w-[1160px] mx-auto">
-        <WritingSkeleton count={5} />
-      </div>
-    );
-  }
-
   return (
-    <>
-      <section className="editorial-section overflow-hidden">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-          >
-            <SectionKicker label="Writing" accent="sungold" />
-            <h1 className="font-display font-extrabold leading-[0.95] tracking-[-0.04em] mb-5 text-[var(--white)] max-w-[11ch]" style={{ fontSize: 'clamp(2.5rem, 8vw, 5rem)' }}>
-              Writing
-            </h1>
-            <p className="font-body text-[17px] leading-[1.7] max-w-[620px] text-[var(--muted)]">
-              Essays, build notes, and technical writing. The most useful pieces stay near the top.
-            </p>
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-[780px]">
-              {[
-                ['Focus', 'design, code, teaching'],
-                ['Reading', 'clean hierarchy, long-form'],
-                ['Signal', 'thoughts that build trust'],
-              ].map(([label, value]) => (
-                <div key={label} className="editorial-panel p-4">
-                  <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-[var(--subtle)] mb-2">{label}</div>
-                  <div className="font-display text-[15px] text-[var(--white)]">{value}</div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
+    <div className="page-content">
+      {/* Editorial Page Header */}
+      <section style={{ borderBottom: 'var(--rule)', padding: '56px 0 40px' }}>
+        <div className={`reveal ${revealed ? 'in' : ''}`}>
+          <div className="hero-kicker">
+            <span className="hero-kicker-dot"></span>
+            Essays &amp; Logs
+          </div>
+          <h1 className="hero-title" style={{ fontSize: 'clamp(52px, 8vw, 100px)', lineHeight: 0.9 }}>
+            The <em>Journal</em>
+          </h1>
+          <div className="hero-rule" style={{ margin: '24px 0 20px' }}>
+            <div className="hero-rule-line"></div>
+            <span className="hero-rule-label">DON_GENIUS — WRITING</span>
+            <div className="hero-rule-line"></div>
+          </div>
+          <p className="hero-desc" style={{ maxWidth: '620px' }}>
+            Bimonthly thoughts on software craft, system architecture, design theories, and local tech realities.
+          </p>
         </div>
       </section>
 
-
-      {/* Featured post hero */}
-      {featured && (
-        <section className="editorial-section relative overflow-hidden group">
-          <div className="max-w-[1160px] mx-auto px-4 md:px-8 relative z-10">
-            <div
-              className="relative p-8 md:p-14 cursor-pointer transition-all duration-300 editorial-panel group/card"
-              onClick={() => navigate(`/writing/${featured.slug || featured.id}`)}
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <Badge variant="gold">◆ Featured</Badge>
-                <div className="h-px w-12 bg-[var(--border-hi)]" />
-                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--stardust)]">{featured.category}</span>
-              </div>
-              
-              <h2 className="font-display text-[32px] md:text-[48px] font-extrabold leading-[1.0] tracking-tight mb-6 text-[var(--white)] group-hover/card:text-[var(--sungold)] transition-colors duration-300">
-                {featured.title}
-              </h2>
-              <p className="font-body text-[17px] leading-[1.75] mb-8 max-w-[720px] text-[var(--muted)] group-hover/card:text-[var(--subtle)] transition-colors">
-                {featured.excerpt}
-              </p>
-              
-              <div className="flex flex-wrap items-center justify-between gap-6 pt-8 border-t border-[var(--border)]">
-                <div className="flex flex-wrap items-center gap-3">
-                  {(featured.tags || []).map((tag, j) => (
-                    <Badge key={j} variant={BADGE_VARIANTS[j % BADGE_VARIANTS.length]}>
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-                <div className="flex items-center gap-6 font-mono text-[11px] uppercase tracking-widest text-[var(--subtle)]">
-                  <span>{featured.date}</span>
-                  <div className="w-1 h-1 rounded-full bg-[var(--border-hi)]" />
-                  <span className="flex items-center gap-2">
-                    <Clock size={12} className="text-[var(--sungold)]" /> {getBlogReadTimeDisplay(featured)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Category filter + Post list with tags */}
-      <section className="editorial-section">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="flex flex-wrap items-center gap-4 mb-6">
-            <FilterButtons options={categoryOptions} value={filter} onChange={(v) => { setFilter(v); setPage(1); }} label="Category" />
-            <SortSelect options={WRITING_SORT_OPTIONS} value={sortBy} onChange={(v) => { setSortBy(v); setPage(1); }} label="Sort" />
-          </div>
-
-          <div className="flex flex-col gap-4">
-            {listPosts.length === 0 && featured && filter !== 'All' && (
-              <p className="font-body text-[15px] text-[var(--muted)]">No other posts match this filter.</p>
-            )}
-            {listPosts.length === 0 && !featured && (
-              <p className="font-body text-[15px] text-[var(--muted)]">No posts yet.</p>
-            )}
-              {paginatedPosts.map(post => (
-                <Link
-                  key={post.slug || post.id}
-                  to={`/writing/${post.slug || post.id}`}
-                  className="group relative block p-6 no-underline transition-all duration-300 editorial-panel"
-                >
-                <div className="flex items-start justify-between gap-6">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-3">
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--sungold)] opacity-60 group-hover:opacity-100 transition-opacity">
-                        {post.category}
-                      </span>
-                      <div className="w-1 h-1 rounded-full bg-[var(--border-md)]" />
-                      {(post.tags || []).slice(0, 2).map((tag, j) => (
-                        <Badge key={j} variant={BADGE_VARIANTS[j % BADGE_VARIANTS.length]}>
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                    
-                    <h3 className="font-display text-[20px] font-bold leading-[1.2] mb-3 text-[var(--white)] group-hover:text-[var(--sungold)] transition-colors">
-                      {post.title}
-                    </h3>
-                    <p className="font-body text-[14px] leading-[1.7] text-[var(--muted)] line-clamp-2 mb-4 group-hover:text-[var(--subtle)] transition-colors">
-                      {post.excerpt}
-                    </p>
-                    
-                    <div className="flex items-center gap-6 font-mono text-[11px] text-[var(--dim)] underline-offset-4">
-                      <span>{post.date}</span>
-                      <span className="flex items-center gap-2">
-                        <Clock size={12} className="text-[var(--stardust)]" /> {getBlogReadTimeDisplay(post)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="mt-2 flex-shrink-0 w-10 h-10 border border-[var(--border)] flex items-center justify-center bg-[var(--deep)] text-[var(--subtle)] transition-all duration-300 group-hover:bg-[var(--sungold)] group-hover:text-[var(--void)] group-hover:border-[var(--sungold)]">
-                    <ArrowRight size={18} className="transition-transform duration-300 group-hover:translate-x-1" />
-                  </div>
-                </div>
-              </Link>
+      {/* Editorial Filters & Search */}
+      <section style={{ borderBottom: 'var(--rule)', padding: '24px 0' }}>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="flex flex-wrap gap-2">
+            {categoryList.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => {
+                  setFilter(cat);
+                  setPage(1);
+                }}
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '10px',
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  padding: '6px 14px',
+                  border: '1px solid var(--ink)',
+                  background: filter === cat ? 'var(--ink)' : 'transparent',
+                  color: filter === cat ? 'var(--cream)' : 'var(--ink)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {cat}
+              </button>
             ))}
           </div>
 
-          {listPosts.length > 0 && (
-            <ListPagination
-              page={page}
-              totalPages={totalPages}
-              onPageChange={setPage}
-              range={{ start, end, total }}
-            />
-          )}
+          <div className="flex flex-wrap items-center gap-3">
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                border: '1px solid var(--ink)',
+                padding: '6px 12px',
+                background: 'transparent',
+              }}
+            >
+              <Search size={12} style={{ color: 'var(--ink)' }} />
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setPage(1);
+                }}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  fontSize: '11px',
+                  fontFamily: 'var(--font-mono)',
+                  color: 'var(--ink)',
+                  width: '140px',
+                }}
+              />
+            </div>
+
+            <select
+              value={sortBy}
+              onChange={(e) => {
+                setSortBy(e.target.value);
+                setPage(1);
+              }}
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '10px',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                padding: '6px 12px',
+                border: '1px solid var(--ink)',
+                background: 'transparent',
+                color: 'var(--ink)',
+                cursor: 'pointer',
+                outline: 'none',
+              }}
+            >
+              <option value="date-desc">Newest First</option>
+              <option value="date-asc">Oldest First</option>
+              <option value="title-asc">Title A-Z</option>
+              <option value="title-desc">Title Z-A</option>
+            </select>
+          </div>
         </div>
       </section>
 
-      {/* Newsletter subscribe */}
-      <section className="editorial-section">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="relative p-8 md:p-16 editorial-panel overflow-hidden">
-            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-12 items-center">
-              <div>
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="w-8 h-px bg-[var(--violet)]" />
-                  <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[var(--violet)]">
-                    Newsletter
+      {/* Literary Index List */}
+      <section style={{ padding: '32px 0 64px' }}>
+        {sortedPosts.length === 0 ? (
+          <div
+            style={{
+              padding: '60px 0',
+              textAlign: 'center',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '11px',
+              color: 'var(--muted)',
+              border: '1px dashed var(--ink)',
+            }}
+          >
+            No journal entries match the specified parameters.
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {paginatedPosts.map((post, idx) => (
+              <div
+                key={post.slug || post.id || idx}
+                onClick={() => navigate(`/writing/${post.slug || post.id}`)}
+                style={{
+                  padding: '32px 0',
+                  borderBottom: 'var(--rule-thin)',
+                  cursor: 'pointer',
+                  display: 'grid',
+                  gridTemplateColumns: '1fr',
+                  gap: '12px',
+                  transition: 'opacity 0.2s',
+                }}
+                className="group-hover-trigger"
+              >
+                <div className="flex items-center gap-4">
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '9px',
+                      textTransform: 'uppercase',
+                      color: 'var(--red)',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {post.category || 'General'}
+                  </span>
+                  <span style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--muted)' }}>
+                    {post.date}
                   </span>
                 </div>
-                <h3 className="font-display text-[32px] md:text-[40px] font-extrabold mb-4 text-[var(--white)] leading-tight">
-                  Join the technical <br/><span className="text-[var(--violet)]">inner circle.</span>
-                </h3>
-                <p className="font-body text-[16px] leading-[1.7] text-[var(--muted)] max-w-[480px]">
-                  Bimonthly thoughts on design, code, and culture. No noise, just the craft. Unsubscribe anytime.
-                </p>
-              </div>
 
-              <div className="w-full max-w-[520px]">
-                <form onSubmit={handleSubscribe} className="editorial-panel flex flex-col sm:flex-row gap-0 p-1" aria-label="Newsletter signup">
-                  <input
-                    id="newsletter-email"
-                    type="email"
-                    placeholder="Engineering focus? Enter email..."
-                    value={nlEmail}
-                    onChange={(e) => setNlEmail(e.target.value)}
-                    disabled={nlSubmitting}
-                    className="flex-1 font-body text-[14px] px-6 py-[15px] outline-none bg-transparent text-[var(--white)] placeholder:text-[var(--subtle)] focus:ring-0 transition-all disabled:opacity-60"
-                    required
-                    aria-describedby={nlMsg ? 'newsletter-msg' : undefined}
-                  />
-                  <button
-                    type="submit"
-                    disabled={nlSubmitting}
-                    className="inline-flex items-center justify-center gap-2 font-display text-[12px] font-bold uppercase tracking-[0.15em] px-10 py-[15px] bg-[var(--violet)] text-[var(--white)] border-0 rounded-none transition-all hover:bg-[#9d89f5] disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98]"
-                  >
-                    {nlSubmitting ? 'Subscribing…' : 'Join Now'}
-                  </button>
-                </form>
-                {nlMsg && (
-                  <div id="newsletter-msg" className="font-mono text-[11px] mt-4 flex items-center gap-2 text-[var(--violet)]" role="status" aria-live="polite">
-                    <div className="w-2 h-2 rounded-full bg-current animate-pulse" />
-                    {nlMsg}
-                  </div>
-                )}
+                <h3
+                  className="serif-hover"
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    lineHeight: 1.15,
+                  }}
+                >
+                  {post.title}
+                </h3>
+
+                <p className="hero-desc" style={{ fontSize: '14px', lineHeight: 1.6, maxWidth: '820px' }}>
+                  {post.excerpt}
+                </p>
+
+                <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-wider text-[var(--muted)]">
+                  <Clock size={10} />
+                  <span>{post.readTime || '5 min read'}</span>
+                </div>
               </div>
+            ))}
+
+            <div style={{ marginTop: '48px' }}>
+              <ListPagination
+                page={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+                range={{ start, end, total }}
+              />
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Newsletter Stark Form */}
+      <section style={{ borderTop: 'var(--rule)', padding: '64px 0 80px' }}>
+        <div style={{ border: '1px solid var(--ink)', padding: '40px md:80px', background: 'var(--surface)' }}>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-12 items-center px-4 md:px-12">
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                <div style={{ width: '16px', height: '1px', background: 'var(--red)' }} />
+                <span
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '10px',
+                    letterSpacing: '0.2em',
+                    textTransform: 'uppercase',
+                    color: 'var(--red)',
+                  }}
+                >
+                  Subscribe
+                </span>
+              </div>
+              <h3
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '32px',
+                  fontWeight: 'bold',
+                  lineHeight: 1.1,
+                  marginBottom: '12px',
+                }}
+              >
+                Join the technical <br />
+                <em>inner circle.</em>
+              </h3>
+              <p className="hero-desc" style={{ fontSize: '14px', maxWidth: '440px' }}>
+                Occasional write-ups on design systems, code architecture, and Nigerian tech builders. Minimalist, no spam.
+              </p>
+            </div>
+
+            <div style={{ width: '100%', maxWidth: '440px' }}>
+              <form
+                onSubmit={handleSubscribe}
+                style={{
+                  display: 'flex',
+                  border: '1px solid var(--ink)',
+                  background: 'transparent',
+                }}
+              >
+                <input
+                  type="email"
+                  placeholder="Enter email address..."
+                  value={nlEmail}
+                  onChange={(e) => setNlEmail(e.target.value)}
+                  disabled={nlSubmitting}
+                  style={{
+                    flex: 1,
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '13px',
+                    padding: '12px 16px',
+                    border: 'none',
+                    background: 'transparent',
+                    outline: 'none',
+                    color: 'var(--ink)',
+                  }}
+                  required
+                />
+                <button
+                  type="submit"
+                  disabled={nlSubmitting}
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '10px',
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    padding: '0 24px',
+                    background: 'var(--ink)',
+                    color: 'var(--cream)',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {nlSubmitting ? 'Joining...' : 'Subscribe'}
+                </button>
+              </form>
+              {nlMsg && (
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', marginTop: '12px', color: 'var(--red)' }}>
+                  {nlMsg}
+                </div>
+              )}
             </div>
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 };
 

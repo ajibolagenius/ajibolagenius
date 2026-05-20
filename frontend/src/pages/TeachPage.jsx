@@ -1,145 +1,199 @@
-import React, { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useMemo, useEffect } from 'react';
 import { MessageSquare, Quote, ChevronDown, ChevronUp } from 'lucide-react';
 import { fetchCourses, fetchTestimonials, fetchPersonalInfo, submitCourseWaitlist } from '../services/api';
-import { faqItems } from '../data/mock';
-import Badge from '../components/portfolio/Badge';
-import SectionKicker from '../components/portfolio/SectionKicker';
-import SortSelect from '../components/portfolio/SortSelect';
+import { faqItems, courses as mockFallbackCourses, testimonials as mockFallbackTestimonials } from '../data/mock';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { buildStaticPageMeta } from '../lib/routeMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
-import { useLocale } from '../contexts/LocaleContext';
 import { buildTeachPageSchema } from '../lib/structuredData';
-import { byString, byPrice, applySort } from '../lib/sortHelpers';
 import { paginate } from '../lib/paginate';
 import ListPagination from '../components/portfolio/ListPagination';
 
-/** Badge variant and accent color per index — same length so badge and border/button stay aligned (warm/cool alternating). */
-const COURSE_ACCENTS = [
-  { badge: 'gold', color: 'var(--sungold)' },
-  { badge: 'cosmic', color: 'var(--nebula)' },
-  { badge: 'cyan', color: 'var(--stardust)' },
-  { badge: 'terra', color: 'var(--terracotta)' }
-];
-
-const TEACH_SORT_OPTIONS = [
-  { value: 'default', label: 'Open first, then name' },
-  { value: 'name-asc', label: 'Name A–Z' },
-  { value: 'name-desc', label: 'Name Z–A' },
-  { value: 'price-asc', label: 'Price low–high' },
-  { value: 'price-desc', label: 'Price high–low' },
-];
-
-const CourseCard = ({ course, whatsapp, index = 0 }) => {
+const CourseCard = ({ course, whatsapp }) => {
   const [expanded, setExpanded] = useState(false);
-  const { t } = useLocale();
   const isOpen = course.open_for_enrolment === true;
-  const accent = COURSE_ACCENTS[index % COURSE_ACCENTS.length];
-  const accentColor = accent.color;
 
   return (
     <div
-      className={`editorial-panel transition-all duration-300 overflow-hidden cursor-pointer relative group ${isOpen ? '' : 'opacity-75'}`}
       style={{
-        borderLeft: `2px solid ${isOpen ? accentColor : 'var(--border-md)'}`
+        border: '1px solid var(--ink)',
+        background: 'var(--surface)',
+        padding: '24px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+        opacity: isOpen ? 1 : 0.8,
       }}
     >
-      <div
-        className={`p-5 grid grid-cols-[1fr_auto] items-center gap-4 ${!isOpen ? 'text-[var(--muted)]' : ''}`}
-        onClick={() => setExpanded(!expanded)}
-      >
+      <div className="flex justify-between items-start gap-4">
         <div>
-          <div className="flex flex-wrap items-center gap-2 mb-2">
-            <Badge variant={accent.badge} className={!isOpen ? 'opacity-80' : ''}>
-              {course.badge}
-            </Badge>
-            <span
-              className={`font-mono text-[10px] tracking-[0.1em] uppercase px-2 py-0.5 border ${isOpen ? 'text-[var(--sungold)] border-[var(--sungold)]/50 bg-[var(--sungold)]/10' : 'text-[var(--subtle)] border-[var(--border-md)] bg-[var(--elevated)]'}`}
-              aria-label={isOpen ? 'Open for enrolment' : 'Currently closed'}
-            >
-              {isOpen ? 'Open' : 'Closed'}
-            </span>
-          </div>
-          <h3 className={`font-display text-[15px] font-semibold mb-1 ${isOpen ? 'text-[var(--white)]' : 'text-[var(--muted)]'}`}>
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '8px',
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: isOpen ? 'var(--red)' : 'var(--muted)',
+              border: `1px solid ${isOpen ? 'var(--red)' : 'var(--muted)'}`,
+              padding: '2px 8px',
+              display: 'inline-block',
+              marginBottom: '8px',
+              fontWeight: 'bold',
+            }}
+          >
+            {isOpen ? 'ENROLMENT OPEN' : 'CLOSED'}
+          </span>
+          <h3
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '20px',
+              fontWeight: 'bold',
+              lineHeight: 1.15,
+            }}
+          >
             {course.name}
           </h3>
-          <p className="font-mono text-[11px] text-[var(--muted)]">{course.duration}</p>
-          <p className={`font-body text-[13px] mt-2 ${isOpen ? 'text-[var(--subtle)]' : 'text-[var(--dim)]'}`}>{course.description}</p>
-        </div>
-        <div className="flex flex-col items-end gap-2">
           <span
-            className={`font-display text-[22px] font-extrabold whitespace-nowrap tracking-tight ${isOpen ? '' : 'text-[var(--muted)]'}`}
-            style={isOpen ? { color: accentColor } : undefined}
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '10px',
+              color: 'var(--muted)',
+              display: 'block',
+              marginTop: '4px',
+            }}
+          >
+            {course.duration}
+          </span>
+        </div>
+
+        <div style={{ textAlign: 'right' }}>
+          <span
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '22px',
+              fontWeight: 'bold',
+              color: 'var(--red)',
+              display: 'block',
+            }}
           >
             {course.price}
           </span>
-          {expanded ? <ChevronUp size={16} className="text-[var(--sungold)]" /> : <ChevronDown size={16} className="text-[var(--subtle)] group-hover:text-[var(--white)]" />}
         </div>
       </div>
-      {expanded && course.curriculum && (
-        <div className="px-5 pb-5 pt-0 border-t border-[var(--border)]">
-          <div className="pt-4">
-            <div className="font-mono text-[10px] tracking-[0.12em] uppercase mb-3 text-[var(--stardust)]">
-              {t('teach_curriculum')}
-            </div>
-            <ul className="list-none p-0 m-0 flex flex-col gap-2">
-              {course.curriculum.map((item, i) => (
-                <li key={i} className="flex items-center gap-2 font-body text-[13px] text-[var(--muted)]">
-                  <span className="w-1.5 h-1.5 flex-shrink-0 bg-[var(--sungold)]" />
-                  {item}
+
+      <p className="hero-desc" style={{ fontSize: '13px', lineHeight: 1.6 }}>
+        {course.description}
+      </p>
+
+      {course.curriculum && course.curriculum.length > 0 && (
+        <div>
+          <button
+            onClick={() => setExpanded(!expanded)}
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '9px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--ink)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: 0,
+            }}
+          >
+            <span>{expanded ? 'Hide Syllabus' : 'View Syllabus'}</span>
+            {expanded ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
+          </button>
+
+          {expanded && (
+            <ul
+              style={{
+                listStyle: 'none',
+                padding: '12px 0 0',
+                margin: 0,
+                borderTop: 'var(--rule-thin)',
+                marginTop: '12px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+              }}
+            >
+              {course.curriculum.map((item, idx) => (
+                <li
+                  key={idx}
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '11px',
+                    color: 'var(--ink)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  <span style={{ width: '4px', height: '4px', background: 'var(--red)' }} />
+                  <span>{item}</span>
                 </li>
               ))}
             </ul>
-            {isOpen ? (
-              <a
-                href={whatsapp}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary inline-flex items-center gap-2 font-display text-[12px] font-semibold px-4 py-2 mt-4 no-underline border-0 rounded-none"
-                style={{ background: accentColor, color: accentColor === 'var(--sungold)' ? 'var(--void)' : 'var(--white)' }}
-              >
-                <MessageSquare size={12} /> {t('teach_enrol_via_whatsapp')}
-              </a>
-            ) : (
-              <p className="font-mono text-[11px] text-[var(--subtle)] mt-4">{t('teach_join_waitlist_hint')}</p>
-            )}
-          </div>
+          )}
         </div>
+      )}
+
+      {isOpen && (
+        <a
+          href={whatsapp || 'https://wa.me/2349052026857'}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '9px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            padding: '10px 16px',
+            background: 'var(--ink)',
+            color: 'var(--cream)',
+            textDecoration: 'none',
+            textAlign: 'center',
+            marginTop: 'auto',
+            fontWeight: 'bold',
+          }}
+        >
+          Enrol via WhatsApp
+        </a>
       )}
     </div>
   );
 };
 
-const FaqItem = ({ item, open, onToggle, index }) => {
-  const idBase = `faq-${index}`;
+const FaqItem = ({ item, index, open, onToggle }) => {
   return (
-    <div className="editorial-panel transition-all duration-300 overflow-hidden">
+    <div style={{ borderBottom: 'var(--rule-thin)', padding: '16px 0' }}>
       <button
-        type="button"
-        className="w-full p-6 flex items-center justify-between gap-6 text-left cursor-pointer border-0 bg-transparent font-display text-[15px] font-bold text-[var(--white)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--sungold)] group"
         onClick={onToggle}
-        aria-expanded={open}
-        aria-controls={`${idBase}-answer`}
-        id={`${idBase}-question`}
+        style={{
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          padding: 0,
+          textAlign: 'left',
+        }}
       >
-        <div className="flex items-center gap-4">
-          <span className="font-mono text-[10px] text-[var(--sungold)] opacity-50">0{index + 1}</span>
-          <span className="font-display text-[15px] font-bold group-hover:text-[var(--sungold)] transition-colors">{item.question}</span>
-        </div>
-        <div className={`p-1 border border-[var(--border-md)] transition-all duration-300 ${open ? 'bg-[var(--sungold)] border-[var(--sungold)]' : 'bg-transparent'}`}>
-          {open ? (
-            <ChevronUp size={14} className="text-[var(--void)] flex-shrink-0" aria-hidden />
-          ) : (
-            <ChevronDown size={14} className="text-[var(--subtle)] group-hover:text-[var(--white)] flex-shrink-0" aria-hidden />
-          )}
-        </div>
+        <span style={{ fontFamily: 'var(--font-display)', fontSize: '16px', fontWeight: 'bold', color: 'var(--ink)' }}>
+          {item.question}
+        </span>
+        {open ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
       </button>
       {open && (
-        <div id={`${idBase}-answer`} className="px-16 pb-6" role="region" aria-labelledby={`${idBase}-question`}>
-          <div className="w-full h-px bg-[var(--border-md)] mb-5 opacity-40" />
-          <p className="font-body text-[14px] leading-[1.8] text-[var(--muted)]">{item.answer}</p>
-        </div>
+        <p className="hero-desc" style={{ fontSize: '13px', lineHeight: 1.6, marginTop: '12px', paddingLeft: '8px' }}>
+          {item.answer}
+        </p>
       )}
     </div>
   );
@@ -147,33 +201,45 @@ const FaqItem = ({ item, open, onToggle, index }) => {
 
 const TeachPage = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
-  const { t } = useLocale();
-  const { data: courses, loading: l1 } = useRealtimeQuery('courses', fetchCourses);
-  const { data: testimonials, loading: l2 } = useRealtimeQuery('testimonials', fetchTestimonials);
-  const { data: personalInfo, loading: l3 } = useRealtimeQuery('personal_info', fetchPersonalInfo);
-  const displayCourses = Array.isArray(courses) && courses.length > 0 ? courses : [];
-  const displayTestimonials = Array.isArray(testimonials) && testimonials.length > 0 ? testimonials : [];
-  const whatsapp = personalInfo?.social?.whatsapp || '';
+  const [revealed, setRevealed] = useState(false);
+
+  const { data: rawCourses } = useRealtimeQuery('courses', fetchCourses, mockFallbackCourses);
+  const { data: rawTestimonials } = useRealtimeQuery('testimonials', fetchTestimonials, mockFallbackTestimonials);
+  const { data: info } = useRealtimeQuery('personal_info', fetchPersonalInfo);
+
+  const courses = Array.isArray(rawCourses) && rawCourses.length > 0 ? rawCourses : mockFallbackCourses;
+  const testimonials =
+    Array.isArray(rawTestimonials) && rawTestimonials.length > 0 ? rawTestimonials : mockFallbackTestimonials;
+  const whatsapp = info?.social?.whatsapp || '';
 
   const [sortBy, setSortBy] = useState('default');
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setRevealed(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   const sortedCourses = useMemo(() => {
+    const list = [...courses];
     if (sortBy === 'default') {
-      return applySort(displayCourses, (a, b) => {
+      return list.sort((a, b) => {
         const aOpen = a.open_for_enrolment === true ? 1 : 0;
         const bOpen = b.open_for_enrolment === true ? 1 : 0;
-        if (bOpen !== aOpen) return bOpen - aOpen;
-        const byBadge = byString('badge', 'asc')(a, b);
-        if (byBadge !== 0) return byBadge;
-        return byString('name', 'asc')(a, b);
+        return bOpen - aOpen;
       });
     }
-    const comp = sortBy === 'name-asc' ? byString('name', 'asc')
-      : sortBy === 'name-desc' ? byString('name', 'desc')
-      : sortBy === 'price-asc' ? byPrice('price', 'asc')
-      : byPrice('price', 'desc');
-    return applySort(displayCourses, comp);
-  }, [displayCourses, sortBy]);
+    return list.sort((a, b) => {
+      const nameA = (a.name || '').toLowerCase();
+      const nameB = (b.name || '').toLowerCase();
+      if (sortBy === 'name-asc') return nameA.localeCompare(nameB);
+      if (sortBy === 'name-desc') return nameB.localeCompare(nameA);
+      const priceA = parseFloat(String(a.price).replace(/[^\d.]/g, '')) || 0;
+      const priceB = parseFloat(String(b.price).replace(/[^\d.]/g, '')) || 0;
+      if (sortBy === 'price-asc') return priceA - priceB;
+      return priceB - priceA;
+    });
+  }, [courses, sortBy]);
 
   const { items: paginatedCourses, totalPages, start, end, total } = useMemo(
     () => paginate(sortedCourses, page, 9),
@@ -184,15 +250,15 @@ const TeachPage = () => {
   const [waitlistCourse, setWaitlistCourse] = useState('');
   const [waitlistMsg, setWaitlistMsg] = useState('');
   const [waitlistSubmitting, setWaitlistSubmitting] = useState(false);
+
   const handleWaitlistSubmit = async (e) => {
     e.preventDefault();
-    const email = waitlistEmail.trim();
-    if (!email || waitlistSubmitting) return;
+    if (!waitlistEmail || waitlistSubmitting) return;
     setWaitlistSubmitting(true);
     setWaitlistMsg('');
     try {
-      const res = await submitCourseWaitlist(email, waitlistCourse || null);
-      setWaitlistMsg(res?.message || t('teach_on_list'));
+      await submitCourseWaitlist(waitlistEmail.trim(), waitlistCourse || null);
+      setWaitlistMsg('Added to waitlist! You will be notified on next opening.');
       setWaitlistEmail('');
       setWaitlistCourse('');
     } catch {
@@ -205,212 +271,278 @@ const TeachPage = () => {
 
   usePageMeta({
     ...buildStaticPageMeta('/teach'),
-    structuredData: buildTeachPageSchema(displayCourses),
+    structuredData: buildTeachPageSchema(courses),
   });
 
   return (
-    <>
-      <section className="editorial-section overflow-hidden">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-          >
-            <SectionKicker label="Course" accent="sungold" />
-            <h1 className="font-display font-extrabold leading-[0.95] tracking-[-0.04em] mb-5 text-[var(--white)] max-w-[11ch]" style={{ fontSize: 'clamp(2.5rem, 8vw, 5rem)' }}>
-              {t('teach_heading')}
-            </h1>
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-8 md:gap-16 items-start">
-              <div>
-                <p className="font-body text-[19px] leading-[1.6] mb-6 text-[var(--white)] font-medium">
-                  {t('teach_subheading')}
-                </p>
-                <p className="font-body text-[17px] leading-[1.7] max-w-[600px] text-[var(--muted)]">
-                  Start with <em>why</em>, not just <em>what</em>. Projects beat theory every time. Community is everything — the groups outlast the courses. Pricing is set for Nigerian reality, not Silicon Valley budgets.
-                </p>
-                <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-[780px]">
-                  {[
-                    ['Students', '300+'],
-                    ['Format', 'Remote'],
-                    ['Impact', 'Global'],
-                  ].map(([label, value]) => (
-                    <div key={label} className="editorial-panel p-4">
-                      <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--subtle)] mb-2">{label}</div>
-                      <div className="font-display text-[15px] text-[var(--white)]">{value}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="editorial-panel p-6 relative">
-              <p className="font-mono text-[11px] leading-[1.6] text-[var(--subtle)] italic">
-                {'"The best way to learn is to build. The second best way is to teach what you just built."' || t('teach_sidebar_quote') }
-              </p>
-              </div>
-            </div>
-          </motion.div>
+    <div className="page-content">
+      {/* Page Header */}
+      <section style={{ borderBottom: 'var(--rule)', padding: '56px 0 40px' }}>
+        <div className={`reveal ${revealed ? 'in' : ''}`}>
+          <div className="hero-kicker">
+            <span className="hero-kicker-dot"></span>
+            Syllabus &amp; Craft
+          </div>
+          <h1 className="hero-title" style={{ fontSize: 'clamp(52px, 8vw, 100px)', lineHeight: 0.9 }}>
+            Teach &amp; <em>Learn</em>
+          </h1>
+          <div className="hero-rule" style={{ margin: '24px 0 20px' }}>
+            <div className="hero-rule-line"></div>
+            <span className="hero-rule-label">DON_GENIUS — CLASSES</span>
+            <div className="hero-rule-line"></div>
+          </div>
+          <p className="hero-desc" style={{ maxWidth: '620px' }}>
+            Technical courses and hands-on workshops designed for immediate practical building, not abstract theory.
+          </p>
         </div>
       </section>
 
-      {/* Course grid (9 courses) */}
-      <section className="editorial-section">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-px bg-[var(--stardust)]" />
-              <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--stardust)]">
-                All Courses
-              </span>
-            </div>
-            <SortSelect options={TEACH_SORT_OPTIONS} value={sortBy} onChange={(v) => { setSortBy(v); setPage(1); }} label="Sort" />
+      {/* Structured Courses Index Grid */}
+      <section style={{ borderBottom: 'var(--rule)', padding: '56px 0' }}>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '16px', height: '1px', background: 'var(--red)' }} />
+            <span
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '10px',
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                color: 'var(--red)',
+              }}
+            >
+              Curriculums
+            </span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {paginatedCourses.map((c, i) => (
-              <CourseCard key={c.slug || c.id} course={c} whatsapp={whatsapp} index={start + i} />
-            ))}
-          </div>
-          {sortedCourses.length > 0 && (
+
+          <select
+            value={sortBy}
+            onChange={(e) => {
+              setSortBy(e.target.value);
+              setPage(1);
+            }}
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '10px',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              padding: '6px 12px',
+              border: '1px solid var(--ink)',
+              background: 'transparent',
+              color: 'var(--ink)',
+              cursor: 'pointer',
+              outline: 'none',
+            }}
+          >
+            <option value="default">Open First</option>
+            <option value="name-asc">Name A-Z</option>
+            <option value="name-desc">Name Z-A</option>
+            <option value="price-asc">Price Low-High</option>
+            <option value="price-desc">Price High-Low</option>
+          </select>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {paginatedCourses.map((c, i) => (
+            <CourseCard key={c.id || i} course={c} whatsapp={whatsapp} />
+          ))}
+        </div>
+
+        {courses.length > 0 && (
+          <div style={{ marginTop: '48px' }}>
             <ListPagination
               page={page}
               totalPages={totalPages}
               onPageChange={setPage}
               range={{ start, end, total }}
             />
-          )}
-        </div>
+          </div>
+        )}
       </section>
 
-      {/* Enrol CTA → WhatsApp */}
-      <section className="editorial-section">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8 text-center">
-          <SectionKicker label="Get Started" accent="sungold" />
-          <h2 className="font-display font-extrabold leading-[1.1] tracking-[-0.02em] mb-3 text-[var(--white)]" style={{ fontSize: 'clamp(24px, 3vw, 32px)' }}>
-            Ready to enrol?
-          </h2>
-          <p className="font-body text-[15px] leading-[1.7] mb-8 max-w-[480px] mx-auto text-[var(--muted)]">
-            Message me on WhatsApp and I’ll walk you through the process, answer questions, and get you started.
-          </p>
-          <a
-            href={whatsapp}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] no-underline bg-[var(--sungold)] text-[var(--void)] border-0 rounded-none"
+      {/* Waitlist Form Section */}
+      <section style={{ borderBottom: 'var(--rule)', padding: '56px 0' }}>
+        <div style={{ border: '1px solid var(--ink)', padding: '40px', background: 'var(--surface)' }}>
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '10px',
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: 'var(--muted)',
+              display: 'block',
+              marginBottom: '16px',
+            }}
           >
-            <MessageSquare size={16} /> Enrol via WhatsApp
-          </a>
-        </div>
-      </section>
-
-      {/* Course waitlist */}
-      <section className="editorial-section">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <SectionKicker label="Notify me" accent="violet" />
-          <h2 className="font-display font-extrabold leading-[1.1] tracking-[-0.02em] mb-3 text-[var(--white)]" style={{ fontSize: 'clamp(24px, 3vw, 32px)' }}>
-            {t('teach_notify_heading')}
+            Waitlist Registration
+          </span>
+          <h2
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '28px',
+              fontWeight: 'bold',
+              marginBottom: '12px',
+            }}
+          >
+            Notify me on next opening.
           </h2>
-          <p className="font-body text-[15px] leading-[1.7] mb-6 max-w-[480px] text-[var(--muted)]">
-            Leave your email and we&apos;ll let you know when the course you&apos;re interested in is open for enrolment.
+          <p className="hero-desc" style={{ fontSize: '14px', maxWidth: '480px', marginBottom: '24px' }}>
+            Register your coordinates below. You will be prioritized immediately on next cohort intake.
           </p>
-          <form onSubmit={handleWaitlistSubmit} className="editorial-panel flex flex-col sm:flex-row gap-0 max-w-[640px] p-1" aria-label="Course waitlist">
-            <div className="flex-1 flex flex-col min-w-0">
-              <input
-                id="waitlist-email"
-                type="email"
-                placeholder={t('teach_notify_placeholder') || "Enter your email"}
-                value={waitlistEmail}
-                onChange={(e) => setWaitlistEmail(e.target.value)}
-                required
-                disabled={waitlistSubmitting}
-                className="w-full font-body text-[14px] px-5 py-[14px] outline-none bg-transparent border-0 text-[var(--white)] placeholder:text-[var(--subtle)] focus:ring-0 transition-colors disabled:opacity-60"
-                aria-describedby={waitlistMsg ? 'waitlist-msg' : undefined}
-              />
-            </div>
-            <div className="w-px bg-[var(--border-md)] hidden sm:block h-8 self-center" />
+
+          <form
+            onSubmit={handleWaitlistSubmit}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr',
+              gap: '12px',
+              maxWidth: '520px',
+            }}
+          >
+            <input
+              type="email"
+              placeholder="Your email address..."
+              value={waitlistEmail}
+              onChange={(e) => setWaitlistEmail(e.target.value)}
+              disabled={waitlistSubmitting}
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '13px',
+                padding: '12px 16px',
+                border: '1px solid var(--ink)',
+                background: 'transparent',
+                outline: 'none',
+                color: 'var(--ink)',
+              }}
+              required
+            />
+
             <select
               value={waitlistCourse}
               onChange={(e) => setWaitlistCourse(e.target.value)}
               disabled={waitlistSubmitting}
-              className="font-mono text-[11px] uppercase tracking-[0.05em] px-4 py-[14px] outline-none bg-transparent border-0 text-[var(--subtle)] transition-colors disabled:opacity-60 w-full sm:w-[180px] cursor-pointer"
-              aria-label="Course (optional)"
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '10px',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                padding: '12px 16px',
+                border: '1px solid var(--ink)',
+                background: 'transparent',
+                color: 'var(--ink)',
+                cursor: 'pointer',
+                outline: 'none',
+              }}
             >
-              <option value="" className="bg-[var(--void)]">{t('teach_any_course') || "Any Course"}</option>
-              {displayCourses.map((c) => (
-                <option key={c.slug || c.id} value={c.slug || c.id} className="bg-[var(--void)]">{c.name}</option>
+              <option value="" className="bg-[var(--cream)]">
+                Select Course (Optional)
+              </option>
+              {courses.map((c) => (
+                <option key={c.id} value={c.slug || c.id} className="bg-[var(--cream)]">
+                  {c.name}
+                </option>
               ))}
             </select>
+
             <button
               type="submit"
               disabled={waitlistSubmitting}
-              className="inline-flex items-center justify-center gap-2 font-display text-[12px] font-bold uppercase tracking-[0.1em] px-8 py-[14px] bg-[var(--nebula)] text-[var(--white)] border-0 rounded-none transition-all hover:bg-[var(--violet)] disabled:opacity-60 active:scale-[0.98]"
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '10px',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                padding: '12px 24px',
+                background: 'var(--ink)',
+                color: 'var(--cream)',
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                textAlign: 'center',
+              }}
             >
-              {waitlistSubmitting ? t('teach_submitting') || '...' : t('teach_notify_button') || 'Notify Me'}
+              {waitlistSubmitting ? 'Submitting...' : 'Register Waitlist'}
             </button>
           </form>
           {waitlistMsg && (
-            <div id="waitlist-msg" role="status" className="font-mono text-[11px] mt-4 flex items-center gap-2 text-[var(--nebula)]" aria-live="polite">
-              <div className="w-2 h-2 rounded-full bg-current animate-pulse" />
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', marginTop: '12px', color: 'var(--red)' }}>
               {waitlistMsg}
-            </div>
+            </p>
           )}
         </div>
       </section>
 
       {/* Testimonials */}
-      <section className="editorial-section">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <SectionKicker label="What Students Say" accent="violet" />
+      {testimonials.length > 0 && (
+        <section style={{ borderBottom: 'var(--rule)', padding: '56px 0 80px' }}>
+          <h3
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '10px',
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              marginBottom: '32px',
+            }}
+          >
+            Review Catalog
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayTestimonials.length === 0 ? (
-              <p className="font-body text-[14px] text-[var(--muted)] col-span-full">No testimonials yet.</p>
-            ) : (
-              displayTestimonials.map((t, i) => (
-                <div key={t.id ?? `testimonial-${i}`} className="editorial-panel group p-8 transition-all duration-300">
-                  <Quote size={24} className="mb-6 text-[var(--sungold)] opacity-40 transition-opacity" />
-                  <p className="font-body text-[15px] leading-[1.8] mb-8 text-[var(--subtle)] group-hover:text-[var(--white)] transition-colors">
-                    &ldquo;{t.text}&rdquo;
-                  </p>
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-[var(--surface)] border border-[var(--border-md)] flex items-center justify-center font-display text-[14px] font-bold text-[var(--sungold)] uppercase">
-                      {t.name.charAt(0)}
-                    </div>
-                    <div>
-                      <div className="font-display text-[14px] font-bold text-[var(--white)] tracking-tight">{t.name}</div>
-                      <div className="font-mono text-[10px] uppercase tracking-[0.15em] text-[var(--stardust)]">{t.role}</div>
-                    </div>
-                  </div>
+            {testimonials.map((t, idx) => (
+              <div
+                key={t.id || idx}
+                style={{
+                  border: '1px solid var(--ink)',
+                  padding: '24px',
+                  background: 'var(--surface)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '16px',
+                }}
+              >
+                <Quote size={20} style={{ color: 'var(--red)', opacity: 0.3 }} />
+                <p className="hero-desc" style={{ fontSize: '13px', lineHeight: 1.6, fontStyle: 'italic' }}>
+                  "{t.text}"
+                </p>
+                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 'bold' }}>
+                    {t.name}
+                  </span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', color: 'var(--muted)' }}>
+                    {t.role}
+                  </span>
                 </div>
-              ))
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ accordion */}
-      <section className="py-12 md:py-16">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-6 h-px bg-[var(--sungold)]" />
-            <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--sungold)]">
-              FAQ
-            </span>
-          </div>
-          <h2 className="font-display font-extrabold leading-[1.1] tracking-[-0.02em] mb-8 text-[var(--white)]" style={{ fontSize: 'clamp(24px, 3vw, 36px)' }}>
-            Frequently Asked Questions
-          </h2>
-          <div className="max-w-[720px] flex flex-col gap-3">
-            {faqItems.map((item, i) => (
-              <FaqItem
-                key={i}
-                index={i}
-                item={item}
-                open={openFaqIndex === i}
-                onToggle={() => setOpenFaqIndex(prev => (prev === i ? null : i))}
-              />
+              </div>
             ))}
           </div>
+        </section>
+      )}
+
+      {/* FAQ */}
+      <section style={{ padding: '56px 0 80px' }}>
+        <h3
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '10px',
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            marginBottom: '24px',
+          }}
+        >
+          General FAQs
+        </h3>
+        <div style={{ maxWidth: '720px' }}>
+          {faqItems.map((item, idx) => (
+            <FaqItem
+              key={idx}
+              item={item}
+              index={idx}
+              open={openFaqIndex === idx}
+              onToggle={() => setOpenFaqIndex(openFaqIndex === idx ? null : idx)}
+            />
+          ))}
         </div>
       </section>
-    </>
+    </div>
   );
 };
 

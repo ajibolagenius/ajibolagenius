@@ -2,15 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink, Github, X } from 'lucide-react';
 import { fetchProject } from '../services/api';
-import Badge from '../components/portfolio/Badge';
-import { BADGE_VARIANTS } from '../constants';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { buildOgImageUrl, DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
 import { absolutizeUrl } from '../lib/pageMeta';
 import { buildCreativeWorkSchema } from '../lib/structuredData';
 import OptimizedImage from '../components/portfolio/OptimizedImage';
 import { track } from '../services/analytics';
-import { ProjectsSkeleton } from '../components/portfolio/SkeletonLayouts';
+import { projects as mockFallback } from '../data/mock';
 
 const WorkDetailPage = () => {
   const { slug } = useParams();
@@ -21,21 +19,21 @@ const WorkDetailPage = () => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
-  const screenshotsLength = project
-    ? (project.screenshots || []).map((s) => (typeof s === 'string' ? s : s?.url)).filter(Boolean).length
-    : 0;
-  const goPrev = useCallback(() => {
-    setLightboxIndex((i) => (screenshotsLength <= 0 ? 0 : (i <= 0 ? screenshotsLength - 1 : i - 1)));
-  }, [screenshotsLength]);
-  const goNext = useCallback(() => {
-    setLightboxIndex((i) => (screenshotsLength <= 0 ? 0 : (i >= screenshotsLength - 1 ? 0 : i + 1)));
-  }, [screenshotsLength]);
-
   useEffect(() => {
+    setLoading(true);
     fetchProject(slug)
-      .then(data => { setProject(data); setLoading(false); })
+      .then((data) => {
+        setProject(data);
+        setLoading(false);
+      })
       .catch(() => {
-        setError(true);
+        // Find in mock fallback
+        const matched = mockFallback.find((p) => p.slug === slug || p.id === slug);
+        if (matched) {
+          setProject(matched);
+        } else {
+          setError(true);
+        }
         setLoading(false);
       });
   }, [slug]);
@@ -44,7 +42,19 @@ const WorkDetailPage = () => {
     if (project?.slug || project?.name) {
       track('project_view', { slug: project.slug, title: project.name, path: `/work/${project.slug}` });
     }
-  }, [project?.slug, project?.name]);
+  }, [project]);
+
+  const screenshots = project
+    ? (project.screenshots || []).map((s) => (typeof s === 'string' ? s : s?.url)).filter(Boolean)
+    : [];
+
+  const goPrev = useCallback(() => {
+    setLightboxIndex((i) => (screenshots.length <= 0 ? 0 : i <= 0 ? screenshots.length - 1 : i - 1));
+  }, [screenshots]);
+
+  const goNext = useCallback(() => {
+    setLightboxIndex((i) => (screenshots.length <= 0 ? 0 : i >= screenshots.length - 1 ? 0 : i + 1));
+  }, [screenshots]);
 
   useEffect(() => {
     if (!lightboxOpen) return;
@@ -57,22 +67,10 @@ const WorkDetailPage = () => {
     return () => window.removeEventListener('keydown', onKey);
   }, [lightboxOpen, goPrev, goNext]);
 
-  useEffect(() => {
-    if (screenshotsLength === 0) {
-      setLightboxOpen(false);
-      setLightboxIndex(0);
-      return;
-    }
-    setLightboxIndex((i) => Math.min(i, Math.max(0, screenshotsLength - 1)));
-  }, [screenshotsLength]);
-
   const projectOgImage =
     project &&
     (() => {
-      const shots = (project.screenshots || [])
-        .map((s) => (typeof s === 'string' ? s : s?.url))
-        .filter(Boolean);
-      const hero = shots[0];
+      const hero = screenshots[0];
       if (hero) return absolutizeUrl(hero);
       return buildOgImageUrl(project.name, 'Project', project.description || 'Project by Ajibola Akelebe');
     })();
@@ -95,316 +93,435 @@ const WorkDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="py-32 px-4 max-w-[1160px] mx-auto">
-        <ProjectsSkeleton count={1} />
+      <div className="page-content" style={{ padding: '120px 0', textAlign: 'center', fontFamily: 'var(--font-mono)' }}>
+        Loading Case Study Archive...
       </div>
     );
   }
 
   if (error || !project) {
     return (
-      <section className="py-16 md:py-32">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8 text-center">
-          <h1 className="font-display text-[36px] font-extrabold mb-4 text-[var(--white)]">Project not found</h1>
-          <button
-            onClick={() => navigate('/work')}
-            className="btn-primary font-display text-[13px] font-semibold px-[22px] py-[11px] cursor-pointer bg-[var(--sungold)] text-[var(--void)] border-0 rounded-none"
-          >
-            Back to Projects
-          </button>
-        </div>
-      </section>
+      <div className="page-content" style={{ padding: '120px 0', textAlign: 'center' }}>
+        <h1 className="hero-title" style={{ fontSize: '32px', marginBottom: '24px' }}>Archive Not Found</h1>
+        <button
+          onClick={() => navigate('/work')}
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '10px',
+            textTransform: 'uppercase',
+            padding: '10px 20px',
+            background: 'var(--ink)',
+            color: 'var(--cream)',
+            border: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          Return to Selected Work
+        </button>
+      </div>
     );
   }
 
-  const roleTitle = project.role_title || project.role || '';
+  const roleTitle = project.role_title || project.role || 'Creator';
   const techDetails = project.tech_details || project.techDetails || [];
   const liveUrl = project.live_url || project.liveUrl || '#';
   const githubUrl = project.github_url || project.githubUrl || '#';
-  const screenshots = (project.screenshots || []).map((s) => (typeof s === 'string' ? s : s?.url)).filter(Boolean);
   const heroImage = screenshots[0];
-  const lightboxSafeIndex = screenshots.length > 0 ? Math.min(lightboxIndex, screenshots.length - 1) : 0;
 
   return (
-    <>
-      <section className="editorial-section overflow-hidden">
+    <div className="page-content">
+      {/* Editorial Header */}
+      <section style={{ borderBottom: 'var(--rule)', padding: '56px 0 32px' }}>
         <button
-          type="button"
           onClick={() => navigate('/work')}
-          className="absolute top-6 left-6 z-20 inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.1em] uppercase cursor-pointer bg-[var(--surface)] backdrop-blur-md border border-[var(--border)] px-4 py-2 text-[var(--muted)] hover:text-[var(--sungold)] transition-all hover:border-[var(--sungold)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)]"
-          aria-label="Back to projects"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '10px',
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: 'var(--ink)',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            marginBottom: '28px',
+          }}
         >
-          <ArrowLeft size={14} /> Back to Projects
+          <ArrowLeft size={10} /> Back to Archive
         </button>
 
-        <div className="relative min-h-[320px] md:min-h-[480px] flex items-center justify-center">
-          <div className="relative z-10 w-full h-full max-w-[1240px] px-4 md:px-8 flex items-center justify-center">
-            {heroImage ? (
-              <button
-                type="button"
-                onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }}
-                className="w-full max-h-[400px] md:max-h-[560px] block cursor-zoom-in focus:outline-none group"
-                aria-label="Open image in lightbox"
-              >
-                <div className="relative overflow-hidden border border-[var(--border-md)] shadow-2xl">
-                  <OptimizedImage
-                    src={heroImage}
-                    alt={project.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
-                    priority
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--void)]/40 to-transparent group-hover:opacity-0 transition-opacity" />
-                </div>
-              </button>
-            ) : (
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-24 h-px bg-[var(--border-md)]" />
-                <span className="font-display text-[14px] tracking-[0.3em] uppercase text-[var(--subtle)]">
-                  {project.label || project.name}
-                </span>
-                <div className="w-24 h-px bg-[var(--border-md)]" />
-              </div>
-            )}
+        <div>
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '10px',
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              display: 'block',
+              marginBottom: '16px',
+            }}
+          >
+            § {project.category || 'System'}
+          </span>
+          <h1 className="hero-title" style={{ fontSize: 'clamp(42px, 6.5vw, 76px)', lineHeight: 0.95, marginBottom: '24px' }}>
+            {project.name}
+          </h1>
+
+          <div className="hero-rule" style={{ margin: '24px 0' }}>
+            <div className="hero-rule-line"></div>
+            <span className="hero-rule-label">{project.year || '2024'} Archive</span>
+            <div className="hero-rule-line"></div>
           </div>
+
+          <p className="hero-desc" style={{ fontSize: '18px', lineHeight: 1.6, maxWidth: '820px' }}>
+            {project.description}
+          </p>
         </div>
       </section>
 
-      {/* Lightbox */}
-      {lightboxOpen && screenshots.length > 0 && screenshots[lightboxSafeIndex] && (
-        <div
-          className="fixed inset-0 z-[1000] flex items-center justify-center bg-[var(--void)]/95 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Image gallery"
-          onClick={() => setLightboxOpen(false)}
-        >
-          <button
-            type="button"
-            onClick={() => setLightboxOpen(false)}
-            className="absolute top-6 right-6 z-10 p-3 text-[var(--white)] hover:text-[var(--sungold)] transition-colors focus:outline-none"
-            aria-label="Close lightbox"
-          >
-            <X size={28} />
-          </button>
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); goPrev(); }}
-            className="absolute left-6 top-1/2 -translate-y-1/2 z-10 p-4 text-[var(--white)] hover:text-[var(--sungold)] transition-all hover:scale-110 focus:outline-none"
-            aria-label="Previous image"
-          >
-            <ChevronLeft size={48} strokeWidth={1.5} />
-          </button>
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); goNext(); }}
-            className="absolute right-6 top-1/2 -translate-y-1/2 z-10 p-4 text-[var(--white)] hover:text-[var(--sungold)] transition-all hover:scale-110 focus:outline-none"
-            aria-label="Next image"
-          >
-            <ChevronRight size={48} strokeWidth={1.5} />
-          </button>
+      {/* Hero Showcase Frame */}
+      {heroImage && (
+        <section style={{ borderBottom: 'var(--rule)', padding: '40px 0' }}>
           <div
-            className="relative max-w-[95vw] max-h-[85vh] flex items-center justify-center p-4"
-            onClick={(e) => e.stopPropagation()}
+            onClick={() => {
+              setLightboxIndex(0);
+              setLightboxOpen(true);
+            }}
+            style={{
+              cursor: 'zoom-in',
+              border: '1px solid var(--ink)',
+              background: 'var(--surface)',
+              padding: '24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
             <OptimizedImage
-              src={screenshots[lightboxSafeIndex]}
-              alt={`${project.name} screenshot ${lightboxSafeIndex + 1}`}
-              className="max-w-full max-h-[80vh] w-auto h-auto object-contain border border-[var(--border)] shadow-[0_0_50px_rgba(0,0,0,0.5)]"
-              loading="eager"
+              src={heroImage}
+              alt={project.name}
+              style={{ width: '100%', maxHeight: '480px', objectFit: 'contain' }}
             />
           </div>
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-4">
-             <span className="font-mono text-[12px] tracking-widest text-[var(--subtle)]">
-               {String(lightboxSafeIndex + 1).padStart(2, '0')} // {String(screenshots.length).padStart(2, '0')}
-             </span>
-          </div>
-        </div>
+        </section>
       )}
 
-      {/* Content Section */}
-      <section className="editorial-section">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-12 lg:gap-24">
-            {/* Left Column: Info */}
-            <div>
-              <div className="font-mono text-[11px] tracking-[0.2em] uppercase mb-4 text-[var(--sungold)] flex items-center gap-2">
-                <span className="w-4 h-px bg-[var(--sungold)]" />
-                {project.category}
-              </div>
-              <h1 className="font-display font-extrabold leading-[1.1] tracking-[-0.03em] mb-6 text-[var(--white)]" style={{ fontSize: 'clamp(32px, 5.5vw, 56px)' }}>
-                {project.name}
-              </h1>
-              <p className="font-body text-[18px] leading-[1.8] mb-8 text-[var(--muted)]">
-                {project.description}
-              </p>
+      {/* Grid Meta Details */}
+      <section style={{ borderBottom: 'var(--rule)', padding: '40px 0' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-[1.8fr_1fr] gap-12">
+          {/* Narrative Summary */}
+          <div>
+            <h3
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '10px',
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                marginBottom: '16px',
+              }}
+            >
+              Summary &amp; Coordinates
+            </h3>
+            <p className="hero-desc" style={{ marginBottom: '28px' }}>
+              Designed and engineered to bridge complex functionality with high-impact visuals. This case study breaks down our primary technical parameters, constraints, and results.
+            </p>
 
-              <div className="flex flex-wrap items-center gap-4 mb-10">
-                <a
-                  href={liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-primary inline-flex items-center gap-3 font-display text-[13px] font-bold tracking-[0.06em] px-8 py-3.5 no-underline bg-[var(--sungold)] text-[var(--void)] border-0 rounded-none transition-all hover:scale-[1.02] active:scale-[0.98] uppercase"
-                >
-                  View Project <ExternalLink size={14} />
-                </a>
-                <a
-                  href={githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-ghost inline-flex items-center gap-3 font-display text-[13px] font-bold tracking-[0.06em] px-8 py-3.5 no-underline bg-transparent text-[var(--white)] border border-[var(--border-md)] rounded-none transition-all hover:bg-[var(--overlay)] uppercase"
-                >
-                  <Github size={16} /> Repository
-                </a>
-              </div>
+            <div className="flex flex-wrap gap-4">
+              <a
+                href={liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '10px',
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  padding: '12px 24px',
+                  background: 'var(--red)',
+                  color: 'var(--cream)',
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontWeight: 'bold',
+                }}
+              >
+                Launch Application <ExternalLink size={10} />
+              </a>
 
-              <div className="flex flex-wrap gap-2">
-                {(project.tags || []).map((tag, j) => (
-                  <Badge key={j} variant={BADGE_VARIANTS[j % BADGE_VARIANTS.length]}>
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
+              <a
+                href={githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '10px',
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  padding: '12px 24px',
+                  border: '1px solid var(--ink)',
+                  color: 'var(--ink)',
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: 'transparent',
+                }}
+              >
+                Code Repository <Github size={12} />
+              </a>
             </div>
+          </div>
 
-            {/* Right Column: Meta Grid */}
-            <div className="flex flex-col gap-1 w-full max-w-[400px]">
-              {[
-                { label: 'Role', value: roleTitle },
-                { label: 'Duration', value: project.duration },
-                { label: 'Year', value: project.year }
-              ].filter(m => m.value).map((meta, i) => (
-                <div key={i} className="group p-6 editorial-panel relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-1 h-0 bg-[var(--sungold)] group-hover:h-full transition-all duration-300" />
-                  <div className="font-mono text-[10px] tracking-[0.2em] uppercase mb-2 text-[var(--subtle)]">{meta.label}</div>
-                  <div className="font-display text-[15px] font-bold text-[var(--white)] tracking-wide">{meta.value}</div>
+          {/* Key Parameters */}
+          <div style={{ borderLeft: 'var(--rule-thin)', paddingLeft: '24px' }}>
+            <h3
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '10px',
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                marginBottom: '16px',
+              }}
+            >
+              Parameters
+            </h3>
+            {[
+              { label: 'Role & Scope', value: roleTitle },
+              { label: 'Timeline Duration', value: project.duration },
+              { label: 'Production Year', value: project.year },
+            ]
+              .filter((m) => m.value)
+              .map((meta, i) => (
+                <div key={i} style={{ marginBottom: '16px' }}>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '8px',
+                      textTransform: 'uppercase',
+                      color: 'var(--muted)',
+                      display: 'block',
+                    }}
+                  >
+                    {meta.label}
+                  </span>
+                  <span style={{ fontFamily: 'var(--font-display)', fontSize: '15px', fontWeight: 'bold' }}>
+                    {meta.value}
+                  </span>
                 </div>
               ))}
-            </div>
           </div>
         </div>
       </section>
 
-      {/* Narrative Section */}
+      {/* Narrative Section (Problem / Solution) */}
       {(project.problem || project.solution) && (
-        <section className="editorial-section">
-          <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20">
-              {project.problem && (
-                <div className="relative">
-                  <div className="flex items-center gap-3 mb-6">
-                    <span className="font-mono text-[11px] font-bold text-[var(--terracotta)]">01.</span>
-                    <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[var(--terracotta)]">The Challenge</span>
-                    <div className="flex-1 h-px bg-[var(--border)]" />
-                  </div>
-                  <p className="font-body text-[16px] leading-[1.8] text-[var(--muted)] whitespace-pre-line">{project.problem}</p>
+        <section style={{ borderBottom: 'var(--rule)', padding: '56px 0' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            {project.problem && (
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', fontWeight: 'bold' }}>01 //</span>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '10px',
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    The Constraint
+                  </span>
                 </div>
-              )}
-              {project.solution && (
-                <div className="relative">
-                  <div className="flex items-center gap-3 mb-6">
-                    <span className="font-mono text-[11px] font-bold text-[var(--sungold)]">02.</span>
-                    <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[var(--sungold)]">The Execution</span>
-                    <div className="flex-1 h-px bg-[var(--border)]" />
-                  </div>
-                  <p className="font-body text-[16px] leading-[1.8] text-[var(--muted)] whitespace-pre-line">{project.solution}</p>
+                <p className="hero-desc" style={{ fontSize: '15px', lineHeight: 1.7 }}>
+                  {project.problem}
+                </p>
+              </div>
+            )}
+            {project.solution && (
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', fontWeight: 'bold' }}>02 //</span>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '10px',
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    The Resolution
+                  </span>
                 </div>
-              )}
-            </div>
+                <p className="hero-desc" style={{ fontSize: '15px', lineHeight: 1.7 }}>
+                  {project.solution}
+                </p>
+              </div>
+            )}
           </div>
         </section>
       )}
 
       {/* Technical Architecture */}
       {techDetails.length > 0 && (
-        <section className="editorial-section">
-          <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-            <div className="flex items-center gap-3 mb-10">
-              <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[var(--stardust)]">Architecture</span>
-              <div className="flex-1 h-px bg-[var(--border)]" />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {techDetails.map((tech, i) => (
-                <div key={i} className="group p-6 bg-[var(--surface)] border border-[var(--border)] transition-all hover:border-[rgba(232,160,32,0.2)]">
-                  <div className="flex justify-between items-start mb-4">
-                    <Badge variant={BADGE_VARIANTS[i % BADGE_VARIANTS.length]}>
-                      {tech.name}
-                    </Badge>
-                  </div>
-                  <div className="font-mono text-[11px] leading-relaxed text-[var(--subtle)] uppercase tracking-tight">
-                    {tech.role}
-                  </div>
-                </div>
-              ))}
-            </div>
+        <section style={{ borderBottom: 'var(--rule)', padding: '56px 0' }}>
+          <h3
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '10px',
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              marginBottom: '32px',
+            }}
+          >
+            Technical Stack Architecture
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {techDetails.map((tech, i) => (
+              <div
+                key={i}
+                style={{
+                  border: '1px solid var(--ink)',
+                  padding: '20px',
+                  background: 'var(--surface)',
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '9px',
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontWeight: 'bold',
+                    color: 'var(--red)',
+                  }}
+                >
+                  {tech.name}
+                </span>
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', lineHeight: 1.4, display: 'block' }}>
+                  {tech.role}
+                </span>
+              </div>
+            ))}
           </div>
         </section>
       )}
 
-      {/* Screenshots Gallery */}
-        <section className="editorial-section">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="flex items-center justify-between gap-3 mb-12">
-            <div className="flex items-center gap-3">
-              <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[var(--violet)]">Visions</span>
-            </div>
-            <div className="font-mono text-[10px] text-[var(--subtle)] uppercase tracking-tighter">
-              Project Archive // Gallery_Mode
-            </div>
+      {/* Gallery Showcase */}
+      {screenshots.length > 1 && (
+        <section style={{ padding: '56px 0 80px' }}>
+          <h3
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '10px',
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              marginBottom: '32px',
+            }}
+          >
+            Exhibition Grid
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {screenshots.slice(1).map((url, i) => (
+              <div
+                key={i}
+                onClick={() => {
+                  setLightboxIndex(i + 1);
+                  setLightboxOpen(true);
+                }}
+                style={{
+                  border: '1px solid var(--ink)',
+                  padding: '12px',
+                  background: 'var(--surface)',
+                  cursor: 'zoom-in',
+                }}
+              >
+                <OptimizedImage src={url} alt={`${project.name} preview ${i + 2}`} style={{ width: '100%' }} />
+              </div>
+            ))}
           </div>
-          
-          {screenshots.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {screenshots.map((url, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => { setLightboxIndex(i); setLightboxOpen(true); }}
-                  className="group relative border border-[var(--border)] overflow-hidden bg-[var(--elevated)] aspect-video cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sungold)]"
-                  aria-label={`View screenshot ${i + 1}`}
-                >
-                  <OptimizedImage
-                    src={url}
-                    alt={`${project.name} screenshot ${i + 1}`}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-[var(--void)]/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="aspect-video flex items-center justify-center bg-[var(--void)]/20 border border-[var(--border)] border-dashed"
-                >
-                  <span className="font-mono text-[10px] tracking-widest uppercase text-[var(--subtle)] opacity-30">NO_PREVIEW_{i}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* Footer Navigation */}
-      <section className="py-20 text-center border-t border-[var(--border)]">
-        <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-          <div className="inline-flex flex-col items-center gap-6">
-            <div className="w-12 h-px bg-[var(--border-hi)]" />
-            <button
-              onClick={() => navigate('/work')}
-              className="group font-display text-[16px] md:text-[20px] font-bold text-[var(--white)] no-underline flex items-center gap-3 hover:text-[var(--sungold)] transition-colors"
-            >
-              <ArrowLeft size={20} className="transition-transform group-hover:-translate-x-2" />
-              View Other Projects
-            </button>
-            <span className="font-mono text-[10px] text-[var(--subtle)] uppercase tracking-[0.3em]">
-              Exploring Cosmos // Returning Home
-            </span>
+      {/* Lightbox Modal */}
+      {lightboxOpen && screenshots.length > 0 && screenshots[lightboxIndex] && (
+        <div
+          onClick={() => setLightboxOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(12, 12, 12, 0.98)',
+            padding: '24px',
+          }}
+        >
+          <button
+            onClick={() => setLightboxOpen(false)}
+            style={{
+              position: 'absolute',
+              top: '24px',
+              right: '24px',
+              background: 'transparent',
+              border: 'none',
+              color: '#ffffff',
+              fontSize: '24px',
+              cursor: 'pointer',
+            }}
+          >
+            <X size={24} />
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              goPrev();
+            }}
+            style={{
+              position: 'absolute',
+              left: '24px',
+              background: 'transparent',
+              border: 'none',
+              color: '#ffffff',
+              cursor: 'pointer',
+            }}
+          >
+            <ChevronLeft size={40} />
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              goNext();
+            }}
+            style={{
+              position: 'absolute',
+              right: '24px',
+              background: 'transparent',
+              border: 'none',
+              color: '#ffffff',
+              cursor: 'pointer',
+            }}
+          >
+            <ChevronRight size={40} />
+          </button>
+
+          <div onClick={(e) => e.stopPropagation()}>
+            <OptimizedImage
+              src={screenshots[lightboxIndex]}
+              alt="showcase preview"
+              style={{ maxWidth: '90vw', maxHeight: '80vh', border: '1px solid #333333' }}
+            />
           </div>
         </div>
-      </section>
-    </>
+      )}
+    </div>
   );
 };
 
