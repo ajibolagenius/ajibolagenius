@@ -14,12 +14,12 @@
   --ink: #111111;
   --ink-light: #333333;
   --muted: #888888;
-  --red: #d42b2b;
+  --red: #8B72F0;
   --red-pale: #f9e8e8;
-  
+
   --rule: 1px solid #111111;
   --rule-thin: 0.5px solid rgba(17, 17, 17, 0.2);
-  
+
   /* Font Family Mappings */
   --font-display: 'Playfair Display', Georgia, serif;
   --font-body: 'Barlow', sans-serif;
@@ -31,7 +31,7 @@
   --surface: #ffffff;
   --elevated: var(--cream-dark);
   --overlay: var(--cream-dark);
-  
+
   --white: var(--ink);
   --subtle: rgba(17, 17, 17, 0.42);
   --dim: rgba(17, 17, 17, 0.16);
@@ -62,7 +62,7 @@ html.dark {
   --ink: #f5f0e8;
   --ink-light: #d1cbbd;
   --muted: #888888;
-  --red: #d42b2b;
+  --red: #8B72F0;
   --red-pale: #221212;
 
   --rule: 1px solid #f5f0e8;
