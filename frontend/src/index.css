@@ -191,6 +191,13 @@ nav {
   border-bottom: var(--rule-thin);
   background: rgba(245, 240, 232, 0.92);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+/* Mobile nav: tighter padding */
+@media (max-width: 1023px) {
+  nav {
+    padding: 14px 20px;
+  }
 }
 html.dark nav {
   background: rgba(12, 12, 12, 0.92);
@@ -210,6 +217,12 @@ html.dark nav {
   display: flex;
   gap: 32px;
   list-style: none;
+}
+/* Hide nav links on mobile — overrides any CSS flex declaration */
+@media (max-width: 1023px) {
+  .nav-links {
+    display: none !important;
+  }
 }
 .nav-links a {
   font-family: var(--font-body);
@@ -234,10 +247,43 @@ html.dark nav {
   color: var(--cream);
   padding: 10px 22px;
   border: none;
+  cursor: pointer;
   transition: background 0.2s;
 }
 .nav-cta:hover {
   background: var(--red);
+}
+/* Hide Hire Me CTA on mobile, show only on sm+ */
+@media (max-width: 639px) {
+  .nav-cta {
+    display: none !important;
+  }
+}
+
+/* ── Hamburger toggle button ── */
+.nav-hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--ink);
+  padding: 6px;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+  z-index: 1001;
+}
+.nav-hamburger:hover {
+  opacity: 0.7;
+}
+/* Show hamburger on mobile only (< lg = 1024px) */
+@media (max-width: 1023px) {
+  .nav-hamburger {
+    display: flex;
+  }
 }
 
 .issue-bar {

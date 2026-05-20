@@ -77,7 +77,7 @@ const Navbar = () => {
           <span>A</span>jibola Akelebe
         </a>
 
-        <ul className="nav-links hidden lg:flex">
+        <ul className="nav-links">
           {navLinks.slice(0, 7).map((link) => (
             <li key={link.href}>
               <a
@@ -93,23 +93,24 @@ const Navbar = () => {
           ))}
         </ul>
 
-        <div className="flex items-center gap-4 z-[1001]">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <ThemeToggle />
           <button
-            className="nav-cta hidden sm:block"
+            className="nav-cta"
             onClick={(e) => handleNavClick(e, '/contact')}
           >
             Hire Me
           </button>
+          {/* Hamburger — shown via .nav-hamburger CSS class at <1024px */}
           <button
-            className="lg:hidden p-2 text-[var(--ink)] focus:outline-none relative flex items-center justify-center w-10 h-10"
+            className="nav-hamburger"
             onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle Menu"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
           >
             <svg
-              width="24"
-              height="24"
+              width="22"
+              height="22"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -118,35 +119,26 @@ const Navbar = () => {
               strokeLinejoin="round"
             >
               <line
-                x1="4"
-                y1="6"
-                x2="20"
-                y2="6"
+                x1="3" y1="6" x2="21" y2="6"
                 style={{
-                  transform: menuOpen ? 'translateY(6px) rotate(45deg)' : 'none',
-                  transformOrigin: 'center',
-                  transition: 'transform 0.3s var(--ease-out)',
+                  transform: menuOpen ? 'translateY(6px) rotate(45deg)' : 'translateY(0) rotate(0)',
+                  transformOrigin: '50% 50%',
+                  transition: 'transform 0.35s cubic-bezier(0.23, 1, 0.32, 1)',
                 }}
               />
               <line
-                x1="4"
-                y1="12"
-                x2="20"
-                y2="12"
+                x1="3" y1="12" x2="21" y2="12"
                 style={{
                   opacity: menuOpen ? 0 : 1,
-                  transition: 'opacity 0.2s var(--ease-out)',
+                  transition: 'opacity 0.2s ease',
                 }}
               />
               <line
-                x1="4"
-                y1="18"
-                x2="20"
-                y2="18"
+                x1="3" y1="18" x2="21" y2="18"
                 style={{
-                  transform: menuOpen ? 'translateY(-6px) rotate(-45deg)' : 'none',
-                  transformOrigin: 'center',
-                  transition: 'transform 0.3s var(--ease-out)',
+                  transform: menuOpen ? 'translateY(-6px) rotate(-45deg)' : 'translateY(0) rotate(0)',
+                  transformOrigin: '50% 50%',
+                  transition: 'transform 0.35s cubic-bezier(0.23, 1, 0.32, 1)',
                 }}
               />
             </svg>
