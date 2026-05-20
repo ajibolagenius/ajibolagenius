@@ -6,6 +6,7 @@ import { usePageMeta } from '../hooks/usePageMeta';
 import { track } from '../services/analytics';
 import { buildBlogPostingSchema } from '../lib/structuredData';
 import { buildOgImageUrl, DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
+import { getBlogReadTimeDisplay } from '../lib/blogReadTime';
 import { DataLoadingSkeleton, DataErrorBanner } from '../components/portfolio/DataStateMessage';
 
 function isHtmlBody(body) {
@@ -274,7 +275,14 @@ const BlogPostPage = () => {
             }}
           >
             <Clock size={12} />
-            <span>{post.readTime || '5 MIN READ'}</span>
+            <span>
+              {(() => {
+                const display = getBlogReadTimeDisplay(post);
+                if (!display) return '5 MIN READ';
+                if (display.toUpperCase().endsWith('READ')) return display.toUpperCase();
+                return `${display.toUpperCase()} READ`;
+              })()}
+            </span>
           </div>
 
           <div className="flex items-center gap-2">

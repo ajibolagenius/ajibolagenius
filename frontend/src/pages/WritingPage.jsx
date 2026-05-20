@@ -5,6 +5,7 @@ import { fetchBlogPosts, subscribeNewsletter } from '../services/api';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { buildStaticPageMeta } from '../lib/routeMeta';
+import { getBlogReadTimeDisplay } from '../lib/blogReadTime';
 import ListPagination from '../components/portfolio/ListPagination';
 import { paginate } from '../lib/paginate';
 import { DataLoadingSkeleton, DataErrorBanner } from '../components/portfolio/DataStateMessage';
@@ -295,7 +296,14 @@ const WritingPage = () => {
 
                 <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-wider text-[var(--muted)]">
                   <Clock size={10} />
-                  <span>{post.readTime || '5 min read'}</span>
+                  <span>
+                    {(() => {
+                      const display = getBlogReadTimeDisplay(post);
+                      if (!display) return '5 min read';
+                      if (display.toLowerCase().endsWith('read')) return display.toLowerCase();
+                      return `${display.toLowerCase()} read`;
+                    })()}
+                  </span>
                 </div>
               </div>
             ))}
