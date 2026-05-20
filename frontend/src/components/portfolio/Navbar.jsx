@@ -41,61 +41,50 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Scroll progress bar — Design System §08 */}
       <div
-        className="scroll-bar fixed top-0 left-0 right-0 h-0.5 bg-[var(--sungold)] z-[999] pointer-events-none"
+        className="scroll-bar fixed top-0 left-0 right-0 h-0.5 bg-[var(--red)] z-[999] pointer-events-none"
         style={{ width: `${scrollPct}%` }}
         aria-hidden
       />
 
-      <nav
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between transition-all duration-300 border-b border-[var(--border)] backdrop-blur-[18px] px-4 md:px-8"
-        aria-label="Main navigation"
-        style={{
-          height: `${NAV_HEIGHT}px`,
-          background: scrolled ? 'var(--nav-bg-scrolled)' : 'var(--nav-bg)',
-          WebkitBackdropFilter: 'blur(18px)',
-        }}
-      >
-        <div className="max-w-[1160px] mx-auto w-full h-full flex items-center justify-between">
-          <a
-            href="/"
-            className="font-display text-[13px] font-bold tracking-[0.14em] uppercase no-underline text-[var(--white)]"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate('/');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
+      <nav>
+        <a
+          href="/"
+          className="nav-logo"
+          onClick={(e) => {
+            e.preventDefault();
+            navigate('/');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        >
+          <span>A</span>jibola Akelebe
+        </a>
+
+        <ul className="nav-links hidden lg:flex">
+          {navLinks.slice(0, 7).map((link) => (
+            <li key={link.href}>
+              <a
+                href={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
+                style={{
+                  color: isActive(link.href) ? 'var(--red)' : 'var(--ink)',
+                }}
+              >
+                {t('nav_' + link.href.slice(1)) || link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
+          <button
+            className="nav-cta"
+            onClick={(e) => handleNavClick(e, '/contact')}
           >
-            Ajibola Akelebe.
-          </a>
-
-          <ul className="hidden md:flex items-center gap-6 list-none m-0 p-0">
-            {navLinks.map((link) => (
-              <li key={link.href}>
-                <a
-                  href={link.href}
-                  onClick={(e) => handleNavClick(e, link.href)}
-                  className="font-mono text-[12px] tracking-[0.08em] no-underline transition-colors duration-200 hover:text-[var(--sungold)]"
-                  style={{
-                    color: isActive(link.href) ? 'var(--sungold)' : 'var(--muted)',
-                  }}
-                >
-                  {t('nav_' + link.href.slice(1)) || link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-
-          <span className="flex items-center gap-2">
-            <span className="font-mono text-[10px] tracking-[0.06em] uppercase px-[10px] py-[4px] text-[var(--sungold)] bg-[var(--surface)] border border-[var(--border-md)] rounded-none">
-              <span className="hidden sm:inline">◆ </span>Open<span className="hidden sm:inline"> for select work</span>
-            </span>
-            <ThemeToggle />
-          </span>
+            Hire Me
+          </button>
         </div>
-
-        {/* mobileOpen menu removed in favour of BottomNav */}
       </nav>
     </>
   );

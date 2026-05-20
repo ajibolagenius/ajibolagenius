@@ -2,114 +2,210 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchProjects } from '../../services/api';
 import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
-import { ProjectsSkeleton } from './SkeletonLayouts';
-import WorkProjectCard from './WorkProjectCard';
+import { projects as mockFallback } from '../../data/mock';
 
-const Projects = ({ featuredOnly = false }) => {
-  const [visible, setVisible] = useState(false);
-  const [filter, setFilter] = useState('all');
+const getProjectPreset = (project, idx) => {
+  const title = (project.title || '').toLowerCase();
+  if (title.includes('narvo')) {
+    return {
+      className: 'spread-v-dark',
+      bgText: 'NARVO',
+      icon: 'N/',
+      subtitle: 'AI-POWERED NEWS',
+      techBg: 'rgba(212, 43, 43, 0.8)'
+    };
+  }
+  if (title.includes('corps') || title.includes('mart')) {
+    return {
+      className: 'spread-v-red',
+      bgText: 'CORPS',
+      icon: 'CM',
+      subtitle: 'MARKETPLACE',
+      techBg: 'var(--ink)'
+    };
+  }
+  if (title.includes('rant')) {
+    return {
+      className: 'spread-v-cream',
+      bgText: 'RANT',
+      icon: '!!',
+      subtitle: 'SOCIAL FEEDBACK',
+      techBg: 'var(--ink)'
+    };
+  }
+  if (title.includes('3d') || title.includes('todo') || title.includes('spatial')) {
+    return {
+      className: 'spread-v-dark',
+      bgText: '3D',
+      icon: '3D',
+      subtitle: 'SPATIAL INTERFACE',
+      techBg: 'rgba(255, 255, 255, 0.12)'
+    };
+  }
+  // Generic dynamic preset
+  const presets = [
+    { className: 'spread-v-dark', bgText: 'DEV', icon: '</>', subtitle: 'DEVELOPMENT', techBg: 'rgba(212, 43, 43, 0.8)' },
+    { className: 'spread-v-red', bgText: 'DESIGN', icon: '🎨', subtitle: 'CREATIVE DESIGN', techBg: 'var(--ink)' },
+    { className: 'spread-v-cream', bgText: 'PROD', icon: '⚡', subtitle: 'PRODUCT LAUNCH', techBg: 'var(--ink)' }
+  ];
+  const preset = presets[idx % presets.length];
+  return {
+    ...preset,
+    bgText: project.title?.toUpperCase().slice(0, 8) || preset.bgText,
+    icon: project.title?.slice(0, 2).toUpperCase() || preset.icon,
+  };
+};
+
+const Projects = () => {
   const sectionRef = useRef(null);
-  const { data, loading } = useRealtimeQuery('projects', fetchProjects);
-  const projects = Array.isArray(data) ? data : [];
+  const [revealed, setRevealed] = useState({});
+  const { data } = useRealtimeQuery('projects', fetchProjects, mockFallback);
+
+  const projects = Array.isArray(data) && data.length > 0 ? data : mockFallback;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.dataset.id;
+            setRevealed((prev) => ({ ...prev, [id]: true }));
+            observer.unobserve(entry.target);
+          }
+        });
       },
       { threshold: 0.1 }
     );
-    if (sectionRef.current) observer.observe(sectionRef.current);
+
+    const elements = document.querySelectorAll('.spread, .projects-intro');
+    elements.forEach((el) => observer.observe(el));
+
     return () => observer.disconnect();
-  }, []);
-
-  const featured = projects.filter((p) => p.featured);
-  const displayProjects = featuredOnly
-    ? featured.length > 0
-      ? featured.slice(0, 3)
-      : projects.slice(0, 3)
-    : filter === 'all'
-      ? featured.length > 0
-        ? featured
-        : projects.slice(0, 3)
-      : projects.filter((p) => p.type === filter);
-
-  const filters = [
-    { label: 'Featured', value: 'all' },
-    { label: 'Development', value: 'dev' },
-    { label: 'Design', value: 'design' },
-  ];
+  }, [projects]);
 
   return (
-    <section
-      id="projects"
-      ref={sectionRef}
-      className="work-ui-scope editorial-section"
-    >
-      <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-5 h-px bg-[var(--work-accent)]" />
-          <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--work-accent)]">
-            {featuredOnly ? '02 — Featured Work' : '02 — Selected Work'}
-          </span>
-        </div>
-        <h2
-          className="font-display font-extrabold leading-[1.1] tracking-[-0.02em] mb-3 text-[var(--white)]"
-          style={{ fontSize: 'clamp(28px, 4vw, 42px)' }}
-        >
-          {featuredOnly ? 'Featured Projects' : 'Selected Projects'}
+    <section id="projects" ref={sectionRef}>
+      <div className="section-header">
+        <span className="section-label">Selected Work</span>
+        <span className="section-num">§ 02</span>
+      </div>
+
+      <div className="projects-intro" data-id="intro">
+        <h2 className={`projects-intro-title reveal-left ${revealed['intro'] ? 'in' : ''}`}>
+          Four<br />
+          <span className="accent">Products.</span><br />
+          One Vision.
         </h2>
-        <p className="font-body text-[15px] leading-[1.7] mb-8 max-w-[520px] text-[var(--muted)]">
-          A small set of work that shows how I think, build, and ship.
+        <p className={`projects-intro-meta reveal-right ${revealed['intro'] ? 'in' : ''}`}>
+          Each project here is a fully realised product — not a tutorial exercise.
+          From AI-powered news platforms to social tools and 3D experiments,
+          everything ships with design intention and technical rigour.
         </p>
-        {!featuredOnly && (
-          <div className="flex gap-2 mb-10 flex-wrap" role="group" aria-label="Filter by type">
-            {filters.map((f) => {
-              const active = filter === f.value;
-              return (
-                <button
-                  key={f.value}
-                  type="button"
-                  onClick={() => setFilter(f.value)}
-                  aria-pressed={active}
-                  className="font-mono text-[11px] tracking-[0.1em] uppercase px-4 py-2 cursor-pointer transition-all duration-200 rounded-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--work-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
-                  style={{
-                    background: active ? 'var(--work-accent)' : 'transparent',
-                    color: active ? 'var(--work-accent-on)' : 'var(--subtle)',
-                    border: `1px solid ${active ? 'var(--work-accent)' : 'var(--border)'}`,
-                  }}
-                >
-                  {f.label}
-                </button>
-              );
-            })}
+      </div>
+
+      {projects.map((project, idx) => {
+        const isSpreadA = idx % 2 === 0;
+        const preset = getProjectPreset(project, idx);
+        const pid = `proj-${project.id || idx}`;
+        
+        // Parse skills/tech array
+        const techList = Array.isArray(project.technologies) 
+          ? project.technologies 
+          : typeof project.technologies === 'string' 
+            ? project.technologies.split(',').map(t => t.trim())
+            : [];
+
+        // Parse custom highlights/bullet list
+        const highlights = Array.isArray(project.highlights)
+          ? project.highlights
+          : typeof project.highlights === 'string'
+            ? project.highlights.split(',').map(h => h.trim())
+            : [
+                'Custom brand design system',
+                'Mobile-first UI implementation',
+                'Fully production-ready'
+              ];
+
+        const visualPanel = (
+          <div className={`spread-visual ${preset.className}`}>
+            <div className="spread-bg-text">{preset.bgText}</div>
+            <div className="spread-visual-inner">
+              <div 
+                className="spread-icon" 
+                style={{ 
+                  color: preset.className.includes('red') ? 'var(--red)' : preset.className.includes('dark') ? '#ffffff' : 'var(--ink)',
+                  fontStyle: 'italic',
+                  fontFamily: 'var(--font-display)'
+                }}
+              >
+                {preset.icon}
+              </div>
+              <div 
+                style={{ 
+                  fontFamily: 'var(--font-mono)', 
+                  fontSize: '10px', 
+                  color: preset.className.includes('dark') ? 'rgba(255, 255, 255, 0.4)' : preset.className.includes('red') ? 'var(--red)' : 'var(--muted)',
+                  opacity: preset.className.includes('red') ? 0.7 : 1,
+                  letterSpacing: '0.15em', 
+                  marginTop: '8px'
+                }}
+              >
+                {preset.subtitle}
+              </div>
+              <div className="spread-tech-row">
+                {techList.slice(0, 4).map((tech, tIdx) => (
+                  <span 
+                    key={tIdx} 
+                    className="spread-tech" 
+                    style={{ background: preset.techBg }}
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
-        )}
-        {loading && projects.length === 0 ? (
-          <ProjectsSkeleton count={3} />
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-            {displayProjects.map((project, i) => (
-              <WorkProjectCard
-                key={project.slug || project.id}
-                project={project}
-                revealIndex={i}
-                visible={visible}
-              />
-            ))}
-          </div>
-        )}
-        {featuredOnly && (
-          <div className="mt-10 flex justify-start">
-            <Link
-              to="/work"
-              className="inline-flex items-center gap-2 font-display text-[13px] font-semibold tracking-[0.04em] px-[22px] py-[11px] border border-[var(--border-md)] bg-[var(--surface)] text-[var(--white)] no-underline transition-all duration-200 hover:border-[var(--work-accent-border)] hover:text-[var(--work-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--work-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--void)]"
-            >
-              View all projects →
+        );
+
+        const infoPanel = (
+          <div className="spread-info">
+            <div className="spread-num">Project {String(idx + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}</div>
+            <h3 className="spread-title">{project.title}</h3>
+            <div className="spread-type">{project.type || 'Full Stack Product'}</div>
+            <p className="spread-desc">
+              {project.description}
+            </p>
+            <ul className="spread-highlights">
+              {highlights.slice(0, 4).map((highlight, hIdx) => (
+                <li key={hIdx}>{highlight}</li>
+              ))}
+            </ul>
+            <Link className="spread-link" to={`/work/${project.slug || project.id}`}>
+              View case study →
             </Link>
           </div>
-        )}
-      </div>
+        );
+
+        return (
+          <div 
+            key={project.id || idx} 
+            data-id={pid}
+            className={`spread ${isSpreadA ? 'spread-a' : 'spread-b'} reveal ${revealed[pid] ? 'in' : ''}`}
+          >
+            {isSpreadA ? (
+              <>
+                {visualPanel}
+                {infoPanel}
+              </>
+            ) : (
+              <>
+                {infoPanel}
+                {visualPanel}
+              </>
+            )}
+          </div>
+        );
+      })}
     </section>
   );
 };

@@ -36,57 +36,32 @@ const Footer = () => {
     'Design & Engineering, No boundaries.';
 
   return (
-    <footer className="bg-[var(--deep)] border-t border-[var(--border)] py-6 md:py-8">
-      <div className="max-w-[1160px] mx-auto px-4 md:px-8">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:flex-wrap">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            <span className="font-display text-[15px] font-bold tracking-[0.08em] uppercase text-[var(--sungold)]">
-              {name}{name && !name.endsWith('.') ? '.' : ''}
-            </span>
-            <span className="text-[var(--border)]" aria-hidden>·</span>
-            <p className="font-body text-[13px] text-[var(--muted)]">
-              {tagline}
-            </p>
-            {socialIcons.length > 0 && (
-              <>
-                <span className="text-[var(--border)]" aria-hidden>·</span>
-                <div className="flex gap-3">
-                  {socialIcons.map(({ Icon, href, label }) => (
-                    <a
-                      key={label}
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[var(--subtle)] hover:text-[var(--sungold)] transition-colors duration-200"
-                      aria-label={label}
-                    >
-                      <Icon size={14} />
-                    </a>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            {navLinks.map(({ label, href }) => (
-              <Link
-                key={href}
-                to={href}
-                className="font-mono text-[11px] text-[var(--muted)] hover:text-[var(--sungold)] transition-colors duration-200"
-              >
-                {t('nav_' + href.slice(1)) || label}
-              </Link>
-            ))}
-          </div>
-        </div>
-        <div className="mt-4 pt-4 border-t border-[var(--border)] flex flex-wrap items-center justify-between gap-2">
-          <p className="font-mono text-[10px] text-[var(--dim)]">
-            © {new Date().getFullYear()} {name?.trim() || 'Ajibola Akelebe'}.
-          </p>
-          <p className="font-mono text-[10px] text-[var(--dim)]">
-            {t('footer_theme')}
-          </p>
-        </div>
+    <footer>
+      <span className="footer-copy">
+        © {new Date().getFullYear()} {name}. All rights reserved.
+      </span>
+      <span className="footer-handle">DON_GENIUS</span>
+      <div className="footer-socials">
+        {social.github && (
+          <a href={social.github} target="_blank" rel="noopener noreferrer">
+            GitHub
+          </a>
+        )}
+        {social.linkedin && (
+          <a href={social.linkedin} target="_blank" rel="noopener noreferrer">
+            LinkedIn
+          </a>
+        )}
+        {social.twitter && (
+          <a href={social.twitter} target="_blank" rel="noopener noreferrer">
+            Twitter/X
+          </a>
+        )}
+        {social.dribbble && (
+          <a href={social.dribbble} target="_blank" rel="noopener noreferrer">
+            Dribbble
+          </a>
+        )}
       </div>
     </footer>
   );
