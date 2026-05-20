@@ -1,17 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { fetchPersonalInfo } from '../../services/api';
-import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
-import { getPersonalInfoQueryFallback } from '../../lib/personalInfoFallbacks';
+import { DataErrorBanner, DataLoadingSkeleton } from './DataStateMessage';
 
-const fbInfo = getPersonalInfoQueryFallback();
-
-const Contact = () => {
+const Contact = ({ query }) => {
   const [revealed, setRevealed] = useState(false);
   const sectionRef = useRef(null);
-  const { data: info } = useRealtimeQuery('personal_info', fetchPersonalInfo, fbInfo);
-
-  const data = info || fbInfo;
-  const social = data.social || fbInfo.social || {};
+  const { data, loading, error, refetch } = query ?? {};
+  const info = data ?? {};
+  const social = info.social || {};
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -38,14 +33,20 @@ const Contact = () => {
         <div className="contact-grid">
           <div className={`contact-item reveal ${revealed ? 'in' : ''}`}>
             <div className="contact-item-label">Email</div>
-            <a className="contact-item-val" href={`mailto:${data.email || 'akelebeajibola@gmail.com'}`}>
-              {data.email || 'akelebeajibola@gmail.com'}
-            </a>
+            {loading ? (
+              <DataLoadingSkeleton lines={1} />
+            ) : info.email ? (
+              <a className="contact-item-val" href={`mailto:${info.email}`}>
+                {info.email}
+              </a>
+            ) : (
+              <span className="contact-item-val">Email unavailable</span>
+            )}
           </div>
           <div className={`contact-item reveal delay-1 ${revealed ? 'in' : ''}`}>
             <div className="contact-item-label">Location</div>
             <span className="contact-item-val">
-              {data.location || 'Lagos, Nigeria / Remote'}
+              {loading ? 'Loading...' : info.location || 'Location unavailable'}
             </span>
           </div>
           <div className={`contact-item reveal delay-2 ${revealed ? 'in' : ''}`}>
@@ -55,12 +56,11 @@ const Contact = () => {
                 WhatsApp Chat →
               </a>
             ) : (
-              <a className="contact-item-val" href="https://wa.me/2349052026857" target="_blank" rel="noopener noreferrer">
-                WhatsApp Chat →
-              </a>
+              <span className="contact-item-val">{loading ? 'Loading...' : 'WhatsApp unavailable'}</span>
             )}
           </div>
         </div>
+        <DataErrorBanner error={error} onRetry={refetch} className="mt-4" />
       </div>
     </section>
   );

@@ -566,6 +566,15 @@ section {
   align-items: center;
   justify-content: center;
 }
+.spread-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.24;
+  filter: grayscale(1) contrast(1.1);
+}
 .spread-b .spread-visual {
   border-right: none;
   border-left: var(--rule);

@@ -1,17 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { fetchPersonalInfo } from '../../services/api';
-import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
-import { getPersonalInfoQueryFallback } from '../../lib/personalInfoFallbacks';
+import { DataErrorBanner, DataLoadingSkeleton } from './DataStateMessage';
 
-const fbInfo = getPersonalInfoQueryFallback();
-
-const Hero = () => {
+const Hero = ({ query }) => {
     const heroRef = useRef(null);
     const innerRef = useRef(null);
     const [revealed, setRevealed] = useState(false);
-    const { data: info } = useRealtimeQuery('personal_info', fetchPersonalInfo, fbInfo);
-
-    const data = info || fbInfo;
+    const { data, loading, error, refetch } = query ?? {};
+    const info = data ?? {};
+    const tagline = (info.tagline || '').replace(/,\s*$/, '').trim();
+    const [headlineStart, headlineEnd] = tagline.includes('&')
+        ? tagline.split('&').map((part) => part.trim())
+        : [tagline || 'Design', info.tagline_suffix || info.taglineSuffix || 'Engineering'];
 
     useEffect(() => {
         // Scroll reveal triggers on mount for Hero
@@ -57,26 +56,31 @@ const Hero = () => {
                     <div className="hero-headline">
                         <div className={`hero-kicker reveal ${revealed ? 'in' : ''}`}>
                             <span className="hero-kicker-dot"></span>
-                            {data.role || 'Full Stack Developer · Designer · Tech Educator'}
+                            {loading ? 'Loading profile...' : info.role || 'Profile unavailable'}
                         </div>
                         <h1 className={`hero-title reveal delay-1 ${revealed ? 'in' : ''}`}>
-                            Design <em>&amp;</em><br />
-                            <span className="outline">Engineering</span>
+                            {headlineStart} <em>&amp;</em><br />
+                            <span className="outline">{headlineEnd}</span>
                         </h1>
                         <div className={`hero-rule reveal delay-2 ${revealed ? 'in' : ''}`}>
                             <div className="hero-rule-line"></div>
-                            <span className="hero-rule-label">DON_GENIUS — {data.name || 'Ajibola Akelebe'}</span>
+                            <span className="hero-rule-label">DON_GENIUS — {info.name || 'Profile unavailable'}</span>
                             <div className="hero-rule-line"></div>
                         </div>
-                        <p className={`hero-desc reveal delay-3 ${revealed ? 'in' : ''}`}>
-                            {data.description || 'Developer and designer building for a global audience from Lagos. I ship what I learn — AI-native products, immersive interfaces, and educational experiences that actually stick.'}
-                        </p>
+                        {loading ? (
+                            <DataLoadingSkeleton lines={2} className={`hero-desc reveal delay-3 ${revealed ? 'in' : ''}`} />
+                        ) : (
+                            <p className={`hero-desc reveal delay-3 ${revealed ? 'in' : ''}`}>
+                                {info.description || 'Profile description is unavailable.'}
+                            </p>
+                        )}
+                        <DataErrorBanner error={error} onRetry={refetch} className="mt-4" />
                     </div>
                     <div className="hero-side">
                         <div>
                             <div className={`hero-stat reveal ${revealed ? 'in' : ''}`}>
-                                <div className="hero-stat-num">10<span>+</span></div>
-                                <div className="hero-stat-label">Years of practice</div>
+                                <div className="hero-stat-num">{info.availability ? '01' : '--'}<span></span></div>
+                                <div className="hero-stat-label">{info.availability || 'Availability unavailable'}</div>
                             </div>
                             <div className={`hero-stat reveal delay-1 ${revealed ? 'in' : ''}`}>
                                 <div className="hero-stat-num">3<span>×</span></div>
@@ -92,7 +96,7 @@ const Hero = () => {
                                 <div className="hero-portrait-init">AA</div>
                             </div>
                             <div className="hero-badge">
-                                <span className="hero-badge-name">{data.name || 'Ajibola Akelebe'}</span>
+                                <span className="hero-badge-name">{info.name || 'Profile unavailable'}</span>
                                 <span className="hero-badge-role">DON_GENIUS</span>
                             </div>
                         </div>

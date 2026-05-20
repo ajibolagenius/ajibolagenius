@@ -22,7 +22,7 @@ export function DataLoadingSkeleton({ lines = 3, className = '' }) {
 }
 
 /**
- * Inline error message with retry. Shown when fetch fails but fallback data is displayed.
+ * Inline error message with retry. Shown when a Supabase read fails.
  * Design-system: subtle text, sharp button.
  */
 export function DataErrorBanner({ error, onRetry, className = '' }) {
@@ -33,7 +33,7 @@ export function DataErrorBanner({ error, onRetry, className = '' }) {
       className={`flex flex-wrap items-center gap-2 py-2 px-3 border border-[var(--border-md)] bg-[var(--elevated)] font-body text-[13px] text-[var(--muted)] ${className}`}
       style={{ borderRadius: 0 }}
     >
-      <span>Couldn&apos;t load latest; showing cached content.</span>
+      <span>Couldn&apos;t load Supabase data.</span>
       {typeof onRetry === 'function' && (
         <button
           type="button"

@@ -1,8 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { DataErrorBanner, DataLoadingSkeleton } from './DataStateMessage';
 
-const Courses = () => {
+const Courses = ({ query, personalInfoQuery }) => {
   const [revealed, setRevealed] = useState(false);
   const sectionRef = useRef(null);
+  const { data, loading, error, refetch } = query ?? {};
+  const courses = Array.isArray(data) ? data : [];
+  const totalCurriculumItems = courses.reduce((sum, course) => {
+    return sum + (Array.isArray(course.curriculum) ? course.curriculum.length : 0);
+  }, 0);
+  const openCourses = courses.filter((course) => course.open_for_enrolment).length;
+  const availability = personalInfoQuery?.data?.availability || 'Availability unavailable';
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -20,30 +28,34 @@ const Courses = () => {
 
   const cells = [
     {
-      num: '8',
-      suffix: '+',
-      label: 'Disciplines taught — from Python fundamentals to motion graphics and 3D design.',
+      num: loading ? '--' : String(courses.length).padStart(2, '0'),
+      suffix: courses.length > 0 ? '+' : '',
+      label: loading
+        ? 'Courses are loading from Supabase.'
+        : courses.length > 0
+          ? 'Courses published from Supabase for the teaching section.'
+          : 'No courses are currently available from Supabase.',
       tag: 'Curriculum',
       delay: 'reveal'
     },
     {
-      num: '∞',
+      num: loading ? '--' : String(totalCurriculumItems).padStart(2, '0'),
       suffix: '',
-      label: 'Students reached — through structured courses, live sessions, and hands-on projects.',
+      label: 'Curriculum modules available across published courses.',
       tag: 'Impact',
       delay: 'reveal delay-1'
     },
     {
-      num: '01',
+      num: loading ? '--' : String(openCourses).padStart(2, '0'),
       suffix: '×',
-      label: "Rule — teach what you've shipped, not just what you've read.",
+      label: 'Courses currently marked open for enrolment in Supabase.',
       tag: 'Philosophy',
       delay: 'reveal delay-2'
     },
     {
-      num: '10',
-      suffix: '+ yr',
-      label: 'In practice — from graphic design origins to full-stack education and engineering.',
+      num: availability ? '01' : '--',
+      suffix: '',
+      label: availability,
       tag: 'Experience',
       delay: 'reveal delay-3'
     }
@@ -63,12 +75,18 @@ const Courses = () => {
                 {cell.num}
                 {cell.suffix && <span>{cell.suffix}</span>}
               </div>
-              <div className="teaching-cell-label">{cell.label}</div>
+              <div className="teaching-cell-label">
+                {loading && idx === 0 ? <DataLoadingSkeleton lines={2} /> : cell.label}
+              </div>
             </div>
             <div className="teaching-cell-tag">{cell.tag}</div>
           </div>
         ))}
       </div>
+      <DataErrorBanner error={error || personalInfoQuery?.error} onRetry={() => {
+        refetch?.();
+        personalInfoQuery?.refetch?.();
+      }} className="mx-6 md:mx-12 mt-4" />
     </section>
   );
 };

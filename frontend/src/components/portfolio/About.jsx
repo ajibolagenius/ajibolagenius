@@ -1,16 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { fetchPersonalInfo } from '../../services/api';
-import { useRealtimeQuery } from '../../hooks/useRealtimeQuery';
-import { getPersonalInfoQueryFallback } from '../../lib/personalInfoFallbacks';
+import { DataErrorBanner, DataLoadingSkeleton } from './DataStateMessage';
 
-const fbInfo = getPersonalInfoQueryFallback();
+const splitDescription = (value) => {
+  if (!value) return [];
+  return String(value)
+    .split(/\n{2,}|\r?\n/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+};
 
-const About = () => {
+const About = ({ personalInfoQuery, skillsQuery }) => {
   const [revealed, setRevealed] = useState(false);
   const sectionRef = useRef(null);
-  const { data: info } = useRealtimeQuery('personal_info', fetchPersonalInfo, fbInfo);
-
-  const data = info || fbInfo;
+  const info = personalInfoQuery?.data ?? {};
+  const skills = Array.isArray(skillsQuery?.data) ? skillsQuery.data : [];
+  const paragraphs = splitDescription(info.description);
+  const chips = skills.map((skill) => skill.name).filter(Boolean).slice(0, 9);
+  const isLoading = personalInfoQuery?.loading || skillsQuery?.loading;
+  const error = personalInfoQuery?.error || skillsQuery?.error;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -26,18 +33,6 @@ const About = () => {
     return () => observer.disconnect();
   }, []);
 
-  const chips = [
-    'React / Next.js',
-    'Python',
-    'Node.js',
-    'UI/UX Design',
-    'Graphic Design',
-    '3D Design',
-    'Motion Graphics',
-    'No-Code',
-    'AI Integration'
-  ];
-
   return (
     <section id="about" ref={sectionRef}>
       <div className="section-header">
@@ -47,32 +42,34 @@ const About = () => {
       <div className="about-grid">
         <div className={`about-pull reveal-left ${revealed ? 'in' : ''}`}>
           <p className="about-pull-quote">
-            "I teach what I know<br />
-            and ship what I <em>learn.</em>"
+            "{info.tagline || 'Profile'}<br />
+            <em>{info.tagline_suffix || info.taglineSuffix || 'unavailable.'}</em>"
           </p>
         </div>
         <div className="about-divider"></div>
         <div className={`about-text reveal-right ${revealed ? 'in' : ''}`}>
-          <p>
-            I'm a full-stack developer, designer, and instructor
-            who has been at the intersection of code and creativity since few years ago.
-            What started in graphic design grew into software engineering, and
-            eventually into building and teaching both.
-          </p>
-          <p>
-            My approach is visual-first and aesthetics-aware — every product I build
-            is something I'd be proud to show a designer and a developer in the same room.
-            I'm especially drawn to AI-native products and interfaces that feel alive.
-          </p>
-          <p>
-            When I'm not building or teaching, I'm designing systems, exploring
-            Afrofuturism, or prototyping the next thing that doesn't exist yet.
-          </p>
-          <div className="about-chips">
-            {chips.map((chip, idx) => (
-              <span key={idx} className="chip">{chip}</span>
-            ))}
-          </div>
+          {isLoading ? (
+            <DataLoadingSkeleton lines={4} />
+          ) : paragraphs.length > 0 ? (
+            paragraphs.map((paragraph, idx) => <p key={idx}>{paragraph}</p>)
+          ) : (
+            <p>About content is unavailable.</p>
+          )}
+          <DataErrorBanner
+            error={error}
+            onRetry={() => {
+              personalInfoQuery?.refetch?.();
+              skillsQuery?.refetch?.();
+            }}
+            className="mb-4"
+          />
+          {chips.length > 0 && (
+            <div className="about-chips">
+              {chips.map((chip, idx) => (
+                <span key={idx} className="chip">{chip}</span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>
