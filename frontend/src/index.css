@@ -273,7 +273,7 @@ html.dark nav {
 .hero-inner {
   display: grid;
   grid-template-columns: 1fr 320px;
-  align-items: end;
+  align-items: center;
   gap: 0;
   transition: transform 0.1s ease-out;
 }
