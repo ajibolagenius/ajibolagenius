@@ -1,7 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
-import BottomNav from './BottomNav';
 import Footer from './Footer';
 import Cursor from './Cursor';
 import SmoothScrollProvider from './SmoothScrollProvider';
@@ -33,13 +32,12 @@ const Layout = ({ children }) => {
         {t('skip_to_content')}
       </a>
       <Navbar />
-      <main ref={mainRef} id="main-content" className="flex-1 pt-[72px] pb-[72px] md:pb-0" tabIndex={-1}>
+      <main ref={mainRef} id="main-content" className="flex-1 pt-[72px]" tabIndex={-1}>
         <PullToRefresh onRefresh={() => setTimeout(() => window.location.reload(), 800)}>
           {children}
         </PullToRefresh>
       </main>
       <Footer />
-      <BottomNav />
     </div>
   );
 };

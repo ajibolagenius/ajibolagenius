@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, Copy, Share2, Check, Twitter, MessageCircle, X } from 'lucide-react';
 import { fetchBlogPost, fetchBlogPosts } from '../services/api';
@@ -15,6 +15,39 @@ function isHtmlBody(body) {
   return t.startsWith('<') || /<[a-z][\s\S]*>/i.test(t);
 }
 
+/**
+ * Parses and processes HTML post body to extract headings and inject matching anchors.
+ */
+function processPostBody(htmlContent) {
+  if (!htmlContent || typeof htmlContent !== 'string') return { headings: [], processedHtml: '' };
+  
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, 'text/html');
+    const headingElements = doc.querySelectorAll('h2, h3');
+    const headings = [];
+    
+    headingElements.forEach((el, index) => {
+      const text = el.textContent || '';
+      const id = `heading-${index}`;
+      el.setAttribute('id', id);
+      headings.push({
+        text,
+        id,
+        level: el.tagName.toLowerCase()
+      });
+    });
+    
+    return {
+      headings,
+      processedHtml: doc.body.innerHTML
+    };
+  } catch (e) {
+    console.error('Failed to parse blog post headings:', e);
+    return { headings: [], processedHtml: htmlContent };
+  }
+}
+
 const BlogPostPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -24,6 +57,12 @@ const BlogPostPage = () => {
   const [readProgress, setReadProgress] = useState(0);
   const [copied, setCopied] = useState(false);
   const [nextPost, setNextPost] = useState(null);
+  
+  // Interactive TOC states
+  const [activeId, setActiveId] = useState('');
+  const [tocCollapsed, setTocCollapsed] = useState(false);
+  const [mobileTocOpen, setMobileTocOpen] = useState(false);
+
   const articleRef = useRef(null);
 
   const loadPost = useCallback(() => {
@@ -83,6 +122,47 @@ const BlogPostPage = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, [post]);
 
+  // Parse headings and process the body HTML
+  const { headings, processedHtml } = useMemo(() => {
+    if (!post?.body) return { headings: [], processedHtml: '' };
+    return processPostBody(post.body);
+  }, [post?.body]);
+
+  // ScrollSpy to track active heading on scroll
+  useEffect(() => {
+    if (headings.length === 0) return;
+
+    const handleScrollSpy = () => {
+      const yOffset = 120; // Navbar offset safety margin
+      const scrollPosition = window.scrollY + yOffset;
+
+      let currentActive = '';
+      for (let i = 0; i < headings.length; i++) {
+        const el = document.getElementById(headings[i].id);
+        if (el) {
+          const top = el.getBoundingClientRect().top + window.scrollY;
+          if (scrollPosition >= top) {
+            currentActive = headings[i].id;
+          } else {
+            break;
+          }
+        }
+      }
+
+      if (currentActive) {
+        setActiveId(currentActive);
+      } else {
+        setActiveId('');
+      }
+    };
+
+    window.addEventListener('scroll', handleScrollSpy, { passive: true });
+    // Run initially
+    handleScrollSpy();
+
+    return () => window.removeEventListener('scroll', handleScrollSpy);
+  }, [headings]);
+
   usePageMeta(
     post
       ? {
@@ -116,6 +196,15 @@ const BlogPostPage = () => {
     const url = encodeURIComponent(window.location.href);
     const text = encodeURIComponent(`Check this out: ${post?.title} — `);
     window.open(`https://wa.me/?text=${text}${url}`, '_blank');
+  };
+
+  const scrollToHeading = (id) => {
+    const el = document.getElementById(id);
+    if (el) {
+      const yOffset = -90; // Align heading cleanly under fixed Navbar
+      const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
   };
 
   if (loading) {
@@ -292,7 +381,7 @@ const BlogPostPage = () => {
                 fontFamily: 'var(--font-mono)',
                 fontSize: '9px',
                 padding: '6px 12px',
-                border: '1px solid var(--ink)',
+                border: '1.5px solid var(--ink)',
                 background: 'transparent',
                 color: 'var(--ink)',
                 cursor: 'pointer',
@@ -310,7 +399,7 @@ const BlogPostPage = () => {
                 fontFamily: 'var(--font-mono)',
                 fontSize: '9px',
                 padding: '6px 12px',
-                border: '1px solid var(--ink)',
+                border: '1.5px solid var(--ink)',
                 background: 'transparent',
                 color: 'var(--ink)',
                 cursor: 'pointer',
@@ -328,7 +417,7 @@ const BlogPostPage = () => {
                 fontFamily: 'var(--font-mono)',
                 fontSize: '9px',
                 padding: '6px 12px',
-                border: '1px solid var(--ink)',
+                border: '1.5px solid var(--ink)',
                 background: 'transparent',
                 color: 'var(--ink)',
                 cursor: 'pointer',
@@ -346,48 +435,174 @@ const BlogPostPage = () => {
 
       {/* long form reader container */}
       <section style={{ padding: '48px 0 80px' }}>
-        <div style={{ maxWidth: '720px', margin: '0 auto' }}>
-          {post.excerpt && (
-            <p
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: '20px',
-                lineHeight: 1.5,
-                fontWeight: 'bold',
-                marginBottom: '40px',
-                fontStyle: 'italic',
-                borderLeft: '2px solid var(--red)',
-                paddingLeft: '24px',
-              }}
-            >
-              {post.excerpt}
-            </p>
-          )}
+        <div 
+          style={{ 
+            maxWidth: '1140px', 
+            margin: '0 auto', 
+            display: 'flex', 
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+            gap: '64px'
+          }}
+          className="relative"
+        >
+          {/* Centered Main Column */}
+          <div style={{ flex: 1, maxWidth: '720px', minWidth: 0 }}>
+            {post.excerpt && (
+              <p
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '20px',
+                  lineHeight: 1.5,
+                  fontWeight: 'bold',
+                  marginBottom: '40px',
+                  fontStyle: 'italic',
+                  borderLeft: '2px solid var(--red)',
+                  paddingLeft: '24px',
+                }}
+              >
+                {post.excerpt}
+              </p>
+            )}
 
-          {isHtmlBody(post.body) ? (
-            <div
-              className="article-rendered-html"
-              dangerouslySetInnerHTML={{ __html: post.body }}
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '16px',
-                lineHeight: 1.8,
-                color: 'var(--ink)',
-              }}
-            />
-          ) : (
-            <div
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '16px',
-                lineHeight: 1.8,
-                color: 'var(--ink)',
-                whiteSpace: 'pre-line',
-              }}
-            >
-              {post.body}
-            </div>
-          )}
+            {isHtmlBody(post.body) ? (
+              <div
+                className="article-rendered-html"
+                dangerouslySetInnerHTML={{ __html: processedHtml }}
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '16px',
+                  lineHeight: 1.8,
+                  color: 'var(--ink)',
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '16px',
+                  lineHeight: 1.8,
+                  color: 'var(--ink)',
+                  whiteSpace: 'pre-line',
+                }}
+              >
+                {post.body}
+              </div>
+            )}
+          </div>
+
+          {/* Desktop Table of Contents Sidebar */}
+          <div
+            className="hidden lg:block sticky top-[100px] transition-all duration-300 self-start"
+            style={{
+              width: tocCollapsed ? '40px' : '260px',
+              borderLeft: 'var(--rule-thin)',
+              paddingLeft: tocCollapsed ? '12px' : '24px',
+              maxHeight: 'calc(100vh - 140px)',
+              overflowY: 'auto',
+            }}
+          >
+            {tocCollapsed ? (
+              <button
+                onClick={() => setTocCollapsed(false)}
+                title="Expand Outline"
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--muted)',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '11px',
+                  writingMode: 'vertical-rl',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.15em',
+                  padding: '10px 0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
+                <span>Expand Outline</span>
+                <span style={{ transform: 'rotate(90deg)', fontFamily: 'var(--font-mono)' }}>[+]</span>
+              </button>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: 'var(--rule-thin)', paddingBottom: '12px' }}>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '11px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.15em',
+                      color: 'var(--muted)',
+                      fontWeight: '600',
+                    }}
+                  >
+                    Outline
+                  </span>
+                  <button
+                    onClick={() => setTocCollapsed(true)}
+                    style={{
+                      background: 'transparent',
+                      cursor: 'pointer',
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '10px',
+                      color: 'var(--muted)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.1em',
+                      padding: '2px 6px',
+                      border: '0.35px solid rgba(17, 17, 17, 0.15)',
+                    }}
+                  >
+                    Collapse [−]
+                  </button>
+                </div>
+
+                <nav style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  {headings.length === 0 ? (
+                    <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--muted)', fontStyle: 'italic' }}>
+                      No major headings found.
+                    </span>
+                  ) : (
+                    headings.map((h, i) => {
+                      const num = String(i + 1).padStart(2, '0');
+                      const isActive = activeId === h.id;
+                      return (
+                        <a
+                          key={h.id}
+                          href={`#${h.id}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            scrollToHeading(h.id);
+                          }}
+                          style={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'flex-start',
+                            fontFamily: h.level === 'h2' ? 'var(--font-display)' : 'var(--font-body)',
+                            fontWeight: h.level === 'h2' ? 'bold' : 'normal',
+                            fontSize: h.level === 'h2' ? '13px' : '12px',
+                            lineHeight: '1.4',
+                            color: isActive ? 'var(--red)' : 'var(--ink-light)',
+                            textDecoration: 'none',
+                            paddingLeft: h.level === 'h3' ? '16px' : '0px',
+                            transition: 'color 0.2s ease, transform 0.2s ease',
+                            transform: isActive ? 'translateX(4px)' : 'none',
+                          }}
+                        >
+                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: isActive ? 'var(--red)' : 'var(--muted)' }}>
+                            {num}
+                          </span>
+                          <span>{h.text}</span>
+                        </a>
+                      );
+                    })
+                  )}
+                </nav>
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
@@ -411,7 +626,7 @@ const BlogPostPage = () => {
             <div
               onClick={() => navigate(`/writing/${nextPost.slug || nextPost.id}`)}
               style={{
-                border: '1px solid var(--ink)',
+                border: '1.5px solid var(--ink)',
                 padding: '32px',
                 background: 'var(--surface)',
                 cursor: 'pointer',
@@ -433,6 +648,136 @@ const BlogPostPage = () => {
             </div>
           </div>
         </section>
+      )}
+
+      {/* Mobile FAB and Drawer for Outline */}
+      {headings.length > 0 && (
+        <div className="lg:hidden">
+          {/* Floating Action Button */}
+          <button
+            onClick={() => setMobileTocOpen(true)}
+            style={{
+              position: 'fixed',
+              bottom: '24px',
+              right: '24px',
+              background: 'var(--ink)',
+              color: 'var(--cream)',
+              border: 'var(--rule)',
+              borderRadius: '50px',
+              padding: '12px 20px',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '10px',
+              fontWeight: 'bold',
+              textTransform: 'uppercase',
+              letterSpacing: '0.15em',
+              zIndex: 990,
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: 'transform 0.25s var(--spring)',
+            }}
+          >
+            <span>§ Outline</span>
+          </button>
+
+          {/* Bottom Drawer Overlay */}
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0, 0, 0, 0.4)',
+              backdropFilter: 'blur(4px)',
+              zIndex: 1010,
+              opacity: mobileTocOpen ? 1 : 0,
+              visibility: mobileTocOpen ? 'visible' : 'hidden',
+              transition: 'opacity 0.3s ease, visibility 0.3s',
+            }}
+            onClick={() => setMobileTocOpen(false)}
+          >
+            {/* Slide up Drawer Panel */}
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                background: 'var(--cream)',
+                borderTop: 'var(--rule)',
+                borderTopLeftRadius: '16px',
+                borderTopRightRadius: '16px',
+                padding: '24px 24px 40px',
+                maxHeight: '70vh',
+                overflowY: 'auto',
+                transform: mobileTocOpen ? 'translateY(0)' : 'translateY(100%)',
+                transition: 'transform 0.4s var(--ease-out)',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: 'var(--rule-thin)', paddingBottom: '16px', marginBottom: '20px' }}>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '11px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.15em',
+                    color: 'var(--muted)',
+                    fontWeight: '600',
+                  }}
+                >
+                  Article Outline
+                </span>
+                <button
+                  onClick={() => setMobileTocOpen(false)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--ink)',
+                    padding: '4px',
+                  }}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {headings.map((h, i) => {
+                  const num = String(i + 1).padStart(2, '0');
+                  const isActive = activeId === h.id;
+                  return (
+                    <a
+                      key={h.id}
+                      href={`#${h.id}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        scrollToHeading(h.id);
+                        setMobileTocOpen(false);
+                      }}
+                      style={{
+                        display: 'flex',
+                        gap: '12px',
+                        alignItems: 'flex-start',
+                        fontFamily: h.level === 'h2' ? 'var(--font-display)' : 'var(--font-body)',
+                        fontWeight: h.level === 'h2' ? 'bold' : 'normal',
+                        fontSize: h.level === 'h2' ? '15px' : '14px',
+                        lineHeight: '1.4',
+                        color: isActive ? 'var(--red)' : 'var(--ink)',
+                        textDecoration: 'none',
+                        paddingLeft: h.level === 'h3' ? '16px' : '0px',
+                      }}
+                    >
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: isActive ? 'var(--red)' : 'var(--muted)' }}>
+                        {num}
+                      </span>
+                      <span>{h.text}</span>
+                    </a>
+                  );
+                })}
+              </nav>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

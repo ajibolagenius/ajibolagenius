@@ -110,7 +110,7 @@ const Projects = ({ query }) => {
           {loading
             ? 'Fetching selected work from Supabase.'
             : projects.length > 0
-              ? `${projects.length} Supabase-backed project${projects.length === 1 ? '' : 's'} currently published for the homepage.`
+              ? `${projects.length} project${projects.length === 1 ? '' : 's'} currently published for the homepage.`
               : 'No selected work is available from Supabase right now.'}
         </p>
       </div>
@@ -132,7 +132,7 @@ const Projects = ({ query }) => {
         const pid = `proj-${project.id || idx}`;
         const projectName = project.name || project.title || 'Untitled project';
         const screenshotUrl = getScreenshotUrl(project);
-        
+
         const techList = asList(project.technologies).length > 0
           ? asList(project.technologies)
           : asList(project.tags).length > 0
@@ -151,9 +151,9 @@ const Projects = ({ query }) => {
             )}
             <div className="spread-bg-text">{preset.bgText}</div>
             <div className="spread-visual-inner">
-              <div 
-                className="spread-icon" 
-                style={{ 
+              <div
+                className="spread-icon"
+                style={{
                   color: preset.className.includes('red') ? 'var(--red)' : preset.className.includes('dark') ? '#ffffff' : 'var(--ink)',
                   fontStyle: 'italic',
                   fontFamily: 'var(--font-display)'
@@ -161,13 +161,13 @@ const Projects = ({ query }) => {
               >
                 {preset.icon}
               </div>
-              <div 
-                style={{ 
-                  fontFamily: 'var(--font-mono)', 
-                  fontSize: '10px', 
+              <div
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '10px',
                   color: preset.className.includes('dark') ? 'rgba(255, 255, 255, 0.4)' : preset.className.includes('red') ? 'var(--red)' : 'var(--muted)',
                   opacity: preset.className.includes('red') ? 0.7 : 1,
-                  letterSpacing: '0.15em', 
+                  letterSpacing: '0.15em',
                   marginTop: '8px'
                 }}
               >
@@ -175,9 +175,9 @@ const Projects = ({ query }) => {
               </div>
               <div className="spread-tech-row">
                 {techList.slice(0, 4).map((tech, tIdx) => (
-                  <span 
-                    key={tIdx} 
-                    className="spread-tech" 
+                  <span
+                    key={tIdx}
+                    className="spread-tech"
                     style={{ background: preset.techBg }}
                   >
                     {tech}
@@ -210,8 +210,8 @@ const Projects = ({ query }) => {
         );
 
         return (
-          <div 
-            key={project.id || idx} 
+          <div
+            key={project.id || idx}
             data-id={pid}
             className={`spread ${isSpreadA ? 'spread-a' : 'spread-b'} reveal ${revealed[pid] ? 'in' : ''}`}
           >
