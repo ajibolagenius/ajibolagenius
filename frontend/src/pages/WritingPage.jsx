@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Clock, Search } from 'lucide-react';
 import { fetchBlogPosts, subscribeNewsletter } from '../services/api';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
-import { blogPosts as mockFallback } from '../data/mock';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { buildStaticPageMeta } from '../lib/routeMeta';
 import ListPagination from '../components/portfolio/ListPagination';
 import { paginate } from '../lib/paginate';
+import { DataLoadingSkeleton, DataErrorBanner } from '../components/portfolio/DataStateMessage';
 
 const WRITING_PAGE_SIZE = 9;
 
@@ -22,8 +22,8 @@ const WritingPage = () => {
   const [nlSubmitting, setNlSubmitting] = useState(false);
   const [revealed, setRevealed] = useState(false);
 
-  const { data } = useRealtimeQuery('blog_posts', fetchBlogPosts, mockFallback);
-  const posts = Array.isArray(data) && data.length > 0 ? data : mockFallback;
+  const { data, loading, error, refetch } = useRealtimeQuery('blog_posts', fetchBlogPosts, []);
+  const posts = Array.isArray(data) ? data : [];
 
   useEffect(() => {
     const timer = setTimeout(() => setRevealed(true), 100);
@@ -206,7 +206,31 @@ const WritingPage = () => {
 
       {/* Literary Index List */}
       <section style={{ padding: '32px 0 64px' }}>
-        {sortedPosts.length === 0 ? (
+        <DataErrorBanner error={error} onRetry={refetch} className="mb-6" />
+
+        {loading ? (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {Array.from({ length: 3 }).map((_, idx) => (
+              <div
+                key={idx}
+                style={{
+                  padding: '32px 0',
+                  borderBottom: 'var(--rule-thin)',
+                  display: 'grid',
+                  gridTemplateColumns: '1fr',
+                  gap: '12px',
+                }}
+              >
+                <div className="flex items-center gap-4">
+                  <div style={{ width: '60px', height: '12px', background: 'var(--elevated)' }} className="animate-pulse" />
+                  <div style={{ width: '80px', height: '10px', background: 'var(--elevated)' }} className="animate-pulse" />
+                </div>
+                <div style={{ width: '40%', height: '24px', background: 'var(--elevated)', marginBottom: '8px' }} className="animate-pulse" />
+                <DataLoadingSkeleton lines={2} />
+              </div>
+            ))}
+          </div>
+        ) : sortedPosts.length === 0 ? (
           <div
             style={{
               padding: '60px 0',

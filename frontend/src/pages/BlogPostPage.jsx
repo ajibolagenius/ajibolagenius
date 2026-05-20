@@ -6,7 +6,7 @@ import { usePageMeta } from '../hooks/usePageMeta';
 import { track } from '../services/analytics';
 import { buildBlogPostingSchema } from '../lib/structuredData';
 import { buildOgImageUrl, DEFAULT_OG_IMAGE_PATH } from '../lib/siteConfig';
-import { blogPosts as mockFallback } from '../data/mock';
+import { DataLoadingSkeleton, DataErrorBanner } from '../components/portfolio/DataStateMessage';
 
 function isHtmlBody(body) {
   if (!body || typeof body !== 'string') return false;
@@ -19,15 +19,20 @@ const BlogPostPage = () => {
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [readProgress, setReadProgress] = useState(0);
   const [copied, setCopied] = useState(false);
   const [nextPost, setNextPost] = useState(null);
   const articleRef = useRef(null);
 
-  useEffect(() => {
+  const loadPost = useCallback(() => {
     setLoading(true);
+    setError(null);
     fetchBlogPost(slug)
       .then(async (data) => {
+        if (!data) {
+          throw new Error('Article not found');
+        }
         setPost(data);
         setLoading(false);
         try {
@@ -42,14 +47,15 @@ const BlogPostPage = () => {
           // Quietly fallback
         }
       })
-      .catch(() => {
-        const matched = mockFallback.find((p) => p.slug === slug || p.id === slug);
-        if (matched) {
-          setPost(matched);
-        }
+      .catch((err) => {
+        setError(err);
         setLoading(false);
       });
   }, [slug]);
+
+  useEffect(() => {
+    loadPost();
+  }, [loadPost]);
 
   useEffect(() => {
     if (post?.slug || post?.title) {
@@ -113,31 +119,80 @@ const BlogPostPage = () => {
 
   if (loading) {
     return (
-      <div className="page-content" style={{ padding: '120px 0', textAlign: 'center', fontFamily: 'var(--font-mono)' }}>
-        Formatting Article Stream...
+      <div className="page-content">
+        <section style={{ borderBottom: 'var(--rule)', padding: '56px 0 32px' }}>
+          <div
+            style={{
+              width: '120px',
+              height: '14px',
+              background: 'var(--elevated)',
+              marginBottom: '28px',
+            }}
+            className="animate-pulse"
+          />
+          <div>
+            <div
+              style={{
+                width: '80px',
+                height: '12px',
+                background: 'var(--elevated)',
+                marginBottom: '16px',
+              }}
+              className="animate-pulse"
+            />
+            <div
+              style={{
+                width: '60%',
+                height: '40px',
+                background: 'var(--elevated)',
+                marginBottom: '24px',
+              }}
+              className="animate-pulse"
+            />
+            <div className="hero-rule" style={{ margin: '24px 0' }}>
+              <div className="hero-rule-line"></div>
+              <div style={{ width: '120px', height: '10px', background: 'var(--elevated)', margin: '0 16px' }} className="animate-pulse" />
+              <div className="hero-rule-line"></div>
+            </div>
+          </div>
+        </section>
+        <section style={{ borderBottom: 'var(--rule-thin)', padding: '16px 0' }}>
+          <div style={{ width: '100px', height: '12px', background: 'var(--elevated)' }} className="animate-pulse" />
+        </section>
+        <section style={{ padding: '40px 0 80px' }}>
+          <div style={{ maxWidth: '720px', margin: '0 auto' }}>
+            <DataLoadingSkeleton lines={8} />
+            <div style={{ margin: '32px 0' }} />
+            <DataLoadingSkeleton lines={6} />
+          </div>
+        </section>
       </div>
     );
   }
 
-  if (!post) {
+  if (error || !post) {
     return (
-      <div className="page-content" style={{ padding: '120px 0', textAlign: 'center' }}>
-        <h1 className="hero-title" style={{ fontSize: '32px', marginBottom: '24px' }}>Article Not Found</h1>
+      <div className="page-content" style={{ padding: '80px 0' }}>
         <button
           onClick={() => navigate('/writing')}
           style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
             fontFamily: 'var(--font-mono)',
             fontSize: '10px',
+            letterSpacing: '0.12em',
             textTransform: 'uppercase',
-            padding: '10px 20px',
-            background: 'var(--ink)',
-            color: 'var(--cream)',
+            color: 'var(--ink)',
+            background: 'transparent',
             border: 'none',
             cursor: 'pointer',
+            marginBottom: '28px',
           }}
         >
-          Return to Journal
+          <ArrowLeft size={10} /> Back to Journal
         </button>
+        <DataErrorBanner error={error || new Error('Article not found')} onRetry={loadPost} />
       </div>
     );
   }

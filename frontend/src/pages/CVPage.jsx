@@ -2,29 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { Download, Printer } from 'lucide-react';
 import { fetchTimeline, fetchEducation, fetchCertifications, fetchSkills } from '../services/api';
 import { techStackForCV } from '../data/techStack';
-import { cvData } from '../data/mock';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { buildStaticPageMeta } from '../lib/routeMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
+import { DataLoadingSkeleton, DataErrorBanner } from '../components/portfolio/DataStateMessage';
 
 const getPdfUrl = () => {
-  const envUrl = import.meta.env?.VITE_CV_PDF_URL;
-  if (envUrl) return envUrl;
-  return cvData && typeof cvData.pdfUrl === 'string' ? cvData.pdfUrl : '#';
+  return import.meta.env?.VITE_CV_PDF_URL || '#';
 };
 
 const CVPage = () => {
   const [revealed, setRevealed] = useState(false);
-  const { data: timelineData } = useRealtimeQuery('timeline_entries', fetchTimeline);
-  const { data: educationData } = useRealtimeQuery('education_entries', fetchEducation);
-  const { data: certificationsData } = useRealtimeQuery('certifications', fetchCertifications);
-  const { data: skillsData } = useRealtimeQuery('skills', fetchSkills);
+  const { data: timelineData, loading: loadingTimeline, error: errorTimeline, refetch: refetchTimeline } = useRealtimeQuery('timeline_entries', fetchTimeline, []);
+  const { data: educationData, loading: loadingEducation, error: errorEducation, refetch: refetchEducation } = useRealtimeQuery('education_entries', fetchEducation, []);
+  const { data: certificationsData, loading: loadingCertifications, error: errorCertifications, refetch: refetchCertifications } = useRealtimeQuery('certifications', fetchCertifications, []);
+  const { data: skillsData, loading: loadingSkills, error: errorSkills, refetch: refetchSkills } = useRealtimeQuery('skills', fetchSkills, []);
 
-  const skills = Array.isArray(skillsData) && skillsData.length > 0 ? skillsData : [];
-  const timeline = Array.isArray(timelineData) && timelineData.length > 0 ? timelineData : [];
-  const education = Array.isArray(educationData) && educationData.length > 0 ? educationData : [];
+  const skills = Array.isArray(skillsData) ? skillsData : [];
+  const timeline = Array.isArray(timelineData) ? timelineData : [];
+  const education = Array.isArray(educationData) ? educationData : [];
   const certifications =
-    Array.isArray(certificationsData) && certificationsData.length > 0
+    Array.isArray(certificationsData)
       ? certificationsData.map((c) => (typeof c === 'string' ? c : c.title))
       : [];
 
@@ -126,57 +124,95 @@ const CVPage = () => {
                 Experience Timeline
               </h3>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                {timeline.map((item, idx) => (
-                  <div key={idx} style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '24px' }}>
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '11px',
-                        color: 'var(--red)',
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      {item.year || '2024'}
-                    </span>
-                    <div>
-                      <h4
+              <DataErrorBanner error={errorTimeline} onRetry={refetchTimeline} className="mb-6" />
+
+              {loadingTimeline ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                  {Array.from({ length: 3 }).map((_, idx) => (
+                    <div key={idx} style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '24px' }}>
+                      <div style={{ width: '60px', height: '14px', background: 'var(--elevated)' }} className="animate-pulse" />
+                      <div>
+                        <div style={{ width: '150px', height: '18px', background: 'var(--elevated)', marginBottom: '8px' }} className="animate-pulse" />
+                        <DataLoadingSkeleton lines={2} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : timeline.length === 0 ? (
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)', border: '1px dashed var(--ink)', padding: '24px', textAlign: 'center' }}>
+                  No experience entries found.
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                  {timeline.map((item, idx) => (
+                    <div key={idx} style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '24px' }}>
+                      <span
                         style={{
-                          fontFamily: 'var(--font-display)',
-                          fontSize: '16px',
+                          fontFamily: 'var(--font-mono)',
+                          fontSize: '11px',
+                          color: 'var(--red)',
                           fontWeight: 'bold',
-                          marginBottom: '8px',
                         }}
                       >
-                        {item.title}
-                      </h4>
-                      <p className="hero-desc" style={{ fontSize: '13px', lineHeight: 1.6 }}>
-                        {item.body}
-                      </p>
+                        {item.year || '2024'}
+                      </span>
+                      <div>
+                        <h4
+                          style={{
+                            fontFamily: 'var(--font-display)',
+                            fontSize: '16px',
+                            fontWeight: 'bold',
+                            marginBottom: '8px',
+                          }}
+                        >
+                          {item.title}
+                        </h4>
+                        <p className="hero-desc" style={{ fontSize: '13px', lineHeight: 1.6 }}>
+                          {item.body}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Education */}
-            {education.length > 0 && (
-              <div>
-                <h3
-                  style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '10px',
-                    letterSpacing: '0.2em',
-                    textTransform: 'uppercase',
-                    borderBottom: 'var(--rule)',
-                    paddingBottom: '12px',
-                    marginBottom: '32px',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  Academic Credentials
-                </h3>
+            <div>
+              <h3
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '10px',
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
+                  borderBottom: 'var(--rule)',
+                  paddingBottom: '12px',
+                  marginBottom: '32px',
+                  fontWeight: 'bold',
+                }}
+              >
+                Academic Credentials
+              </h3>
 
+              <DataErrorBanner error={errorEducation} onRetry={refetchEducation} className="mb-6" />
+
+              {loadingEducation ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                  {Array.from({ length: 2 }).map((_, idx) => (
+                    <div key={idx} style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '24px' }}>
+                      <div style={{ width: '60px', height: '14px', background: 'var(--elevated)' }} className="animate-pulse" />
+                      <div>
+                        <div style={{ width: '120px', height: '16px', background: 'var(--elevated)', marginBottom: '4px' }} className="animate-pulse" />
+                        <div style={{ width: '180px', height: '12px', background: 'var(--elevated)' }} className="animate-pulse" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : education.length === 0 ? (
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)', border: '1px dashed var(--ink)', padding: '24px', textAlign: 'center' }}>
+                  No academic credentials found.
+                </div>
+              ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   {education.map((edu, idx) => (
                     <div key={idx} style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '24px' }}>
@@ -207,27 +243,42 @@ const CVPage = () => {
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
             {/* Certifications */}
-            {certifications.length > 0 && (
-              <div>
-                <h3
-                  style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '10px',
-                    letterSpacing: '0.2em',
-                    textTransform: 'uppercase',
-                    borderBottom: 'var(--rule)',
-                    paddingBottom: '12px',
-                    marginBottom: '24px',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  Certifications
-                </h3>
+            <div>
+              <h3
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '10px',
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
+                  borderBottom: 'var(--rule)',
+                  paddingBottom: '12px',
+                  marginBottom: '24px',
+                  fontWeight: 'bold',
+                }}
+              >
+                Certifications
+              </h3>
 
+              <DataErrorBanner error={errorCertifications} onRetry={refetchCertifications} className="mb-6" />
+
+              {loadingCertifications ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <span style={{ width: '4px', height: '4px', background: 'var(--red)' }} />
+                      <div style={{ width: '200px', height: '14px', background: 'var(--elevated)' }} className="animate-pulse" />
+                    </div>
+                  ))}
+                </div>
+              ) : certifications.length === 0 ? (
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)', border: '1px dashed var(--ink)', padding: '24px', textAlign: 'center' }}>
+                  No certifications found.
+                </div>
+              ) : (
                 <ul
                   style={{
                     listStyle: 'none',
@@ -254,30 +305,48 @@ const CVPage = () => {
                     </li>
                   ))}
                 </ul>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Right Column: Skills with levels + Stack & Tooling */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '56px' }}>
             {/* Skills */}
-            {skills.length > 0 && (
-              <div>
-                <h3
-                  style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '10px',
-                    letterSpacing: '0.2em',
-                    textTransform: 'uppercase',
-                    borderBottom: 'var(--rule)',
-                    paddingBottom: '12px',
-                    marginBottom: '32px',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  Core Proficiencies
-                </h3>
+            <div>
+              <h3
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '10px',
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
+                  borderBottom: 'var(--rule)',
+                  paddingBottom: '12px',
+                  marginBottom: '32px',
+                  fontWeight: 'bold',
+                }}
+              >
+                Core Proficiencies
+              </h3>
 
+              <DataErrorBanner error={errorSkills} onRetry={refetchSkills} className="mb-6" />
+
+              {loadingSkills ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <div key={idx}>
+                      <div className="flex justify-between items-center mb-2">
+                        <div style={{ width: '80px', height: '12px', background: 'var(--elevated)' }} className="animate-pulse" />
+                        <div style={{ width: '30px', height: '10px', background: 'var(--elevated)' }} className="animate-pulse" />
+                      </div>
+                      <div style={{ height: '4px', background: 'rgba(17,17,17,0.1)', width: '100%' }} />
+                    </div>
+                  ))}
+                </div>
+              ) : skills.length === 0 ? (
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)', border: '1px dashed var(--ink)', padding: '24px', textAlign: 'center' }}>
+                  No skills cataloged.
+                </div>
+              ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   {skills.map((skill, idx) => (
                     <div key={idx}>
@@ -301,8 +370,8 @@ const CVPage = () => {
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
             {/* Tools & Stack */}
             <div>

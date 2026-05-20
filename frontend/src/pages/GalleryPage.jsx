@@ -4,7 +4,7 @@ import { fetchGallery } from '../services/api';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { buildStaticPageMeta } from '../lib/routeMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
-import { galleryItems as mockFallback } from '../data/mock';
+import { DataLoadingSkeleton, DataErrorBanner } from '../components/portfolio/DataStateMessage';
 import { paginate } from '../lib/paginate';
 import ListPagination from '../components/portfolio/ListPagination';
 import OptimizedImage from '../components/portfolio/OptimizedImage';
@@ -30,8 +30,8 @@ const GalleryPage = () => {
   const [lightbox, setLightbox] = useState(null);
   const [revealed, setRevealed] = useState(false);
 
-  const { data } = useRealtimeQuery('gallery_items', fetchGallery, mockFallback);
-  const items = Array.isArray(data) && data.length > 0 ? data : mockFallback;
+  const { data, loading, error, refetch } = useRealtimeQuery('gallery_items', fetchGallery, []);
+  const items = Array.isArray(data) ? data : [];
 
   useEffect(() => {
     const timer = setTimeout(() => setRevealed(true), 100);
@@ -104,7 +104,38 @@ const GalleryPage = () => {
 
       {/* Dense ruled museum catalog grid */}
       <section style={{ padding: '48px 0 80px' }}>
-        {filteredItems.length === 0 ? (
+        <DataErrorBanner error={error} onRetry={refetch} className="mb-6" />
+
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <div
+                key={idx}
+                style={{
+                  border: '1px dashed var(--ink)',
+                  padding: '12px',
+                  background: 'var(--surface)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                }}
+              >
+                <div
+                  style={{
+                    width: '100%',
+                    aspectRatio: '4/3',
+                    background: 'var(--elevated)',
+                  }}
+                  className="animate-pulse"
+                />
+                <div style={{ padding: '0 4px' }}>
+                  <div style={{ width: '40%', height: '14px', background: 'var(--elevated)', marginBottom: '8px' }} className="animate-pulse" />
+                  <div style={{ width: '80%', height: '10px', background: 'var(--elevated)' }} className="animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filteredItems.length === 0 ? (
           <div
             style={{
               padding: '60px 0',

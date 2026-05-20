@@ -1,13 +1,14 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { MessageSquare, Quote, ChevronDown, ChevronUp } from 'lucide-react';
 import { fetchCourses, fetchTestimonials, fetchPersonalInfo, submitCourseWaitlist } from '../services/api';
-import { faqItems, courses as mockFallbackCourses, testimonials as mockFallbackTestimonials } from '../data/mock';
+import { faqItems } from '../data/mock';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { buildStaticPageMeta } from '../lib/routeMeta';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
 import { buildTeachPageSchema } from '../lib/structuredData';
 import { paginate } from '../lib/paginate';
 import ListPagination from '../components/portfolio/ListPagination';
+import { DataLoadingSkeleton, DataErrorBanner } from '../components/portfolio/DataStateMessage';
 
 const CourseCard = ({ course, whatsapp }) => {
   const [expanded, setExpanded] = useState(false);
@@ -203,13 +204,12 @@ const TeachPage = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const [revealed, setRevealed] = useState(false);
 
-  const { data: rawCourses } = useRealtimeQuery('courses', fetchCourses, mockFallbackCourses);
-  const { data: rawTestimonials } = useRealtimeQuery('testimonials', fetchTestimonials, mockFallbackTestimonials);
+  const { data: rawCourses, loading: loadingCourses, error: errorCourses, refetch: refetchCourses } = useRealtimeQuery('courses', fetchCourses, []);
+  const { data: rawTestimonials, loading: loadingTestimonials, error: errorTestimonials, refetch: refetchTestimonials } = useRealtimeQuery('testimonials', fetchTestimonials, []);
   const { data: info } = useRealtimeQuery('personal_info', fetchPersonalInfo);
 
-  const courses = Array.isArray(rawCourses) && rawCourses.length > 0 ? rawCourses : mockFallbackCourses;
-  const testimonials =
-    Array.isArray(rawTestimonials) && rawTestimonials.length > 0 ? rawTestimonials : mockFallbackTestimonials;
+  const courses = Array.isArray(rawCourses) ? rawCourses : [];
+  const testimonials = Array.isArray(rawTestimonials) ? rawTestimonials : [];
   const whatsapp = info?.social?.whatsapp || '';
 
   const [sortBy, setSortBy] = useState('default');
@@ -342,21 +342,63 @@ const TeachPage = () => {
           </select>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {paginatedCourses.map((c, i) => (
-            <CourseCard key={c.id || i} course={c} whatsapp={whatsapp} />
-          ))}
-        </div>
+        <DataErrorBanner error={errorCourses} onRetry={refetchCourses} className="mb-6" />
 
-        {courses.length > 0 && (
-          <div style={{ marginTop: '48px' }}>
-            <ListPagination
-              page={page}
-              totalPages={totalPages}
-              onPageChange={setPage}
-              range={{ start, end, total }}
-            />
+        {loadingCourses ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 3 }).map((_, idx) => (
+              <div
+                key={idx}
+                style={{
+                  border: '1px dashed var(--ink)',
+                  background: 'var(--surface)',
+                  padding: '24px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '16px',
+                }}
+              >
+                <div className="flex justify-between items-start gap-4">
+                  <div style={{ flex: 1 }}>
+                    <div style={{ width: '80px', height: '14px', background: 'var(--elevated)', marginBottom: '8px' }} className="animate-pulse" />
+                    <div style={{ width: '120px', height: '20px', background: 'var(--elevated)' }} className="animate-pulse" />
+                  </div>
+                  <div style={{ width: '40px', height: '24px', background: 'var(--elevated)' }} className="animate-pulse" />
+                </div>
+                <DataLoadingSkeleton lines={3} />
+              </div>
+            ))}
           </div>
+        ) : sortedCourses.length === 0 ? (
+          <div
+            style={{
+              padding: '40px 0',
+              textAlign: 'center',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '11px',
+              color: 'var(--muted)',
+              border: '1px dashed var(--ink)',
+            }}
+          >
+            No courses are currently available.
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {paginatedCourses.map((c, i) => (
+                <CourseCard key={c.id || i} course={c} whatsapp={whatsapp} />
+              ))}
+            </div>
+
+            <div style={{ marginTop: '48px' }}>
+              <ListPagination
+                page={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+                range={{ start, end, total }}
+              />
+            </div>
+          </>
         )}
       </section>
 
@@ -473,7 +515,47 @@ const TeachPage = () => {
       </section>
 
       {/* Testimonials */}
-      {testimonials.length > 0 && (
+      <div style={{ padding: '0 0 56px' }}>
+        <DataErrorBanner error={errorTestimonials} onRetry={refetchTestimonials} />
+      </div>
+
+      {loadingTestimonials ? (
+        <section style={{ borderBottom: 'var(--rule)', padding: '0 0 80px' }}>
+          <h3
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '10px',
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              marginBottom: '32px',
+            }}
+          >
+            Review Catalog
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 3 }).map((_, idx) => (
+              <div
+                key={idx}
+                style={{
+                  border: '1px dashed var(--ink)',
+                  padding: '24px',
+                  background: 'var(--surface)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '16px',
+                }}
+              >
+                <Quote size={20} style={{ color: 'var(--red)', opacity: 0.1 }} />
+                <DataLoadingSkeleton lines={3} />
+                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ width: '80px', height: '14px', background: 'var(--elevated)' }} className="animate-pulse" />
+                  <div style={{ width: '60px', height: '10px', background: 'var(--elevated)' }} className="animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : testimonials.length > 0 ? (
         <section style={{ borderBottom: 'var(--rule)', padding: '56px 0 80px' }}>
           <h3
             style={{
@@ -515,7 +597,7 @@ const TeachPage = () => {
             ))}
           </div>
         </section>
-      )}
+      ) : null}
 
       {/* FAQ */}
       <section style={{ padding: '56px 0 80px' }}>

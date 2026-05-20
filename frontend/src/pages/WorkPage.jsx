@@ -3,12 +3,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { fetchProjects } from '../services/api';
 import { useRealtimeQuery } from '../hooks/useRealtimeQuery';
-import { projects as mockFallback } from '../data/mock';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { buildStaticPageMeta } from '../lib/routeMeta';
 import WorkProjectCard from '../components/portfolio/WorkProjectCard';
 import ListPagination from '../components/portfolio/ListPagination';
 import { paginate } from '../lib/paginate';
+import { DataLoadingSkeleton, DataErrorBanner } from '../components/portfolio/DataStateMessage';
 
 const WORK_PAGE_SIZE = 9;
 
@@ -20,8 +20,8 @@ const WorkPage = () => {
   const [revealed, setRevealed] = useState(false);
   const navigate = useNavigate();
 
-  const { data } = useRealtimeQuery('projects', fetchProjects, mockFallback);
-  const projects = Array.isArray(data) && data.length > 0 ? data : mockFallback;
+  const { data, loading, error, refetch } = useRealtimeQuery('projects', fetchProjects, []);
+  const projects = Array.isArray(data) ? data : [];
 
   useEffect(() => {
     const timer = setTimeout(() => setRevealed(true), 100);
@@ -190,7 +190,18 @@ const WorkPage = () => {
 
       {/* stark collection grid */}
       <section style={{ padding: '48px 0 64px' }}>
-        {sortedProjects.length === 0 ? (
+        <DataErrorBanner error={error} onRetry={refetch} className="mb-6" />
+
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <div key={idx} style={{ border: '1px dashed var(--ink)', padding: '24px', background: 'var(--surface)' }}>
+                <div style={{ height: '180px', background: 'var(--elevated)', border: '1px solid var(--border)', marginBottom: '16px' }} />
+                <DataLoadingSkeleton lines={3} />
+              </div>
+            ))}
+          </div>
+        ) : sortedProjects.length === 0 ? (
           <div
             style={{
               padding: '60px 0',

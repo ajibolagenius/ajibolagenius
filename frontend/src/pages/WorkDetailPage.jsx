@@ -8,7 +8,7 @@ import { absolutizeUrl } from '../lib/pageMeta';
 import { buildCreativeWorkSchema } from '../lib/structuredData';
 import OptimizedImage from '../components/portfolio/OptimizedImage';
 import { track } from '../services/analytics';
-import { projects as mockFallback } from '../data/mock';
+import { DataLoadingSkeleton, DataErrorBanner } from '../components/portfolio/DataStateMessage';
 
 const WorkDetailPage = () => {
   const { slug } = useParams();
@@ -16,24 +16,22 @@ const WorkDetailPage = () => {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [errorObj, setErrorObj] = useState(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
     setLoading(true);
+    setError(false);
+    setErrorObj(null);
     fetchProject(slug)
       .then((data) => {
         setProject(data);
         setLoading(false);
       })
-      .catch(() => {
-        // Find in mock fallback
-        const matched = mockFallback.find((p) => p.slug === slug || p.id === slug);
-        if (matched) {
-          setProject(matched);
-        } else {
-          setError(true);
-        }
+      .catch((err) => {
+        setError(true);
+        setErrorObj(err);
         setLoading(false);
       });
   }, [slug]);
@@ -93,16 +91,45 @@ const WorkDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="page-content" style={{ padding: '120px 0', textAlign: 'center', fontFamily: 'var(--font-mono)' }}>
-        Loading Case Study Archive...
+      <div className="page-content" style={{ padding: '56px 0 80px' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--font-mono)', fontSize: '10px', textTransform: 'uppercase', marginBottom: '28px', color: 'var(--muted)' }}>
+          <ArrowLeft size={10} /> Back to Archive
+        </div>
+        <div style={{ height: '20px', width: '80px', background: 'var(--elevated)', marginBottom: '16px' }} />
+        <div style={{ height: '60px', width: '60%', background: 'var(--elevated)', marginBottom: '24px' }} />
+        <div className="hero-rule" style={{ margin: '24px 0' }}>
+          <div className="hero-rule-line"></div>
+          <span className="hero-rule-label">Loading Case Study Archive...</span>
+          <div className="hero-rule-line"></div>
+        </div>
+        <DataLoadingSkeleton lines={4} />
       </div>
     );
   }
 
   if (error || !project) {
     return (
-      <div className="page-content" style={{ padding: '120px 0', textAlign: 'center' }}>
-        <h1 className="hero-title" style={{ fontSize: '32px', marginBottom: '24px' }}>Archive Not Found</h1>
+      <div className="page-content" style={{ padding: '120px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
+        <DataErrorBanner 
+          error={errorObj || new Error('Project not found')} 
+          onRetry={() => {
+            setLoading(true);
+            setError(false);
+            setErrorObj(null);
+            fetchProject(slug)
+              .then((data) => {
+                setProject(data);
+                setLoading(false);
+              })
+              .catch((err) => {
+                setError(true);
+                setErrorObj(err);
+                setLoading(false);
+              });
+          }} 
+          className="max-w-md w-full"
+        />
+        <h1 className="hero-title" style={{ fontSize: '32px' }}>Archive Not Found</h1>
         <button
           onClick={() => navigate('/work')}
           style={{
