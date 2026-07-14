@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getResourceConfig, type FieldConfig } from "@/lib/admin-resources";
+import { listTechLogos, type TechLogoOption } from "@/lib/tech-logos";
 import { createResourceRow, deleteResourceRow, updateResourceRow } from "./actions";
 
 const inputClass =
@@ -10,9 +11,11 @@ const inputClass =
 function FieldInput({
   field,
   defaultValue,
+  techLogos,
 }: {
   field: FieldConfig;
   defaultValue?: unknown;
+  techLogos: TechLogoOption[];
 }) {
   if (field.type === "textarea") {
     return (
@@ -44,6 +47,29 @@ function FieldInput({
       />
     );
   }
+  if (field.type === "icon") {
+    const current = defaultValue ? String(defaultValue) : "";
+    return (
+      <div className="flex items-center gap-2">
+        {current && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={current} alt="" className="h-8 w-8 object-contain" />
+        )}
+        <select
+          name={field.name}
+          defaultValue={current}
+          className={`${inputClass} w-full`}
+        >
+          <option value="">No icon</option>
+          {techLogos.map((logo) => (
+            <option key={logo.url} value={logo.url}>
+              {logo.name}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  }
   return (
     <input
       type={field.type === "number" ? "number" : "text"}
@@ -68,10 +94,14 @@ export default async function ManageResourcePage({
   if (!config) notFound();
 
   const supabase = await createClient();
-  const { data: rows, error } = await supabase
-    .from(config.table)
-    .select("*")
-    .order(config.orderColumn, { ascending: true });
+  const needsIconPicker = config.fields.some((f) => f.type === "icon");
+  const [{ data: rows, error }, techLogos] = await Promise.all([
+    supabase
+      .from(config.table)
+      .select("*")
+      .order(config.orderColumn, { ascending: true }),
+    needsIconPicker ? listTechLogos() : Promise.resolve([]),
+  ]);
 
   const isSingleton = resource === "personal-info";
 
@@ -120,13 +150,19 @@ export default async function ManageResourcePage({
                 <label
                   key={field.name}
                   className={`flex flex-col gap-1 text-xs font-medium ${
-                    field.type === "textarea" || field.type === "list"
+                    field.type === "textarea" ||
+                    field.type === "list" ||
+                    field.type === "icon"
                       ? "col-span-2"
                       : ""
                   }`}
                 >
                   {field.label}
-                  <FieldInput field={field} defaultValue={row[field.name]} />
+                  <FieldInput
+                    field={field}
+                    defaultValue={row[field.name]}
+                    techLogos={techLogos}
+                  />
                 </label>
               ))}
             </div>
@@ -156,13 +192,15 @@ export default async function ManageResourcePage({
               <label
                 key={field.name}
                 className={`flex flex-col gap-1 text-xs font-medium ${
-                  field.type === "textarea" || field.type === "list"
+                  field.type === "textarea" ||
+                  field.type === "list" ||
+                  field.type === "icon"
                     ? "col-span-2"
                     : ""
                 }`}
               >
                 {field.label}
-                <FieldInput field={field} />
+                <FieldInput field={field} techLogos={techLogos} />
               </label>
             ))}
           </div>

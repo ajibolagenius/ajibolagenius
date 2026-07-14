@@ -22,6 +22,7 @@ export interface Skill {
   name: string;
   level: number;
   order: number;
+  icon_url: string | null;
 }
 
 export interface ExperienceEntry {

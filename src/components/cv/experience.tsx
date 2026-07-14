@@ -1,15 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowSquareOut, X } from "@phosphor-icons/react/dist/ssr";
 import { SectionHeading } from "./section-heading";
 import { CompanyIcon } from "@/components/company-icon";
+import { assignCompanyIcons, type CompanyIconStyle } from "@/lib/company-icon";
 import type { ExperienceEntry } from "@/types/cv";
 
-function JobCard({ entry }: { entry: ExperienceEntry }) {
+function JobCard({
+  entry,
+  iconStyle,
+}: {
+  entry: ExperienceEntry;
+  iconStyle?: CompanyIconStyle;
+}) {
   return (
     <div className="group flex gap-4 transition-transform duration-200 hover:translate-x-1">
-      <CompanyIcon seed={entry.company} />
+      <CompanyIcon seed={entry.company} style={iconStyle} />
       <div className="flex flex-1 flex-col gap-1">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <h3 className="text-body-l font-medium transition-colors group-hover:text-accent">
@@ -40,6 +47,11 @@ function JobCard({ entry }: { entry: ExperienceEntry }) {
 export function Experience({ entries }: { entries: ExperienceEntry[] }) {
   const [open, setOpen] = useState(false);
 
+  const iconStyles = useMemo(
+    () => assignCompanyIcons(entries.map((e) => e.company)),
+    [entries],
+  );
+
   if (entries.length === 0) return null;
 
   const visible = entries.slice(0, 3);
@@ -50,7 +62,11 @@ export function Experience({ entries }: { entries: ExperienceEntry[] }) {
       <SectionHeading id="experience">Experience</SectionHeading>
       <div className="flex flex-col gap-6">
         {visible.map((entry) => (
-          <JobCard key={entry.id} entry={entry} />
+          <JobCard
+            key={entry.id}
+            entry={entry}
+            iconStyle={iconStyles.get(entry.company)}
+          />
         ))}
       </div>
 
@@ -67,14 +83,14 @@ export function Experience({ entries }: { entries: ExperienceEntry[] }) {
 
       {open && (
         <div
-          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/40 p-6 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4 backdrop-blur-sm sm:p-6"
           onClick={() => setOpen(false)}
         >
           <div
-            className="my-10 w-full max-w-2xl bg-cream p-8"
+            className="flex max-h-[85dvh] w-full max-w-2xl flex-col bg-cream"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-6 flex items-center justify-between">
+            <div className="flex shrink-0 items-center justify-between border-b border-ink/10 p-5 sm:p-8 sm:pb-6">
               <h2 className="text-h2 font-normal">Full Experience</h2>
               <button
                 type="button"
@@ -85,9 +101,13 @@ export function Experience({ entries }: { entries: ExperienceEntry[] }) {
                 <X size={20} />
               </button>
             </div>
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-8 overflow-y-auto p-5 sm:p-8">
               {entries.map((entry) => (
-                <JobCard key={entry.id} entry={entry} />
+                <JobCard
+                  key={entry.id}
+                  entry={entry}
+                  iconStyle={iconStyles.get(entry.company)}
+                />
               ))}
             </div>
           </div>

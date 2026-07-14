@@ -15,26 +15,31 @@ export function Sidebar({ info }: { info: PersonalInfo | null }) {
   if (!info) return null;
 
   return (
-    <aside className="-mx-6 flex w-[calc(100%+3rem)] shrink-0 flex-col gap-6 bg-panel px-6 py-8 lg:sticky lg:top-24 lg:mx-0 lg:h-fit lg:w-64 lg:bg-transparent lg:px-0 lg:py-0">
-      <div className="h-20 w-20 shrink-0 overflow-hidden transition-transform duration-300 hover:scale-105">
-        <Image
-          src="/avatar.png"
-          alt={info.name}
-          width={160}
-          height={160}
-          className="h-full w-full object-cover"
-          priority
-        />
+    <aside className="-mx-6 flex w-[calc(100%+3rem)] shrink-0 flex-col gap-6 bg-panel px-6 py-8 lg:sticky lg:top-24 lg:mx-0 lg:h-fit lg:w-64 lg:border-r lg:border-ink/10 lg:bg-transparent lg:px-0 lg:py-0 lg:pr-8">
+      <div className="flex flex-col gap-6 md:flex-row md:items-start lg:flex-col">
+        <div className="h-20 w-20 shrink-0 overflow-hidden transition-transform duration-300 hover:scale-105">
+          <Image
+            src="/avatar.png"
+            alt={info.name}
+            width={160}
+            height={160}
+            className="h-full w-full object-cover"
+            priority
+          />
+        </div>
+
+        <div className="flex flex-col gap-3 md:gap-2 lg:gap-3">
+          <div>
+            <h1 className="text-h3 font-normal">{info.name}</h1>
+            <p className="text-body-s text-ink/60">{info.role}</p>
+          </div>
+          <p className="text-body-s text-ink/70 md:max-w-md lg:max-w-none">
+            {info.description}
+          </p>
+        </div>
       </div>
 
-      <div>
-        <h1 className="text-h3 font-normal">{info.name}</h1>
-        <p className="text-body-s text-ink/60">{info.role}</p>
-      </div>
-
-      <p className="text-body-s text-ink/70">{info.description}</p>
-
-      <div className="flex flex-col gap-2 border-t border-ink/10 pt-4 text-body-s text-ink/70">
+      <div className="flex flex-col gap-2 border-t border-ink/10 pt-4 text-body-s text-ink/70 md:flex-row md:flex-wrap md:items-center md:gap-6 lg:flex-col lg:gap-2">
         {info.location && (
           <div className="flex items-center gap-2">
             <MapPin weight="duotone" size={16} />

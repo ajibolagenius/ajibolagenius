@@ -4,6 +4,7 @@ import {
   Phone,
   LinkedinLogo,
   XLogo,
+  GithubLogo,
 } from "@phosphor-icons/react/dist/ssr";
 import type { PersonalInfo } from "@/types/cv";
 
@@ -69,6 +70,16 @@ export function Connect({ info }: { info: PersonalInfo | null }) {
               className="text-ink/50 hover:text-ink"
             >
               <XLogo weight="duotone" size={18} />
+            </a>
+          )}
+          {info.social?.github && (
+            <a
+              href={info.social.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-ink/50 hover:text-ink"
+            >
+              <GithubLogo weight="duotone" size={18} />
             </a>
           )}
         </div>

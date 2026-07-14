@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { CompanyIcon } from "@/components/company-icon";
+import { assignCompanyIcons } from "@/lib/company-icon";
 import type { ExperienceEntry, PersonalInfo } from "@/types/cv";
 
 export function Hero({
@@ -13,6 +14,7 @@ export function Hero({
   if (!info) return null;
 
   const recentJobs = experience.slice(0, 3);
+  const iconStyles = assignCompanyIcons(recentJobs.map((j) => j.company));
 
   return (
     <section className="flex flex-col items-center gap-6 py-16 text-center">
@@ -41,7 +43,11 @@ export function Hero({
                 className="-ml-2 border-2 border-cream first:ml-0"
                 style={{ zIndex: recentJobs.length - i }}
               >
-                <CompanyIcon seed={job.company} size={28} />
+                <CompanyIcon
+                  seed={job.company}
+                  size={28}
+                  style={iconStyles.get(job.company)}
+                />
               </span>
             ))}
           </span>

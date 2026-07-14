@@ -1,17 +1,19 @@
-import { pickCompanyIcon } from "@/lib/company-icon";
+import { pickCompanyIcon, type CompanyIconStyle } from "@/lib/company-icon";
 
 export function CompanyIcon({
   seed,
   size = 32,
+  style,
 }: {
   seed: string;
   size?: number;
+  style?: CompanyIconStyle;
 }) {
-  const { shapeSrc, color } = pickCompanyIcon(seed);
+  const { shapeSrc, color } = style ?? pickCompanyIcon(seed);
 
   return (
     <div
-      className="flex shrink-0 items-center justify-center "
+      className="flex shrink-0 items-center justify-center"
       style={{ width: size, height: size, backgroundColor: color }}
     >
       <div

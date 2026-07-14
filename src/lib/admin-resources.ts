@@ -1,4 +1,10 @@
-export type FieldType = "text" | "textarea" | "number" | "boolean" | "list";
+export type FieldType =
+  | "text"
+  | "textarea"
+  | "number"
+  | "boolean"
+  | "list"
+  | "icon";
 
 export interface FieldConfig {
   name: string;
@@ -39,6 +45,7 @@ export const ADMIN_RESOURCES: Record<string, ResourceConfig> = {
     fields: [
       { name: "name", label: "Name", type: "text" },
       { name: "level", label: "Level (0-100)", type: "number" },
+      { name: "icon_url", label: "Tech icon", type: "icon" },
       { name: "order", label: "Order", type: "number" },
     ],
   },

@@ -12,7 +12,9 @@ export default async function NotFound() {
     <>
       <TopNav />
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-10 lg:flex-row lg:gap-16">
-        <Sidebar info={personalInfo} />
+        <div className="hidden lg:block">
+          <Sidebar info={personalInfo} />
+        </div>
         <div className="flex flex-1 flex-col items-center justify-center gap-4 py-24 text-center">
           <Image
             src="/illustration-404.svg"

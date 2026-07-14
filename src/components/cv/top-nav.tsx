@@ -65,14 +65,14 @@ export function TopNav() {
       </nav>
 
       {open && (
-        <div className="border-t border-ink/10 px-6 py-4 sm:hidden">
-          <ul className="flex flex-col gap-4 text-body-s text-ink/70">
+        <div className="border-t border-ink/10 px-6 py-6 sm:hidden">
+          <ul className="flex flex-col items-center gap-6 text-body-m text-ink/70">
             {LINKS.map((link) => (
               <li key={link.href}>
                 <a
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="hover:text-ink"
+                  className="transition-colors hover:text-ink"
                 >
                   {link.label}
                 </a>
@@ -82,7 +82,7 @@ export function TopNav() {
               <Link
                 href="/work"
                 onClick={() => setOpen(false)}
-                className="hover:text-ink"
+                className="transition-colors hover:text-ink"
               >
                 Work
               </Link>
@@ -91,7 +91,7 @@ export function TopNav() {
           <a
             href="#connect"
             onClick={() => setOpen(false)}
-            className="mt-4 flex items-center justify-center gap-2 bg-ink px-4 py-2.5 text-body-s font-medium text-cream"
+            className="mt-6 flex items-center justify-center gap-2 bg-ink px-4 py-2.5 text-body-s font-medium text-cream transition-colors hover:bg-accent"
           >
             <ChatCircle weight="duotone" size={16} />
             Contact Me
