@@ -1,6 +1,39 @@
 import { SectionHeading } from "./section-heading";
 import type { Skill } from "@/types/cv";
 
+function TechIcon({ skill }: { skill: Skill }) {
+  if (skill.icon_url_dark) {
+    return (
+      <span className="flex h-8 w-8 items-center justify-center bg-ink/5 p-1.5">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={skill.icon_url!}
+          alt={skill.name}
+          title={skill.name}
+          className="h-full w-full object-contain dark:hidden"
+        />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={skill.icon_url_dark}
+          alt={skill.name}
+          title={skill.name}
+          className="hidden h-full w-full object-contain dark:block"
+        />
+      </span>
+    );
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={skill.icon_url!}
+      alt={skill.name}
+      title={skill.name}
+      className="h-8 w-8 bg-ink/5 object-contain p-1.5"
+    />
+  );
+}
+
 export function Skills({ skills }: { skills: Skill[] }) {
   if (skills.length === 0) return null;
 
@@ -27,14 +60,7 @@ export function Skills({ skills }: { skills: Skill[] }) {
           </p>
           <div className="flex flex-wrap gap-2">
             {techIcons.map((skill) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={skill.id}
-                src={skill.icon_url!}
-                alt={skill.name}
-                title={skill.name}
-                className="h-8 w-8 bg-ink/5 object-contain p-1.5"
-              />
+              <TechIcon key={skill.id} skill={skill} />
             ))}
           </div>
         </div>

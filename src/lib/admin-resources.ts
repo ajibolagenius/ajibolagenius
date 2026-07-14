@@ -46,7 +46,12 @@ export const ADMIN_RESOURCES: Record<string, ResourceConfig> = {
     fields: [
       { name: "name", label: "Name", type: "text" },
       { name: "level", label: "Level (0-100)", type: "number" },
-      { name: "icon_url", label: "Tech icon", type: "icon" },
+      { name: "icon_url", label: "Tech icon (light theme)", type: "icon" },
+      {
+        name: "icon_url_dark",
+        label: "Tech icon (dark theme, optional)",
+        type: "icon",
+      },
       { name: "order", label: "Order", type: "number" },
     ],
   },
