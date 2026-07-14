@@ -132,7 +132,7 @@ export default async function ManageResourcePage({
               </p>
               {!isSingleton && (
                 <button
-                  type="button"
+                  type="submit"
                   formAction={async () => {
                     "use server";
                     await deleteResourceRow(resource, row.id as string);
