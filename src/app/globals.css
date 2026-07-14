@@ -4,12 +4,14 @@
   --color-cream: #fbf5ef;
   --color-ink: #1a0a06;
   --color-accent: #e64301;
+  --color-panel: #f0e9e3;
 }
 
 @theme inline {
   --color-cream: var(--color-cream);
   --color-ink: var(--color-ink);
   --color-accent: var(--color-accent);
+  --color-panel: var(--color-panel);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-habibi);

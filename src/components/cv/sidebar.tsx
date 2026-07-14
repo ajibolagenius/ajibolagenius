@@ -1,3 +1,4 @@
+import Image from "next/image";
 import {
   DownloadSimple,
   Envelope,
@@ -14,8 +15,17 @@ export function Sidebar({ info }: { info: PersonalInfo | null }) {
   if (!info) return null;
 
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-6 lg:sticky lg:top-24 lg:h-fit lg:w-64">
-      <div className="h-20 w-20 overflow-hidden bg-gradient-to-b from-sky-300 to-fuchsia-400 transition-transform duration-300 hover:scale-105" />
+    <aside className="-mx-6 flex w-[calc(100%+3rem)] shrink-0 flex-col gap-6 bg-panel px-6 py-8 lg:sticky lg:top-24 lg:mx-0 lg:h-fit lg:w-64 lg:bg-transparent lg:px-0 lg:py-0">
+      <div className="h-20 w-20 shrink-0 overflow-hidden transition-transform duration-300 hover:scale-105">
+        <Image
+          src="/avatar.png"
+          alt={info.name}
+          width={160}
+          height={160}
+          className="h-full w-full object-cover"
+          priority
+        />
+      </div>
 
       <div>
         <h1 className="text-h3 font-normal">{info.name}</h1>
