@@ -20,7 +20,7 @@ export function Skills({ skills }: { skills: Skill[] }) {
         {skills.map((skill) => (
           <span
             key={skill.id}
-            className="rounded-full bg-ink/5 px-3 py-1.5 text-body-s text-ink/70"
+            className=" bg-ink/5 px-3 py-1.5 text-body-s text-ink/70"
           >
             {skill.name}
           </span>
@@ -35,7 +35,7 @@ export function Skills({ skills }: { skills: Skill[] }) {
           {TECH_BADGES.map((tech) => (
             <span
               key={tech.label}
-              className="flex h-8 w-8 items-center justify-center rounded-md text-[10px] font-semibold"
+              className="flex h-8 w-8 items-center justify-center  text-[10px] font-semibold"
               style={{ backgroundColor: tech.bg, color: tech.fg }}
             >
               {tech.label}

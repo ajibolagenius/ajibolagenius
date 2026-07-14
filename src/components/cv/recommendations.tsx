@@ -11,7 +11,7 @@ export function Recommendations({ items }: { items: Recommendation[] }) {
       <div className="flex flex-col gap-6">
         {items.map((item) => (
           <div key={item.id} className="flex gap-4">
-            <div className="h-9 w-9 shrink-0 rounded-full bg-gradient-to-b from-ink/20 to-ink/5" />
+            <div className="h-9 w-9 shrink-0  bg-gradient-to-b from-ink/20 to-ink/5" />
             <div className="flex-1">
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -23,7 +23,7 @@ export function Recommendations({ items }: { items: Recommendation[] }) {
                     href={item.link_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-md bg-ink/5 p-2 text-ink/50 hover:text-ink"
+                    className=" bg-ink/5 p-2 text-ink/50 hover:text-ink"
                   >
                     <ArrowUpRight weight="duotone" size={16} />
                   </a>

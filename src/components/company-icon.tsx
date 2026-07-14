@@ -11,7 +11,7 @@ export function CompanyIcon({
 
   return (
     <div
-      className="flex shrink-0 items-center justify-center rounded-md"
+      className="flex shrink-0 items-center justify-center "
       style={{ width: size, height: size, backgroundColor: color }}
     >
       <div

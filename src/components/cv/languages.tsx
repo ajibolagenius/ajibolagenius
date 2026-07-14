@@ -16,7 +16,7 @@ export function Languages({ languages }: { languages: Language[] }) {
               alt=""
               width={24}
               height={18}
-              className="rounded-sm object-cover"
+              className=" object-cover"
             />
             <div>
               <p className="text-body-m font-medium">{lang.name}</p>

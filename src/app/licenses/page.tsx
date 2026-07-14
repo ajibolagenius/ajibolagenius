@@ -50,7 +50,7 @@ export default async function LicensesPage() {
   return (
     <>
       <TopNav />
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-10 sm:flex-row sm:gap-16">
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-10 lg:flex-row lg:gap-16">
         <Sidebar info={personalInfo} />
         <div className="flex-1 py-8">
           <div className="text-center">
@@ -64,8 +64,8 @@ export default async function LicensesPage() {
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2">
             {LICENSES.map(({ icon: Icon, title, body }) => (
-              <div key={title} className="rounded-lg bg-ink/5 p-6">
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-md bg-accent text-cream">
+              <div key={title} className=" bg-ink/5 p-6">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center  bg-accent text-cream">
                   <Icon weight="duotone" size={20} />
                 </div>
                 <h2 className="text-h3 font-normal">{title}</h2>

@@ -35,7 +35,7 @@ export function Certifications({
                 href={cert.link_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-md bg-ink/5 p-2 text-ink/50 hover:text-ink"
+                className=" bg-ink/5 p-2 text-ink/50 hover:text-ink"
               >
                 <ArrowUpRight weight="duotone" size={16} />
               </a>

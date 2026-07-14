@@ -6,7 +6,7 @@ export function ProjectCard({ project }: { project: Project }) {
   return (
     <Link
       href={`/work/${project.slug}`}
-      className="group flex flex-col gap-3 rounded-lg border border-ink/10 p-5 transition hover:border-ink/30"
+      className="group flex flex-col gap-3  border border-ink/10 p-5 transition hover:border-ink/30"
     >
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -27,7 +27,7 @@ export function ProjectCard({ project }: { project: Project }) {
           {project.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full bg-ink/5 px-2.5 py-1 text-body-xs text-ink/60"
+              className=" bg-ink/5 px-2.5 py-1 text-body-xs text-ink/60"
             >
               {tag}
             </span>

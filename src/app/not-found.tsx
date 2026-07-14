@@ -11,7 +11,7 @@ export default async function NotFound() {
   return (
     <>
       <TopNav />
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-10 sm:flex-row sm:gap-16">
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-10 lg:flex-row lg:gap-16">
         <Sidebar info={personalInfo} />
         <div className="flex flex-1 flex-col items-center justify-center gap-4 py-24 text-center">
           <Image
@@ -27,7 +27,7 @@ export default async function NotFound() {
           </p>
           <a
             href="/"
-            className="mt-2 inline-flex items-center gap-2 rounded-md bg-ink px-4 py-2.5 text-body-s font-medium text-cream"
+            className="mt-2 inline-flex items-center gap-2  bg-ink px-4 py-2.5 text-body-s font-medium text-cream"
           >
             <House weight="duotone" size={16} />
             Return Home

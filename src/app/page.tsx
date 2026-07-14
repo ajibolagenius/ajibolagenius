@@ -28,12 +28,12 @@ export default async function HomePage() {
       <TopNav />
       <main
         id="top"
-        className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-10 sm:flex-row sm:gap-16"
+        className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-10 lg:flex-row lg:gap-16"
       >
         <Sidebar info={personalInfo} />
 
         <div className="min-w-0 flex-1">
-          <Hero info={personalInfo} />
+          <Hero info={personalInfo} experience={experience} />
           <About info={personalInfo} skills={skills} />
           <Experience entries={experience} />
           <Education entries={education} />
