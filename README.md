@@ -1,59 +1,25 @@
 <div align="center">
 
-# Macintosh HD: DON_GENIUS
+# DON_GENIUS
 
-### **Ajibola Akelebe**
-**Role:** Full-Stack Engineering • Design Architect • Technical Educator  
-**Location:** Nigeria 🇳🇬
+**a portfolio, printed and rendered from the same page**
 
----
+</div>
 
-```text
-        ┌──────────────────────────────────┐
-        │  ● ● ●        Finder             │
-        │  ──────────────────────────────  │
-        │  ▣  Macintosh HD                 │
-        │  ▤  ~/Projects                   │
-        │  ▤  ~/Documents                  │
-        │  ▤  ~/Pictures                   │
-        └──────────────────────────────────┘
-```
+<br>
 
-*"Charting the boundary where code meets considered design."*
+Most portfolios and résumés drift apart the moment you export one to PDF. This one doesn't — the case studies you browse and the CV you print are the same document, wearing different formats. One voice, one set of decisions, shown twice.
 
----
+It exists to answer a simple question honestly: *what has this person actually built, and what did it cost to build it?* Not a highlight reel — a record. Case studies lead with the outcome and the screenshot before the explanation, because the work should be legible before it's justified.
 
-### System Status
+The visual language is deliberate: warm cream and ink, one accent color used sparingly, a serif display face for anything that wants to be read slowly and a plain sans for everything that wants to be scanned. It shifts from light to dark on its own, tracking the hour rather than asking to be told — quiet, rather than clever.
 
-```yaml
-WORKFLOW:     [ BUILD ➔ LEARN ➔ TEACH ➔ REPEAT ]
-ARCHITECTURE: [ Clean APIs ✦ Intricate Components ✦ Unified Identity ]
-PAYLOAD:      [ Production-Grade Apps ✦ Immersive Tech Courses ]
-```
+There's a small admin room behind it where the content actually lives and gets edited, so the front of the house never has to be touched to change what's inside it.
 
----
+<br>
 
-### Installed Software
+<div align="center">
 
-```text
-  [ Applications ] ───> Next.js, React, Tailwind, Framer Motion
-  [ Utilities    ] ───> Node.js, Python, Supabase, Docker
-  [ Mobile       ] ───> React Native, PWAs
-```
-
----
-
-### Network
-
-```
-[ CONNECTION: ACTIVE ] ──> [ OPENING SHARED FOLDERS... ]
-```
-👉 *Explore my repositories to browse the rest of this volume.*
-
----
-
-```
-// STATUS: ALL_VOLUMES_MOUNTED
-```
+*Charting the boundary where code meets considered design.*
 
 </div>
