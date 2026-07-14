@@ -1,26 +1,69 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-cream: #fbf5ef;
+  --color-ink: #1a0a06;
+  --color-accent: #e64301;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-cream: var(--color-cream);
+  --color-ink: var(--color-ink);
+  --color-accent: var(--color-accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-display: var(--font-habibi);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-cream);
+  color: var(--color-ink);
+}
+
+@layer utilities {
+  .text-h1 {
+    font-family: var(--font-display);
+    font-size: 32px;
+    line-height: 1.2;
+  }
+  .text-h2 {
+    font-family: var(--font-display);
+    font-size: 28px;
+    line-height: 1.2;
+  }
+  .text-h3 {
+    font-family: var(--font-display);
+    font-size: 18px;
+    line-height: 1.28;
+  }
+  .text-display {
+    font-family: var(--font-display);
+    font-size: 24px;
+    line-height: 1.28;
+  }
+  .text-body-l {
+    font-size: 18px;
+    line-height: 1.4;
+  }
+  .text-body-m {
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .text-body-s {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .text-body-xs {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  @media (min-width: 640px) {
+    .text-h1 {
+      font-size: 40px;
+    }
+    .text-h2 {
+      font-size: 32px;
+    }
+  }
 }

@@ -1,0 +1,179 @@
+import { notFound } from "next/navigation";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { getResourceConfig, type FieldConfig } from "@/lib/admin-resources";
+import { createResourceRow, deleteResourceRow, updateResourceRow } from "./actions";
+
+const inputClass =
+  "rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-100";
+
+function FieldInput({
+  field,
+  defaultValue,
+}: {
+  field: FieldConfig;
+  defaultValue?: unknown;
+}) {
+  if (field.type === "textarea") {
+    return (
+      <textarea
+        name={field.name}
+        rows={2}
+        defaultValue={String(defaultValue ?? "")}
+        className={`${inputClass} w-full`}
+      />
+    );
+  }
+  if (field.type === "boolean") {
+    return (
+      <input
+        type="checkbox"
+        name={field.name}
+        defaultChecked={Boolean(defaultValue)}
+      />
+    );
+  }
+  if (field.type === "list") {
+    return (
+      <input
+        name={field.name}
+        defaultValue={
+          Array.isArray(defaultValue) ? defaultValue.join(", ") : ""
+        }
+        className={`${inputClass} w-full`}
+      />
+    );
+  }
+  return (
+    <input
+      type={field.type === "number" ? "number" : "text"}
+      name={field.name}
+      defaultValue={
+        defaultValue === undefined || defaultValue === null
+          ? ""
+          : String(defaultValue)
+      }
+      className={`${inputClass} w-full`}
+    />
+  );
+}
+
+export default async function ManageResourcePage({
+  params,
+}: {
+  params: Promise<{ resource: string }>;
+}) {
+  const { resource } = await params;
+  const config = getResourceConfig(resource);
+  if (!config) notFound();
+
+  const supabase = await createClient();
+  const { data: rows, error } = await supabase
+    .from(config.table)
+    .select("*")
+    .order(config.orderColumn, { ascending: true });
+
+  const isSingleton = resource === "personal-info";
+
+  return (
+    <main className="mx-auto max-w-3xl px-6 py-12">
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <Link href="/admin" className="text-sm text-neutral-500 underline">
+            &larr; Admin
+          </Link>
+          <h1 className="mt-2 text-2xl font-semibold">{config.label}</h1>
+        </div>
+      </div>
+
+      {error && <p className="text-sm text-red-600">{error.message}</p>}
+
+      <div className="flex flex-col gap-6">
+        {rows?.map((row: Record<string, unknown>) => (
+          <form
+            key={String(row.id)}
+            action={async (formData: FormData) => {
+              "use server";
+              await updateResourceRow(resource, row.id as string, formData);
+            }}
+            className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-800"
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-neutral-500">
+                {String(row[config.titleField] ?? row.id)}
+              </p>
+              {!isSingleton && (
+                <button
+                  type="button"
+                  formAction={async () => {
+                    "use server";
+                    await deleteResourceRow(resource, row.id as string);
+                  }}
+                  className="text-sm text-red-600 underline"
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {config.fields.map((field) => (
+                <label
+                  key={field.name}
+                  className={`flex flex-col gap-1 text-xs font-medium ${
+                    field.type === "textarea" || field.type === "list"
+                      ? "col-span-2"
+                      : ""
+                  }`}
+                >
+                  {field.label}
+                  <FieldInput field={field} defaultValue={row[field.name]} />
+                </label>
+              ))}
+            </div>
+            <button
+              type="submit"
+              className="mt-1 self-start rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white dark:bg-neutral-100 dark:text-neutral-900"
+            >
+              Save
+            </button>
+          </form>
+        ))}
+      </div>
+
+      {!isSingleton && (
+        <form
+          action={async (formData: FormData) => {
+            "use server";
+            await createResourceRow(resource, formData);
+          }}
+          className="mt-8 flex flex-col gap-3 rounded-md border border-dashed border-neutral-300 p-4 dark:border-neutral-700"
+        >
+          <p className="text-sm font-medium text-neutral-500">
+            New {config.label.toLowerCase()} entry
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            {config.fields.map((field) => (
+              <label
+                key={field.name}
+                className={`flex flex-col gap-1 text-xs font-medium ${
+                  field.type === "textarea" || field.type === "list"
+                    ? "col-span-2"
+                    : ""
+                }`}
+              >
+                {field.label}
+                <FieldInput field={field} />
+              </label>
+            ))}
+          </div>
+          <button
+            type="submit"
+            className="mt-1 self-start rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white dark:bg-neutral-100 dark:text-neutral-900"
+          >
+            Create
+          </button>
+        </form>
+      )}
+    </main>
+  );
+}

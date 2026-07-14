@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Project } from "@/types/project";
+import { ADMIN_RESOURCES } from "@/lib/admin-resources";
 import { deleteProject, signOut } from "./actions";
 import Link from "next/link";
 
@@ -13,23 +14,42 @@ export default async function AdminPage() {
   return (
     <main className="mx-auto max-w-4xl px-6 py-12">
       <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Projects</h1>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/admin/projects/new"
-            className="rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white dark:bg-neutral-100 dark:text-neutral-900"
+        <h1 className="text-2xl font-semibold">Admin</h1>
+        <form action={signOut}>
+          <button
+            type="submit"
+            className="rounded-md border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700"
           >
-            New project
-          </Link>
-          <form action={signOut}>
-            <button
-              type="submit"
+            Sign out
+          </button>
+        </form>
+      </div>
+
+      <section className="mb-10">
+        <h2 className="mb-3 text-sm font-medium text-neutral-500">
+          CV content
+        </h2>
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(ADMIN_RESOURCES).map(([key, config]) => (
+            <Link
+              key={key}
+              href={`/admin/manage/${key}`}
               className="rounded-md border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700"
             >
-              Sign out
-            </button>
-          </form>
+              {config.label}
+            </Link>
+          ))}
         </div>
+      </section>
+
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Projects</h2>
+        <Link
+          href="/admin/projects/new"
+          className="rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white dark:bg-neutral-100 dark:text-neutral-900"
+        >
+          New project
+        </Link>
       </div>
 
       {error && <p className="text-sm text-red-600">{error.message}</p>}

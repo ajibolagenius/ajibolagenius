@@ -1,0 +1,101 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import {
+  ChatCircle,
+  List,
+  UserCircle,
+  X,
+} from "@phosphor-icons/react/dist/ssr";
+
+const LINKS = [
+  { href: "#about", label: "About" },
+  { href: "#experience", label: "Experience" },
+  { href: "#education", label: "Education" },
+  { href: "#skills", label: "Skills" },
+];
+
+export function TopNav() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="sticky top-0 z-40 bg-cream/90 backdrop-blur">
+      <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+        <Link href="/" className="text-ink" aria-label="Home">
+          <UserCircle weight="duotone" size={24} className="text-accent" />
+        </Link>
+
+        <ul className="hidden items-center gap-6 text-body-s text-ink/70 sm:flex">
+          {LINKS.map((link) => (
+            <li key={link.href}>
+              <a href={link.href} className="hover:text-ink">
+                {link.label}
+              </a>
+            </li>
+          ))}
+          <li>
+            <Link
+              href="/work"
+              className="hover:text-ink"
+            >
+              Work
+            </Link>
+          </li>
+        </ul>
+
+        <a
+          href="#connect"
+          className="hidden items-center gap-2 rounded-md bg-ink px-4 py-2 text-body-s font-medium text-cream sm:flex"
+        >
+          <ChatCircle weight="duotone" size={16} />
+          Contact Me
+        </a>
+
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="text-ink sm:hidden"
+          aria-label="Toggle menu"
+        >
+          {open ? <X size={22} /> : <List size={22} />}
+        </button>
+      </nav>
+
+      {open && (
+        <div className="border-t border-ink/10 px-6 py-4 sm:hidden">
+          <ul className="flex flex-col gap-4 text-body-s text-ink/70">
+            {LINKS.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  className="hover:text-ink"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+            <li>
+              <Link
+                href="/work"
+                onClick={() => setOpen(false)}
+                className="hover:text-ink"
+              >
+                Work
+              </Link>
+            </li>
+          </ul>
+          <a
+            href="#connect"
+            onClick={() => setOpen(false)}
+            className="mt-4 flex items-center justify-center gap-2 rounded-md bg-ink px-4 py-2.5 text-body-s font-medium text-cream"
+          >
+            <ChatCircle weight="duotone" size={16} />
+            Contact Me
+          </a>
+        </div>
+      )}
+    </div>
+  );
+}
