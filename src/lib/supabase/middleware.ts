@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const OWNER_EMAIL = "ajiboladolapogenius@gmail.com";
+const OWNER_EMAIL = "ajibolaakelebe@gmail.com";
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });

@@ -93,7 +93,7 @@ export function Sidebar({ info }: { info: PersonalInfo | null }) {
 
       <div className="flex items-center gap-2">
         <a
-          href="/resume.pdf"
+          href="/cv"
           className="flex flex-1 items-center justify-center gap-2 bg-ink px-4 py-2.5 text-body-s font-medium text-cream transition-colors hover:bg-accent"
         >
           <DownloadSimple weight="duotone" size={16} />

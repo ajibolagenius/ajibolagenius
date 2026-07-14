@@ -15,14 +15,22 @@ export default async function AdminPage() {
     <main className="mx-auto max-w-4xl px-6 py-12">
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Admin</h1>
-        <form action={signOut}>
-          <button
-            type="submit"
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/reset-password"
             className="rounded-md border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700"
           >
-            Sign out
-          </button>
-        </form>
+            Change password
+          </Link>
+          <form action={signOut}>
+            <button
+              type="submit"
+              className="rounded-md border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700"
+            >
+              Sign out
+            </button>
+          </form>
+        </div>
       </div>
 
       <section className="mb-10">

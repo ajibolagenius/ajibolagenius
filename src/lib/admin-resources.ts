@@ -33,6 +33,7 @@ export const ADMIN_RESOURCES: Record<string, ResourceConfig> = {
       { name: "tagline_suffix", label: "Tagline suffix", type: "textarea" },
       { name: "description", label: "Description", type: "textarea" },
       { name: "email", label: "Email", type: "text" },
+      { name: "phone", label: "Phone", type: "text" },
       { name: "location", label: "Location", type: "text" },
       { name: "availability", label: "Availability", type: "text" },
     ],

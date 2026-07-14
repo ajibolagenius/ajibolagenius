@@ -5,6 +5,15 @@
   --color-ink: #1a0a06;
   --color-accent: #e64301;
   --color-panel: #f0e9e3;
+  color-scheme: light;
+}
+
+.dark {
+  --color-cream: #17120f;
+  --color-ink: #f5ede6;
+  --color-accent: #ff6a3d;
+  --color-panel: #221c18;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -20,6 +29,9 @@
 body {
   background: var(--color-cream);
   color: var(--color-ink);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 @layer utilities {
@@ -83,4 +95,25 @@ body {
 
 .animate-fade-in-up {
   animation: fade-in-up 0.5s ease-out both;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  html.dark {
+    color-scheme: light;
+  }
+
+  html.dark body {
+    background: #fbf5ef;
+    color: #1a0a06;
+  }
+
+  * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
 }
