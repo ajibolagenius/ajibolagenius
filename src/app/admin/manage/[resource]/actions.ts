@@ -19,9 +19,9 @@ function parseFieldsFromForm(
     } else if (field.type === "boolean") {
       values[field.name] = raw === "on";
     } else if (field.type === "list") {
-      values[field.name] = String(raw ?? "")
-        .split(",")
-        .map((s) => s.trim())
+      values[field.name] = formData
+        .getAll(field.name)
+        .map((v) => String(v).trim())
         .filter(Boolean);
     } else {
       values[field.name] = String(raw ?? "").trim();

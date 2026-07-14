@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getResourceConfig, type FieldConfig } from "@/lib/admin-resources";
 import { listTechLogos, type TechLogoOption } from "@/lib/tech-logos";
+import { BulletListInput } from "@/components/admin/bullet-list-input";
 import { createResourceRow, deleteResourceRow, updateResourceRow } from "./actions";
 
 const inputClass =
@@ -38,12 +39,9 @@ function FieldInput({
   }
   if (field.type === "list") {
     return (
-      <input
+      <BulletListInput
         name={field.name}
-        defaultValue={
-          Array.isArray(defaultValue) ? defaultValue.join(", ") : ""
-        }
-        className={`${inputClass} w-full`}
+        defaultValue={Array.isArray(defaultValue) ? defaultValue : undefined}
       />
     );
   }

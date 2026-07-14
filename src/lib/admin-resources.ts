@@ -67,7 +67,7 @@ export const ADMIN_RESOURCES: Record<string, ResourceConfig> = {
       { name: "start_date", label: "Start date", type: "text" },
       { name: "end_date", label: "End date", type: "text" },
       { name: "body", label: "Description", type: "textarea" },
-      { name: "bullets", label: "Bullets (comma separated)", type: "list" },
+      { name: "bullets", label: "Bullets", type: "list" },
       { name: "sort_order", label: "Order", type: "number" },
     ],
   },
