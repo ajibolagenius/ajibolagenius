@@ -9,3 +9,9 @@
 White: #FBF5EF
 Black: #1A0A06
 Accent: #E64301
+
+
+Icons: Phosphoricons (Duotone)
+Tech Stack SVG Icons: https://svgl.app/ (e.g. https://svgl.app/?search=node.js)
+
+Motion: Framer Motion, React Spring
