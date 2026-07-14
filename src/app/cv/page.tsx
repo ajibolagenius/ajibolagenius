@@ -73,7 +73,7 @@ export default async function CvPage() {
             )}
             <div className="flex items-center gap-2">
               <Briefcase weight="duotone" size={16} />
-              3+ years experience
+              5+ years experience
             </div>
             {info.availability && (
               <div className="flex items-center gap-2">
