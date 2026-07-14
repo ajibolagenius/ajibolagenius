@@ -2,7 +2,13 @@ const THEME_INIT_SCRIPT = `
 (function () {
   try {
     var stored = localStorage.getItem("theme");
-    var isDark = stored ? stored === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var isDark;
+    if (stored) {
+      isDark = stored === "dark";
+    } else {
+      var hour = new Date().getHours();
+      isDark = hour < 6 || hour >= 18;
+    }
     if (isDark) document.documentElement.classList.add("dark");
   } catch (e) {}
 })();
