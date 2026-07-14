@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   Image as ImageIcon,
   Diamond,
@@ -10,6 +11,25 @@ import { getCvData } from "@/lib/cv-data";
 import { TopNav } from "@/components/cv/top-nav";
 import { Sidebar } from "@/components/cv/sidebar";
 import { SiteFooter } from "@/components/cv/site-footer";
+
+const title = "Licenses";
+const description = "Attribution and licensing for images, icons, and illustrations used on this site.";
+
+export const metadata: Metadata = {
+  title,
+  description,
+  openGraph: {
+    title,
+    description,
+    url: "/licenses",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
+};
 
 const LICENSES = [
   {

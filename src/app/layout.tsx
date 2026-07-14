@@ -21,12 +21,34 @@ const habibi = Habibi({
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000");
+
+const title = "Ajibola — Portfolio";
+const description = "Software engineer portfolio and case studies.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Ajibola — Portfolio",
-  description: "Software engineer portfolio and case studies.",
+  title: {
+    default: title,
+    template: "%s — Ajibola",
+  },
+  description,
+  openGraph: {
+    title,
+    description,
+    url: "/",
+    siteName: "Ajibola — Portfolio",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
 };
 
 export default function RootLayout({

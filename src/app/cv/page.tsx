@@ -17,9 +17,31 @@ import { CompanyIcon } from "@/components/company-icon";
 import { assignCompanyIcons } from "@/lib/company-icon";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "CV — Ajibola Akelebe",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { personalInfo: info } = await getCvData();
+
+  const title = "CV";
+  const description = info?.description ?? "Software engineer CV and work history.";
+  const image = info ? "/avatar.png" : undefined;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: info ? `CV — ${info.name}` : title,
+      description,
+      url: "/cv",
+      type: "profile",
+      images: image ? [{ url: image, width: 1200, height: 630, alt: info?.name ?? title }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: info ? `CV — ${info.name}` : title,
+      description,
+      images: image ? [image] : undefined,
+    },
+  };
+}
 
 const divider = "border-t border-ink/10 pt-6";
 

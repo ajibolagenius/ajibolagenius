@@ -1,5 +1,7 @@
+import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import {
   ArrowLeft,
   ArrowSquareOut,
@@ -15,21 +17,65 @@ import type { Project } from "@/types/project";
 
 export const revalidate = 60;
 
+const getProject = cache(async (slug: string) => {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+  return data as Project | null;
+});
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const project = await getProject(slug);
+
+  if (!project) {
+    return { title: "Project not found" };
+  }
+
+  const title = project.name;
+  const description = project.description;
+  const image = project.screenshots?.[0];
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `/work/${slug}`,
+      type: "article",
+      images: image ? [{ url: image, width: 1200, height: 630, alt: project.name }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: image ? [image] : undefined,
+    },
+  };
+}
+
 export default async function ProjectDetailPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const supabase = await createClient();
-  const [{ data: project }, { personalInfo }] = await Promise.all([
-    supabase.from("projects").select("*").eq("slug", slug).single(),
+  const [project, { personalInfo }] = await Promise.all([
+    getProject(slug),
     getCvData(),
   ]);
 
   if (!project) notFound();
 
-  const p = project as Project;
+  const p = project;
 
   return (
     <>
