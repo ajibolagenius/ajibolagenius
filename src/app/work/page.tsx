@@ -3,7 +3,7 @@ import { getCvData } from "@/lib/cv-data";
 import { TopNav } from "@/components/cv/top-nav";
 import { Sidebar } from "@/components/cv/sidebar";
 import { SiteFooter } from "@/components/cv/site-footer";
-import { ProjectCard } from "@/components/project-card";
+import { WorkGrid } from "@/components/work-grid";
 import type { Project } from "@/types/project";
 
 export const revalidate = 60;
@@ -11,9 +11,11 @@ export const revalidate = 60;
 export default async function WorkPage() {
   const supabase = await createClient();
   const [{ data: projects }, { personalInfo }] = await Promise.all([
-    supabase.from("projects").select("*").order("created_at", {
-      ascending: false,
-    }),
+    supabase
+      .from("projects")
+      .select("*")
+      .order("featured", { ascending: false })
+      .order("created_at", { ascending: false }),
     getCvData(),
   ]);
 
@@ -31,12 +33,9 @@ export default async function WorkPage() {
               shipped.
             </p>
           </div>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            {(projects as Project[] | null)?.map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
-          </div>
-          {projects?.length === 0 && (
+          {projects && projects.length > 0 ? (
+            <WorkGrid projects={projects as Project[]} />
+          ) : (
             <p className="mt-8 text-body-m text-ink/50">No projects yet.</p>
           )}
         </div>

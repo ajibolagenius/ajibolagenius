@@ -1,7 +1,9 @@
+import { createClient } from "@/lib/supabase/server";
 import { getCvData } from "@/lib/cv-data";
 import { TopNav } from "@/components/cv/top-nav";
 import { Sidebar } from "@/components/cv/sidebar";
 import { Hero } from "@/components/cv/hero";
+import { FeaturedWork } from "@/components/cv/featured-work";
 import { About } from "@/components/cv/about";
 import { Experience } from "@/components/cv/experience";
 import { Education } from "@/components/cv/education";
@@ -11,17 +13,32 @@ import { Languages } from "@/components/cv/languages";
 import { Recommendations } from "@/components/cv/recommendations";
 import { Connect } from "@/components/cv/connect";
 import { SiteFooter } from "@/components/cv/site-footer";
+import type { Project } from "@/types/project";
+
+export const revalidate = 60;
 
 export default async function HomePage() {
-  const {
-    personalInfo,
-    skills,
-    experience,
-    education,
-    certifications,
-    languages,
-    recommendations,
-  } = await getCvData();
+  const supabase = await createClient();
+  const [
+    {
+      personalInfo,
+      skills,
+      experience,
+      education,
+      certifications,
+      languages,
+      recommendations,
+    },
+    { data: featuredProjects },
+  ] = await Promise.all([
+    getCvData(),
+    supabase
+      .from("projects")
+      .select("*")
+      .eq("featured", true)
+      .order("created_at", { ascending: false })
+      .limit(3),
+  ]);
 
   return (
     <>
@@ -34,6 +51,7 @@ export default async function HomePage() {
 
         <div className="min-w-0 flex-1">
           <Hero info={personalInfo} experience={experience} />
+          <FeaturedWork projects={(featuredProjects as Project[] | null) ?? []} />
           <About info={personalInfo} skills={skills} />
           <Experience entries={experience} />
           <Education entries={education} />

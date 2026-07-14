@@ -10,6 +10,7 @@ import { getCvData } from "@/lib/cv-data";
 import { TopNav } from "@/components/cv/top-nav";
 import { Sidebar } from "@/components/cv/sidebar";
 import { SiteFooter } from "@/components/cv/site-footer";
+import { ScreenshotGallery } from "@/components/screenshot-gallery";
 import type { Project } from "@/types/project";
 
 export const revalidate = 60;
@@ -130,17 +131,7 @@ export default async function ProjectDetailPage({
           {p.screenshots?.length > 0 && (
             <section className="flex flex-col gap-4">
               <h2 className="text-h3 font-normal">Screenshots</h2>
-              <div className="flex flex-col gap-4">
-                {p.screenshots.map((src) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    key={src}
-                    src={src}
-                    alt={`${p.name} screenshot`}
-                    className="w-full border border-ink/10 transition-transform duration-300 hover:scale-[1.01]"
-                  />
-                ))}
-              </div>
+              <ScreenshotGallery screenshots={p.screenshots} alt={p.name} />
             </section>
           )}
         </div>
