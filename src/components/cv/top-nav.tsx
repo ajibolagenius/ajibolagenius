@@ -48,7 +48,7 @@ export function TopNav() {
         </div>
 
         <div className="flex items-center gap-3">
-          <ThemeToggle className="hidden text-ink/50 transition-colors hover:text-ink sm:flex" />
+          <ThemeToggle className="flex text-ink/50 transition-colors hover:text-ink" />
           <a
             href="#connect"
             className="hidden items-center gap-2 bg-ink px-4 py-2 text-body-s font-medium text-cream transition-colors hover:bg-accent sm:flex"
@@ -92,9 +92,6 @@ export function TopNav() {
               </Link>
             </li>
           </ul>
-          <div className="mt-6 flex items-center justify-center">
-            <ThemeToggle className="flex items-center gap-2 text-body-s text-ink/60" />
-          </div>
           <a
             href="#connect"
             onClick={() => setOpen(false)}
