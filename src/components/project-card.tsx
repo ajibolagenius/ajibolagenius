@@ -26,7 +26,7 @@ export function ProjectCard({ project }: { project: Project }) {
           </div>
         )}
         {project.featured && (
-          <span className="absolute left-3 top-3 inline-flex items-center gap-1 bg-ink px-2 py-1 text-body-xs font-medium text-cream">
+          <span className="absolute left-3 top-3 inline-flex items-center gap-1 bg-ink px-2 py-1 font-mono text-body-xs font-medium text-cream">
             <Star size={12} weight="fill" />
             Featured
           </span>
@@ -55,7 +55,7 @@ export function ProjectCard({ project }: { project: Project }) {
             {project.tags.map((tag) => (
               <span
                 key={tag}
-                className="h-fit bg-ink/5 px-2.5 py-1 text-body-xs text-ink/60"
+                className="h-fit bg-ink/5 px-2.5 py-1 font-mono text-body-xs text-ink/60"
               >
                 {tag}
               </span>

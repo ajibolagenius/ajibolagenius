@@ -213,7 +213,7 @@ export default async function ProjectDetailPage({
                 {p.tech_details.map((t) => (
                   <span
                     key={t.name}
-                    className="bg-ink/5 px-3 py-1.5 text-body-s text-ink/70"
+                    className="bg-ink/5 px-3 py-1.5 font-mono text-body-s text-ink/70"
                   >
                     {t.name}
                   </span>

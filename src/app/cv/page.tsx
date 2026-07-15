@@ -151,7 +151,7 @@ export default async function CvPage() {
                 {skills.map((skill) => (
                   <span
                     key={skill.id}
-                    className="bg-ink/5 px-2.5 py-1 text-body-xs text-ink/70"
+                    className="bg-ink/5 px-2.5 py-1 font-mono text-body-xs text-ink/70"
                   >
                     {skill.name}
                   </span>

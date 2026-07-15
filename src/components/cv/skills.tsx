@@ -46,7 +46,7 @@ export function Skills({ skills }: { skills: Skill[] }) {
         {skills.map((skill) => (
           <span
             key={skill.id}
-            className="bg-ink/5 px-3 py-1.5 text-body-s text-ink/70"
+            className="bg-ink/5 px-3 py-1.5 font-mono text-body-s text-ink/70"
           >
             {skill.name}
           </span>

@@ -22,7 +22,7 @@ export function WorkGrid({ projects }: { projects: Project[] }) {
           <button
             type="button"
             onClick={() => setActive(null)}
-            className={`px-3 py-1.5 text-body-xs transition-colors ${
+            className={`px-3 py-1.5 font-mono text-body-xs transition-colors ${
               active === null
                 ? "bg-ink text-cream"
                 : "bg-ink/5 text-ink/60 hover:bg-ink/10"
@@ -35,7 +35,7 @@ export function WorkGrid({ projects }: { projects: Project[] }) {
               key={category}
               type="button"
               onClick={() => setActive(category)}
-              className={`px-3 py-1.5 text-body-xs transition-colors ${
+              className={`px-3 py-1.5 font-mono text-body-xs transition-colors ${
                 active === category
                   ? "bg-ink text-cream"
                   : "bg-ink/5 text-ink/60 hover:bg-ink/10"
