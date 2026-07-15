@@ -11,6 +11,8 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { uploadProjectScreenshot } from "@/app/admin/actions";
 
+const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
+
 export function ScreenshotsInput({
   name,
   defaultValue,
@@ -96,6 +98,10 @@ export function ScreenshotsInput({
     try {
       const uploaded: string[] = [];
       for (const file of Array.from(files)) {
+        if (file.size > MAX_UPLOAD_BYTES) {
+          setError(`"${file.name}" is too large (max 20MB)`);
+          continue;
+        }
         const formData = new FormData();
         formData.append("file", file);
         const result = await uploadProjectScreenshot(formData);
