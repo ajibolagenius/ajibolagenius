@@ -4,7 +4,10 @@ import { NextResponse, type NextRequest } from "next/server";
 const OWNER_EMAIL = "ajibolaakelebe@gmail.com";
 
 export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({ request });
+  // If it's a POST request, do not pass request to NextResponse.next() to avoid breaking request body streaming (like file uploads)
+  let response = request.method === "POST"
+    ? NextResponse.next()
+    : NextResponse.next({ request });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -18,7 +21,9 @@ export async function updateSession(request: NextRequest) {
           for (const { name, value } of cookiesToSet) {
             request.cookies.set(name, value);
           }
-          response = NextResponse.next({ request });
+          response = request.method === "POST"
+            ? NextResponse.next()
+            : NextResponse.next({ request });
           for (const { name, value, options } of cookiesToSet) {
             response.cookies.set(name, value, options);
           }
