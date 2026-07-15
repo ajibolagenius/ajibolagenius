@@ -9,6 +9,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { createClient } from "@/lib/supabase/server";
 import { getCvData } from "@/lib/cv-data";
+import { JsonLd } from "@/components/json-ld";
 import { TopNav } from "@/components/cv/top-nav";
 import { Sidebar } from "@/components/cv/sidebar";
 import { SiteFooter } from "@/components/cv/site-footer";
@@ -77,8 +78,31 @@ export default async function ProjectDetailPage({
 
   const p = project;
 
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000");
+
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "CreativeWork",
+          name: p.name,
+          description: p.description,
+          url: `${siteUrl}/work/${p.slug}`,
+          image: p.screenshots?.[0] || undefined,
+          dateCreated: p.year || undefined,
+          creator: personalInfo?.name
+            ? { "@type": "Person", name: personalInfo.name }
+            : undefined,
+          keywords: p.tags?.length ? p.tags.join(", ") : undefined,
+        }}
+      />
       <TopNav />
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-10 lg:flex-row lg:gap-16">
         <Sidebar info={personalInfo} />

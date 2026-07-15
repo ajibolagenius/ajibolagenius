@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCvData } from "@/lib/cv-data";
+import { JsonLd } from "@/components/json-ld";
 import { TopNav } from "@/components/cv/top-nav";
 import { Sidebar } from "@/components/cv/sidebar";
 import { Hero } from "@/components/cv/hero";
@@ -40,8 +41,31 @@ export default async function HomePage() {
       .limit(3),
   ]);
 
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000");
+
   return (
     <>
+      {personalInfo && (
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "Person",
+            name: personalInfo.name,
+            jobTitle: personalInfo.role,
+            description: personalInfo.description,
+            email: personalInfo.email || undefined,
+            url: siteUrl,
+            address: personalInfo.location || undefined,
+            sameAs: Object.values(personalInfo.social ?? {}).filter(Boolean),
+          }}
+        />
+      )}
       <TopNav />
       <main
         id="top"

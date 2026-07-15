@@ -7,6 +7,7 @@ import {
   GithubLogo,
 } from "@phosphor-icons/react/dist/ssr";
 import type { PersonalInfo } from "@/types/cv";
+import { ContactForm } from "@/components/cv/contact-form";
 
 export function Connect({ info }: { info: PersonalInfo | null }) {
   if (!info) return null;
@@ -48,6 +49,8 @@ export function Connect({ info }: { info: PersonalInfo | null }) {
           </a>
         )}
       </div>
+
+      <ContactForm />
 
       <div>
         <p className="text-body-s text-ink/50">Join my network:</p>
