@@ -1,15 +1,31 @@
 import type { Project } from "@/types/project";
+import type { ProjectFieldOptions } from "@/lib/project-options";
+import { TagInput } from "@/components/admin/tag-input";
+import { ScreenshotsInput } from "@/components/admin/screenshots-input";
 
 const inputClass =
   "rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-100";
 const labelClass = "flex flex-col gap-1 text-sm font-medium";
 
+function Datalist({ id, options }: { id: string; options: string[] }) {
+  if (options.length === 0) return null;
+  return (
+    <datalist id={id}>
+      {options.map((o) => (
+        <option key={o} value={o} />
+      ))}
+    </datalist>
+  );
+}
+
 export function ProjectForm({
   project,
   action,
+  options,
 }: {
   project?: Project;
   action: (formData: FormData) => void | Promise<void>;
+  options: ProjectFieldOptions;
 }) {
   return (
     <form action={action} className="flex flex-col gap-4">
@@ -33,52 +49,54 @@ export function ProjectForm({
           />
         </label>
         <label className={labelClass}>
-          Category
-          <input
-            name="category"
-            defaultValue={project?.category}
-            className={inputClass}
-          />
-        </label>
-        <label className={labelClass}>
           Label
           <input
             name="label"
             defaultValue={project?.label}
+            list="label-options"
             className={inputClass}
           />
+          <Datalist id="label-options" options={options.labels} />
         </label>
         <label className={labelClass}>
           Type
           <input
             name="type"
             defaultValue={project?.type ?? "dev"}
+            list="type-options"
             className={inputClass}
           />
+          <Datalist id="type-options" options={options.types} />
         </label>
         <label className={labelClass}>
           Year
           <input
             name="year"
             defaultValue={project?.year}
+            list="year-options"
             className={inputClass}
           />
+          <Datalist id="year-options" options={options.years} />
         </label>
         <label className={labelClass}>
           Role
           <input
             name="role_title"
             defaultValue={project?.role_title}
+            list="role-options"
             className={inputClass}
           />
+          <Datalist id="role-options" options={options.roles} />
         </label>
         <label className={labelClass}>
           Duration
           <input
             name="duration"
             defaultValue={project?.duration}
+            list="duration-options"
             className={inputClass}
           />
+          <Datalist id="duration-options" options={options.durations} />
         </label>
         <label className={labelClass}>
           Live URL
@@ -97,6 +115,16 @@ export function ProjectForm({
           />
         </label>
       </div>
+
+      <label className={labelClass}>
+        Category (comma separated)
+        <TagInput
+          name="category"
+          defaultValue={project?.category ? project.category.split(",").map((s) => s.trim()).filter(Boolean) : []}
+          placeholder="e.g. E-commerce, Marketplace"
+          suggestions={options.categories}
+        />
+      </label>
 
       <label className={labelClass}>
         Description
@@ -130,29 +158,25 @@ export function ProjectForm({
 
       <label className={labelClass}>
         Tags (comma separated)
-        <input
+        <TagInput
           name="tags"
-          defaultValue={project?.tags?.join(", ")}
-          className={inputClass}
+          defaultValue={project?.tags}
+          placeholder="e.g. Next.js, Supabase"
         />
       </label>
 
       <label className={labelClass}>
         Tech stack (comma separated)
-        <input
+        <TagInput
           name="tech_details"
-          defaultValue={project?.tech_details?.map((t) => t.name).join(", ")}
-          className={inputClass}
+          defaultValue={project?.tech_details?.map((t) => t.name)}
+          placeholder="e.g. React, Node.js"
         />
       </label>
 
       <label className={labelClass}>
-        Screenshot URLs (comma separated)
-        <input
-          name="screenshots"
-          defaultValue={project?.screenshots?.join(", ")}
-          className={inputClass}
-        />
+        Screenshots
+        <ScreenshotsInput name="screenshots" defaultValue={project?.screenshots} />
       </label>
 
       <label className="flex items-center gap-2 text-sm font-medium">

@@ -62,6 +62,34 @@ export async function updateProject(id: string, formData: FormData) {
   redirect("/admin");
 }
 
+export async function uploadProjectScreenshot(
+  formData: FormData,
+): Promise<{ url: string } | { error: string }> {
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: "No file provided" };
+  }
+  if (!file.type.startsWith("image/")) {
+    return { error: "Only image files are supported" };
+  }
+
+  const supabase = await createClient();
+  const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+  const path = `${crypto.randomUUID()}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from("project-screenshots")
+    .upload(path, file, { contentType: file.type });
+
+  if (error) return { error: error.message };
+
+  const { data } = supabase.storage
+    .from("project-screenshots")
+    .getPublicUrl(path);
+
+  return { url: data.publicUrl };
+}
+
 export async function deleteProject(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.from("projects").delete().eq("id", id);
