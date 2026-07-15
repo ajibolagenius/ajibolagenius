@@ -143,32 +143,34 @@ export default async function ProjectDetailPage({
             <h1 className="text-h1 font-normal">{p.name}</h1>
             <p className="text-body-l text-ink/60">{p.description}</p>
 
-            <div className="flex flex-wrap gap-3 pt-2">
-              {p.live_url && p.live_url !== "#" && (
-                <a
-                  href={p.live_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-ink px-4 py-2 text-body-s font-medium text-cream transition-colors hover:bg-accent"
-                >
-                  <ArrowSquareOut weight="duotone" size={16} />
-                  Live site
-                </a>
-              )}
-              {p.github_url && p.github_url !== "#" && (
-                <a
-                  href={p.github_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 border border-ink/20 px-4 py-2 text-body-s font-medium transition-colors hover:border-ink"
-                >
-                  <GithubLogo weight="duotone" size={16} />
-                  Source
-                </a>
-              )}
-            </div>
+            <div className="flex flex-wrap items-center gap-3 pt-2 sm:flex-nowrap sm:justify-between">
+              <div className="flex flex-wrap items-center gap-3">
+                {p.live_url && p.live_url !== "#" && (
+                  <a
+                    href={p.live_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-ink px-4 py-2 text-body-s font-medium text-cream transition-colors hover:bg-accent"
+                  >
+                    <ArrowSquareOut weight="duotone" size={16} />
+                    Live site
+                  </a>
+                )}
+                {p.github_url && p.github_url !== "#" && (
+                  <a
+                    href={p.github_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 border border-ink/20 px-4 py-2 text-body-s font-medium transition-colors hover:border-ink"
+                  >
+                    <GithubLogo weight="duotone" size={16} />
+                    Source
+                  </a>
+                )}
+              </div>
 
-            <ShareButtons url={`${siteUrl}/work/${p.slug}`} title={p.name} />
+              <ShareButtons url={`${siteUrl}/work/${p.slug}`} title={p.name} />
+            </div>
           </header>
 
           <dl className="grid grid-cols-2 gap-4 border-y border-ink/10 py-6 text-body-s sm:grid-cols-4">

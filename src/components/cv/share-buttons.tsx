@@ -7,6 +7,7 @@ import {
   XLogo,
   LinkedinLogo,
   FacebookLogo,
+  WhatsappLogo,
 } from "@phosphor-icons/react/dist/ssr";
 
 export function ShareButtons({
@@ -37,6 +38,11 @@ export function ShareButtons({
       href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
       icon: FacebookLogo,
     },
+    {
+      label: "Share on WhatsApp",
+      href: `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`,
+      icon: WhatsappLogo,
+    },
   ];
 
   const handleCopy = async () => {
@@ -50,7 +56,7 @@ export function ShareButtons({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2 pt-2">
+    <div className="flex flex-wrap items-center gap-2">
       <span className="text-body-xs uppercase tracking-wide text-ink/40">
         Share
       </span>
@@ -61,7 +67,7 @@ export function ShareButtons({
           target="_blank"
           rel="noopener noreferrer"
           aria-label={label}
-          className="inline-flex h-9 w-9 items-center justify-center border border-ink/20 text-ink/70 transition-colors hover:border-ink hover:text-ink"
+          className="inline-flex h-9 w-9 shrink-0 items-center justify-center border border-ink/20 text-ink/70 transition-colors hover:border-ink hover:text-ink"
         >
           <Icon weight="duotone" size={16} />
         </a>
@@ -70,7 +76,7 @@ export function ShareButtons({
         type="button"
         onClick={handleCopy}
         aria-label="Copy link"
-        className="inline-flex h-9 w-9 items-center justify-center border border-ink/20 text-ink/70 transition-colors hover:border-ink hover:text-ink"
+        className="inline-flex h-9 w-9 shrink-0 items-center justify-center border border-ink/20 text-ink/70 transition-colors hover:border-ink hover:text-ink"
       >
         {copied ? (
           <Check weight="duotone" size={16} />
