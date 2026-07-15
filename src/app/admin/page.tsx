@@ -17,6 +17,12 @@ export default async function AdminPage() {
         <h1 className="text-2xl font-semibold">Admin</h1>
         <div className="flex items-center gap-3">
           <Link
+            href="/admin/messages"
+            className="rounded-md border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700"
+          >
+            Messages
+          </Link>
+          <Link
             href="/admin/reset-password"
             className="rounded-md border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700"
           >
