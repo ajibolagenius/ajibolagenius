@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Project } from "@/types/project";
 import { ADMIN_RESOURCES } from "@/lib/admin-resources";
-import { deleteProject, signOut } from "./actions";
+import { deleteProject, signOut, toggleFeatured } from "./actions";
 import Link from "next/link";
 
 export default async function AdminPage() {
@@ -91,6 +91,26 @@ export default async function AdminPage() {
               </p>
             </div>
             <div className="flex items-center gap-3">
+              <form
+                action={async () => {
+                  "use server";
+                  await toggleFeatured(project.id, !project.featured);
+                }}
+              >
+                <button
+                  type="submit"
+                  className={`rounded-md border px-2 py-1 text-sm ${
+                    project.featured
+                      ? "border-amber-400 bg-amber-50 text-amber-700 dark:border-amber-600 dark:bg-amber-950 dark:text-amber-400"
+                      : "border-neutral-300 text-neutral-500 dark:border-neutral-700"
+                  }`}
+                  title={
+                    project.featured ? "Unmark featured" : "Mark featured"
+                  }
+                >
+                  {project.featured ? "★ Featured" : "☆ Feature"}
+                </button>
+              </form>
               <Link
                 href={`/admin/projects/${project.id}`}
                 className="text-sm underline"

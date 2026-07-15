@@ -90,6 +90,18 @@ export async function uploadProjectScreenshot(
   return { url: data.publicUrl };
 }
 
+export async function toggleFeatured(id: string, featured: boolean) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("projects")
+    .update({ featured })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin");
+  revalidatePath("/work");
+}
+
 export async function deleteProject(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.from("projects").delete().eq("id", id);
