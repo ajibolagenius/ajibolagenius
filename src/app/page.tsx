@@ -67,13 +67,9 @@ export default async function HomePage() {
         />
       )}
       <TopNav />
-      <main
-        id="top"
-        className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-10 lg:flex-row lg:gap-16"
-      >
-        <Sidebar info={personalInfo} />
-
-        <div className="min-w-0 flex-1">
+      <Sidebar info={personalInfo} />
+      <main id="top" className="flex-1 lg:ml-80">
+        <div className="mx-auto w-full min-w-0 max-w-3xl px-6 py-10">
           <Hero info={personalInfo} experience={experience} />
           <FeaturedWork projects={(featuredProjects as Project[] | null) ?? []} />
           <About info={personalInfo} skills={skills} />

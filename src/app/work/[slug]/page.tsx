@@ -124,10 +124,9 @@ export default async function ProjectDetailPage({
         }}
       />
       <TopNav />
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-10 lg:flex-row lg:gap-16">
-        <Sidebar info={personalInfo} />
-
-        <div className="flex min-w-0 flex-1 flex-col gap-10 py-8">
+      <Sidebar info={personalInfo} />
+      <main className="flex-1 lg:ml-80">
+        <div className="mx-auto flex w-full min-w-0 max-w-3xl flex-col gap-10 px-6 py-10">
           <Link
             href="/work"
             className="inline-flex w-fit items-center gap-2 text-body-s text-ink/60 transition-colors hover:text-accent"

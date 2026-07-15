@@ -42,10 +42,9 @@ export default async function WorkPage() {
   return (
     <>
       <TopNav />
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-10 lg:flex-row lg:gap-16">
-        <Sidebar info={personalInfo} />
-
-        <div className="min-w-0 flex-1 py-8">
+      <Sidebar info={personalInfo} />
+      <main className="flex-1 lg:ml-80">
+        <div className="mx-auto w-full min-w-0 max-w-3xl px-6 py-10">
           <div>
             <h1 className="text-h1 font-normal">Work</h1>
             <p className="mt-2 text-body-m text-ink/60">

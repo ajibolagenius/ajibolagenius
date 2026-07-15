@@ -21,8 +21,8 @@ export function TopNav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="sticky top-0 z-40 bg-cream/90 backdrop-blur">
-      <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+    <div className="sticky top-0 z-40 bg-cream/90 backdrop-blur lg:ml-80">
+      <nav className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
         <div className="flex items-center gap-8">
           <Link href="/" className="text-ink" aria-label="Home">
             <UserCircle weight="duotone" size={24} className="text-accent" />

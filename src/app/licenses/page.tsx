@@ -70,11 +70,11 @@ export default async function LicensesPage() {
   return (
     <>
       <TopNav />
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-10 lg:flex-row lg:gap-16">
-        <div className="hidden lg:block">
-          <Sidebar info={personalInfo} />
-        </div>
-        <div className="flex-1 py-8">
+      <div className="hidden lg:block">
+        <Sidebar info={personalInfo} />
+      </div>
+      <main className="flex-1 lg:ml-80">
+        <div className="mx-auto w-full max-w-3xl px-6 py-10">
           <div className="text-center">
             <h1 className="text-h1 font-normal">Licenses</h1>
             <p className="mx-auto mt-3 max-w-md text-body-m text-ink/60">
