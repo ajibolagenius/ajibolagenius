@@ -47,13 +47,15 @@ export function ProjectCard({ project }: { project: Project }) {
             className="mt-1 shrink-0 text-ink/40 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-ink"
           />
         </div>
-        <p className="text-body-s text-ink/60">{project.description}</p>
+        <p className="line-clamp-2 text-body-s text-ink/60">
+          {project.description}
+        </p>
         {project.tags?.length > 0 && (
-          <div className="mt-1 flex flex-wrap gap-2">
+          <div className="mt-1 flex max-h-16 flex-wrap gap-2 overflow-hidden">
             {project.tags.map((tag) => (
               <span
                 key={tag}
-                className=" bg-ink/5 px-2.5 py-1 text-body-xs text-ink/60"
+                className="h-fit bg-ink/5 px-2.5 py-1 text-body-xs text-ink/60"
               >
                 {tag}
               </span>
