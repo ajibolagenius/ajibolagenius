@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Habibi } from "next/font/google";
 import { ThemeScript } from "@/components/theme-script";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -81,6 +82,7 @@ export default function RootLayout({
       >
         {children}
         <ServiceWorkerRegistration />
+        <Analytics />
       </body>
     </html>
   );
