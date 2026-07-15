@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Habibi } from "next/font/google";
 import { ThemeScript } from "@/components/theme-script";
+import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,7 +28,7 @@ const siteUrl =
       ? `https://${process.env.VERCEL_URL}`
       : "http://localhost:3000");
 
-const title = "Ajibola — Portfolio";
+const title = "Ajibola Akelebe — Portfolio";
 const description = "Software engineer portfolio and case studies.";
 
 export const metadata: Metadata = {
@@ -41,7 +42,7 @@ export const metadata: Metadata = {
     title,
     description,
     url: "/",
-    siteName: "Ajibola — Portfolio",
+    siteName: "Ajibola Akelebe — Portfolio",
     type: "website",
   },
   twitter: {
@@ -49,6 +50,15 @@ export const metadata: Metadata = {
     title,
     description,
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Ajibola",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#e64301",
 };
 
 export default function RootLayout({
@@ -65,7 +75,10 @@ export default function RootLayout({
       <head>
         <ThemeScript />
       </head>
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        {children}
+        <ServiceWorkerRegistration />
+      </body>
     </html>
   );
 }
