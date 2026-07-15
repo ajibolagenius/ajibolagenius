@@ -22,7 +22,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const title = "CV";
   const description = info?.description ?? "Software engineer CV and work history.";
-  const image = info ? "/avatar.png" : undefined;
 
   return {
     title,
@@ -32,13 +31,11 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       url: "/cv",
       type: "profile",
-      images: image ? [{ url: image, width: 1200, height: 630, alt: info?.name ?? title }] : undefined,
     },
     twitter: {
       card: "summary_large_image",
       title: info ? `CV — ${info.name}` : title,
       description,
-      images: image ? [image] : undefined,
     },
   };
 }
