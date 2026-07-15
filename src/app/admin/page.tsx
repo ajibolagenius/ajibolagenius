@@ -10,6 +10,10 @@ export default async function AdminPage() {
     .from("projects")
     .select("*")
     .order("created_at", { ascending: false });
+  const { count: unreadCount } = await supabase
+    .from("contact_messages")
+    .select("*", { count: "exact", head: true })
+    .eq("read", false);
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-12">
@@ -18,9 +22,14 @@ export default async function AdminPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/admin/messages"
-            className="rounded-md border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700"
+            className="relative rounded-md border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700"
           >
             Messages
+            {!!unreadCount && (
+              <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-xs font-medium text-white">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
           </Link>
           <Link
             href="/admin/reset-password"
