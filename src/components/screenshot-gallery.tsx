@@ -44,7 +44,7 @@ export function ScreenshotGallery({
               src={src}
               alt={`${alt} screenshot ${i + 1}`}
               fill
-              unoptimized
+              sizes="(max-width: 640px) 50vw, 33vw"
               className="object-cover object-top"
             />
           </button>
@@ -102,7 +102,7 @@ export function ScreenshotGallery({
               src={screenshots[openIndex]}
               alt={`${alt} screenshot ${openIndex + 1}`}
               fill
-              unoptimized
+              sizes="100vw"
               className="object-contain"
             />
           </div>

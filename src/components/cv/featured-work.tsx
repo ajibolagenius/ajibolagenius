@@ -38,7 +38,7 @@ export function FeaturedWork({ projects }: { projects: Project[] }) {
                   src={project.screenshots[0]}
                   alt={`${project.name} screenshot`}
                   fill
-                  unoptimized
+                  sizes="(max-width: 640px) 100vw, 33vw"
                   className="object-cover object-top transition-transform duration-300 group-hover:scale-[1.03]"
                 />
               ) : (

@@ -14,6 +14,7 @@ import { TopNav } from "@/components/cv/top-nav";
 import { Sidebar } from "@/components/cv/sidebar";
 import { SiteFooter } from "@/components/cv/site-footer";
 import { ScreenshotGallery } from "@/components/screenshot-gallery";
+import { ShareButtons } from "@/components/cv/share-buttons";
 import type { Project } from "@/types/project";
 
 export const revalidate = 60;
@@ -40,19 +41,38 @@ export async function generateMetadata({
     return { title: "Project not found" };
   }
 
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000");
+
   const title = project.name;
   const description = project.description;
-  const image = project.screenshots?.[0];
+  const rawImage = project.screenshots?.[0];
+  const image = rawImage
+    ? rawImage.startsWith("http")
+      ? rawImage
+      : `${siteUrl}${rawImage}`
+    : undefined;
+  const url = `${siteUrl}/work/${slug}`;
 
   return {
     title,
     description,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       title,
       description,
-      url: `/work/${slug}`,
+      url,
       type: "article",
-      images: image ? [{ url: image, width: 1200, height: 630, alt: project.name }] : undefined,
+      images: image
+        ? [{ url: image, width: 1200, height: 630, alt: project.name }]
+        : undefined,
     },
     twitter: {
       card: "summary_large_image",
@@ -147,6 +167,8 @@ export default async function ProjectDetailPage({
                 </a>
               )}
             </div>
+
+            <ShareButtons url={`${siteUrl}/work/${p.slug}`} title={p.name} />
           </header>
 
           <dl className="grid grid-cols-2 gap-4 border-y border-ink/10 py-6 text-body-s sm:grid-cols-4">

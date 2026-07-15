@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, type DragEvent, type KeyboardEvent } from "react";
+import Image from "next/image";
 import {
   X,
   UploadSimple,
@@ -130,11 +131,12 @@ export function ScreenshotsInput({
                 dragIndex === index ? "opacity-50" : ""
               }`}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={url}
                 alt=""
-                className="h-full w-full object-cover"
+                fill
+                sizes="(max-width: 640px) 33vw, 25vw"
+                className="object-cover"
               />
               <button
                 type="button"

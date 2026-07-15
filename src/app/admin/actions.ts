@@ -4,6 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { ProjectInput } from "@/types/project";
+import sharp from "sharp";
+
+const MAX_SCREENSHOT_WIDTH = 1920;
+const SCREENSHOT_QUALITY = 80;
 
 function parseListField(value: FormDataEntryValue | null): string[] {
   if (!value) return [];
@@ -74,12 +78,23 @@ export async function uploadProjectScreenshot(
   }
 
   const supabase = await createClient();
-  const ext = file.name.split(".").pop()?.toLowerCase() || "png";
-  const path = `${crypto.randomUUID()}.${ext}`;
+  const path = `${crypto.randomUUID()}.webp`;
+
+  let optimized: Buffer;
+  try {
+    const inputBuffer = Buffer.from(await file.arrayBuffer());
+    optimized = await sharp(inputBuffer)
+      .rotate()
+      .resize({ width: MAX_SCREENSHOT_WIDTH, withoutEnlargement: true })
+      .webp({ quality: SCREENSHOT_QUALITY })
+      .toBuffer();
+  } catch {
+    return { error: "Failed to process image" };
+  }
 
   const { error } = await supabase.storage
     .from("project-screenshots")
-    .upload(path, file, { contentType: file.type });
+    .upload(path, optimized, { contentType: "image/webp" });
 
   if (error) return { error: error.message };
 
