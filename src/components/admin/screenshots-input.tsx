@@ -1,7 +1,13 @@
 "use client";
 
-import { useRef, useState, type KeyboardEvent } from "react";
-import { X, UploadSimple, Spinner } from "@phosphor-icons/react/dist/ssr";
+import { useRef, useState, type DragEvent, type KeyboardEvent } from "react";
+import {
+  X,
+  UploadSimple,
+  Spinner,
+  ArrowLeft,
+  ArrowRight,
+} from "@phosphor-icons/react/dist/ssr";
 import { uploadProjectScreenshot } from "@/app/admin/actions";
 
 export function ScreenshotsInput({
@@ -47,6 +53,41 @@ export function ScreenshotsInput({
     setUrls((prev) => prev.filter((u) => u !== url));
   };
 
+  const moveUrl = (index: number, direction: -1 | 1) => {
+    setUrls((prev) => {
+      const target = index + direction;
+      if (target < 0 || target >= prev.length) return prev;
+      const next = [...prev];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
+  };
+
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+
+  const handleDragStart = (index: number) => (e: DragEvent<HTMLDivElement>) => {
+    setDragIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (index: number) => (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragIndex === null || dragIndex === index) return;
+    setUrls((prev) => {
+      if (dragIndex >= prev.length) return prev;
+      const next = [...prev];
+      const [moved] = next.splice(dragIndex, 1);
+      next.splice(index, 0, moved);
+      return next;
+    });
+    setDragIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    setDragIndex(null);
+  };
+
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     setUploading(true);
@@ -78,10 +119,16 @@ export function ScreenshotsInput({
 
       {urls.length > 0 && (
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-          {urls.map((url) => (
+          {urls.map((url, index) => (
             <div
               key={url}
-              className="group relative aspect-video overflow-hidden rounded-md border border-neutral-300 dark:border-neutral-700"
+              draggable
+              onDragStart={handleDragStart(index)}
+              onDragOver={handleDragOver(index)}
+              onDragEnd={handleDragEnd}
+              className={`group relative aspect-video cursor-grab overflow-hidden rounded-md border border-neutral-300 active:cursor-grabbing dark:border-neutral-700 ${
+                dragIndex === index ? "opacity-50" : ""
+              }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -97,6 +144,26 @@ export function ScreenshotsInput({
               >
                 <X size={12} weight="bold" />
               </button>
+              <div className="absolute bottom-1 left-1 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                <button
+                  type="button"
+                  onClick={() => moveUrl(index, -1)}
+                  disabled={index === 0}
+                  aria-label="Move screenshot earlier"
+                  className="rounded-full bg-black/60 p-1 text-white disabled:opacity-40"
+                >
+                  <ArrowLeft size={12} weight="bold" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => moveUrl(index, 1)}
+                  disabled={index === urls.length - 1}
+                  aria-label="Move screenshot later"
+                  className="rounded-full bg-black/60 p-1 text-white disabled:opacity-40"
+                >
+                  <ArrowRight size={12} weight="bold" />
+                </button>
+              </div>
             </div>
           ))}
         </div>
