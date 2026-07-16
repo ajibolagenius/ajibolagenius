@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BackToTop } from "@/components/cv/back-to-top";
 
 export function SiteFooter({ name }: { name: string }) {
   return (
@@ -9,9 +10,7 @@ export function SiteFooter({ name }: { name: string }) {
           <Link href="/licenses" className="hover:text-ink">
             Licenses
           </Link>
-          <a href="#top" className="hover:text-ink">
-            Back to Top
-          </a>
+          <BackToTop className="hover:text-ink" />
         </div>
       </div>
     </div>
