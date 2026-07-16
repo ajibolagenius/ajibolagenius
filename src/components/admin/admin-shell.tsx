@@ -83,11 +83,6 @@ export function AdminShell({
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  // Close the mobile drawer whenever navigation happens.
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
-
   // Prevent background scroll while the drawer is open.
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -118,7 +113,11 @@ export function AdminShell({
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-4">
+      {/* Close the mobile drawer when a nav link is clicked (bubbles from Links). */}
+      <nav
+        className="flex-1 overflow-y-auto px-3 py-4"
+        onClick={() => setOpen(false)}
+      >
         <div className="flex flex-col gap-0.5">
           <NavLink
             href="/admin"
@@ -161,7 +160,12 @@ export function AdminShell({
         </div>
       </nav>
 
-      <div className="border-t border-ink/10 px-3 py-3">
+      <div
+        className="border-t border-ink/10 px-3 py-3"
+        onClick={(e) => {
+          if ((e.target as HTMLElement).closest("a")) setOpen(false);
+        }}
+      >
         <a
           href="/"
           target="_blank"
