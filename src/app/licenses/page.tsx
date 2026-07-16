@@ -59,7 +59,7 @@ const LICENSES: {
     icon: Selection,
     title: "Logos & shapes",
       body: "Company placeholder marks and decorative geometric shapes are from Shapes.gallery and are free for personal and commercial use.",
-      link: { label: "logoipsum.com", url: "https://www.shapes.gallery" },
+      link: { label: "shapes.gallery", url: "https://www.shapes.gallery" },
   },
   {
     icon: Flag,
