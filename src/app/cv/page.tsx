@@ -69,7 +69,7 @@ export default async function CvPage() {
         <div className="flex flex-col gap-6">
           <div className="h-20 w-20 overflow-hidden">
             <Image
-              src="/avatar.png"
+              src="/avatar_3d.png"
               alt={info.name}
               width={160}
               height={160}

@@ -15,7 +15,7 @@ const PANEL = "#f0e9e3";
 export default async function Image() {
   const [{ personalInfo, experience }, avatarData] = await Promise.all([
     getCvData(),
-    readFile(join(process.cwd(), "public/avatar.png"), "base64"),
+    readFile(join(process.cwd(), "public/avatar_3d.png"), "base64"),
   ]);
 
   const name = personalInfo?.name ?? "Ajibola Akelebe";
