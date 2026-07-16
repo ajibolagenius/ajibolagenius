@@ -57,7 +57,7 @@ export function ShareButtons({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-body-xs uppercase tracking-wide text-ink/40">
+      <span className="text-body-xs uppercase tracking-wide text-ink/60">
         Share
       </span>
       {links.map(({ label, href, icon: Icon }) => (

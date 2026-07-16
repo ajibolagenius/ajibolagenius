@@ -54,7 +54,7 @@ export function WorkGrid({ projects }: { projects: Project[] }) {
       </div>
 
       {filtered.length === 0 && (
-        <p className="mt-8 text-body-m text-ink/50">
+        <p className="mt-8 text-body-m text-ink/60">
           No projects in this category yet.
         </p>
       )}

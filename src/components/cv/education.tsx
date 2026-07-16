@@ -12,9 +12,9 @@ export function Education({ entries }: { entries: EducationEntry[] }) {
           <div key={entry.id}>
             <div className="flex flex-wrap items-baseline justify-between gap-x-4">
               <h3 className="text-body-l font-medium">{entry.degree}</h3>
-              <span className="text-body-s text-ink/40">{entry.year}</span>
+              <span className="text-body-s text-ink/60">{entry.year}</span>
             </div>
-            <p className="text-body-s text-ink/50">{entry.school}</p>
+            <p className="text-body-s text-ink/60">{entry.school}</p>
             {entry.description && (
               <p className="mt-1 text-body-s text-ink/70">
                 {entry.description}

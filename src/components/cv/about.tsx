@@ -16,7 +16,7 @@ export function About({
       <p className="max-w-2xl text-body-m text-ink/70">{info.description}</p>
       {skills.length > 0 && (
         <div className="flex flex-col gap-2">
-          <p className="text-body-s font-medium text-ink/50">Key skills:</p>
+          <p className="text-body-s font-medium text-ink/60">Key skills:</p>
           <div className="flex flex-wrap gap-2">
             {skills.slice(0, 6).map((skill) => (
               <span

@@ -22,11 +22,11 @@ function JobCard({
           <h3 className="text-body-l font-medium transition-colors group-hover:text-accent">
             {entry.role_title}
           </h3>
-          <span className="text-body-s text-ink/40">
+          <span className="text-body-s text-ink/60">
             {entry.start_date} &ndash; {entry.end_date}
           </span>
         </div>
-        <p className="text-body-s text-ink/50">
+        <p className="text-body-s text-ink/60">
           {entry.company} &middot; {entry.employment_type}
         </p>
         {entry.body && (
@@ -96,7 +96,7 @@ export function Experience({ entries }: { entries: ExperienceEntry[] }) {
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Close"
-                className="p-1 text-ink/50 hover:text-ink"
+                className="p-1 text-ink/60 hover:text-ink"
               >
                 <X size={20} />
               </button>

@@ -25,7 +25,7 @@ export function Certifications({
             <CompanyIcon seed={cert.title} size={28} />
             <div className="flex-1">
               <p className="text-body-m font-medium">{cert.title}</p>
-              <p className="text-body-s text-ink/50">
+              <p className="text-body-s text-ink/60">
                 {cert.issuer} {cert.issuer && cert.issued_date && "·"}{" "}
                 {cert.issued_date}
               </p>
@@ -35,7 +35,7 @@ export function Certifications({
                 href={cert.link_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className=" bg-ink/5 p-2 text-ink/50 hover:text-ink"
+                className=" bg-ink/5 p-2 text-ink/60 hover:text-ink"
               >
                 <ArrowUpRight weight="duotone" size={16} />
               </a>

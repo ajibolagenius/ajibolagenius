@@ -175,7 +175,7 @@ export default async function CvPage() {
                     />
                     <div>
                       <p className="text-body-s font-medium">{lang.name}</p>
-                      <p className="text-body-xs text-ink/50">
+                      <p className="text-body-xs text-ink/60">
                         {lang.proficiency}
                       </p>
                     </div>
@@ -208,11 +208,11 @@ export default async function CvPage() {
                         <h3 className="text-body-l font-medium">
                           {entry.role_title}
                         </h3>
-                        <span className="text-body-s text-ink/40">
+                        <span className="text-body-s text-ink/60">
                           {entry.start_date} &ndash; {entry.end_date}
                         </span>
                       </div>
-                      <p className="text-body-s text-ink/50">
+                      <p className="text-body-s text-ink/60">
                         {entry.company} &middot; {entry.employment_type}
                       </p>
                       {entry.body && (
@@ -244,11 +244,11 @@ export default async function CvPage() {
                       <h3 className="text-body-l font-medium">
                         {entry.degree}
                       </h3>
-                      <span className="text-body-s text-ink/40">
+                      <span className="text-body-s text-ink/60">
                         {entry.year}
                       </span>
                     </div>
-                    <p className="text-body-s text-ink/50">{entry.school}</p>
+                    <p className="text-body-s text-ink/60">{entry.school}</p>
                     {entry.description && (
                       <p className="mt-1 text-body-s text-ink/70">
                         {entry.description}

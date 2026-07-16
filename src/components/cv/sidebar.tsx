@@ -64,7 +64,7 @@ export function Sidebar({ info }: { info: PersonalInfo | null }) {
                         href={info.social.linkedin}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-ink/50 transition-colors hover:text-accent"
+                        className="text-ink/60 transition-colors hover:text-accent"
                     >
                         <LinkedinLogo weight="duotone" size={18} />
                     </a>
@@ -74,7 +74,7 @@ export function Sidebar({ info }: { info: PersonalInfo | null }) {
                         href={info.social.twitter}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-ink/50 transition-colors hover:text-accent"
+                        className="text-ink/60 transition-colors hover:text-accent"
                     >
                         <XLogo weight="duotone" size={18} />
                     </a>
@@ -84,7 +84,7 @@ export function Sidebar({ info }: { info: PersonalInfo | null }) {
                         href={info.social.github}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-ink/50 transition-colors hover:text-accent"
+                        className="text-ink/60 transition-colors hover:text-accent"
                     >
                         <GithubLogo weight="duotone" size={18} />
                     </a>

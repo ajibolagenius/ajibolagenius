@@ -16,14 +16,14 @@ export function Recommendations({ items }: { items: Recommendation[] }) {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-body-m font-medium">{item.name}</p>
-                  <p className="text-body-s text-ink/50">{item.role_title}</p>
+                  <p className="text-body-s text-ink/60">{item.role_title}</p>
                 </div>
                 {item.link_url && (
                   <a
                     href={item.link_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className=" bg-ink/5 p-2 text-ink/50 hover:text-ink"
+                    className=" bg-ink/5 p-2 text-ink/60 hover:text-ink"
                   >
                     <ArrowUpRight weight="duotone" size={16} />
                   </a>

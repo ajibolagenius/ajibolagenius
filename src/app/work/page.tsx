@@ -55,7 +55,7 @@ export default async function WorkPage() {
           {projects && projects.length > 0 ? (
             <WorkGrid projects={projects as Project[]} />
           ) : (
-            <p className="mt-8 text-body-m text-ink/50">No projects yet.</p>
+            <p className="mt-8 text-body-m text-ink/60">No projects yet.</p>
           )}
         </div>
       </main>

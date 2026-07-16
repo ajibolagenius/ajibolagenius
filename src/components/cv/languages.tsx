@@ -20,7 +20,7 @@ export function Languages({ languages }: { languages: Language[] }) {
             />
             <div>
               <p className="text-body-m font-medium">{lang.name}</p>
-              <p className="text-body-s text-ink/50">{lang.proficiency}</p>
+              <p className="text-body-s text-ink/60">{lang.proficiency}</p>
             </div>
           </div>
         ))}

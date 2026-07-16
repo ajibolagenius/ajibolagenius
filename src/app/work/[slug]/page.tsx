@@ -136,7 +136,7 @@ export default async function ProjectDetailPage({
           </Link>
 
           <header className="flex flex-col gap-4">
-            <p className="text-body-xs uppercase tracking-wide text-ink/40">
+            <p className="text-body-xs uppercase tracking-wide text-ink/60">
               {p.category} · {p.year}
             </p>
             <h1 className="text-h1 font-normal">{p.name}</h1>
@@ -174,19 +174,19 @@ export default async function ProjectDetailPage({
 
           <dl className="grid grid-cols-2 gap-4 border-y border-ink/10 py-6 text-body-s sm:grid-cols-4">
             <div>
-              <dt className="text-ink/40">Role</dt>
+              <dt className="text-ink/60">Role</dt>
               <dd className="font-medium">{p.role_title || "—"}</dd>
             </div>
             <div>
-              <dt className="text-ink/40">Duration</dt>
+              <dt className="text-ink/60">Duration</dt>
               <dd className="font-medium">{p.duration || "—"}</dd>
             </div>
             <div>
-              <dt className="text-ink/40">Year</dt>
+              <dt className="text-ink/60">Year</dt>
               <dd className="font-medium">{p.year || "—"}</dd>
             </div>
             <div>
-              <dt className="text-ink/40">Type</dt>
+              <dt className="text-ink/60">Type</dt>
               <dd className="font-medium">{p.type || "—"}</dd>
             </div>
           </dl>

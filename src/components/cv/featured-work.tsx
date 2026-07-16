@@ -49,7 +49,7 @@ export function FeaturedWork({ projects }: { projects: Project[] }) {
             </div>
             <div className="flex items-center justify-between gap-2 px-3 py-2.5">
               <div className="min-w-0">
-                <p className="truncate text-body-xs uppercase tracking-wide text-ink/40">
+                <p className="truncate text-body-xs uppercase tracking-wide text-ink/60">
                   {project.category}
                 </p>
                 <h3 className="truncate text-body-s font-medium">
@@ -59,7 +59,7 @@ export function FeaturedWork({ projects }: { projects: Project[] }) {
               <ArrowUpRight
                 size={16}
                 weight="duotone"
-                className="shrink-0 text-ink/40 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-ink"
+                className="shrink-0 text-ink/60 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-ink"
               />
             </div>
           </Link>

@@ -55,7 +55,7 @@ export function Skills({ skills }: { skills: Skill[] }) {
 
       {techIcons.length > 0 && (
         <div className="flex flex-col gap-3">
-          <p className="text-body-s font-medium text-ink/50">
+          <p className="text-body-s font-medium text-ink/60">
             Technologies &amp; tools
           </p>
           <div className="flex flex-wrap gap-2">

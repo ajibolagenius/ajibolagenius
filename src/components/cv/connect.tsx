@@ -33,7 +33,7 @@ export function Connect({ info }: { info: PersonalInfo | null }) {
           <Envelope weight="duotone" size={18} />
           <div>
             <p className="text-body-s font-medium">Email Me</p>
-            <p className="text-body-xs text-ink/50">{info.email}</p>
+            <p className="text-body-xs text-ink/60">{info.email}</p>
           </div>
         </a>
         {info.social?.whatsapp && (
@@ -44,7 +44,7 @@ export function Connect({ info }: { info: PersonalInfo | null }) {
             <Phone weight="duotone" size={18} />
             <div>
               <p className="text-body-s font-medium">Call Me</p>
-              <p className="text-body-xs text-ink/50">WhatsApp</p>
+              <p className="text-body-xs text-ink/60">WhatsApp</p>
             </div>
           </a>
         )}
@@ -53,14 +53,14 @@ export function Connect({ info }: { info: PersonalInfo | null }) {
       <ContactForm />
 
       <div>
-        <p className="text-body-s text-ink/50">Join my network:</p>
+        <p className="text-body-s text-ink/60">Join my network:</p>
         <div className="mt-2 flex items-center justify-center gap-3">
           {info.social?.linkedin && (
             <a
               href={info.social.linkedin}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-ink/50 hover:text-ink"
+              className="text-ink/60 hover:text-ink"
             >
               <LinkedinLogo weight="duotone" size={18} />
             </a>
@@ -70,7 +70,7 @@ export function Connect({ info }: { info: PersonalInfo | null }) {
               href={info.social.twitter}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-ink/50 hover:text-ink"
+              className="text-ink/60 hover:text-ink"
             >
               <XLogo weight="duotone" size={18} />
             </a>
@@ -80,7 +80,7 @@ export function Connect({ info }: { info: PersonalInfo | null }) {
               href={info.social.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-ink/50 hover:text-ink"
+              className="text-ink/60 hover:text-ink"
             >
               <GithubLogo weight="duotone" size={18} />
             </a>
