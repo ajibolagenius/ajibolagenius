@@ -45,6 +45,36 @@ function FieldInput({
       />
     );
   }
+  if (field.type === "image") {
+    const current = defaultValue ? String(defaultValue) : "";
+    return (
+      <div className="flex items-start gap-3">
+        {current && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={current}
+            alt=""
+            className="h-12 w-12 rounded-full object-cover"
+          />
+        )}
+        <div className="flex w-full flex-col gap-1.5">
+          <input
+            type="file"
+            name={`${field.name}__file`}
+            accept="image/*"
+            className={`${inputClass} w-full`}
+          />
+          <input
+            type="text"
+            name={field.name}
+            defaultValue={current}
+            placeholder="…or paste an image URL (clear to use the default)"
+            className={`${inputClass} w-full`}
+          />
+        </div>
+      </div>
+    );
+  }
   if (field.type === "icon") {
     const current = defaultValue ? String(defaultValue) : "";
     return (
@@ -101,7 +131,8 @@ export default async function ManageResourcePage({
     needsIconPicker ? listTechLogos() : Promise.resolve([]),
   ]);
 
-  const isSingleton = resource === "personal-info";
+  const isFixed = Boolean(config.fixedRows);
+  const idColumn = config.idColumn ?? "id";
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-12">
@@ -119,23 +150,27 @@ export default async function ManageResourcePage({
       <div className="flex flex-col gap-6">
         {rows?.map((row: Record<string, unknown>) => (
           <form
-            key={String(row.id)}
+            key={String(row[idColumn])}
             action={async (formData: FormData) => {
               "use server";
-              await updateResourceRow(resource, row.id as string, formData);
+              await updateResourceRow(
+                resource,
+                row[idColumn] as string,
+                formData,
+              );
             }}
             className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-800"
           >
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium text-neutral-500">
-                {String(row[config.titleField] ?? row.id)}
+                {String(row[config.titleField] ?? row[idColumn])}
               </p>
-              {!isSingleton && (
+              {!isFixed && (
                 <button
                   type="submit"
                   formAction={async () => {
                     "use server";
-                    await deleteResourceRow(resource, row.id as string);
+                    await deleteResourceRow(resource, row[idColumn] as string);
                   }}
                   className="text-sm text-red-600 underline"
                 >
@@ -174,7 +209,7 @@ export default async function ManageResourcePage({
         ))}
       </div>
 
-      {!isSingleton && (
+      {!isFixed && (
         <form
           action={async (formData: FormData) => {
             "use server";

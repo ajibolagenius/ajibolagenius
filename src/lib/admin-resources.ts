@@ -4,7 +4,8 @@ export type FieldType =
   | "number"
   | "boolean"
   | "list"
-  | "icon";
+  | "icon"
+  | "image";
 
 export interface FieldConfig {
   name: string;
@@ -18,6 +19,12 @@ export interface ResourceConfig {
   orderColumn: string;
   fields: FieldConfig[];
   titleField: string;
+  /** Primary key column; defaults to "id". */
+  idColumn?: string;
+  /** Fixed set of rows: hide the create form and delete buttons. */
+  fixedRows?: boolean;
+  /** Storage bucket used by "image" fields in this resource. */
+  imageBucket?: string;
 }
 
 export const ADMIN_RESOURCES: Record<string, ResourceConfig> = {
@@ -26,7 +33,10 @@ export const ADMIN_RESOURCES: Record<string, ResourceConfig> = {
     label: "Personal Info",
     orderColumn: "id",
     titleField: "name",
+    fixedRows: true,
+    imageBucket: "avatars",
     fields: [
+      { name: "avatar_url", label: "Avatar", type: "image" },
       { name: "name", label: "Name", type: "text" },
       { name: "role", label: "Role", type: "text" },
       { name: "tagline", label: "Tagline", type: "text" },
@@ -106,6 +116,18 @@ export const ADMIN_RESOURCES: Record<string, ResourceConfig> = {
       { name: "name", label: "Name", type: "text" },
       { name: "proficiency", label: "Proficiency", type: "text" },
       { name: "flag_code", label: "Flag code (us, ng, ...)", type: "text" },
+      { name: "sort_order", label: "Order", type: "number" },
+    ],
+  },
+  sections: {
+    table: "site_sections",
+    label: "Sections",
+    orderColumn: "sort_order",
+    titleField: "label",
+    idColumn: "key",
+    fixedRows: true,
+    fields: [
+      { name: "visible", label: "Visible", type: "boolean" },
       { name: "sort_order", label: "Order", type: "number" },
     ],
   },

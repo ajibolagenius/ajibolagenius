@@ -19,7 +19,7 @@ export function Sidebar({ info }: { info: PersonalInfo | null }) {
             <div className="flex flex-col gap-6 md:flex-row md:items-start lg:flex-col">
                 <div className="h-20 w-20 shrink-0 overflow-hidden transition-transform duration-300 hover:scale-105">
                     <Image
-                        src="/avatar_3d.png"
+                        src={info.avatar_url || "/avatar_3d.png"}
                         alt={info.name}
                         width={160}
                         height={160}

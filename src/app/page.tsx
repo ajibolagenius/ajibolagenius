@@ -29,6 +29,7 @@ export default async function HomePage() {
       certifications,
       languages,
       recommendations,
+      visibleSections,
     },
     { data: featuredProjects },
   ] = await Promise.all([
@@ -66,20 +67,40 @@ export default async function HomePage() {
           }}
         />
       )}
-      <TopNav />
+      <TopNav visibleSections={visibleSections} />
       <Sidebar info={personalInfo} />
       <main id="top" className="flex-1 lg:ml-80">
         <div className="mx-auto w-full min-w-0 max-w-3xl px-6 py-10">
           <Hero info={personalInfo} experience={experience} />
-          <FeaturedWork projects={(featuredProjects as Project[] | null) ?? []} />
-          <About info={personalInfo} skills={skills} />
-          <Experience entries={experience} />
-          <Education entries={education} />
-          <Certifications entries={certifications} />
-          <Skills skills={skills} />
-          <Languages languages={languages} />
-          <Recommendations items={recommendations} />
-          <Connect info={personalInfo} />
+          {visibleSections.map((key) => {
+            switch (key) {
+              case "featured-work":
+                return (
+                  <FeaturedWork
+                    key={key}
+                    projects={(featuredProjects as Project[] | null) ?? []}
+                  />
+                );
+              case "about":
+                return <About key={key} info={personalInfo} skills={skills} />;
+              case "experience":
+                return <Experience key={key} entries={experience} />;
+              case "education":
+                return <Education key={key} entries={education} />;
+              case "certifications":
+                return <Certifications key={key} entries={certifications} />;
+              case "skills":
+                return <Skills key={key} skills={skills} />;
+              case "languages":
+                return <Languages key={key} languages={languages} />;
+              case "recommendations":
+                return <Recommendations key={key} items={recommendations} />;
+              case "connect":
+                return <Connect key={key} info={personalInfo} />;
+              default:
+                return null;
+            }
+          })}
         </div>
       </main>
       <SiteFooter name={personalInfo?.name ?? ""} />

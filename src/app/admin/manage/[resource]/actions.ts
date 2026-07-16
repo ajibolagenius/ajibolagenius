@@ -2,15 +2,45 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { getResourceConfig } from "@/lib/admin-resources";
+import { getResourceConfig, type ResourceConfig } from "@/lib/admin-resources";
+import sharp from "sharp";
 
-function parseFieldsFromForm(
-  resourceKey: string,
+const MAX_IMAGE_SIZE = 1024;
+const IMAGE_QUALITY = 85;
+
+type Supabase = Awaited<ReturnType<typeof createClient>>;
+
+async function uploadImage(
+  supabase: Supabase,
+  bucket: string,
+  file: File,
+): Promise<string> {
+  const inputBuffer = Buffer.from(await file.arrayBuffer());
+  const optimized = await sharp(inputBuffer)
+    .rotate()
+    .resize({
+      width: MAX_IMAGE_SIZE,
+      height: MAX_IMAGE_SIZE,
+      fit: "cover",
+      withoutEnlargement: true,
+    })
+    .webp({ quality: IMAGE_QUALITY })
+    .toBuffer();
+
+  const path = `${crypto.randomUUID()}.webp`;
+  const { error } = await supabase.storage
+    .from(bucket)
+    .upload(path, optimized, { contentType: "image/webp" });
+  if (error) throw new Error(error.message);
+
+  return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+}
+
+async function parseFieldsFromForm(
+  supabase: Supabase,
+  config: ResourceConfig,
   formData: FormData,
-): Record<string, unknown> {
-  const config = getResourceConfig(resourceKey);
-  if (!config) throw new Error("Unknown resource");
-
+): Promise<Record<string, unknown>> {
   const values: Record<string, unknown> = {};
   for (const field of config.fields) {
     const raw = formData.get(field.name);
@@ -23,11 +53,33 @@ function parseFieldsFromForm(
         .getAll(field.name)
         .map((v) => String(v).trim())
         .filter(Boolean);
+    } else if (field.type === "image") {
+      const file = formData.get(`${field.name}__file`);
+      if (
+        file instanceof File &&
+        file.size > 0 &&
+        file.type.startsWith("image/")
+      ) {
+        values[field.name] = await uploadImage(
+          supabase,
+          config.imageBucket ?? "avatars",
+          file,
+        );
+      } else {
+        values[field.name] = String(raw ?? "").trim() || null;
+      }
     } else {
       values[field.name] = String(raw ?? "").trim();
     }
   }
   return values;
+}
+
+function revalidateSite(resourceKey: string) {
+  revalidatePath(`/admin/manage/${resourceKey}`);
+  revalidatePath("/");
+  revalidatePath("/cv");
+  revalidatePath("/work");
 }
 
 export async function createResourceRow(
@@ -38,13 +90,12 @@ export async function createResourceRow(
   if (!config) throw new Error("Unknown resource");
 
   const supabase = await createClient();
-  const values = parseFieldsFromForm(resourceKey, formData);
+  const values = await parseFieldsFromForm(supabase, config, formData);
 
   const { error } = await supabase.from(config.table).insert(values);
   if (error) throw new Error(error.message);
 
-  revalidatePath(`/admin/manage/${resourceKey}`);
-  revalidatePath("/");
+  revalidateSite(resourceKey);
 }
 
 export async function updateResourceRow(
@@ -56,17 +107,15 @@ export async function updateResourceRow(
   if (!config) throw new Error("Unknown resource");
 
   const supabase = await createClient();
-  const values = parseFieldsFromForm(resourceKey, formData);
+  const values = await parseFieldsFromForm(supabase, config, formData);
 
-  const idColumn = resourceKey === "personal-info" ? "id" : "id";
   const { error } = await supabase
     .from(config.table)
     .update(values)
-    .eq(idColumn, id);
+    .eq(config.idColumn ?? "id", id);
   if (error) throw new Error(error.message);
 
-  revalidatePath(`/admin/manage/${resourceKey}`);
-  revalidatePath("/");
+  revalidateSite(resourceKey);
 }
 
 export async function deleteResourceRow(resourceKey: string, id: string) {
@@ -74,9 +123,11 @@ export async function deleteResourceRow(resourceKey: string, id: string) {
   if (!config) throw new Error("Unknown resource");
 
   const supabase = await createClient();
-  const { error } = await supabase.from(config.table).delete().eq("id", id);
+  const { error } = await supabase
+    .from(config.table)
+    .delete()
+    .eq(config.idColumn ?? "id", id);
   if (error) throw new Error(error.message);
 
-  revalidatePath(`/admin/manage/${resourceKey}`);
-  revalidatePath("/");
+  revalidateSite(resourceKey);
 }

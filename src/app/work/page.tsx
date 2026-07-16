@@ -30,7 +30,8 @@ export const metadata: Metadata = {
 
 export default async function WorkPage() {
   const supabase = await createClient();
-  const [{ data: projects }, { personalInfo }] = await Promise.all([
+  const [{ data: projects }, { personalInfo, visibleSections }] =
+    await Promise.all([
     supabase
       .from("projects")
       .select("*")
@@ -41,7 +42,7 @@ export default async function WorkPage() {
 
   return (
     <>
-      <TopNav />
+      <TopNav visibleSections={visibleSections} />
       <Sidebar info={personalInfo} />
       <main className="flex-1 lg:ml-80">
         <div className="mx-auto w-full min-w-0 max-w-3xl px-6 py-10">

@@ -9,6 +9,7 @@ export interface PersonalInfo {
   phone: string | null;
   location: string;
   availability: string;
+  avatar_url: string | null;
   social: {
     github?: string;
     twitter?: string;
@@ -60,6 +61,13 @@ export interface Language {
   name: string;
   proficiency: string;
   flag_code: string;
+  sort_order: number;
+}
+
+export interface SiteSection {
+  key: string;
+  label: string;
+  visible: boolean;
   sort_order: number;
 }
 

@@ -89,7 +89,7 @@ export default async function ProjectDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [project, { personalInfo }] = await Promise.all([
+  const [project, { personalInfo, visibleSections }] = await Promise.all([
     getProject(slug),
     getCvData(),
   ]);
@@ -123,7 +123,7 @@ export default async function ProjectDetailPage({
           keywords: p.tags?.length ? p.tags.join(", ") : undefined,
         }}
       />
-      <TopNav />
+      <TopNav visibleSections={visibleSections} />
       <Sidebar info={personalInfo} />
       <main className="flex-1 lg:ml-80">
         <div className="mx-auto flex w-full min-w-0 max-w-3xl flex-col gap-10 px-6 py-10">
