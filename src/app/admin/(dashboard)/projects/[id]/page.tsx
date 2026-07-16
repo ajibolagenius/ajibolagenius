@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Project } from "@/types/project";
-import { updateProject } from "../../actions";
-import { ProjectForm } from "../../project-form";
+import { updateProject } from "@/app/admin/actions";
+import { ProjectForm } from "@/app/admin/project-form";
 import { getProjectFieldOptions } from "@/lib/project-options";
 import { notFound } from "next/navigation";
 
@@ -22,7 +22,7 @@ export default async function EditProjectPage({
   const updateWithId = updateProject.bind(null, id);
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-12">
+    <main className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12">
       <h1 className="mb-8 text-2xl font-semibold">Edit project</h1>
       <ProjectForm
         project={project as Project}

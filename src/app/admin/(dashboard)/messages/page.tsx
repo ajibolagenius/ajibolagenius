@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { markMessageRead, deleteMessage } from "./actions";
 
@@ -19,16 +18,13 @@ export default async function AdminMessagesPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
-      <Link href="/admin" className="text-sm text-neutral-500 underline">
-        &larr; Admin
-      </Link>
-      <h1 className="mt-2 mb-8 text-2xl font-semibold">Messages</h1>
+    <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+      <h1 className="mb-8 text-2xl font-semibold">Messages</h1>
 
       {error && <p className="text-sm text-red-600">{error.message}</p>}
 
       {!error && (messages as ContactMessage[] | null)?.length === 0 && (
-        <p className="text-sm text-neutral-500">No messages yet.</p>
+        <p className="text-sm text-ink/60">No messages yet.</p>
       )}
 
       <ul className="flex flex-col gap-3">
@@ -36,26 +32,31 @@ export default async function AdminMessagesPage() {
           <li
             key={msg.id}
             className={`rounded-md border p-4 ${
-              msg.read
-                ? "border-neutral-200 dark:border-neutral-800"
-                : "border-neutral-900 dark:border-neutral-100"
+              msg.read ? "border-ink/10" : "border-accent/60 bg-panel"
             }`}
           >
-            <div className="mb-2 flex items-start justify-between gap-4">
-              <div>
-                <p className="font-medium">{msg.name}</p>
+            <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+              <div className="min-w-0">
+                <p className="font-medium">
+                  {msg.name}
+                  {!msg.read && (
+                    <span className="ml-2 rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">
+                      New
+                    </span>
+                  )}
+                </p>
                 <a
                   href={`mailto:${msg.email}`}
-                  className="text-sm text-neutral-500 underline"
+                  className="break-all text-sm text-ink/60 underline"
                 >
                   {msg.email}
                 </a>
               </div>
-              <p className="whitespace-nowrap text-xs text-neutral-400">
+              <p className="whitespace-nowrap text-xs text-ink/40">
                 {new Date(msg.created_at).toLocaleString()}
               </p>
             </div>
-            <p className="whitespace-pre-wrap text-sm text-neutral-700 dark:text-neutral-300">
+            <p className="whitespace-pre-wrap text-sm text-ink/80">
               {msg.message}
             </p>
             <div className="mt-3 flex gap-3">
@@ -67,7 +68,7 @@ export default async function AdminMessagesPage() {
               >
                 <button
                   type="submit"
-                  className="text-sm text-neutral-500 underline"
+                  className="text-sm text-ink/60 underline"
                 >
                   Mark as {msg.read ? "unread" : "read"}
                 </button>

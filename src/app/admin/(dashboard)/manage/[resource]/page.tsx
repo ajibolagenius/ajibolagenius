@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getResourceConfig, type FieldConfig } from "@/lib/admin-resources";
 import { listTechLogos, type TechLogoOption } from "@/lib/tech-logos";
@@ -7,7 +6,7 @@ import { BulletListInput } from "@/components/admin/bullet-list-input";
 import { createResourceRow, deleteResourceRow, updateResourceRow } from "./actions";
 
 const inputClass =
-  "rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-100";
+  "rounded-md border border-ink/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-accent";
 
 function FieldInput({
   field,
@@ -135,15 +134,8 @@ export default async function ManageResourcePage({
   const idColumn = config.idColumn ?? "id";
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <Link href="/admin" className="text-sm text-neutral-500 underline">
-            &larr; Admin
-          </Link>
-          <h1 className="mt-2 text-2xl font-semibold">{config.label}</h1>
-        </div>
-      </div>
+    <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+      <h1 className="mb-8 text-2xl font-semibold">{config.label}</h1>
 
       {error && <p className="text-sm text-red-600">{error.message}</p>}
 
@@ -159,10 +151,10 @@ export default async function ManageResourcePage({
                 formData,
               );
             }}
-            className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-800"
+            className="flex flex-col gap-3 rounded-md border border-ink/10 p-4"
           >
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-neutral-500">
+              <p className="text-sm font-medium text-ink/60">
                 {String(row[config.titleField] ?? row[idColumn])}
               </p>
               {!isFixed && (
@@ -178,7 +170,7 @@ export default async function ManageResourcePage({
                 </button>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {config.fields.map((field) => (
                 <label
                   key={field.name}
@@ -186,7 +178,7 @@ export default async function ManageResourcePage({
                     field.type === "textarea" ||
                     field.type === "list" ||
                     field.type === "icon"
-                      ? "col-span-2"
+                      ? "sm:col-span-2"
                       : ""
                   }`}
                 >
@@ -201,7 +193,7 @@ export default async function ManageResourcePage({
             </div>
             <button
               type="submit"
-              className="mt-1 self-start rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white dark:bg-neutral-100 dark:text-neutral-900"
+              className="mt-1 self-start rounded-md bg-ink px-3 py-1.5 text-xs font-medium text-cream"
             >
               Save
             </button>
@@ -215,12 +207,12 @@ export default async function ManageResourcePage({
             "use server";
             await createResourceRow(resource, formData);
           }}
-          className="mt-8 flex flex-col gap-3 rounded-md border border-dashed border-neutral-300 p-4 dark:border-neutral-700"
+          className="mt-8 flex flex-col gap-3 rounded-md border border-dashed border-ink/20 p-4"
         >
-          <p className="text-sm font-medium text-neutral-500">
+          <p className="text-sm font-medium text-ink/60">
             New {config.label.toLowerCase()} entry
           </p>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {config.fields.map((field) => (
               <label
                 key={field.name}
@@ -228,7 +220,7 @@ export default async function ManageResourcePage({
                   field.type === "textarea" ||
                   field.type === "list" ||
                   field.type === "icon"
-                    ? "col-span-2"
+                    ? "sm:col-span-2"
                     : ""
                 }`}
               >
@@ -239,7 +231,7 @@ export default async function ManageResourcePage({
           </div>
           <button
             type="submit"
-            className="mt-1 self-start rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white dark:bg-neutral-100 dark:text-neutral-900"
+            className="mt-1 self-start rounded-md bg-ink px-3 py-1.5 text-xs font-medium text-cream"
           >
             Create
           </button>
