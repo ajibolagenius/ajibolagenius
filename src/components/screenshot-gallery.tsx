@@ -13,6 +13,15 @@ export function ScreenshotGallery({
 }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
+  // Keep prev/next mounted (invisible) so arrow-key navigation doesn't
+  // fetch + decode the image inside the interaction (INP).
+  const prevIndex =
+    openIndex === null
+      ? null
+      : (openIndex - 1 + screenshots.length) % screenshots.length;
+  const nextIndex =
+    openIndex === null ? null : (openIndex + 1) % screenshots.length;
+
   useEffect(() => {
     if (openIndex === null) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -98,13 +107,23 @@ export function ScreenshotGallery({
             className="relative h-full max-h-[85vh] w-full max-w-5xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <Image
-              src={screenshots[openIndex]}
-              alt={`${alt} screenshot ${openIndex + 1}`}
-              fill
-              sizes="100vw"
-              className="object-contain"
-            />
+            {screenshots.map((src, i) => {
+              if (i !== openIndex && i !== prevIndex && i !== nextIndex) {
+                return null;
+              }
+              const active = i === openIndex;
+              return (
+                <Image
+                  key={src}
+                  src={src}
+                  alt={active ? `${alt} screenshot ${i + 1}` : ""}
+                  aria-hidden={!active}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 1024px"
+                  className={`object-contain ${active ? "" : "invisible"}`}
+                />
+              );
+            })}
           </div>
         </div>
       )}
