@@ -15,7 +15,6 @@ import { Sidebar } from "@/components/cv/sidebar";
 import { SiteFooter } from "@/components/cv/site-footer";
 import { ScreenshotGallery } from "@/components/screenshot-gallery";
 import { ShareButtons } from "@/components/cv/share-buttons";
-import { TechLogo } from "@/components/tech-logo";
 import { ProjectNavigation } from "@/components/project-navigation";
 import { ProjectShowcase } from "@/components/project-showcase";
 import type { Project } from "@/types/project";
@@ -225,9 +224,8 @@ export default async function ProjectDetailPage({
                 {p.tech_details.map((t) => (
                   <span
                     key={t.name}
-                    className="inline-flex items-center bg-ink/5 px-3 py-1.5 font-mono text-body-s text-ink/70"
+                    className="bg-ink/5 px-3 py-1.5 font-mono text-body-s text-ink/70"
                   >
-                    <TechLogo name={t.name} />
                     {t.name}
                   </span>
                 ))}
