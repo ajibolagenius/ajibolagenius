@@ -234,7 +234,7 @@ export default async function SideProjectDetailPage({
             </section>
           )}
 
-          <ProjectShowcase slug={p.slug} />
+          <ProjectShowcase project={p} />
 
           {p.screenshots?.length > 0 && (
             <section className="flex flex-col gap-4">

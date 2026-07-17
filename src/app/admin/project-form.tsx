@@ -136,6 +136,20 @@ export function ProjectForm({
           </select>
         </label>
         <label className={labelClass}>
+          Showcase Type
+          <select
+            name="showcase_type"
+            defaultValue={draftField(d, "showcase_type", project?.showcase_type ?? "")}
+            className={inputClass}
+          >
+            <option value="">None (No Showcase)</option>
+            <option value="audio">Audio Briefing Player (Narvo)</option>
+            <option value="api">API Console Playground (Narvo Platform)</option>
+            <option value="duel">Sphinx ML Duel Simulator (Heka)</option>
+            <option value="mood">Anonymous Mood Sandbox (Rant)</option>
+          </select>
+        </label>
+        <label className={labelClass}>
           Label
           <input
             name="label"

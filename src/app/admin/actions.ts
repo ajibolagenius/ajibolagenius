@@ -40,6 +40,7 @@ function projectInputFromForm(formData: FormData): ProjectInput {
       name,
     })),
     screenshots: parseListField(formData.get("screenshots")),
+    showcase_type: String(formData.get("showcase_type") ?? "").trim() || null,
   };
 }
 

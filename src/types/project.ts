@@ -24,6 +24,7 @@ export interface Project {
   year: string;
   tech_details: TechDetail[];
   screenshots: string[];
+  showcase_type?: string | null;
   created_at: string | null;
 }
 
