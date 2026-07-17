@@ -57,12 +57,6 @@ export async function generateMetadata({
 
   const title = project.name;
   const description = project.description;
-  const rawImage = project.screenshots?.[0];
-  const image = rawImage
-    ? rawImage.startsWith("http")
-      ? rawImage
-      : `${siteUrl}${rawImage}`
-    : undefined;
   const url = `${siteUrl}/side-projects/${slug}`;
 
   return {
@@ -76,15 +70,11 @@ export async function generateMetadata({
       description,
       url,
       type: "article",
-      images: image
-        ? [{ url: image, width: 1200, height: 630, alt: project.name }]
-        : undefined,
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: image ? [image] : undefined,
     },
   };
 }
