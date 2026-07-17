@@ -177,56 +177,27 @@ function getPillColors(tag: string, isDark: boolean) {
   }
 }
 
-/** Framed website mockup (Example 1/2 product card style) */
-function BrowserMock({ imageSrc, themeColor }: { imageSrc: string; themeColor: typeof OG | typeof OG_DARK }) {
+/** Framed project image (clean bordered card layout) */
+function ProjectImageFrame({ imageSrc, themeColor }: { imageSrc: string; themeColor: typeof OG | typeof OG_DARK }) {
   return (
     <div
       style={{
         display: "flex",
-        flexDirection: "column",
         width: "440px",
         height: "320px",
-        background: themeColor.cream,
         borderRadius: "14px",
         border: `3px solid ${themeColor.ink}`,
         boxShadow: `12px 12px 0px ${themeColor.ink}`,
         overflow: "hidden",
+        background: themeColor.panel,
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          height: "36px",
-          background: themeColor.panel,
-          borderBottom: `3px solid ${themeColor.ink}`,
-          padding: "0 14px",
-        }}
-      >
-        <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#ff5f56" }} />
-        <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#ffbd2e" }} />
-        <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#27c93f" }} />
-        <div
-          style={{
-            display: "flex",
-            flex: 1,
-            height: "18px",
-            background: themeColor.cream,
-            borderRadius: "5px",
-            border: `1px solid ${themeColor.ink}`,
-            marginLeft: "20px",
-            marginRight: "40px",
-          }}
-        />
-      </div>
       <img
         src={imageSrc}
         style={{
           width: "100%",
-          height: "281px",
+          height: "100%",
           objectFit: "cover",
-          objectPosition: "top",
         }}
       />
     </div>
@@ -466,7 +437,7 @@ export function OgShell({
           }}
         >
           {imageSrc ? (
-            <BrowserMock imageSrc={imageSrc} themeColor={themeColor} />
+            <ProjectImageFrame imageSrc={imageSrc} themeColor={themeColor} />
           ) : avatarSrc ? (
             <EditorialPortrait imageSrc={avatarSrc} themeColor={themeColor} />
           ) : null}
