@@ -19,13 +19,18 @@ import type { Project } from "@/types/project";
 
 export const revalidate = 60;
 
+const STATUS_LABELS: Record<string, string> = {
+  "in-progress": "In Progress",
+  archived: "Archived",
+};
+
 const getProject = cache(async (slug: string) => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("projects")
     .select("*")
     .eq("slug", slug)
-    .eq("kind", "client")
+    .eq("kind", "side")
     .single();
   return data as Project | null;
 });
@@ -58,7 +63,7 @@ export async function generateMetadata({
       ? rawImage
       : `${siteUrl}${rawImage}`
     : undefined;
-  const url = `${siteUrl}/work/${slug}`;
+  const url = `${siteUrl}/side-projects/${slug}`;
 
   return {
     title,
@@ -84,7 +89,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function ProjectDetailPage({
+export default async function SideProjectDetailPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
@@ -98,6 +103,7 @@ export default async function ProjectDetailPage({
   if (!project) notFound();
 
   const p = project;
+  const statusLabel = STATUS_LABELS[p.status];
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ??
@@ -115,7 +121,7 @@ export default async function ProjectDetailPage({
           "@type": "CreativeWork",
           name: p.name,
           description: p.description,
-          url: `${siteUrl}/work/${p.slug}`,
+          url: `${siteUrl}/side-projects/${p.slug}`,
           image: p.screenshots?.[0] || undefined,
           dateCreated: p.year || undefined,
           creator: personalInfo?.name
@@ -129,17 +135,28 @@ export default async function ProjectDetailPage({
       <main className="flex-1 lg:ml-80">
         <div className="mx-auto flex w-full min-w-0 max-w-3xl flex-col gap-10 px-6 py-10">
           <Link
-            href="/work"
+            href="/side-projects"
             className="inline-flex w-fit items-center gap-2 text-body-s text-ink/60 transition-colors hover:text-accent"
           >
             <ArrowLeft weight="duotone" size={16} />
-            Back to work
+            Back to side projects
           </Link>
 
           <header className="flex flex-col gap-4">
-            <p className="text-body-xs uppercase tracking-wide text-ink/60">
-              {p.category} · {p.year}
-            </p>
+            <div className="flex flex-wrap items-center gap-3 text-body-xs uppercase tracking-wide text-ink/60">
+              {p.category && <span>{p.category}</span>}
+              {statusLabel && (
+                <span
+                  className={`inline-flex items-center px-2 py-0.5 font-mono normal-case tracking-normal ${
+                    p.status === "in-progress"
+                      ? "bg-accent text-cream"
+                      : "bg-ink/10 text-ink/60"
+                  }`}
+                >
+                  {statusLabel}
+                </span>
+              )}
+            </div>
             <h1 className="text-h1 font-normal">{p.name}</h1>
             <p className="text-body-l text-ink/60">{p.description}</p>
 
@@ -169,42 +186,12 @@ export default async function ProjectDetailPage({
                 )}
               </div>
 
-              <ShareButtons url={`${siteUrl}/work/${p.slug}`} title={p.name} />
+              <ShareButtons
+                url={`${siteUrl}/side-projects/${p.slug}`}
+                title={p.name}
+              />
             </div>
           </header>
-
-          <dl className="grid grid-cols-2 gap-4 border-y border-ink/10 py-6 text-body-s sm:grid-cols-4">
-            <div>
-              <dt className="text-ink/60">Role</dt>
-              <dd className="font-medium">{p.role_title || "—"}</dd>
-            </div>
-            <div>
-              <dt className="text-ink/60">Duration</dt>
-              <dd className="font-medium">{p.duration || "—"}</dd>
-            </div>
-            <div>
-              <dt className="text-ink/60">Year</dt>
-              <dd className="font-medium">{p.year || "—"}</dd>
-            </div>
-            <div>
-              <dt className="text-ink/60">Type</dt>
-              <dd className="font-medium">{p.type || "—"}</dd>
-            </div>
-          </dl>
-
-          {p.problem && (
-            <section className="flex flex-col gap-2">
-              <h2 className="text-h3 font-normal">Problem</h2>
-              <p className="text-body-m text-ink/70">{p.problem}</p>
-            </section>
-          )}
-
-          {p.solution && (
-            <section className="flex flex-col gap-2">
-              <h2 className="text-h3 font-normal">Solution</h2>
-              <p className="text-body-m text-ink/70">{p.solution}</p>
-            </section>
-          )}
 
           {p.tech_details?.length > 0 && (
             <section className="flex flex-col gap-3">

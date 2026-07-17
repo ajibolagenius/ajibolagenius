@@ -54,6 +54,14 @@ export function TopNav({
             ))}
             <li>
               <Link
+                href="/side-projects"
+                className="transition-colors hover:text-ink"
+              >
+                Side Projects
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/work"
                 className="inline-flex items-center gap-1 border border-accent/50 px-2.5 py-1 font-medium text-accent transition-colors hover:bg-accent hover:text-cream"
               >
@@ -101,6 +109,15 @@ export function TopNav({
                 </Link>
               </li>
             ))}
+            <li>
+              <Link
+                href="/side-projects"
+                onClick={() => setOpen(false)}
+                className="transition-colors hover:text-ink"
+              >
+                Side Projects
+              </Link>
+            </li>
             <li>
               <Link
                 href="/work"

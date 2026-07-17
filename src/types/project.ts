@@ -10,6 +10,8 @@ export interface Project {
   category: string;
   label: string;
   description: string;
+  kind: string; // 'client' | 'side'
+  status: string; // 'live' | 'in-progress' | 'archived'
   tags: string[];
   type: string;
   featured: boolean;

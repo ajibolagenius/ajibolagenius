@@ -113,6 +113,29 @@ export function ProjectForm({
           />
         </label>
         <label className={labelClass}>
+          Kind
+          <select
+            name="kind"
+            defaultValue={draftField(d, "kind", project?.kind ?? "client")}
+            className={inputClass}
+          >
+            <option value="client">Client work</option>
+            <option value="side">Side project</option>
+          </select>
+        </label>
+        <label className={labelClass}>
+          Status
+          <select
+            name="status"
+            defaultValue={draftField(d, "status", project?.status ?? "live")}
+            className={inputClass}
+          >
+            <option value="live">Live</option>
+            <option value="in-progress">In progress</option>
+            <option value="archived">Archived</option>
+          </select>
+        </label>
+        <label className={labelClass}>
           Label
           <input
             name="label"

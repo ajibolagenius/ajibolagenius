@@ -3,12 +3,19 @@ import Link from "next/link";
 import { ArrowUpRight, Star } from "@phosphor-icons/react/dist/ssr";
 import type { Project } from "@/types/project";
 
+const STATUS_LABELS: Record<string, string> = {
+  "in-progress": "In Progress",
+  archived: "Archived",
+};
+
 export function ProjectCard({ project }: { project: Project }) {
   const cover = project.screenshots?.[0];
+  const basePath = project.kind === "side" ? "/side-projects" : "/work";
+  const statusLabel = STATUS_LABELS[project.status];
 
   return (
     <Link
-      href={`/work/${project.slug}`}
+      href={`${basePath}/${project.slug}`}
       className="group flex flex-col overflow-hidden border border-ink/10 transition hover:border-ink/30"
     >
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-ink/5">
@@ -29,6 +36,17 @@ export function ProjectCard({ project }: { project: Project }) {
           <span className="absolute left-3 top-3 inline-flex items-center gap-1 bg-ink px-2 py-1 font-mono text-body-xs font-medium text-cream">
             <Star size={12} weight="fill" />
             Featured
+          </span>
+        )}
+        {statusLabel && (
+          <span
+            className={`absolute right-3 top-3 inline-flex items-center gap-1 px-2 py-1 font-mono text-body-xs font-medium ${
+              project.status === "in-progress"
+                ? "bg-accent text-cream"
+                : "bg-ink/10 text-ink/60 backdrop-blur"
+            }`}
+          >
+            {statusLabel}
           </span>
         )}
       </div>

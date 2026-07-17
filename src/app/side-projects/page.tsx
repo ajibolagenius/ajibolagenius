@@ -9,8 +9,9 @@ import type { Project } from "@/types/project";
 
 export const revalidate = 60;
 
-const title = "Work";
-const description = "A collection of projects I've designed, built, and shipped.";
+const title = "Side Projects";
+const description =
+  "Personal experiments and works in progress — things I build outside of client work.";
 
 export const metadata: Metadata = {
   title,
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title,
     description,
-    url: "/work",
+    url: "/side-projects",
     type: "website",
   },
   twitter: {
@@ -28,18 +29,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function WorkPage() {
+export default async function SideProjectsPage() {
   const supabase = await createClient();
   const [{ data: projects }, { personalInfo, visibleSections }] =
     await Promise.all([
-    supabase
-      .from("projects")
-      .select("*")
-      .eq("kind", "client")
-      .order("featured", { ascending: false })
-      .order("created_at", { ascending: false }),
-    getCvData(),
-  ]);
+      supabase
+        .from("projects")
+        .select("*")
+        .eq("kind", "side")
+        .order("featured", { ascending: false })
+        .order("created_at", { ascending: false }),
+      getCvData(),
+    ]);
 
   return (
     <>
@@ -48,16 +49,18 @@ export default async function WorkPage() {
       <main className="flex-1 lg:ml-80">
         <div className="mx-auto w-full min-w-0 max-w-3xl px-6 py-10">
           <div>
-            <h1 className="text-h1 font-normal">Work</h1>
+            <h1 className="text-h1 font-normal">Side Projects</h1>
             <p className="mt-2 text-body-m text-ink/60">
-              A collection of projects I&apos;ve designed, built, and
-              shipped.
+              Personal experiments and works in progress — things I build
+              outside of client work.
             </p>
           </div>
           {projects && projects.length > 0 ? (
             <WorkGrid projects={projects as Project[]} />
           ) : (
-            <p className="mt-8 text-body-m text-ink/60">No projects yet.</p>
+            <p className="mt-8 text-body-m text-ink/60">
+              No side projects yet.
+            </p>
           )}
         </div>
       </main>

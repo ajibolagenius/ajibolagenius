@@ -84,9 +84,17 @@ export default async function AdminPage() {
             className="flex flex-col gap-3 rounded-md border border-ink/10 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="min-w-0">
-              <p className="truncate font-medium">{project.name}</p>
+              <p className="truncate font-medium">
+                {project.name}
+                <span className="ml-2 rounded-sm bg-ink/10 px-1.5 py-0.5 align-middle text-xs font-normal text-ink/60">
+                  {project.kind === "side" ? "Side" : "Client"}
+                </span>
+              </p>
               <p className="truncate text-sm text-ink/60">
                 /{project.slug} · {project.category}
+                {project.status && project.status !== "live"
+                  ? ` · ${project.status}`
+                  : ""}
                 {project.featured ? " · Featured" : ""}
               </p>
             </div>

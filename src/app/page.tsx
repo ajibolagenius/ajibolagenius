@@ -37,6 +37,7 @@ export default async function HomePage() {
     supabase
       .from("projects")
       .select("*")
+      .eq("kind", "client")
       .eq("featured", true)
       .order("created_at", { ascending: false })
       .limit(3),

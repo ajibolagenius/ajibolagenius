@@ -13,17 +13,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient();
   const { data: projects } = await supabase
     .from("projects")
-    .select("slug, created_at");
+    .select("slug, created_at, kind");
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: siteUrl, changeFrequency: "monthly", priority: 1 },
     { url: `${siteUrl}/work`, changeFrequency: "weekly", priority: 0.8 },
+    {
+      url: `${siteUrl}/side-projects`,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
     { url: `${siteUrl}/cv`, changeFrequency: "monthly", priority: 0.6 },
   ];
 
   const projectRoutes: MetadataRoute.Sitemap = (projects ?? []).map(
     (project) => ({
-      url: `${siteUrl}/work/${project.slug}`,
+      url: `${siteUrl}/${project.kind === "side" ? "side-projects" : "work"}/${
+        project.slug
+      }`,
       lastModified: project.created_at ?? undefined,
       changeFrequency: "monthly",
       priority: 0.7,

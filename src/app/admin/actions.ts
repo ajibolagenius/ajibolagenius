@@ -24,6 +24,8 @@ function projectInputFromForm(formData: FormData): ProjectInput {
     category: String(formData.get("category") ?? "").trim(),
     label: String(formData.get("label") ?? "").trim(),
     description: String(formData.get("description") ?? "").trim(),
+    kind: String(formData.get("kind") ?? "client").trim(),
+    status: String(formData.get("status") ?? "live").trim(),
     tags: parseListField(formData.get("tags")),
     type: String(formData.get("type") ?? "dev").trim(),
     featured: formData.get("featured") === "on",
@@ -50,6 +52,7 @@ export async function createProject(formData: FormData) {
 
   revalidatePath("/admin");
   revalidatePath("/work");
+  revalidatePath("/side-projects");
   redirect("/admin");
 }
 
@@ -63,6 +66,8 @@ export async function updateProject(id: string, formData: FormData) {
   revalidatePath("/admin");
   revalidatePath("/work");
   revalidatePath(`/work/${input.slug}`);
+  revalidatePath("/side-projects");
+  revalidatePath(`/side-projects/${input.slug}`);
   redirect("/admin");
 }
 
@@ -115,6 +120,7 @@ export async function toggleFeatured(id: string, featured: boolean) {
 
   revalidatePath("/admin");
   revalidatePath("/work");
+  revalidatePath("/side-projects");
 }
 
 export async function deleteProject(id: string) {
@@ -124,6 +130,7 @@ export async function deleteProject(id: string) {
 
   revalidatePath("/admin");
   revalidatePath("/work");
+  revalidatePath("/side-projects");
 }
 
 export async function signOut() {
