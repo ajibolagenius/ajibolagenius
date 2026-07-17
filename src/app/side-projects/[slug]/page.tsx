@@ -15,9 +15,30 @@ import { Sidebar } from "@/components/cv/sidebar";
 import { SiteFooter } from "@/components/cv/site-footer";
 import { ScreenshotGallery } from "@/components/screenshot-gallery";
 import { ShareButtons } from "@/components/cv/share-buttons";
+import { TechLogo } from "@/components/tech-logo";
+import { ProjectNavigation } from "@/components/project-navigation";
+import { ProjectShowcase } from "@/components/project-showcase";
 import type { Project } from "@/types/project";
 
 export const revalidate = 60;
+
+const getNavigationProjects = cache(async (slug: string, kind: "client" | "side") => {
+  const supabase = await createClient();
+  const { data: projects } = await supabase
+    .from("projects")
+    .select("slug, name")
+    .eq("kind", kind)
+    .order("featured", { ascending: false })
+    .order("created_at", { ascending: false });
+
+  if (!projects) return { prev: null, next: null };
+  const idx = projects.findIndex((p) => p.slug === slug);
+  if (idx === -1) return { prev: null, next: null };
+
+  const prev = idx > 0 ? projects[idx - 1] : null;
+  const next = idx < projects.length - 1 ? projects[idx + 1] : null;
+  return { prev, next };
+});
 
 const STATUS_LABELS: Record<string, string> = {
   "in-progress": "In Progress",
@@ -85,9 +106,10 @@ export default async function SideProjectDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [project, { personalInfo, visibleSections }] = await Promise.all([
+  const [project, { personalInfo, visibleSections }, nav] = await Promise.all([
     getProject(slug),
     getCvData(),
+    getNavigationProjects(slug, "side"),
   ]);
 
   if (!project) notFound();
@@ -204,8 +226,9 @@ export default async function SideProjectDetailPage({
                 {p.tech_details.map((t) => (
                   <span
                     key={t.name}
-                    className="bg-ink/5 px-3 py-1.5 font-mono text-body-s text-ink/70"
+                    className="inline-flex items-center bg-ink/5 px-3 py-1.5 font-mono text-body-s text-ink/70"
                   >
+                    <TechLogo name={t.name} />
                     {t.name}
                   </span>
                 ))}
@@ -213,12 +236,16 @@ export default async function SideProjectDetailPage({
             </section>
           )}
 
+          <ProjectShowcase slug={p.slug} />
+
           {p.screenshots?.length > 0 && (
             <section className="flex flex-col gap-4">
               <h2 className="text-h3 font-normal">Screenshots</h2>
               <ScreenshotGallery screenshots={p.screenshots} alt={p.name} />
             </section>
           )}
+
+          <ProjectNavigation prev={nav.prev} next={nav.next} prefix="/side-projects" />
         </div>
       </main>
       <SiteFooter name={personalInfo?.name ?? ""} />

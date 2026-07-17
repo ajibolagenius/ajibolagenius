@@ -32,12 +32,20 @@ export default async function HomePage() {
       visibleSections,
     },
     { data: featuredProjects },
+    { data: featuredSideProjects },
   ] = await Promise.all([
     getCvData(),
     supabase
       .from("projects")
       .select("*")
       .eq("kind", "client")
+      .eq("featured", true)
+      .order("created_at", { ascending: false })
+      .limit(3),
+    supabase
+      .from("projects")
+      .select("*")
+      .eq("kind", "side")
       .eq("featured", true)
       .order("created_at", { ascending: false })
       .limit(3),
@@ -80,6 +88,7 @@ export default async function HomePage() {
                   <FeaturedWork
                     key={key}
                     projects={(featuredProjects as Project[] | null) ?? []}
+                    sideProjects={(featuredSideProjects as Project[] | null) ?? []}
                   />
                 );
               case "about":
