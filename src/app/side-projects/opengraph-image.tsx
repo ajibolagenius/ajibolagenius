@@ -31,8 +31,10 @@ export default async function Image() {
         title="Side Projects"
         subtitle="Personal experiments and works in progress — things I build outside of client work."
         avatarSrc={avatarSrc}
+        tags={["Open Source", "Side Experiments", "Creative Dev"]}
         footerLeft="Experiments & open source"
         siteHost={getSiteHost()}
+        isDark={true}
       />
     ),
     size,

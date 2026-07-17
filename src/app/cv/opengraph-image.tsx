@@ -28,7 +28,8 @@ export default async function Image() {
         title={name}
         subtitle={subtitle}
         avatarSrc={avatarSrc}
-        footerLeft={personalInfo?.availability ?? "Work history & skills"}
+        tags={["Work History", "Education", "Expertise"]}
+        footerLeft={personalInfo?.availability ?? "Available for roles"}
         siteHost={getSiteHost()}
       />
     ),

@@ -23,11 +23,12 @@ export default async function Image() {
   return new ImageResponse(
     (
       <OgShell
-        label={role}
+        label="Portfolio"
         title={name}
         subtitle={`${tagline} ${taglineSuffix}`}
         avatarSrc={avatarSrc}
-        footerLeft="Software Engineer Portfolio & Case Studies"
+        tags={["Product Engineering", "UI/UX Design", "Technical Writing"]}
+        footerLeft={role}
         siteHost={getSiteHost()}
       />
     ),
