@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
-  serverExternalPackages: ["sharp"],
+
   experimental: {
     serverActions: {
       bodySizeLimit: "25mb",
