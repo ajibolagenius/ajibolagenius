@@ -42,7 +42,7 @@ function AudioShowcase() {
   const [voice, setVoice] = useState<"chidi" | "blessing">("chidi");
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [duration] = useState(24); // mock duration
+  const [duration] = useState(24);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const selected = AUDIO_SCRIPTS[voice];
@@ -84,26 +84,26 @@ function AudioShowcase() {
   };
 
   return (
-    <div className="flex flex-col gap-4 border border-ink/10 bg-panel dark:bg-neutral-900/40 dark:border-neutral-800 p-6 rounded-lg shadow-sm">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-ink/5 dark:border-neutral-800/80 pb-4">
+    <div className="flex flex-col gap-4 border border-ink/10 bg-panel p-6 rounded font-sans">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-ink/5 pb-4">
         <div>
-          <h4 className="text-body-s font-semibold uppercase tracking-wider text-ink dark:text-cream">
+          <h4 className="text-body-s font-semibold uppercase tracking-wider text-ink">
             📻 Audio Briefing Concept
           </h4>
-          <p className="text-body-xs text-ink/50 dark:text-cream/40">
+          <p className="text-body-xs text-ink/60">
             Interactive demo of speech synthesis in localized dialects
           </p>
         </div>
         
         {/* Toggle Pill */}
-        <div className="inline-flex self-start border border-ink/10 dark:border-neutral-800 p-0.5 rounded font-mono text-body-xs bg-cream/30 dark:bg-neutral-950/20">
+        <div className="inline-flex self-start border border-ink/10 p-0.5 rounded font-mono text-body-xs bg-cream/40">
           <button
             type="button"
             onClick={() => handleVoiceChange("chidi")}
             className={`px-3 py-1 transition-colors rounded-sm ${
               voice === "chidi"
-                ? "bg-ink text-cream dark:bg-cream dark:text-ink font-semibold"
-                : "text-ink/60 dark:text-cream/50 hover:text-ink dark:hover:text-cream"
+                ? "bg-ink text-cream font-semibold"
+                : "text-ink/60 hover:text-ink"
             }`}
           >
             English (Chidi)
@@ -113,8 +113,8 @@ function AudioShowcase() {
             onClick={() => handleVoiceChange("blessing")}
             className={`px-3 py-1 transition-colors rounded-sm ${
               voice === "blessing"
-                ? "bg-ink text-cream dark:bg-cream dark:text-ink font-semibold"
-                : "text-ink/60 dark:text-cream/50 hover:text-ink dark:hover:text-cream"
+                ? "bg-ink text-cream font-semibold"
+                : "text-ink/60 hover:text-ink"
             }`}
           >
             Pidgin (Blessing)
@@ -127,7 +127,7 @@ function AudioShowcase() {
           <button
             type="button"
             onClick={togglePlay}
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent text-cream shadow-md transition-transform hover:scale-105 active:scale-95"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent text-cream transition-transform hover:scale-105 active:scale-95"
             aria-label={isPlaying ? "Pause briefing" : "Play briefing"}
           >
             {isPlaying ? (
@@ -138,21 +138,21 @@ function AudioShowcase() {
           </button>
           
           <div className="flex-1 min-w-0">
-            <div className="relative h-1.5 w-full bg-ink/10 dark:bg-neutral-800 rounded-full overflow-hidden">
+            <div className="relative h-1.5 w-full bg-ink/10 rounded-full overflow-hidden">
               <div
                 className="absolute left-0 top-0 h-full bg-accent transition-all duration-1000"
                 style={{ width: `${(progress / duration) * 100}%` }}
               />
             </div>
-            <div className="flex justify-between text-body-xs font-mono text-ink/50 dark:text-cream/40 mt-2">
+            <div className="flex justify-between text-body-xs font-mono text-ink/50 mt-2">
               <span>{formatTime(progress)}</span>
               <span>{formatTime(duration)}</span>
             </div>
           </div>
         </div>
 
-        {/* Responsive, centered visual audio wave */}
-        <div className="flex items-end justify-between gap-0.5 sm:gap-1 h-12 bg-ink/[0.02] dark:bg-neutral-950/20 border border-ink/5 dark:border-neutral-800/55 px-4 py-2 rounded">
+        {/* Audio Wave Visuals */}
+        <div className="flex items-end justify-between gap-0.5 sm:gap-1 h-12 bg-cream/30 border border-ink/5 px-4 py-2 rounded">
           {Array.from({ length: 32 }).map((_, i) => {
             const h = isPlaying
               ? Math.max(15, Math.sin(progress * 1.8 + i * 0.4) * 35 + 45)
@@ -161,7 +161,7 @@ function AudioShowcase() {
               <div
                 key={i}
                 className={`w-1 transition-all duration-300 rounded-t-sm ${
-                  isPlaying ? "bg-accent" : "bg-ink/20 dark:bg-neutral-700"
+                  isPlaying ? "bg-accent" : "bg-ink/20"
                 }`}
                 style={{ height: `${h}%` }}
               />
@@ -169,7 +169,7 @@ function AudioShowcase() {
           })}
         </div>
 
-        <div className="border border-ink/10 dark:border-neutral-800 bg-cream/40 dark:bg-neutral-900/50 p-4 rounded text-body-s italic leading-relaxed text-ink/80 dark:text-cream/80">
+        <div className="border border-ink/10 bg-cream/60 p-4 rounded text-body-s italic leading-relaxed text-ink/80">
           &ldquo;{selected.script}&rdquo;
         </div>
       </div>
@@ -257,13 +257,13 @@ function ApiShowcase() {
   };
 
   return (
-    <div className="flex flex-col gap-4 border border-ink/10 bg-panel dark:bg-neutral-900/40 dark:border-neutral-800 p-6 rounded-lg shadow-sm font-mono text-body-s">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-ink/5 dark:border-neutral-800/80 pb-4">
+    <div className="flex flex-col gap-4 border border-ink/10 bg-panel p-6 rounded font-mono text-body-s">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-ink/5 pb-4">
         <div>
-          <h4 className="font-semibold uppercase tracking-wider text-ink dark:text-cream flex items-center gap-2">
+          <h4 className="font-semibold uppercase tracking-wider text-ink flex items-center gap-2">
             <Terminal size={16} /> API Sandbox Playground
           </h4>
-          <p className="text-body-xs font-sans text-ink/50 dark:text-cream/40">
+          <p className="text-body-xs font-sans text-ink/60">
             Interactive developer console simulation to query API endpoints
           </p>
         </div>
@@ -274,7 +274,7 @@ function ApiShowcase() {
             setRoute(e.target.value);
             setResult(null);
           }}
-          className="bg-cream dark:bg-neutral-950 border border-ink/15 dark:border-neutral-800 text-body-xs font-mono py-1.5 px-3 text-ink dark:text-cream focus:outline-none focus:border-accent rounded"
+          className="bg-cream border border-ink/15 text-body-xs font-mono py-1.5 px-3 text-ink focus:outline-none focus:border-accent rounded"
         >
           <option value="ingest">POST /v1/ingest</option>
           <option value="enrich">POST /v1/enrich</option>
@@ -282,20 +282,19 @@ function ApiShowcase() {
         </select>
       </div>
 
-      {/* Side-by-side flex layout on desktop, stacked on mobile */}
-      <div className="flex flex-col md:flex-row gap-4 items-stretch">
+      <div className="flex flex-col md:flex-row gap-4 items-stretch font-mono">
         <div className="flex-1 flex flex-col gap-2 min-w-0">
-          <span className="text-body-xs uppercase text-ink/50 dark:text-cream/40 font-semibold font-sans">
+          <span className="text-body-xs uppercase text-ink/50 font-semibold font-sans">
             Request payload
           </span>
-          <pre className="flex-1 bg-cream/40 dark:bg-neutral-950/40 border border-ink/5 dark:border-neutral-800/40 p-4 text-body-xs text-ink/80 dark:text-cream/70 overflow-x-auto min-h-[140px] rounded leading-relaxed">
+          <pre className="flex-1 bg-cream/60 border border-ink/10 p-4 text-body-xs text-ink/85 overflow-x-auto min-h-[140px] rounded leading-relaxed">
             {selected.body}
           </pre>
           <button
             type="button"
             onClick={handleSend}
             disabled={isLoading}
-            className="flex items-center justify-center gap-2 bg-ink text-cream hover:bg-accent disabled:bg-ink/40 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-accent dark:hover:text-cream py-2.5 transition-colors font-semibold rounded"
+            className="flex items-center justify-center gap-2 bg-ink text-cream hover:bg-accent disabled:bg-ink/40 py-2.5 transition-colors font-semibold rounded cursor-pointer"
           >
             {isLoading ? (
               <>
@@ -310,23 +309,23 @@ function ApiShowcase() {
         </div>
 
         <div className="flex-1 flex flex-col gap-2 min-w-0">
-          <span className="text-body-xs uppercase text-ink/50 dark:text-cream/40 font-semibold font-sans">
+          <span className="text-body-xs uppercase text-ink/50 font-semibold font-sans">
             Response JSON
           </span>
-          <div className="flex-1 bg-ink dark:bg-neutral-950 p-4 text-body-xs rounded min-h-[200px] flex items-center justify-center border border-ink/5 dark:border-neutral-800">
+          <div className="flex-1 bg-cream/30 border border-ink/10 p-4 text-body-xs rounded min-h-[200px] flex items-center justify-center leading-relaxed text-ink/80 overflow-x-auto">
             {isLoading && (
-              <div className="flex flex-col items-center gap-2 text-cream/50">
+              <div className="flex flex-col items-center gap-2 text-ink/50 font-sans">
                 <Spinner className="animate-spin text-accent" size={24} />
-                <span className="font-sans">Awaiting endpoint response...</span>
+                <span>Awaiting endpoint response...</span>
               </div>
             )}
             {!isLoading && !result && (
-              <span className="text-cream/35 italic font-sans">
+              <span className="text-ink/40 italic font-sans">
                 Click &ldquo;Send Request&rdquo; to execute.
               </span>
             )}
             {!isLoading && result && (
-              <pre className="w-full text-left font-mono leading-relaxed text-cream/90 overflow-x-auto">
+              <pre className="w-full text-left overflow-x-auto leading-relaxed">
                 {JSON.stringify(result, null, 2)}
               </pre>
             )}
@@ -380,13 +379,13 @@ function DuelShowcase() {
   };
 
   return (
-    <div className="flex flex-col gap-4 border border-ink/10 bg-panel dark:bg-neutral-900/40 dark:border-neutral-800 p-6 rounded-lg shadow-sm font-sans">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-ink/5 dark:border-neutral-800/80 pb-4">
+    <div className="flex flex-col gap-4 border border-ink/10 bg-panel p-6 rounded font-sans">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-ink/5 pb-4">
         <div>
-          <h4 className="text-body-s font-semibold uppercase tracking-wider text-ink dark:text-cream flex items-center gap-2">
+          <h4 className="text-body-s font-semibold uppercase tracking-wider text-ink flex items-center gap-2">
             <Brain size={16} className="text-accent" /> Sphinx ML Duel Arena
           </h4>
-          <p className="text-body-xs text-ink/50 dark:text-cream/40">
+          <p className="text-body-xs text-ink/60">
             Compare forecasts against Heka's historical neural net model
           </p>
         </div>
@@ -397,7 +396,7 @@ function DuelShowcase() {
             setMatchIdx(Number(e.target.value));
             reset();
           }}
-          className="bg-cream dark:bg-neutral-950 border border-ink/15 dark:border-neutral-800 text-body-xs py-1.5 px-3 text-ink dark:text-cream focus:outline-none focus:border-accent rounded"
+          className="bg-cream border border-ink/15 text-body-xs py-1.5 px-3 text-ink focus:outline-none focus:border-accent rounded"
         >
           {MATCHES.map((m, idx) => (
             <option key={idx} value={idx}>
@@ -407,17 +406,17 @@ function DuelShowcase() {
         </select>
       </div>
 
-      <div className="bg-cream/40 dark:bg-neutral-950/20 p-5 border border-ink/5 dark:border-neutral-800/50 rounded-lg flex flex-col gap-4">
+      <div className="bg-cream/40 p-5 border border-ink/5 rounded flex flex-col gap-4">
         {/* Teams presentation */}
-        <div className="flex justify-between items-center text-center py-2 px-4 bg-cream dark:bg-neutral-900 border border-ink/5 dark:border-neutral-800 rounded">
-          <span className="text-body-s font-bold text-ink dark:text-cream">{currentMatch.teams.split(" vs ")[0]}</span>
-          <span className="text-body-xs bg-ink/10 text-ink/50 dark:bg-neutral-800 dark:text-cream/40 px-2.5 py-1 rounded font-mono font-semibold">VS</span>
-          <span className="text-body-s font-bold text-ink dark:text-cream">{currentMatch.teams.split(" vs ")[1]}</span>
+        <div className="flex justify-between items-center text-center py-2.5 px-4 bg-cream border border-ink/5 rounded">
+          <span className="text-body-s font-bold text-ink">{currentMatch.teams.split(" vs ")[0]}</span>
+          <span className="text-body-xs bg-ink/10 text-ink/65 px-2.5 py-1 rounded font-mono font-semibold">VS</span>
+          <span className="text-body-s font-bold text-ink">{currentMatch.teams.split(" vs ")[1]}</span>
         </div>
 
         {duelState === "idle" && (
           <div className="flex flex-col gap-3">
-            <p className="text-body-xs font-semibold uppercase tracking-wider text-ink/50 dark:text-cream/40 text-center">
+            <p className="text-body-xs font-semibold uppercase tracking-wider text-ink/50 text-center">
               Pick your forecast
             </p>
             <div className="grid grid-cols-3 gap-2">
@@ -428,8 +427,8 @@ function DuelShowcase() {
                   onClick={() => setUserPick(pick)}
                   className={`py-2 text-body-s uppercase font-semibold font-mono border rounded transition-colors ${
                     userPick === pick
-                      ? "bg-ink text-cream border-ink dark:bg-cream dark:text-ink dark:border-cream"
-                      : "border-ink/10 text-ink/70 hover:border-ink hover:text-ink dark:border-neutral-800 dark:text-cream/70 dark:hover:border-neutral-600 dark:hover:text-cream"
+                      ? "bg-ink text-cream border-ink font-semibold"
+                      : "bg-cream/40 border-ink/10 text-ink/75 hover:border-ink hover:text-ink"
                   }`}
                 >
                   {pick}
@@ -440,7 +439,7 @@ function DuelShowcase() {
               type="button"
               onClick={handleDuel}
               disabled={!userPick}
-              className="mt-2 bg-accent text-cream hover:bg-ink dark:hover:bg-cream dark:hover:text-ink disabled:bg-ink/10 dark:disabled:bg-neutral-800 disabled:text-ink/30 dark:disabled:text-cream/20 py-2.5 transition-colors font-medium rounded flex items-center justify-center gap-2 shadow-sm"
+              className="mt-2 bg-accent text-cream hover:bg-ink disabled:bg-ink/10 disabled:text-ink/30 py-2.5 transition-colors font-medium rounded flex items-center justify-center gap-2 shadow-sm cursor-pointer"
             >
               Challenge Sphinx ML
             </button>
@@ -450,7 +449,7 @@ function DuelShowcase() {
         {duelState === "loading" && (
           <div className="py-8 flex flex-col items-center gap-3">
             <Spinner className="animate-spin text-accent" size={32} />
-            <span className="text-body-s text-ink/60 dark:text-cream/50 italic font-mono">
+            <span className="text-body-s text-ink/60 italic font-mono">
               Sphinx neural parser computing match matrix...
             </span>
           </div>
@@ -459,9 +458,9 @@ function DuelShowcase() {
         {duelState === "result" && (
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-4 text-center">
-              <div className="p-4 border border-ink/10 dark:border-neutral-800 bg-cream dark:bg-neutral-900 rounded">
-                <span className="text-body-xs text-ink/50 dark:text-cream/40 uppercase block mb-1 font-mono">Your Pick</span>
-                <span className="text-body-m font-bold uppercase font-mono text-ink dark:text-cream">{userPick}</span>
+              <div className="p-4 border border-ink/10 bg-cream rounded">
+                <span className="text-body-xs text-ink/50 uppercase block mb-1 font-mono">Your Pick</span>
+                <span className="text-body-m font-bold uppercase font-mono text-ink">{userPick}</span>
               </div>
               <div className="p-4 border border-accent/20 bg-accent/5 rounded">
                 <span className="text-body-xs text-accent/70 uppercase block mb-1 font-mono">Sphinx Pick</span>
@@ -469,21 +468,21 @@ function DuelShowcase() {
               </div>
             </div>
             
-            <div className="border border-ink/5 dark:border-neutral-800 bg-cream/70 dark:bg-neutral-900/60 p-3 rounded text-body-s font-medium text-ink/80 dark:text-cream/80 text-center leading-relaxed">
+            <div className="border border-ink/5 bg-cream/70 p-3 rounded text-body-s font-medium text-ink/80 text-center leading-relaxed">
               {verdict}
             </div>
             
             <button
               type="button"
               onClick={reset}
-              className="border border-ink/20 hover:border-ink dark:border-neutral-700 dark:hover:border-neutral-500 text-ink dark:text-cream py-2 text-body-s font-medium transition-colors rounded"
+              className="border border-ink/20 hover:border-ink text-ink py-2 text-body-s font-medium transition-colors rounded cursor-pointer"
             >
               Reset Duel
             </button>
           </div>
         )}
       </div>
-      <p className="text-body-xs font-mono text-ink/40 dark:text-cream/30 leading-relaxed italic text-center">
+      <p className="text-body-xs font-mono text-ink/40 leading-relaxed italic text-center">
         {currentMatch.sphinxHint}
       </p>
     </div>
@@ -542,17 +541,17 @@ function RantShowcase() {
   };
 
   return (
-    <div className="flex flex-col gap-4 border border-ink/10 bg-panel dark:bg-neutral-900/40 dark:border-neutral-800 p-6 rounded-lg shadow-sm font-sans">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-ink/5 dark:border-neutral-800/80 pb-4">
+    <div className="flex flex-col gap-4 border border-ink/10 bg-panel p-6 rounded font-sans">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-ink/5 pb-4">
         <div>
-          <h4 className="text-body-s font-semibold uppercase tracking-wider text-ink dark:text-cream flex items-center gap-2">
+          <h4 className="text-body-s font-semibold uppercase tracking-wider text-ink flex items-center gap-2">
             <Smiley size={16} className="text-accent" /> Anonymous Rant Sandbox
           </h4>
-          <p className="text-body-xs text-ink/50 dark:text-cream/40">
+          <p className="text-body-xs text-ink/60">
             Simulate posting an encrypted anonymous thought with automatic mood analysis
           </p>
         </div>
-        <span className="text-body-xs font-mono text-ink/40 dark:text-cream/30 self-start sm:self-center">
+        <span className="text-body-xs font-mono text-ink/40 self-start sm:self-center">
           12 categories configured
         </span>
       </div>
@@ -564,24 +563,24 @@ function RantShowcase() {
               value={rantText}
               onChange={(e) => setRantText(e.target.value)}
               placeholder="What is on your mind? Write a raw rant..."
-              className="w-full min-h-[90px] p-3 text-body-s border border-ink/10 dark:border-neutral-800 bg-cream dark:bg-neutral-950 text-ink dark:text-cream focus:border-accent focus:outline-none placeholder:text-ink/30 dark:placeholder:text-cream/20 rounded"
+              className="w-full min-h-[90px] p-3 text-body-s border border-ink/10 bg-cream text-ink focus:border-accent focus:outline-none placeholder:text-ink/30 rounded"
               maxLength={200}
             />
-            <div className="flex justify-between items-center text-body-xs text-ink/40 dark:text-cream/35 font-mono">
+            <div className="flex justify-between items-center text-body-xs text-ink/40 font-mono">
               <span>Mood selected: {MOODS[selectedMood].emoji} {MOODS[selectedMood].name}</span>
               <span>{rantText.length}/200</span>
             </div>
             
-            <div className="grid grid-cols-6 gap-1 bg-ink/[0.02] dark:bg-neutral-950/20 border border-ink/5 dark:border-neutral-850 p-1.5 rounded">
+            <div className="grid grid-cols-6 gap-1 bg-ink/[0.02] border border-ink/5 p-1.5 rounded">
               {MOODS.map((m, idx) => (
                 <button
                   key={idx}
                   type="button"
                   title={m.name}
                   onClick={() => setSelectedMood(idx)}
-                  className={`py-1.5 text-center border rounded transition-all text-body-m ${
+                  className={`py-1.5 text-center border rounded transition-all text-body-m cursor-pointer ${
                     selectedMood === idx
-                      ? "border-accent bg-accent/5 scale-105"
+                      ? "border-accent bg-accent/5 scale-105 opacity-100"
                       : "border-transparent opacity-50 hover:opacity-100"
                   }`}
                 >
@@ -594,7 +593,7 @@ function RantShowcase() {
               type="button"
               onClick={handlePost}
               disabled={!rantText.trim()}
-              className="bg-ink hover:bg-accent text-cream dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-accent dark:hover:text-cream font-medium py-2.5 transition-colors disabled:bg-ink/10 dark:disabled:bg-neutral-850 dark:disabled:text-cream/20 rounded shadow-sm"
+              className="bg-ink hover:bg-accent text-cream font-medium py-2.5 transition-colors disabled:bg-ink/10 disabled:text-ink/30 rounded shadow-sm cursor-pointer"
             >
               Post Anonymously
             </button>
@@ -602,32 +601,32 @@ function RantShowcase() {
         )}
 
         {isAnalyzing && (
-          <div className="py-8 flex flex-col items-center gap-3 border border-ink/5 dark:border-neutral-800 bg-cream/40 dark:bg-neutral-950/20 rounded">
+          <div className="py-8 flex flex-col items-center gap-3 border border-ink/5 bg-cream/40 rounded">
             <Spinner className="animate-spin text-accent" size={32} />
-            <span className="text-body-s text-ink/60 dark:text-cream/55 italic font-mono">
+            <span className="text-body-s text-ink/60 italic font-mono">
               Executing lexical polarity and mood density metrics...
             </span>
           </div>
         )}
 
         {analysis && (
-          <div className="flex flex-col gap-4 border border-accent/20 bg-accent/5 dark:bg-accent/[0.02] p-5 rounded-lg">
+          <div className="flex flex-col gap-4 border border-accent/20 bg-accent/5 p-5 rounded-lg">
             <div className="flex justify-between items-start border-b border-accent/10 pb-3">
               <div>
-                <span className="text-body-xs text-ink/50 dark:text-cream/40 uppercase block font-mono">Posted by</span>
-                <span className="text-body-s font-semibold text-ink dark:text-cream">{analysis.name}</span>
+                <span className="text-body-xs text-ink/50 uppercase block font-mono">Posted by</span>
+                <span className="text-body-s font-semibold text-ink">{analysis.name}</span>
               </div>
               <div className="text-right">
-                <span className="text-body-xs text-ink/50 dark:text-cream/40 uppercase block font-mono">Intensity index</span>
+                <span className="text-body-xs text-ink/50 uppercase block font-mono">Intensity index</span>
                 <span className="text-body-s font-semibold text-accent">{MOODS[selectedMood].emoji} {analysis.score}%</span>
               </div>
             </div>
             
-            <div className="text-body-s italic text-ink/75 dark:text-cream/70 leading-relaxed bg-cream dark:bg-neutral-950 border border-ink/5 dark:border-neutral-800 p-4 rounded shadow-inner">
+            <div className="text-body-s italic text-ink/75 leading-relaxed bg-cream border border-ink/5 p-4 rounded shadow-inner">
               &ldquo;{rantText}&rdquo;
             </div>
 
-            <div className="flex justify-between items-center text-body-xs text-ink/50 dark:text-cream/40 font-mono mt-1">
+            <div className="flex justify-between items-center text-body-xs text-ink/50 font-mono mt-1">
               <span className="flex items-center gap-1.5">
                 <CheckCircle weight="fill" className="text-accent" /> {analysis.sentiment}
               </span>
@@ -637,7 +636,7 @@ function RantShowcase() {
             <button
               type="button"
               onClick={handleReset}
-              className="border border-ink/20 hover:border-ink dark:border-neutral-700 dark:hover:border-neutral-500 text-ink dark:text-cream py-2 text-body-s font-medium transition-colors rounded mt-2"
+              className="border border-ink/20 hover:border-ink text-ink py-2 text-body-s font-medium transition-colors rounded mt-2 cursor-pointer"
             >
               Reset Post Editor
             </button>
@@ -665,7 +664,7 @@ export function ProjectShowcase({ project }: { project: Project }) {
 
   return (
     <section className="flex flex-col gap-3 mt-6 print:hidden">
-      <h3 className="text-h3 font-normal text-ink dark:text-cream">Showcase Concept</h3>
+      <h3 className="text-h3 font-normal text-ink">Showcase Concept</h3>
       {type === "audio" && <AudioShowcase />}
       {type === "api" && <ApiShowcase />}
       {type === "duel" && <DuelShowcase />}
