@@ -1,7 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-
-const OWNER_EMAIL = "ajibolaakelebe@gmail.com";
+import { OWNER_EMAIL } from "@/lib/owner";
 
 export async function updateSession(request: NextRequest) {
   // If it's a POST request, do not pass request to NextResponse.next() to avoid breaking request body streaming (like file uploads)

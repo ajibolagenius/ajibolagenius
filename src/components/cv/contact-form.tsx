@@ -40,6 +40,15 @@ export function ContactForm() {
       onSubmit={handleSubmit}
       className="flex w-full max-w-md flex-col gap-3 text-left"
     >
+      {/* Honeypot: hidden from real users, bots that fill every field trip it. */}
+      <input
+        type="text"
+        name="company"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="hidden"
+      />
       <input
         name="name"
         placeholder="Your name"

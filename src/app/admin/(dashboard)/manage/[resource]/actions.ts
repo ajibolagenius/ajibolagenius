@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { assertOwner } from "@/lib/auth-guard";
 import { getResourceConfig, type ResourceConfig } from "@/lib/admin-resources";
 import sharp from "sharp";
 
@@ -89,7 +90,7 @@ export async function createResourceRow(
   const config = getResourceConfig(resourceKey);
   if (!config) throw new Error("Unknown resource");
 
-  const supabase = await createClient();
+  const supabase = await assertOwner();
   const values = await parseFieldsFromForm(supabase, config, formData);
 
   const { error } = await supabase.from(config.table).insert(values);
@@ -106,7 +107,7 @@ export async function updateResourceRow(
   const config = getResourceConfig(resourceKey);
   if (!config) throw new Error("Unknown resource");
 
-  const supabase = await createClient();
+  const supabase = await assertOwner();
   const values = await parseFieldsFromForm(supabase, config, formData);
 
   const { error } = await supabase
@@ -122,7 +123,7 @@ export async function deleteResourceRow(resourceKey: string, id: string) {
   const config = getResourceConfig(resourceKey);
   if (!config) throw new Error("Unknown resource");
 
-  const supabase = await createClient();
+  const supabase = await assertOwner();
   const { error } = await supabase
     .from(config.table)
     .delete()

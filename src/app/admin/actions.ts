@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { assertOwner } from "@/lib/auth-guard";
 import type { ProjectInput } from "@/types/project";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import sharp from "sharp";
 
 const MAX_SCREENSHOT_WIDTH = 1920;
@@ -45,7 +47,7 @@ function projectInputFromForm(formData: FormData): ProjectInput {
 }
 
 export async function createProject(formData: FormData) {
-  const supabase = await createClient();
+  const supabase = await assertOwner();
   const input = projectInputFromForm(formData);
 
   const { error } = await supabase.from("projects").insert(input);
@@ -58,7 +60,7 @@ export async function createProject(formData: FormData) {
 }
 
 export async function updateProject(id: string, formData: FormData) {
-  const supabase = await createClient();
+  const supabase = await assertOwner();
   const input = projectInputFromForm(formData);
 
   const { error } = await supabase.from("projects").update(input).eq("id", id);
@@ -83,7 +85,12 @@ export async function uploadProjectScreenshot(
     return { error: "Only image files are supported" };
   }
 
-  const supabase = await createClient();
+  let supabase: SupabaseClient;
+  try {
+    supabase = await assertOwner();
+  } catch {
+    return { error: "Unauthorized" };
+  }
   const path = `${crypto.randomUUID()}.webp`;
 
   let optimized: Buffer;
@@ -112,7 +119,7 @@ export async function uploadProjectScreenshot(
 }
 
 export async function toggleFeatured(id: string, featured: boolean) {
-  const supabase = await createClient();
+  const supabase = await assertOwner();
   const { error } = await supabase
     .from("projects")
     .update({ featured })
@@ -125,7 +132,7 @@ export async function toggleFeatured(id: string, featured: boolean) {
 }
 
 export async function deleteProject(id: string) {
-  const supabase = await createClient();
+  const supabase = await assertOwner();
   const { error } = await supabase.from("projects").delete().eq("id", id);
   if (error) throw new Error(error.message);
 
