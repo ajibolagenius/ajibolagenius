@@ -183,6 +183,20 @@ export default async function SideProjectDetailPage({
             </div>
           </header>
 
+          {p.problem && (
+            <section className="flex flex-col gap-2">
+              <h2 className="text-h3 font-normal">Problem</h2>
+              <p className="text-body-m text-ink/70">{p.problem}</p>
+            </section>
+          )}
+
+          {p.solution && (
+            <section className="flex flex-col gap-2">
+              <h2 className="text-h3 font-normal">Solution</h2>
+              <p className="text-body-m text-ink/70">{p.solution}</p>
+            </section>
+          )}
+
           {p.tech_details?.length > 0 && (
             <section className="flex flex-col gap-3">
               <h2 className="text-h3 font-normal">Tech stack</h2>
