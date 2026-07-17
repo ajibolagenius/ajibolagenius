@@ -511,8 +511,18 @@ export async function loadAvatarSrc(
       const res = await fetch(remoteUrl);
       if (res.ok) {
         const type = res.headers.get("content-type") ?? "image/png";
-        const data = Buffer.from(await res.arrayBuffer()).toString("base64");
-        return `data:${type};base64,${data}`;
+        const arrayBuffer = await res.arrayBuffer();
+        let buffer: any = Buffer.from(new Uint8Array(arrayBuffer));
+        
+        let targetType = type;
+        if (type.includes("webp") || remoteUrl.toLowerCase().endsWith(".webp")) {
+          const sharp = (await import("sharp")).default;
+          buffer = await sharp(buffer).png().toBuffer();
+          targetType = "image/png";
+        }
+        
+        const data = buffer.toString("base64");
+        return `data:${targetType};base64,${data}`;
       }
     } catch {
       // fallback
@@ -536,8 +546,18 @@ export async function loadImageSrc(url?: string | null): Promise<string | undefi
     const res = await fetch(url);
     if (res.ok) {
       const type = res.headers.get("content-type") ?? "image/png";
-      const data = Buffer.from(await res.arrayBuffer()).toString("base64");
-      return `data:${type};base64,${data}`;
+      const arrayBuffer = await res.arrayBuffer();
+      let buffer: any = Buffer.from(new Uint8Array(arrayBuffer));
+      
+      let targetType = type;
+      if (type.includes("webp") || url.toLowerCase().endsWith(".webp")) {
+        const sharp = (await import("sharp")).default;
+        buffer = await sharp(buffer).png().toBuffer();
+        targetType = "image/png";
+      }
+      
+      const data = buffer.toString("base64");
+      return `data:${targetType};base64,${data}`;
     }
   } catch {
     // fallback
