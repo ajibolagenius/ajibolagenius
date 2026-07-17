@@ -10,11 +10,20 @@ import {
     GithubLogo,
 } from "@phosphor-icons/react/dist/ssr";
 import type { PersonalInfo } from "@/types/cv";
+import { EdgeMarquee } from "@/components/cv/edge-marquee";
 
 export function Sidebar({ info }: { info: PersonalInfo | null }) {
     if (!info) return null;
 
+    const marqueeItems = [
+        info.role,
+        info.location ? `Based in ${info.location}` : null,
+        info.availability,
+        info.tagline,
+    ].filter((item): item is string => Boolean(item));
+
     return (
+        <>
         <aside className="flex w-full shrink-0 flex-col gap-6 bg-panel px-6 py-8 lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:h-screen lg:w-80 lg:gap-8 lg:overflow-y-auto lg:border-r lg:border-ink/10 lg:px-8 lg:py-10">
             <div className="flex flex-col gap-6 md:flex-row md:items-start lg:flex-col">
                 <div className="h-20 w-20 shrink-0 overflow-hidden transition-transform duration-300 hover:scale-105">
@@ -107,5 +116,7 @@ export function Sidebar({ info }: { info: PersonalInfo | null }) {
                 </a>
             </div>
         </aside>
+        <EdgeMarquee items={marqueeItems} />
+        </>
     );
 }
