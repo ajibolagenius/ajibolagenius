@@ -2,22 +2,26 @@ import type { NextConfig } from "next";
 
 // Baseline security headers applied to every route.
 //
-// The Content-Security-Policy here uses only directives that do NOT govern
-// script execution (frame-ancestors, base-uri, object-src, form-action), so it
-// hardens against clickjacking and injection without needing per-request nonces
-// on Next.js/Vercel-Analytics inline scripts. A full script-src/style-src CSP is
-// a recommended follow-up and requires nonce plumbing through middleware.
+// Do NOT set default-src here — it falls back for script-src/style-src and
+// breaks Next.js hydration (inline scripts) plus remote assets. A full
+// script-src/style-src CSP needs nonce plumbing through middleware first.
+const isProd = process.env.NODE_ENV === "production";
+
+const contentSecurityPolicy = [
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "form-action 'self'",
+  "img-src 'self' data: blob: https://*.supabase.co",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://vitals.vercel-insights.com https://va.vercel-scripts.com",
+  // Only in production — this would break http://localhost in development.
+  ...(isProd ? ["upgrade-insecure-requests"] : []),
+].join("; ");
+
 const securityHeaders = [
   {
     key: "Content-Security-Policy",
-    value: [
-      "default-src 'self'",
-      "frame-ancestors 'none'",
-      "base-uri 'self'",
-      "object-src 'none'",
-      "form-action 'self'",
-      "upgrade-insecure-requests",
-    ].join("; "),
+    value: contentSecurityPolicy,
   },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
