@@ -147,6 +147,7 @@ export function ProjectForm({
             <option value="api">API Console Playground (Narvo Platform)</option>
             <option value="duel">Sphinx ML Duel Simulator (Heka)</option>
             <option value="mood">Anonymous Mood Sandbox (Rant)</option>
+            <option value="bookmark">Bookmark Manager Simulator (mark_me)</option>
           </select>
         </label>
         <label className={labelClass}>
