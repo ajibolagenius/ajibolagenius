@@ -1,10 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { ProjectCard } from "@/components/project-card";
 import type { Project } from "@/types/project";
 
-export function WorkGrid({ projects }: { projects: Project[] }) {
+export function WorkGrid({
+  projects,
+  pinnedCard,
+}: {
+  projects: Project[];
+  pinnedCard?: ReactNode;
+}) {
   const categories = useMemo(
     () => Array.from(new Set(projects.map((p) => p.category).filter(Boolean))),
     [projects],
@@ -48,12 +54,13 @@ export function WorkGrid({ projects }: { projects: Project[] }) {
       )}
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        {active === null && pinnedCard}
         {filtered.map((project) => (
           <ProjectCard key={project.id} project={project} />
         ))}
       </div>
 
-      {filtered.length === 0 && (
+      {filtered.length === 0 && !(active === null && pinnedCard) && (
         <p className="mt-8 text-body-m text-ink/60">
           No projects in this category yet.
         </p>

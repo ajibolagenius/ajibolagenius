@@ -5,6 +5,7 @@ import { TopNav } from "@/components/cv/top-nav";
 import { Sidebar } from "@/components/cv/sidebar";
 import { SiteFooter } from "@/components/cv/site-footer";
 import { WorkGrid } from "@/components/work-grid";
+import { SideProjectsPromoCard } from "@/components/side-projects-promo-card";
 import type { Project } from "@/types/project";
 
 export const revalidate = 60;
@@ -55,7 +56,10 @@ export default async function WorkPage() {
             </p>
           </div>
           {projects && projects.length > 0 ? (
-            <WorkGrid projects={projects as Project[]} />
+            <WorkGrid
+              projects={projects as Project[]}
+              pinnedCard={<SideProjectsPromoCard />}
+            />
           ) : (
             <p className="mt-8 text-body-m text-ink/60">No projects yet.</p>
           )}
