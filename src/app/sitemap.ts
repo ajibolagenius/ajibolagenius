@@ -23,14 +23,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.7,
     },
+    { url: `${siteUrl}/sandbox`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${siteUrl}/cv`, changeFrequency: "monthly", priority: 0.6 },
   ];
 
+  const basePathForKind = (kind: string) => {
+    if (kind === "side") return "side-projects";
+    if (kind === "sandbox") return "sandbox";
+    return "work";
+  };
+
   const projectRoutes: MetadataRoute.Sitemap = (projects ?? []).map(
     (project) => ({
-      url: `${siteUrl}/${project.kind === "side" ? "side-projects" : "work"}/${
-        project.slug
-      }`,
+      url: `${siteUrl}/${basePathForKind(project.kind)}/${project.slug}`,
       lastModified: project.created_at ?? undefined,
       changeFrequency: "monthly",
       priority: 0.7,

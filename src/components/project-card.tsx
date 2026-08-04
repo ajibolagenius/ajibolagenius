@@ -10,7 +10,12 @@ const STATUS_LABELS: Record<string, string> = {
 
 export function ProjectCard({ project }: { project: Project }) {
   const cover = project.screenshots?.[0];
-  const basePath = project.kind === "side" ? "/side-projects" : "/work";
+  const basePath =
+    project.kind === "sandbox"
+      ? "/sandbox"
+      : project.kind === "side"
+        ? "/side-projects"
+        : "/work";
   const statusLabel = STATUS_LABELS[project.status];
 
   return (
@@ -18,7 +23,7 @@ export function ProjectCard({ project }: { project: Project }) {
       href={`${basePath}/${project.slug}`}
       className="group flex flex-col overflow-hidden border border-ink/10 transition hover:border-ink/30"
     >
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-ink/5">
+      <div className="relative aspect-16/10 w-full overflow-hidden bg-ink/5">
         {cover ? (
           <Image
             src={cover}

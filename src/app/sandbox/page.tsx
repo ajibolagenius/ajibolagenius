@@ -5,14 +5,13 @@ import { TopNav } from "@/components/cv/top-nav";
 import { Sidebar } from "@/components/cv/sidebar";
 import { SiteFooter } from "@/components/cv/site-footer";
 import { WorkGrid } from "@/components/work-grid";
-import { SandboxPromoCard } from "@/components/sandbox-promo-card";
 import type { Project } from "@/types/project";
 
 export const revalidate = 60;
 
-const title = "Side Projects";
+const title = "Sandbox";
 const description =
-  "Personal experiments and works in progress — things I build outside of client work.";
+  "Mini projects and quick tests — small builds where I try out ideas.";
 
 export const metadata: Metadata = {
   title,
@@ -20,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title,
     description,
-    url: "/side-projects",
+    url: "/sandbox",
     type: "website",
   },
   twitter: {
@@ -30,14 +29,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function SideProjectsPage() {
+export default async function SandboxPage() {
   const supabase = await createClient();
   const [{ data: projects }, { personalInfo, visibleSections }] =
     await Promise.all([
       supabase
         .from("projects")
         .select("*")
-        .eq("kind", "side")
+        .eq("kind", "sandbox")
         .order("featured", { ascending: false })
         .order("created_at", { ascending: false }),
       getCvData(),
@@ -50,21 +49,17 @@ export default async function SideProjectsPage() {
       <main className="flex-1 lg:ml-80">
         <div className="mx-auto w-full min-w-0 max-w-3xl px-6 py-10">
           <div>
-            <h1 className="text-h1 font-normal">Side Projects</h1>
+            <h1 className="text-h1 font-normal">Sandbox</h1>
             <p className="mt-2 text-body-m text-ink/60">
-              Personal experiments and works in progress — things I build
-              outside of client work.
+              Mini projects and quick tests — small builds where I try out
+              ideas.
             </p>
           </div>
           {projects && projects.length > 0 ? (
-            <WorkGrid
-              projects={projects as Project[]}
-              pinnedCard={<SandboxPromoCard />}
-              showFilters={false}
-            />
+            <WorkGrid projects={projects as Project[]} />
           ) : (
             <p className="mt-8 text-body-m text-ink/60">
-              No side projects yet.
+              No sandbox projects yet.
             </p>
           )}
         </div>

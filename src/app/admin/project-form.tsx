@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useSyncExternalStore } from "react";
 import type { Project } from "@/types/project";
 import type { ProjectFieldOptions } from "@/lib/project-options";
 import { TagInput } from "@/components/admin/tag-input";
@@ -8,13 +8,31 @@ import { ScreenshotsInput } from "@/components/admin/screenshots-input";
 
 type Draft = Record<string, string>;
 
-function loadDraft(key: string): Draft | null {
+let draftCacheKey: string | undefined;
+let draftCacheRaw: string | null | undefined;
+let draftCacheValue: Draft | null = null;
+
+function getDraftSnapshot(draftKey: string | undefined, project?: Project) {
+  if (!draftKey || project) return null;
   try {
-    const raw = window.localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as Draft) : null;
+    const raw = window.localStorage.getItem(draftKey);
+    if (draftCacheKey === draftKey && draftCacheRaw === raw) {
+      return draftCacheValue;
+    }
+    draftCacheKey = draftKey;
+    draftCacheRaw = raw;
+    draftCacheValue = raw ? (JSON.parse(raw) as Draft) : null;
+    return draftCacheValue;
   } catch {
+    draftCacheKey = draftKey;
+    draftCacheRaw = undefined;
+    draftCacheValue = null;
     return null;
   }
+}
+
+function subscribeDraft() {
+  return () => {};
 }
 
 function draftField(draft: Draft | undefined, name: string, fallback?: string) {
@@ -55,17 +73,14 @@ export function ProjectForm({
   options: ProjectFieldOptions;
   draftKey?: string;
 }) {
-  const [draft, setDraft] = useState<Draft | undefined>(undefined);
-  const [draftLoaded, setDraftLoaded] = useState(false);
+  const draft =
+    useSyncExternalStore(
+      subscribeDraft,
+      () => getDraftSnapshot(draftKey, project),
+      () => null,
+    ) ?? undefined;
   const formRef = useRef<HTMLFormElement>(null);
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-
-  useEffect(() => {
-    if (!draftKey || project) return;
-    const stored = loadDraft(draftKey);
-    if (stored) setDraft(stored);
-    setDraftLoaded(true);
-  }, [draftKey, project]);
 
   const handleFormChange = () => {
     if (!draftKey || project || !formRef.current) return;
@@ -82,11 +97,9 @@ export function ProjectForm({
     if (draftKey) window.localStorage.removeItem(draftKey);
   };
 
-  const d = draft;
-
   return (
     <form
-      key={draftLoaded ? "draft" : "empty"}
+      key={draft ? "draft" : "empty"}
       ref={formRef}
       action={action}
       onChange={handleFormChange}
@@ -99,7 +112,7 @@ export function ProjectForm({
           <input
             name="name"
             required
-            defaultValue={draftField(d, "name", project?.name)}
+            defaultValue={draftField(draft, "name", project?.name)}
             className={inputClass}
           />
         </label>
@@ -108,7 +121,7 @@ export function ProjectForm({
           <input
             name="slug"
             required
-            defaultValue={draftField(d, "slug", project?.slug)}
+            defaultValue={draftField(draft, "slug", project?.slug)}
             className={inputClass}
           />
         </label>
@@ -116,18 +129,19 @@ export function ProjectForm({
           Kind
           <select
             name="kind"
-            defaultValue={draftField(d, "kind", project?.kind ?? "client")}
+            defaultValue={draftField(draft, "kind", project?.kind ?? "client")}
             className={inputClass}
           >
             <option value="client">Client work</option>
             <option value="side">Side project</option>
+            <option value="sandbox">Sandbox</option>
           </select>
         </label>
         <label className={labelClass}>
           Status
           <select
             name="status"
-            defaultValue={draftField(d, "status", project?.status ?? "live")}
+            defaultValue={draftField(draft, "status", project?.status ?? "live")}
             className={inputClass}
           >
             <option value="live">Live</option>
@@ -139,7 +153,7 @@ export function ProjectForm({
           Showcase Type
           <select
             name="showcase_type"
-            defaultValue={draftField(d, "showcase_type", project?.showcase_type ?? "")}
+            defaultValue={draftField(draft, "showcase_type", project?.showcase_type ?? "")}
             className={inputClass}
           >
             <option value="">None (No Showcase)</option>
@@ -154,7 +168,7 @@ export function ProjectForm({
           Label
           <input
             name="label"
-            defaultValue={draftField(d, "label", project?.label)}
+            defaultValue={draftField(draft, "label", project?.label)}
             list="label-options"
             className={inputClass}
           />
@@ -164,7 +178,7 @@ export function ProjectForm({
           Type
           <input
             name="type"
-            defaultValue={draftField(d, "type", project?.type ?? "dev")}
+            defaultValue={draftField(draft, "type", project?.type ?? "dev")}
             list="type-options"
             className={inputClass}
           />
@@ -174,7 +188,7 @@ export function ProjectForm({
           Year
           <input
             name="year"
-            defaultValue={draftField(d, "year", project?.year)}
+            defaultValue={draftField(draft, "year", project?.year)}
             list="year-options"
             className={inputClass}
           />
@@ -184,7 +198,7 @@ export function ProjectForm({
           Role
           <input
             name="role_title"
-            defaultValue={draftField(d, "role_title", project?.role_title)}
+            defaultValue={draftField(draft, "role_title", project?.role_title)}
             list="role-options"
             className={inputClass}
           />
@@ -194,7 +208,7 @@ export function ProjectForm({
           Duration
           <input
             name="duration"
-            defaultValue={draftField(d, "duration", project?.duration)}
+            defaultValue={draftField(draft, "duration", project?.duration)}
             list="duration-options"
             className={inputClass}
           />
@@ -204,7 +218,7 @@ export function ProjectForm({
           Live URL
           <input
             name="live_url"
-            defaultValue={draftField(d, "live_url", project?.live_url ?? "#")}
+            defaultValue={draftField(draft, "live_url", project?.live_url ?? "#")}
             className={inputClass}
           />
         </label>
@@ -212,7 +226,7 @@ export function ProjectForm({
           GitHub URL
           <input
             name="github_url"
-            defaultValue={draftField(d, "github_url", project?.github_url ?? "#")}
+            defaultValue={draftField(draft, "github_url", project?.github_url ?? "#")}
             className={inputClass}
           />
         </label>
@@ -224,7 +238,7 @@ export function ProjectForm({
           name="category"
           defaultValue={
             draftList(
-              d,
+              draft,
               "category",
               project?.category
                 ? project.category.split(",").map((s) => s.trim()).filter(Boolean)
@@ -241,7 +255,7 @@ export function ProjectForm({
         <textarea
           name="description"
           rows={2}
-          defaultValue={draftField(d, "description", project?.description)}
+          defaultValue={draftField(draft, "description", project?.description)}
           className={inputClass}
         />
       </label>
@@ -251,7 +265,7 @@ export function ProjectForm({
         <textarea
           name="problem"
           rows={3}
-          defaultValue={draftField(d, "problem", project?.problem)}
+          defaultValue={draftField(draft, "problem", project?.problem)}
           className={inputClass}
         />
       </label>
@@ -261,7 +275,7 @@ export function ProjectForm({
         <textarea
           name="solution"
           rows={3}
-          defaultValue={draftField(d, "solution", project?.solution)}
+          defaultValue={draftField(draft, "solution", project?.solution)}
           className={inputClass}
         />
       </label>
@@ -270,7 +284,7 @@ export function ProjectForm({
         Tags (comma separated)
         <TagInput
           name="tags"
-          defaultValue={draftList(d, "tags", project?.tags)}
+          defaultValue={draftList(draft, "tags", project?.tags)}
           placeholder="e.g. Next.js, Supabase"
         />
       </label>
@@ -280,7 +294,7 @@ export function ProjectForm({
         <TagInput
           name="tech_details"
           defaultValue={draftList(
-            d,
+            draft,
             "tech_details",
             project?.tech_details?.map((t) => t.name),
           )}
@@ -292,7 +306,7 @@ export function ProjectForm({
         Screenshots
         <ScreenshotsInput
           name="screenshots"
-          defaultValue={draftList(d, "screenshots", project?.screenshots)}
+          defaultValue={draftList(draft, "screenshots", project?.screenshots)}
         />
       </label>
 
@@ -301,13 +315,13 @@ export function ProjectForm({
           type="checkbox"
           name="featured"
           defaultChecked={
-            d ? d.featured === "on" : project?.featured
+            draft ? draft.featured === "on" : project?.featured
           }
         />
         Featured
       </label>
 
-      {d && (
+      {draft && (
         <p className="text-xs text-neutral-500">
           Restored from your last unsaved draft.
         </p>

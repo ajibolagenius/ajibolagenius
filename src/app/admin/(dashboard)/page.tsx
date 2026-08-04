@@ -87,7 +87,11 @@ export default async function AdminPage() {
               <p className="truncate font-medium">
                 {project.name}
                 <span className="ml-2 rounded-sm bg-ink/10 px-1.5 py-0.5 align-middle text-xs font-normal text-ink/60">
-                  {project.kind === "side" ? "Side" : "Client"}
+                  {project.kind === "side"
+                    ? "Side"
+                    : project.kind === "sandbox"
+                      ? "Sandbox"
+                      : "Client"}
                 </span>
               </p>
               <p className="truncate text-sm text-ink/60">
