@@ -40,15 +40,13 @@ export default async function HomePage() {
       .select("*")
       .eq("kind", "client")
       .eq("featured", true)
-      .order("created_at", { ascending: false })
-      .limit(3),
+      .order("created_at", { ascending: false }),
     supabase
       .from("projects")
       .select("*")
       .eq("kind", "side")
       .eq("featured", true)
-      .order("created_at", { ascending: false })
-      .limit(3),
+      .order("created_at", { ascending: false }),
   ]);
 
   const siteUrl =
