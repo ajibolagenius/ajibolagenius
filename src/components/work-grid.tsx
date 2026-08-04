@@ -7,9 +7,11 @@ import type { Project } from "@/types/project";
 export function WorkGrid({
   projects,
   pinnedCard,
+  showFilters = true,
 }: {
   projects: Project[];
   pinnedCard?: ReactNode;
+  showFilters?: boolean;
 }) {
   const categories = useMemo(
     () => Array.from(new Set(projects.map((p) => p.category).filter(Boolean))),
@@ -23,7 +25,7 @@ export function WorkGrid({
 
   return (
     <div>
-      {categories.length > 1 && (
+      {showFilters && categories.length > 1 && (
         <div className="mt-6 flex flex-wrap gap-2">
           <button
             type="button"

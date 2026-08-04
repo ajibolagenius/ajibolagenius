@@ -56,7 +56,7 @@ export default async function SideProjectsPage() {
             </p>
           </div>
           {projects && projects.length > 0 ? (
-            <WorkGrid projects={projects as Project[]} />
+            <WorkGrid projects={projects as Project[]} showFilters={false} />
           ) : (
             <p className="mt-8 text-body-m text-ink/60">
               No side projects yet.
