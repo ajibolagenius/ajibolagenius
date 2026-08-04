@@ -6,9 +6,9 @@ export function SandboxPromoCard() {
     <PinnedPromoCard
       href="/sandbox"
       icon={Flask}
-      eyebrow="Explore"
+      eyebrow="Lab"
       title="Sandbox"
-      description="Mini projects and quick tests — small builds where I try out ideas."
+      description="Interactive experiments and small toys — open one and poke around."
     />
   );
 }

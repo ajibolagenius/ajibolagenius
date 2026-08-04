@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useSyncExternalStore } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import type { Project } from "@/types/project";
 import type { ProjectFieldOptions } from "@/lib/project-options";
 import { TagInput } from "@/components/admin/tag-input";
@@ -79,8 +79,18 @@ export function ProjectForm({
       () => getDraftSnapshot(draftKey, project),
       () => null,
     ) ?? undefined;
+  const resolvedKind =
+    draftField(draft, "kind", project?.kind ?? "client") ?? "client";
+  const draftToken = draft ? "draft" : "empty";
+  const [kind, setKind] = useState(resolvedKind);
+  const [kindToken, setKindToken] = useState(draftToken);
+  if (kindToken !== draftToken) {
+    setKindToken(draftToken);
+    setKind(resolvedKind);
+  }
   const formRef = useRef<HTMLFormElement>(null);
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const isSandbox = kind === "sandbox";
 
   const handleFormChange = () => {
     if (!draftKey || project || !formRef.current) return;
@@ -129,7 +139,8 @@ export function ProjectForm({
           Kind
           <select
             name="kind"
-            defaultValue={draftField(draft, "kind", project?.kind ?? "client")}
+            value={kind}
+            onChange={(e) => setKind(e.target.value)}
             className={inputClass}
           >
             <option value="client">Client work</option>
@@ -149,21 +160,32 @@ export function ProjectForm({
             <option value="archived">Archived</option>
           </select>
         </label>
-        <label className={labelClass}>
-          Showcase Type
-          <select
-            name="showcase_type"
-            defaultValue={draftField(draft, "showcase_type", project?.showcase_type ?? "")}
-            className={inputClass}
-          >
-            <option value="">None (No Showcase)</option>
-            <option value="audio">Audio Briefing Player (Narvo)</option>
-            <option value="api">API Console Playground (Narvo Platform)</option>
-            <option value="duel">Sphinx ML Duel Simulator (Heka)</option>
-            <option value="mood">Anonymous Mood Sandbox (Rant)</option>
-            <option value="bookmark">Bookmark Manager Simulator (mark_me)</option>
-          </select>
-        </label>
+        {isSandbox ? (
+          <p className="col-span-2 text-xs text-neutral-500">
+            Sandbox toys are code-registered by slug (see{" "}
+            <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">
+              sandbox-experiments.ts
+            </code>
+            ). Showcase Type is unused here.
+            <input type="hidden" name="showcase_type" value="" />
+          </p>
+        ) : (
+          <label className={labelClass}>
+            Showcase Type
+            <select
+              name="showcase_type"
+              defaultValue={draftField(draft, "showcase_type", project?.showcase_type ?? "")}
+              className={inputClass}
+            >
+              <option value="">None (No Showcase)</option>
+              <option value="audio">Audio Briefing Player (Narvo)</option>
+              <option value="api">API Console Playground (Narvo Platform)</option>
+              <option value="duel">Sphinx ML Duel Simulator (Heka)</option>
+              <option value="mood">Anonymous Mood Sandbox (Rant)</option>
+              <option value="bookmark">Bookmark Manager Simulator (mark_me)</option>
+            </select>
+          </label>
+        )}
         <label className={labelClass}>
           Label
           <input

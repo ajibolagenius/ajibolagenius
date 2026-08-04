@@ -8,7 +8,7 @@ export const revalidate = 60;
 
 const title = "Sandbox";
 const description =
-  "A running lab log of things I'm learning — mini builds, quick tests, half-finished ideas.";
+  "A lab of small interactive experiments — toys, tests, and half-finished ideas you can poke at.";
 
 export const metadata: Metadata = {
   title,
@@ -41,12 +41,12 @@ export default async function SandboxPage() {
       <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
         <div>
           <p className="font-mono text-body-xs uppercase tracking-wide text-accent">
-            🧪 Lab notes, no roadmap
+            Lab · playground · no roadmap
           </p>
           <h1 className="mt-2 text-h1 font-normal">Sandbox</h1>
           <p className="mt-2 max-w-xl text-body-m text-ink/60">
-            A running log of things I&apos;m learning — expect anything from
-            tiny experiments to half-finished ideas. Come poke around.
+            Small experiments you can open and play with. Some are finished
+            toys; others are still on the bench. Click around.
           </p>
         </div>
 

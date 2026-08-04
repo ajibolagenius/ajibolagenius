@@ -9,12 +9,12 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { createClient } from "@/lib/supabase/server";
 import { getCvData } from "@/lib/cv-data";
+import { getSandboxExperiment } from "@/lib/sandbox-experiments";
 import { JsonLd } from "@/components/json-ld";
 import { SandboxNav } from "@/components/sandbox-nav";
 import { ScreenshotGallery } from "@/components/screenshot-gallery";
 import { ShareButtons } from "@/components/cv/share-buttons";
 import { ProjectNavigation } from "@/components/project-navigation";
-import { ProjectShowcase } from "@/components/project-showcase";
 import type { Project } from "@/types/project";
 
 export const revalidate = 60;
@@ -80,14 +80,12 @@ export async function generateMetadata({
   return {
     title,
     description,
-    alternates: {
-      canonical: url,
-    },
     openGraph: {
       title,
       description,
       url,
-      type: "article",
+      type: "website",
+      images: project.screenshots?.[0] ? [project.screenshots[0]] : undefined,
     },
     twitter: {
       card: "summary_large_image",
@@ -113,6 +111,8 @@ export default async function SandboxDetailPage({
 
   const p = project;
   const statusLabel = STATUS_LABELS[p.status];
+  const experiment = getSandboxExperiment(p.slug);
+  const Experiment = experiment?.component;
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ??
@@ -140,17 +140,22 @@ export default async function SandboxDetailPage({
         }}
       />
       <SandboxNav />
-      <main className="mx-auto flex w-full max-w-3xl flex-col gap-10 px-4 py-10 sm:px-6">
+      <main className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-10 sm:px-6">
         <Link
           href="/sandbox"
           className="inline-flex w-fit items-center gap-2 text-body-s text-ink/60 transition-colors hover:text-accent"
         >
           <ArrowLeft weight="duotone" size={16} />
-          Back to sandbox
+          Back to lab
         </Link>
 
-        <header className="flex flex-col gap-4">
+        <header className="flex flex-col gap-3">
           <div className="flex flex-wrap items-center gap-3 text-body-xs uppercase tracking-wide text-ink/60">
+            {experiment && (
+              <span className="inline-flex items-center bg-accent px-2 py-0.5 font-mono normal-case tracking-normal text-cream">
+                Playable
+              </span>
+            )}
             {p.category && <span>{p.category}</span>}
             {statusLabel && (
               <span
@@ -165,9 +170,11 @@ export default async function SandboxDetailPage({
             )}
           </div>
           <h1 className="text-h1 font-normal">{p.name}</h1>
-          <p className="text-body-l text-ink/60">{p.description}</p>
+          {p.description && (
+            <p className="max-w-xl text-body-l text-ink/60">{p.description}</p>
+          )}
 
-          <div className="flex flex-wrap items-center gap-3 pt-2 sm:flex-nowrap sm:justify-between">
+          <div className="flex flex-wrap items-center gap-3 pt-1 sm:flex-nowrap sm:justify-between">
             <div className="flex flex-wrap items-center gap-3">
               {p.live_url && p.live_url !== "#" && (
                 <a
@@ -200,43 +207,26 @@ export default async function SandboxDetailPage({
           </div>
         </header>
 
-        {p.problem && (
-          <section className="flex flex-col gap-2">
-            <h2 className="text-h3 font-normal">Problem</h2>
-            <p className="text-body-m text-ink/70">{p.problem}</p>
-          </section>
-        )}
-
-        {p.solution && (
-          <section className="flex flex-col gap-2">
-            <h2 className="text-h3 font-normal">Solution</h2>
-            <p className="text-body-m text-ink/70">{p.solution}</p>
-          </section>
-        )}
-
-        {p.tech_details?.length > 0 && (
+        {Experiment ? (
           <section className="flex flex-col gap-3">
-            <h2 className="text-h3 font-normal">Tech stack</h2>
-            <div className="flex flex-wrap gap-2">
-              {p.tech_details.map((t) => (
-                <span
-                  key={t.name}
-                  className="bg-ink/5 px-3 py-1.5 font-mono text-body-s text-ink/70"
-                >
-                  {t.name}
-                </span>
-              ))}
-            </div>
+            <Experiment />
           </section>
-        )}
-
-        <ProjectShowcase project={p} />
-
-        {p.screenshots?.length > 0 && (
-          <section className="flex flex-col gap-4">
-            <h2 className="text-h3 font-normal">Screenshots</h2>
-            <ScreenshotGallery screenshots={p.screenshots} alt={p.name} />
-          </section>
+        ) : (
+          <>
+            {p.screenshots?.length > 0 && (
+              <section className="flex flex-col gap-4">
+                <h2 className="text-h3 font-normal">Snapshots</h2>
+                <ScreenshotGallery screenshots={p.screenshots} alt={p.name} />
+              </section>
+            )}
+            {!p.screenshots?.length &&
+              (!p.live_url || p.live_url === "#") &&
+              (!p.github_url || p.github_url === "#") && (
+                <p className="border border-dashed border-ink/15 px-4 py-8 text-center text-body-m text-ink/50">
+                  Lab note — more soon.
+                </p>
+              )}
+          </>
         )}
 
         <ProjectNavigation prev={nav.prev} next={nav.next} prefix="/sandbox" />

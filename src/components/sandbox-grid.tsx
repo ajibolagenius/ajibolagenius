@@ -2,34 +2,60 @@
 
 import { useMemo, useState } from "react";
 import { SandboxCard } from "@/components/sandbox-card";
+import { hasSandboxExperiment } from "@/lib/sandbox-experiments";
 import type { Project } from "@/types/project";
+
+type Filter = "all" | "playable" | string;
 
 export function SandboxGrid({ projects }: { projects: Project[] }) {
   const categories = useMemo(
     () => Array.from(new Set(projects.map((p) => p.category).filter(Boolean))),
     [projects],
   );
-  const [active, setActive] = useState<string | null>(null);
+  const hasPlayable = useMemo(
+    () => projects.some((p) => hasSandboxExperiment(p.slug)),
+    [projects],
+  );
+  const [active, setActive] = useState<Filter>("all");
 
-  const filtered = active
-    ? projects.filter((p) => p.category === active)
-    : projects;
+  const filtered = useMemo(() => {
+    if (active === "all") return projects;
+    if (active === "playable") {
+      return projects.filter((p) => hasSandboxExperiment(p.slug));
+    }
+    return projects.filter((p) => p.category === active);
+  }, [active, projects]);
+
+  const showFilters = categories.length > 1 || hasPlayable;
 
   return (
     <div>
-      {categories.length > 1 && (
+      {showFilters && (
         <div className="mt-6 flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => setActive(null)}
+            onClick={() => setActive("all")}
             className={`px-3 py-1.5 font-mono text-body-xs transition-colors ${
-              active === null
+              active === "all"
                 ? "bg-ink text-cream"
                 : "bg-ink/5 text-ink/60 hover:bg-ink/10"
             }`}
           >
             All
           </button>
+          {hasPlayable && (
+            <button
+              type="button"
+              onClick={() => setActive("playable")}
+              className={`px-3 py-1.5 font-mono text-body-xs transition-colors ${
+                active === "playable"
+                  ? "bg-accent text-cream"
+                  : "bg-ink/5 text-ink/60 hover:bg-ink/10"
+              }`}
+            >
+              Playable
+            </button>
+          )}
           {categories.map((category) => (
             <button
               key={category}
@@ -55,7 +81,7 @@ export function SandboxGrid({ projects }: { projects: Project[] }) {
 
       {filtered.length === 0 && (
         <p className="mt-8 text-body-m text-ink/60">
-          Nothing in this category yet.
+          Nothing in this filter yet.
         </p>
       )}
     </div>

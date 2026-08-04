@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Flask, Sparkle } from "@phosphor-icons/react/dist/ssr";
+import { ArrowUpRight, Flask, Play, Sparkle } from "@phosphor-icons/react/dist/ssr";
+import { hasSandboxExperiment } from "@/lib/sandbox-experiments";
 import type { Project } from "@/types/project";
 
 const STATUS_LABELS: Record<string, string> = {
@@ -11,13 +12,14 @@ const STATUS_LABELS: Record<string, string> = {
 export function SandboxCard({ project }: { project: Project }) {
   const cover = project.screenshots?.[0];
   const statusLabel = STATUS_LABELS[project.status];
+  const playable = hasSandboxExperiment(project.slug);
 
   return (
     <Link
       href={`/sandbox/${project.slug}`}
       className="group flex flex-col overflow-hidden border border-ink/10 transition hover:-translate-y-0.5 hover:border-accent/60"
     >
-      <div className="relative aspect-square w-full overflow-hidden bg-ink/5">
+      <div className="relative aspect-video w-full overflow-hidden bg-ink/5">
         {cover ? (
           <Image
             src={cover}
@@ -35,7 +37,13 @@ export function SandboxCard({ project }: { project: Project }) {
             />
           </div>
         )}
-        {project.featured && (
+        {playable && (
+          <span className="absolute left-2 top-2 inline-flex items-center gap-1 bg-accent px-1.5 py-0.5 font-mono text-[10px] font-medium text-cream">
+            <Play size={10} weight="fill" />
+            Play
+          </span>
+        )}
+        {!playable && project.featured && (
           <span className="absolute left-2 top-2 inline-flex items-center gap-1 bg-ink px-1.5 py-0.5 font-mono text-[10px] font-medium text-cream">
             <Sparkle size={10} weight="fill" />
             Fresh
