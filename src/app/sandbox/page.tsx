@@ -1,17 +1,14 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { getCvData } from "@/lib/cv-data";
-import { TopNav } from "@/components/cv/top-nav";
-import { Sidebar } from "@/components/cv/sidebar";
-import { SiteFooter } from "@/components/cv/site-footer";
-import { WorkGrid } from "@/components/work-grid";
+import { SandboxNav } from "@/components/sandbox-nav";
+import { SandboxGrid } from "@/components/sandbox-grid";
 import type { Project } from "@/types/project";
 
 export const revalidate = 60;
 
 const title = "Sandbox";
 const description =
-  "Mini projects and quick tests — small builds where I try out ideas.";
+  "A running lab log of things I'm learning — mini builds, quick tests, half-finished ideas.";
 
 export const metadata: Metadata = {
   title,
@@ -31,40 +28,39 @@ export const metadata: Metadata = {
 
 export default async function SandboxPage() {
   const supabase = await createClient();
-  const [{ data: projects }, { personalInfo, visibleSections }] =
-    await Promise.all([
-      supabase
-        .from("projects")
-        .select("*")
-        .eq("kind", "sandbox")
-        .order("featured", { ascending: false })
-        .order("created_at", { ascending: false }),
-      getCvData(),
-    ]);
+  const { data: projects } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("kind", "sandbox")
+    .order("featured", { ascending: false })
+    .order("created_at", { ascending: false });
 
   return (
     <>
-      <TopNav visibleSections={visibleSections} />
-      <Sidebar info={personalInfo} />
-      <main className="flex-1 lg:ml-80">
-        <div className="mx-auto w-full min-w-0 max-w-3xl px-6 py-10">
-          <div>
-            <h1 className="text-h1 font-normal">Sandbox</h1>
-            <p className="mt-2 text-body-m text-ink/60">
-              Mini projects and quick tests — small builds where I try out
-              ideas.
-            </p>
-          </div>
-          {projects && projects.length > 0 ? (
-            <WorkGrid projects={projects as Project[]} />
-          ) : (
-            <p className="mt-8 text-body-m text-ink/60">
-              No sandbox projects yet.
-            </p>
-          )}
+      <SandboxNav />
+      <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
+        <div>
+          <p className="font-mono text-body-xs uppercase tracking-wide text-accent">
+            🧪 Lab notes, no roadmap
+          </p>
+          <h1 className="mt-2 text-h1 font-normal">Sandbox</h1>
+          <p className="mt-2 max-w-xl text-body-m text-ink/60">
+            A running log of things I&apos;m learning — expect anything from
+            tiny experiments to half-finished ideas. Come poke around.
+          </p>
         </div>
+
+        {projects && projects.length > 0 ? (
+          <SandboxGrid projects={projects as Project[]} />
+        ) : (
+          <p className="mt-8 text-body-m text-ink/60">
+            Nothing on the bench yet — check back soon.
+          </p>
+        )}
       </main>
-      <SiteFooter name={personalInfo?.name ?? ""} />
+      <footer className="mx-auto max-w-5xl px-4 py-8 text-center font-mono text-body-xs text-ink/40 sm:px-6">
+        built while learning · no warranty expressed or implied
+      </footer>
     </>
   );
 }

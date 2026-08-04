@@ -56,6 +56,7 @@ export async function createProject(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath("/work");
   revalidatePath("/side-projects");
+  revalidatePath("/sandbox");
   redirect("/admin");
 }
 
@@ -71,6 +72,8 @@ export async function updateProject(id: string, formData: FormData) {
   revalidatePath(`/work/${input.slug}`);
   revalidatePath("/side-projects");
   revalidatePath(`/side-projects/${input.slug}`);
+  revalidatePath("/sandbox");
+  revalidatePath(`/sandbox/${input.slug}`);
   redirect("/admin");
 }
 
@@ -129,6 +132,7 @@ export async function toggleFeatured(id: string, featured: boolean) {
   revalidatePath("/admin");
   revalidatePath("/work");
   revalidatePath("/side-projects");
+  revalidatePath("/sandbox");
 }
 
 export async function deleteProject(id: string) {
@@ -139,6 +143,7 @@ export async function deleteProject(id: string) {
   revalidatePath("/admin");
   revalidatePath("/work");
   revalidatePath("/side-projects");
+  revalidatePath("/sandbox");
 }
 
 export async function signOut() {

@@ -10,9 +10,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { getCvData } from "@/lib/cv-data";
 import { JsonLd } from "@/components/json-ld";
-import { TopNav } from "@/components/cv/top-nav";
-import { Sidebar } from "@/components/cv/sidebar";
-import { SiteFooter } from "@/components/cv/site-footer";
+import { SandboxNav } from "@/components/sandbox-nav";
 import { ScreenshotGallery } from "@/components/screenshot-gallery";
 import { ShareButtons } from "@/components/cv/share-buttons";
 import { ProjectNavigation } from "@/components/project-navigation";
@@ -105,7 +103,7 @@ export default async function SandboxDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [project, { personalInfo, visibleSections }, nav] = await Promise.all([
+  const [project, { personalInfo }, nav] = await Promise.all([
     getProject(slug),
     getCvData(),
     getNavigationProjects(slug),
@@ -141,112 +139,111 @@ export default async function SandboxDetailPage({
           keywords: p.tags?.length ? p.tags.join(", ") : undefined,
         }}
       />
-      <TopNav visibleSections={visibleSections} />
-      <Sidebar info={personalInfo} />
-      <main className="flex-1 lg:ml-80">
-        <div className="mx-auto flex w-full min-w-0 max-w-3xl flex-col gap-10 px-6 py-10">
-          <Link
-            href="/sandbox"
-            className="inline-flex w-fit items-center gap-2 text-body-s text-ink/60 transition-colors hover:text-accent"
-          >
-            <ArrowLeft weight="duotone" size={16} />
-            Back to sandbox
-          </Link>
+      <SandboxNav />
+      <main className="mx-auto flex w-full max-w-3xl flex-col gap-10 px-4 py-10 sm:px-6">
+        <Link
+          href="/sandbox"
+          className="inline-flex w-fit items-center gap-2 text-body-s text-ink/60 transition-colors hover:text-accent"
+        >
+          <ArrowLeft weight="duotone" size={16} />
+          Back to sandbox
+        </Link>
 
-          <header className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center gap-3 text-body-xs uppercase tracking-wide text-ink/60">
-              {p.category && <span>{p.category}</span>}
-              {statusLabel && (
-                <span
-                  className={`inline-flex items-center px-2 py-0.5 font-mono normal-case tracking-normal ${
-                    p.status === "in-progress"
-                      ? "bg-accent text-cream"
-                      : "bg-ink/10 text-ink/60"
-                  }`}
+        <header className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-center gap-3 text-body-xs uppercase tracking-wide text-ink/60">
+            {p.category && <span>{p.category}</span>}
+            {statusLabel && (
+              <span
+                className={`inline-flex items-center px-2 py-0.5 font-mono normal-case tracking-normal ${
+                  p.status === "in-progress"
+                    ? "bg-accent text-cream"
+                    : "bg-ink/10 text-ink/60"
+                }`}
+              >
+                {statusLabel}
+              </span>
+            )}
+          </div>
+          <h1 className="text-h1 font-normal">{p.name}</h1>
+          <p className="text-body-l text-ink/60">{p.description}</p>
+
+          <div className="flex flex-wrap items-center gap-3 pt-2 sm:flex-nowrap sm:justify-between">
+            <div className="flex flex-wrap items-center gap-3">
+              {p.live_url && p.live_url !== "#" && (
+                <a
+                  href={p.live_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-ink px-4 py-2 text-body-s font-medium text-cream transition-colors hover:bg-accent"
                 >
-                  {statusLabel}
-                </span>
+                  <ArrowSquareOut weight="duotone" size={16} />
+                  Live site
+                </a>
+              )}
+              {p.github_url && p.github_url !== "#" && (
+                <a
+                  href={p.github_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 border border-ink/20 px-4 py-2 text-body-s font-medium transition-colors hover:border-ink"
+                >
+                  <GithubLogo weight="duotone" size={16} />
+                  Source
+                </a>
               )}
             </div>
-            <h1 className="text-h1 font-normal">{p.name}</h1>
-            <p className="text-body-l text-ink/60">{p.description}</p>
 
-            <div className="flex flex-wrap items-center gap-3 pt-2 sm:flex-nowrap sm:justify-between">
-              <div className="flex flex-wrap items-center gap-3">
-                {p.live_url && p.live_url !== "#" && (
-                  <a
-                    href={p.live_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-ink px-4 py-2 text-body-s font-medium text-cream transition-colors hover:bg-accent"
-                  >
-                    <ArrowSquareOut weight="duotone" size={16} />
-                    Live site
-                  </a>
-                )}
-                {p.github_url && p.github_url !== "#" && (
-                  <a
-                    href={p.github_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 border border-ink/20 px-4 py-2 text-body-s font-medium transition-colors hover:border-ink"
-                  >
-                    <GithubLogo weight="duotone" size={16} />
-                    Source
-                  </a>
-                )}
-              </div>
+            <ShareButtons
+              url={`${siteUrl}/sandbox/${p.slug}`}
+              title={p.name}
+            />
+          </div>
+        </header>
 
-              <ShareButtons
-                url={`${siteUrl}/sandbox/${p.slug}`}
-                title={p.name}
-              />
+        {p.problem && (
+          <section className="flex flex-col gap-2">
+            <h2 className="text-h3 font-normal">Problem</h2>
+            <p className="text-body-m text-ink/70">{p.problem}</p>
+          </section>
+        )}
+
+        {p.solution && (
+          <section className="flex flex-col gap-2">
+            <h2 className="text-h3 font-normal">Solution</h2>
+            <p className="text-body-m text-ink/70">{p.solution}</p>
+          </section>
+        )}
+
+        {p.tech_details?.length > 0 && (
+          <section className="flex flex-col gap-3">
+            <h2 className="text-h3 font-normal">Tech stack</h2>
+            <div className="flex flex-wrap gap-2">
+              {p.tech_details.map((t) => (
+                <span
+                  key={t.name}
+                  className="bg-ink/5 px-3 py-1.5 font-mono text-body-s text-ink/70"
+                >
+                  {t.name}
+                </span>
+              ))}
             </div>
-          </header>
+          </section>
+        )}
 
-          {p.problem && (
-            <section className="flex flex-col gap-2">
-              <h2 className="text-h3 font-normal">Problem</h2>
-              <p className="text-body-m text-ink/70">{p.problem}</p>
-            </section>
-          )}
+        <ProjectShowcase project={p} />
 
-          {p.solution && (
-            <section className="flex flex-col gap-2">
-              <h2 className="text-h3 font-normal">Solution</h2>
-              <p className="text-body-m text-ink/70">{p.solution}</p>
-            </section>
-          )}
+        {p.screenshots?.length > 0 && (
+          <section className="flex flex-col gap-4">
+            <h2 className="text-h3 font-normal">Screenshots</h2>
+            <ScreenshotGallery screenshots={p.screenshots} alt={p.name} />
+          </section>
+        )}
 
-          {p.tech_details?.length > 0 && (
-            <section className="flex flex-col gap-3">
-              <h2 className="text-h3 font-normal">Tech stack</h2>
-              <div className="flex flex-wrap gap-2">
-                {p.tech_details.map((t) => (
-                  <span
-                    key={t.name}
-                    className="bg-ink/5 px-3 py-1.5 font-mono text-body-s text-ink/70"
-                  >
-                    {t.name}
-                  </span>
-                ))}
-              </div>
-            </section>
-          )}
-
-          <ProjectShowcase project={p} />
-
-          {p.screenshots?.length > 0 && (
-            <section className="flex flex-col gap-4">
-              <h2 className="text-h3 font-normal">Screenshots</h2>
-              <ScreenshotGallery screenshots={p.screenshots} alt={p.name} />
-            </section>
-          )}
-
-          <ProjectNavigation prev={nav.prev} next={nav.next} prefix="/sandbox" />
-        </div>
+        <ProjectNavigation prev={nav.prev} next={nav.next} prefix="/sandbox" />
       </main>
-      <SiteFooter name={personalInfo?.name ?? ""} />
+      <footer className="mx-auto max-w-3xl px-4 py-8 text-center font-mono text-body-xs text-ink/40 sm:px-6">
+        built while learning · no warranty expressed or implied
+      </footer>
     </>
   );
 }
