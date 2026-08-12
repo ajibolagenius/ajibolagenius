@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { assertOwner } from "@/lib/auth-guard";
+import { setFlash } from "@/lib/flash-server";
+import { failed, ok, type ActionResult } from "@/lib/action-result";
 import type { ProjectInput } from "@/types/project";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import sharp from "sharp";
@@ -76,18 +78,36 @@ function revalidateProjectSurfaces(...slugs: (string | null | undefined)[]) {
   }
 }
 
-export async function createProject(formData: FormData) {
+/**
+ * Asymmetric on purpose.
+ *
+ * SUCCESS redirects to /admin, so there is no return value the client could
+ * toast — the response IS the navigation. The notice goes in a flash cookie
+ * that <FlashToaster> drains on the far side (see lib/flash-server.ts).
+ *
+ * FAILURE returns an ActionResult and stays put, because the form still holds
+ * everything the admin typed. Redirecting back to the same path to deliver a
+ * flash would not work anyway: FlashToaster keys on pathname, and the path
+ * would not have changed.
+ */
+export async function createProject(
+  formData: FormData,
+): Promise<ActionResult | never> {
   const supabase = await assertOwner();
   const input = projectInputFromForm(formData);
 
   const { error } = await supabase.from("projects").insert(input);
-  if (error) throw new Error(error.message);
+  if (error) return failed(error.message);
 
   revalidateProjectSurfaces(input.slug);
+  await setFlash("success", `“${input.name}” created`);
   redirect("/admin");
 }
 
-export async function updateProject(id: string, formData: FormData) {
+export async function updateProject(
+  id: string,
+  formData: FormData,
+): Promise<ActionResult | never> {
   const supabase = await assertOwner();
   const input = projectInputFromForm(formData);
 
@@ -99,9 +119,10 @@ export async function updateProject(id: string, formData: FormData) {
     .maybeSingle();
 
   const { error } = await supabase.from("projects").update(input).eq("id", id);
-  if (error) throw new Error(error.message);
+  if (error) return failed(error.message);
 
   revalidateProjectSurfaces(input.slug, existing?.slug);
+  await setFlash("success", `“${input.name}” saved`);
   redirect("/admin");
 }
 
@@ -149,32 +170,37 @@ export async function uploadProjectScreenshot(
   return { url: data.publicUrl };
 }
 
-export async function toggleFeatured(id: string, featured: boolean) {
+export async function toggleFeatured(
+  id: string,
+  featured: boolean,
+): Promise<ActionResult> {
   const supabase = await assertOwner();
   const { error } = await supabase
     .from("projects")
     .update({ featured })
     .eq("id", id);
-  if (error) throw new Error(error.message);
+  if (error) return failed(error.message);
 
   revalidateProjectSurfaces();
+  return ok(featured ? "Marked as featured" : "Removed from featured");
 }
 
-export async function deleteProject(id: string) {
+export async function deleteProject(id: string): Promise<ActionResult> {
   const supabase = await assertOwner();
 
   // Fetch the slug before the row is gone, or its detail path keeps serving
   // a deleted project from the cache.
   const { data: existing } = await supabase
     .from("projects")
-    .select("slug")
+    .select("slug, name")
     .eq("id", id)
     .maybeSingle();
 
   const { error } = await supabase.from("projects").delete().eq("id", id);
-  if (error) throw new Error(error.message);
+  if (error) return failed(error.message);
 
   revalidateProjectSurfaces(existing?.slug);
+  return ok(existing?.name ? `“${existing.name}” deleted` : "Project deleted");
 }
 
 export async function signOut() {

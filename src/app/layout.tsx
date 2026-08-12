@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Habibi } from "next/font/google";
 import { ThemeScript } from "@/components/theme-script";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
+import { Toaster } from "@/components/toast/toaster";
+import { FlashToaster } from "@/components/toast/flash-toaster";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
@@ -81,6 +83,10 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         {children}
+        {/* One stack for the whole app — client-facing pages and /admin both
+            render inside this layout. */}
+        <Toaster />
+        <FlashToaster />
         <ServiceWorkerRegistration />
         <Analytics />
       </body>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { toast } from "@/lib/toast";
 
 const OWNER_EMAIL = "ajibolaakelebe@gmail.com";
 
@@ -33,9 +34,13 @@ export default function AdminLoginPage() {
     });
 
     if (error) {
+      // Sign-in failures stay inline only — the message renders directly under
+      // the button, and a toast on the far side of the screen would be a second
+      // copy of something already in the reader's eyeline.
       setStatus("error");
       setMessage(error.message);
     } else {
+      toast.success("Signed in");
       router.push("/admin");
     }
   }
@@ -59,6 +64,9 @@ export default function AdminLoginPage() {
     } else {
       setStatus("reset-sent");
       setMessage("Check your inbox for a link to set your password.");
+      toast.success("Reset link sent", {
+        description: "Check your inbox for a link to set your password.",
+      });
     }
   }
 

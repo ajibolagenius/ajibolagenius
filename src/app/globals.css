@@ -611,6 +611,45 @@ html[data-vt="lightbox"]::view-transition-new(root) {
   animation: none;
 }
 
+/* ── Toasts ────────────────────────────────────────────────────────────────
+ * Enter is the "reveal" layer of the motion language — --dur-4, opacity plus a
+ * short translate, no overshoot. Exit is deliberately faster (--dur-2, the
+ * "fast departure" rule) and must stay under the EXIT_MS constant in
+ * lib/toast.ts, which is what actually removes the node.
+ *
+ * Reduced motion needs no special case here: the blanket rule below collapses
+ * both animations to 1ms, so the toast simply appears and disappears.
+ * ------------------------------------------------------------------------ */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--enter-distance), 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, calc(var(--enter-distance) / 2), 0);
+  }
+}
+
+.toast {
+  animation: toast-in var(--dur-4) var(--ease-out-quart) both;
+}
+
+.toast[data-leaving] {
+  animation: toast-out var(--dur-2) var(--ease-out-quart) both;
+}
+
 /* ── Reduced motion ────────────────────────────────────────────────────────
  * Deliberately blanket rather than an allowlist: a hand-maintained list
  * drifts the moment someone adds a hover effect.

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { toast } from "@/lib/toast";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -34,6 +35,9 @@ export default function ResetPasswordPage() {
       setStatus("error");
       setMessage(error.message);
     } else {
+      // Toasted rather than shown inline: this navigates immediately, so an
+      // inline confirmation would unmount before it could be read.
+      toast.success("Password updated");
       router.push("/admin");
     }
   }

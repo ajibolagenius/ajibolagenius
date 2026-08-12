@@ -1,8 +1,16 @@
 "use client";
 
-import { useRef, useState, useSyncExternalStore } from "react";
+import {
+  useRef,
+  useState,
+  useSyncExternalStore,
+  useTransition,
+  type FormEvent,
+} from "react";
 import type { Project } from "@/types/project";
 import type { ProjectFieldOptions } from "@/lib/project-options";
+import type { ActionResult } from "@/lib/action-result";
+import { toast } from "@/lib/toast";
 import { TagInput } from "@/components/admin/tag-input";
 import { ScreenshotsInput } from "@/components/admin/screenshots-input";
 
@@ -69,7 +77,11 @@ export function ProjectForm({
   draftKey,
 }: {
   project?: Project;
-  action: (formData: FormData) => void | Promise<void>;
+  /**
+   * Resolves to an ActionResult on failure and never resolves on success —
+   * createProject / updateProject redirect once the write lands.
+   */
+  action: (formData: FormData) => Promise<ActionResult | void>;
   options: ProjectFieldOptions;
   draftKey?: string;
 }) {
@@ -91,6 +103,7 @@ export function ProjectForm({
   const formRef = useRef<HTMLFormElement>(null);
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const isSandbox = kind === "sandbox";
+  const [pending, startTransition] = useTransition();
 
   const handleFormChange = () => {
     if (!draftKey || project || !formRef.current) return;
@@ -103,15 +116,48 @@ export function ProjectForm({
     }, 400);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    // Submitted by hand rather than through the form's `action` prop, which
+    // discards the return value — the failure message is the whole point.
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+
+    // Cleared up front because a successful write ends in a redirect: this
+    // callback never resumes, so there is no "after success" in which to do it.
     if (draftKey) window.localStorage.removeItem(draftKey);
+
+    const restoreDraft = () => {
+      if (!draftKey || project) return;
+      window.localStorage.setItem(
+        draftKey,
+        JSON.stringify(Object.fromEntries(formData.entries())),
+      );
+    };
+
+    startTransition(async () => {
+      try {
+        const result = await action(formData);
+        // A result that resolves at all is a failure — success redirects.
+        if (result && !result.ok) {
+          toast.error(
+            project ? "Couldn't save project" : "Couldn't create project",
+            { description: result.message },
+          );
+          restoreDraft();
+        }
+      } catch {
+        toast.error("Couldn't reach the server", {
+          description: "Your changes are still in the form. Try again.",
+        });
+        restoreDraft();
+      }
+    });
   };
 
   return (
     <form
       key={draft ? "draft" : "empty"}
       ref={formRef}
-      action={action}
       onChange={handleFormChange}
       onSubmit={handleSubmit}
       className="flex flex-col gap-4"
@@ -351,9 +397,15 @@ export function ProjectForm({
 
       <button
         type="submit"
-        className="mt-2 self-start rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white dark:bg-neutral-100 dark:text-neutral-900"
+        disabled={pending}
+        aria-busy={pending || undefined}
+        className="mt-2 self-start rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white disabled:cursor-progress disabled:opacity-60 dark:bg-neutral-100 dark:text-neutral-900"
       >
-        {project ? "Save changes" : "Create project"}
+        {pending
+          ? "Saving…"
+          : project
+            ? "Save changes"
+            : "Create project"}
       </button>
     </form>
   );

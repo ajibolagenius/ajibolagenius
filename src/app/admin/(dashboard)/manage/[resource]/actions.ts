@@ -8,6 +8,7 @@ import {
   nestFieldValues,
   type ResourceConfig,
 } from "@/lib/admin-resources";
+import { failed, ok, type ActionResult } from "@/lib/action-result";
 import sharp from "sharp";
 
 const MAX_IMAGE_SIZE = 1024;
@@ -101,29 +102,36 @@ function revalidateSite(resourceKey: string) {
   revalidatePath("/sandbox/[slug]", "page");
 }
 
+/**
+ * All three mutations return an ActionResult instead of throwing: the caller is
+ * a client form that toasts the outcome, and a Postgres message like "null
+ * value in column violates not-null constraint" is far more useful in front of
+ * the admin than behind an error boundary.
+ */
 export async function createResourceRow(
   resourceKey: string,
   formData: FormData,
-) {
+): Promise<ActionResult> {
   const config = getResourceConfig(resourceKey);
-  if (!config) throw new Error("Unknown resource");
+  if (!config) return failed("Unknown resource.");
 
   const supabase = await assertOwner();
   const values = await parseFieldsFromForm(supabase, config, formData);
 
   const { error } = await supabase.from(config.table).insert(values);
-  if (error) throw new Error(error.message);
+  if (error) return failed(error.message);
 
   revalidateSite(resourceKey);
+  return ok(`${singular(config.label)} created`);
 }
 
 export async function updateResourceRow(
   resourceKey: string,
   id: string | number,
   formData: FormData,
-) {
+): Promise<ActionResult> {
   const config = getResourceConfig(resourceKey);
-  if (!config) throw new Error("Unknown resource");
+  if (!config) return failed("Unknown resource.");
 
   const supabase = await assertOwner();
   const values = await parseFieldsFromForm(supabase, config, formData);
@@ -132,21 +140,31 @@ export async function updateResourceRow(
     .from(config.table)
     .update(values)
     .eq(config.idColumn ?? "id", id);
-  if (error) throw new Error(error.message);
+  if (error) return failed(error.message);
 
   revalidateSite(resourceKey);
+  return ok(`${singular(config.label)} saved`);
 }
 
-export async function deleteResourceRow(resourceKey: string, id: string) {
+export async function deleteResourceRow(
+  resourceKey: string,
+  id: string,
+): Promise<ActionResult> {
   const config = getResourceConfig(resourceKey);
-  if (!config) throw new Error("Unknown resource");
+  if (!config) return failed("Unknown resource.");
 
   const supabase = await assertOwner();
   const { error } = await supabase
     .from(config.table)
     .delete()
     .eq(config.idColumn ?? "id", id);
-  if (error) throw new Error(error.message);
+  if (error) return failed(error.message);
 
   revalidateSite(resourceKey);
+  return ok(`${singular(config.label)} deleted`);
+}
+
+/** "Certifications" -> "Certification", for a message about a single row. */
+function singular(label: string) {
+  return label.endsWith("s") ? label.slice(0, -1) : label;
 }

@@ -3,6 +3,7 @@
 import { useRef, useState, type FormEvent } from "react";
 import { PaperPlaneRight, Spinner } from "@phosphor-icons/react/dist/ssr";
 import { submitContactMessage } from "@/app/actions";
+import { toast } from "@/lib/toast";
 
 export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
@@ -16,13 +17,31 @@ export function ContactForm() {
     setStatus("sending");
     setError(null);
     const formData = new FormData(e.currentTarget);
-    const result = await submitContactMessage(formData);
+
+    let result: Awaited<ReturnType<typeof submitContactMessage>>;
+    try {
+      result = await submitContactMessage(formData);
+    } catch {
+      // The action never completed — offline, or the request was dropped. The
+      // inline error would be the only signal on a long page, and the submit
+      // button is often scrolled past by the time this resolves.
+      setStatus("error");
+      const message = "Couldn't reach the server. Please try again.";
+      setError(message);
+      toast.error(message);
+      return;
+    }
+
     if ("error" in result) {
       setStatus("error");
       setError(result.error);
+      toast.error(result.error);
       return;
     }
     setStatus("sent");
+    toast.success("Message sent", {
+      description: "Thanks for reaching out — I'll get back to you soon.",
+    });
     formRef.current?.reset();
   };
 

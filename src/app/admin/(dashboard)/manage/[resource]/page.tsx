@@ -7,6 +7,8 @@ import {
 } from "@/lib/admin-resources";
 import { listTechLogos, type TechLogoOption } from "@/lib/tech-logos";
 import { BulletListInput } from "@/components/admin/bullet-list-input";
+import { ActionForm } from "@/components/admin/action-form";
+import { ActionButton } from "@/components/admin/action-button";
 import { createResourceRow, deleteResourceRow, updateResourceRow } from "./actions";
 
 const inputClass =
@@ -179,63 +181,72 @@ export default async function ManageResourcePage({
       {error && <p className="text-sm text-red-600">{error.message}</p>}
 
       <div className="flex flex-col gap-6">
-        {rows?.map((row: Record<string, unknown>) => (
-          <form
-            key={String(row[idColumn])}
-            action={async (formData: FormData) => {
-              "use server";
-              await updateResourceRow(
-                resource,
-                row[idColumn] as string,
-                formData,
-              );
-            }}
-            className="flex flex-col gap-3 rounded-md border border-ink/10 p-4"
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-ink/60">
-                {String(row[config.titleField] ?? row[idColumn])}
-              </p>
-              {!isFixed && (
-                <button
-                  type="submit"
-                  formAction={async () => {
-                    "use server";
-                    await deleteResourceRow(resource, row[idColumn] as string);
-                  }}
-                  className="text-sm text-red-600 underline"
-                >
-                  Delete
-                </button>
-              )}
-            </div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {config.fields.map((field) => (
-                <Field
-                  key={field.name}
-                  field={field}
-                  defaultValue={readFieldValue(row, field.name)}
-                  techLogos={techLogos}
-                />
-              ))}
-            </div>
-            <button
-              type="submit"
-              className="mt-1 self-start rounded-md bg-ink px-3 py-1.5 text-xs font-medium text-cream"
+        {rows?.map((row: Record<string, unknown>) => {
+          const title = String(row[config.titleField] ?? row[idColumn]);
+          return (
+            <ActionForm
+              key={String(row[idColumn])}
+              action={async (formData: FormData) => {
+                "use server";
+                return updateResourceRow(
+                  resource,
+                  row[idColumn] as string,
+                  formData,
+                );
+              }}
+              className="rounded-md border border-ink/10 p-4"
             >
-              Save
-            </button>
-          </form>
-        ))}
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-ink/60">{title}</p>
+                {!isFixed && (
+                  // Outside the submit flow now: it runs its own action and
+                  // needs none of the form's fields. It also finally asks
+                  // first — deleting a row used to be a single stray click.
+                  <ActionButton
+                    action={async () => {
+                      "use server";
+                      return deleteResourceRow(
+                        resource,
+                        row[idColumn] as string,
+                      );
+                    }}
+                    confirm={`Delete "${title}"? This cannot be undone.`}
+                    pendingLabel="Deleting…"
+                    className="text-sm text-red-600 underline"
+                  >
+                    Delete
+                  </ActionButton>
+                )}
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {config.fields.map((field) => (
+                  <Field
+                    key={field.name}
+                    field={field}
+                    defaultValue={readFieldValue(row, field.name)}
+                    techLogos={techLogos}
+                  />
+                ))}
+              </div>
+              <button
+                type="submit"
+                className="mt-1 self-start rounded-md bg-ink px-3 py-1.5 text-xs font-medium text-cream"
+              >
+                Save
+              </button>
+            </ActionForm>
+          );
+        })}
       </div>
 
       {!isFixed && (
-        <form
+        <ActionForm
           action={async (formData: FormData) => {
             "use server";
-            await createResourceRow(resource, formData);
+            return createResourceRow(resource, formData);
           }}
-          className="mt-8 flex flex-col gap-3 rounded-md border border-dashed border-ink/20 p-4"
+          resetOnSuccess
+          className="mt-8 rounded-md border border-dashed border-ink/20 p-4"
         >
           <p className="text-sm font-medium text-ink/60">
             New {config.label.toLowerCase()} entry
@@ -255,7 +266,7 @@ export default async function ManageResourcePage({
           >
             Create
           </button>
-        </form>
+        </ActionForm>
       )}
     </main>
   );

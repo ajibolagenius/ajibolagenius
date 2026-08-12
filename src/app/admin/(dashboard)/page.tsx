@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Project } from "@/types/project";
 import { deleteProject, toggleFeatured } from "@/app/admin/actions";
+import { ActionButton } from "@/components/admin/action-button";
 import Link from "next/link";
 
 export default async function AdminPage() {
@@ -103,45 +104,37 @@ export default async function AdminPage() {
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-3">
-              <form
+              <ActionButton
                 action={async () => {
                   "use server";
-                  await toggleFeatured(project.id, !project.featured);
+                  return toggleFeatured(project.id, !project.featured);
                 }}
+                className={`rounded-md border px-2 py-1 text-sm ${
+                  project.featured
+                    ? "border-amber-400 bg-amber-50 text-amber-700 dark:border-amber-600 dark:bg-amber-950 dark:text-amber-400"
+                    : "border-ink/15 text-ink/60"
+                }`}
+                title={project.featured ? "Unmark featured" : "Mark featured"}
               >
-                <button
-                  type="submit"
-                  className={`rounded-md border px-2 py-1 text-sm ${
-                    project.featured
-                      ? "border-amber-400 bg-amber-50 text-amber-700 dark:border-amber-600 dark:bg-amber-950 dark:text-amber-400"
-                      : "border-ink/15 text-ink/60"
-                  }`}
-                  title={
-                    project.featured ? "Unmark featured" : "Mark featured"
-                  }
-                >
-                  {project.featured ? "★ Featured" : "☆ Feature"}
-                </button>
-              </form>
+                {project.featured ? "★ Featured" : "☆ Feature"}
+              </ActionButton>
               <Link
                 href={`/admin/projects/${project.id}`}
                 className="text-sm underline"
               >
                 Edit
               </Link>
-              <form
+              <ActionButton
                 action={async () => {
                   "use server";
-                  await deleteProject(project.id);
+                  return deleteProject(project.id);
                 }}
+                confirm={`Delete “${project.name}”? This cannot be undone.`}
+                pendingLabel="Deleting…"
+                className="text-sm text-red-600 underline"
               >
-                <button
-                  type="submit"
-                  className="text-sm text-red-600 underline"
-                >
-                  Delete
-                </button>
-              </form>
+                Delete
+              </ActionButton>
             </div>
           </li>
         ))}

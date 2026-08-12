@@ -10,6 +10,7 @@ import {
   ArrowRight,
 } from "@phosphor-icons/react/dist/ssr";
 import { uploadProjectScreenshot } from "@/app/admin/actions";
+import { toast } from "@/lib/toast";
 
 const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
 
@@ -97,9 +98,13 @@ export function ScreenshotsInput({
     setError(null);
     try {
       const uploaded: string[] = [];
+      // Per-file toasts: a multi-file drop where only the third one fails used
+      // to leave a single inline message that read as "the upload failed".
       for (const file of Array.from(files)) {
         if (file.size > MAX_UPLOAD_BYTES) {
-          setError(`"${file.name}" is too large (max 20MB)`);
+          const message = `"${file.name}" is too large (max 20MB)`;
+          setError(message);
+          toast.error(message);
           continue;
         }
         const formData = new FormData();
@@ -107,12 +112,19 @@ export function ScreenshotsInput({
         const result = await uploadProjectScreenshot(formData);
         if ("error" in result) {
           setError(result.error);
+          toast.error(`"${file.name}" failed`, { description: result.error });
           continue;
         }
         uploaded.push(result.url);
       }
       if (uploaded.length > 0) {
         setUrls((prev) => Array.from(new Set([...prev, ...uploaded])));
+        toast.success(
+          uploaded.length === 1
+            ? "Screenshot uploaded"
+            : `${uploaded.length} screenshots uploaded`,
+          { description: "Save the project to keep them." },
+        );
       }
     } finally {
       setUploading(false);

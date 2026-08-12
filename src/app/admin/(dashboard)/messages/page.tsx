@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { markMessageRead, deleteMessage } from "./actions";
+import { ActionButton } from "@/components/admin/action-button";
 
 interface ContactMessage {
   id: string;
@@ -60,29 +61,26 @@ export default async function AdminMessagesPage() {
               {msg.message}
             </p>
             <div className="mt-3 flex gap-3">
-              <form
+              <ActionButton
                 action={async () => {
                   "use server";
-                  await markMessageRead(msg.id, !msg.read);
+                  return markMessageRead(msg.id, !msg.read);
                 }}
+                className="text-sm text-ink/60 underline"
               >
-                <button
-                  type="submit"
-                  className="text-sm text-ink/60 underline"
-                >
-                  Mark as {msg.read ? "unread" : "read"}
-                </button>
-              </form>
-              <form
+                Mark as {msg.read ? "unread" : "read"}
+              </ActionButton>
+              <ActionButton
                 action={async () => {
                   "use server";
-                  await deleteMessage(msg.id);
+                  return deleteMessage(msg.id);
                 }}
+                confirm={`Delete the message from ${msg.name}? This cannot be undone.`}
+                pendingLabel="Deleting…"
+                className="text-sm text-red-600 underline"
               >
-                <button type="submit" className="text-sm text-red-600 underline">
-                  Delete
-                </button>
-              </form>
+                Delete
+              </ActionButton>
             </div>
           </li>
         ))}
