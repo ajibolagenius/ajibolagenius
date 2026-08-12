@@ -338,6 +338,13 @@ body {
 }
 
 /* ── Mobile menu sheet ─────────────────────────────────────────────────── */
+/* The sheet stays mounted when closed so its exit can animate. That makes one
+   thing mandatory at the call site: it MUST be taken out of flow (it carries
+   `absolute inset-x-0 top-full`). visibility:hidden suppresses painting but
+   NOT layout, so in normal flow a closed sheet still grows the sticky nav
+   container — which then paints its own bg-cream/90 backdrop-blur across the
+   page beneath, dimming and displacing the content. Deliberately no
+   `position` here, so the utility class supplies it without a conflict. */
 .menu-sheet {
   transform: translate3d(0, -8px, 0);
   opacity: 0;
