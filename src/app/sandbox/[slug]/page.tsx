@@ -9,6 +9,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { createClient } from "@/lib/supabase/server";
 import { getCvData } from "@/lib/cv-data";
+import { siteUrl } from "@/lib/site-url";
 import { getSandboxExperiment } from "@/lib/sandbox-experiments";
 import { JsonLd } from "@/components/json-ld";
 import { SandboxNav } from "@/components/sandbox-nav";
@@ -65,14 +66,6 @@ export async function generateMetadata({
     return { title: "Project not found" };
   }
 
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000");
-
   const title = project.name;
   const description = project.description;
   const url = `${siteUrl}/sandbox/${slug}`;
@@ -80,6 +73,7 @@ export async function generateMetadata({
   return {
     title,
     description,
+    alternates: { canonical: url },
     openGraph: {
       title,
       description,
@@ -113,14 +107,6 @@ export default async function SandboxDetailPage({
   const statusLabel = STATUS_LABELS[p.status];
   const experiment = getSandboxExperiment(p.slug);
   const Experiment = experiment?.component;
-
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000");
 
   return (
     <>

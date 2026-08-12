@@ -4,7 +4,10 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Ajibola Akelebe — Portfolio",
     short_name: "Ajibola",
-    description: "Software engineer portfolio and case studies.",
+    // Kept in step with the fallback description in layout.tsx — this is the
+    // copy the install prompt shows.
+    description:
+      "Portfolio, CV, and sandbox of Ajibola Akelebe — a developer and designer building for the web.",
     start_url: "/",
     display: "standalone",
     background_color: "#fbf5ef",

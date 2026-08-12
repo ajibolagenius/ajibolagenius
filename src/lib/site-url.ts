@@ -1,9 +1,11 @@
 /**
- * The canonical absolute origin for this deployment.
+ * The canonical absolute origin for this deployment, and the only copy of this
+ * fallback chain — it used to be duplicated in ~10 places (both detail pages,
+ * both slug OG routes, sitemap.ts, robots.ts, layout.tsx, og-template.ts).
  *
- * This fallback chain was copy-pasted in ~10 places (both detail pages, both
- * slug OG routes, sitemap.ts, layout.tsx, …). New code should import this;
- * the remaining copies can be collapsed onto it opportunistically.
+ * Import it rather than re-deriving: canonical URLs, sitemap entries, OG image
+ * URLs and `metadataBase` all have to agree, and a second copy is how they stop
+ * agreeing.
  */
 export const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ??

@@ -8,6 +8,8 @@
  * 4. Flexible Theme System: Automatic support for light/dark themes
  */
 
+import { siteUrl } from "@/lib/site-url";
+
 export const OG_SIZE = { width: 1200, height: 630 };
 
 export const OG = {
@@ -537,15 +539,8 @@ export async function loadImageSrc(url?: string | null): Promise<string | undefi
 }
 
 export function getSiteHost(): string {
-  const url =
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000");
   try {
-    return new URL(url).host;
+    return new URL(siteUrl).host;
   } catch {
     return "ajibolagenius.vercel.app";
   }

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import type {
   Certification,
@@ -23,7 +24,13 @@ export const DEFAULT_SECTION_ORDER = [
   "connect",
 ];
 
-export async function getCvData() {
+/**
+ * Wrapped in `cache()` because every page that renders CV data also derives its
+ * metadata from it, and `generateMetadata` runs as a separate call from the
+ * component. /cv was issuing all eight queries below twice per request for that
+ * reason. Same pattern as `getProject` in the project detail page.
+ */
+export const getCvData = cache(async () => {
   const supabase = await createClient();
 
   const [
@@ -80,4 +87,4 @@ export async function getCvData() {
     /** Visible homepage section keys, in configured order. */
     visibleSections,
   };
-}
+});

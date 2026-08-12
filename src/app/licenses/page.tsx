@@ -20,6 +20,7 @@ const description = "Attribution and licensing for images, icons, and illustrati
 export const metadata: Metadata = {
   title,
   description,
+  alternates: { canonical: "/licenses" },
   openGraph: {
     title,
     description,

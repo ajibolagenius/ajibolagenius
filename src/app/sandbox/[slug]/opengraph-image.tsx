@@ -6,6 +6,7 @@ import {
   getSiteHost,
   loadImageSrc,
 } from "@/lib/og-template";
+import { siteUrl } from "@/lib/site-url";
 import type { Project } from "@/types/project";
 
 export const alt = "Sandbox Project — Ajibola Akelebe";
@@ -44,14 +45,6 @@ export default async function Image({
   }
 
   // Load the first screenshot as base64 for reliable Satori rendering
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000");
-
   const rawImage = p.screenshots?.[0];
   const imageUrl = rawImage
     ? rawImage.startsWith("http")

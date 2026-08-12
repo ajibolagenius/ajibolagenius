@@ -1,14 +1,7 @@
 import type { MetadataRoute } from "next";
+import { siteUrl } from "@/lib/site-url";
 import { createClient } from "@/lib/supabase/server";
 import { projectHref } from "@/lib/project-kind";
-
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000");
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient();
@@ -22,6 +15,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${siteUrl}/projects`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${siteUrl}/sandbox`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${siteUrl}/cv`, changeFrequency: "monthly", priority: 0.6 },
+    // Indexable, linked from the footer, and previously missing here.
+    { url: `${siteUrl}/licenses`, changeFrequency: "yearly", priority: 0.2 },
   ];
 
   const projectRoutes: MetadataRoute.Sitemap = (projects ?? []).map(

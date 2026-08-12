@@ -5,6 +5,7 @@ import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-regis
 import { Toaster } from "@/components/toast/toaster";
 import { FlashToaster } from "@/components/toast/flash-toaster";
 import { Analytics } from "@vercel/analytics/next";
+import { siteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -23,16 +24,15 @@ const habibi = Habibi({
   weight: "400",
 });
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000");
-
+/**
+ * Site-wide fallbacks only. Every content route sets its own title and
+ * description — the homepage and /cv derive theirs from `personal_info` — so
+ * these apply to routes that have nothing more specific to say. Keep in sync
+ * with `manifest.ts`, which the install prompt reads.
+ */
 const title = "Ajibola Akelebe — Portfolio";
-const description = "Software engineer portfolio and case studies.";
+const description =
+  "Portfolio, CV, and sandbox of Ajibola Akelebe — a developer and designer building for the web.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -41,12 +41,15 @@ export const metadata: Metadata = {
     template: "%s — Ajibola",
   },
   description,
+  authors: [{ name: "Ajibola Akelebe", url: siteUrl }],
+  creator: "Ajibola Akelebe",
   openGraph: {
     title,
     description,
     url: "/",
     siteName: "Ajibola Akelebe — Portfolio",
     type: "website",
+    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
