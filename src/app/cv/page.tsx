@@ -12,10 +12,24 @@ import {
   XLogo,
 } from "@phosphor-icons/react/dist/ssr";
 import { getCvData } from "@/lib/cv-data";
+import { createClient } from "@/lib/supabase/server";
 import { CvDownloadButton } from "@/components/cv-download-button";
 import { CompanyIcon } from "@/components/company-icon";
 import { assignCompanyIcons } from "@/lib/company-icon";
+import { experienceLabel } from "@/lib/experience-span";
+import { LISTED_KINDS } from "@/lib/project-kind";
+import { siteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
+
+/** The columns the CV's project block actually renders. */
+type CvProject = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  live_url: string;
+  year: string;
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   const { personalInfo: info } = await getCvData();
@@ -42,13 +56,41 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const divider = "border-t border-ink/10 pt-6";
 
+/**
+ * Entries must not tear across a page break — a role whose bullets land on the
+ * next sheet reads as two half-jobs. `break-inside` only has meaning in paged
+ * media, so this is safe to apply unconditionally.
+ */
+const keepTogether = "break-inside-avoid";
+
 export default async function CvPage() {
-  const { personalInfo: info, skills, experience, education, languages } =
-    await getCvData();
+  const supabase = await createClient();
+
+  const [
+    { personalInfo: info, skills, experience, education, languages, certifications },
+    { data: projectRows },
+  ] = await Promise.all([
+    getCvData(),
+    supabase
+      .from("projects")
+      // Narrow select: this page renders a one-line summary per project, and
+      // the long-form columns (problem/solution/tech_details/screenshots)
+      // would be fetched and discarded.
+      .select("id, slug, name, description, live_url, year")
+      .in("kind", LISTED_KINDS)
+      .eq("featured", true)
+      .order("created_at", { ascending: false })
+      .limit(5),
+  ]);
 
   if (!info) return null;
 
   const iconStyles = assignCompanyIcons(experience.map((e) => e.company));
+  const projects = (projectRows ?? []) as CvProject[];
+
+  // Derived, not hardcoded. Null means "omit the line" — never fall back to a
+  // fixed number, which is exactly how the old "5+ years" went stale.
+  const yearsLabel = experienceLabel(experience);
 
   return (
     <div className="min-h-screen bg-panel py-10 print:bg-cream print:py-0">
@@ -77,10 +119,13 @@ export default async function CvPage() {
             />
           </div>
 
+          {/* `description` deliberately does not appear here. It is the
+              Profile prose in the right-hand column, and printing the same
+              paragraph twice on one page was the single most visible defect
+              on this document. */}
           <div>
             <h1 className="text-h3 font-normal">{info.name}</h1>
             <p className="text-body-s text-ink/60">{info.role}</p>
-            <p className="mt-3 text-body-s text-ink/70">{info.description}</p>
           </div>
 
           <div className={`flex flex-col gap-2 text-body-s text-ink/70 ${divider}`}>
@@ -90,10 +135,12 @@ export default async function CvPage() {
                 {info.location}
               </div>
             )}
-            <div className="flex items-center gap-2">
-              <Briefcase weight="duotone" size={16} />
-              5+ years experience
-            </div>
+            {yearsLabel && (
+              <div className="flex items-center gap-2">
+                <Briefcase weight="duotone" size={16} />
+                {yearsLabel}
+              </div>
+            )}
             {info.availability && (
               <div className="flex items-center gap-2">
                 <Globe weight="duotone" size={16} />
@@ -188,8 +235,8 @@ export default async function CvPage() {
 
         {/* Right column */}
         <div className="flex flex-col gap-8">
-          <div>
-            <h2 className="text-h2 mb-3 font-normal">About</h2>
+          <div className={keepTogether}>
+            <h2 className="text-h2 mb-3 font-normal">Profile</h2>
             <p className="text-body-m text-ink/70">{info.description}</p>
           </div>
 
@@ -198,7 +245,7 @@ export default async function CvPage() {
               <h2 className="text-h2 mb-5 font-normal">Experience</h2>
               <div className="flex flex-col gap-6">
                 {experience.map((entry) => (
-                  <div key={entry.id} className="flex gap-4">
+                  <div key={entry.id} className={`flex gap-4 ${keepTogether}`}>
                     <CompanyIcon
                       seed={entry.company}
                       style={iconStyles.get(entry.company)}
@@ -234,12 +281,60 @@ export default async function CvPage() {
             </div>
           )}
 
+          {projects.length > 0 && (
+            <div className={divider}>
+              <h2 className="text-h2 mb-5 font-normal">Selected Projects</h2>
+              <div className="flex flex-col gap-5">
+                {projects.map((project) => {
+                  // Prefer the live site; fall back to the portfolio entry so
+                  // every project carries a URL a reader can actually type.
+                  // '#' is the table's placeholder for "no live URL".
+                  const url =
+                    project.live_url && project.live_url !== "#"
+                      ? project.live_url
+                      : `${siteUrl}/projects/${project.slug}`;
+
+                  return (
+                    <div key={project.id} className={keepTogether}>
+                      <div className="flex flex-wrap items-baseline justify-between gap-x-4">
+                        <h3 className="text-body-l font-medium">
+                          {project.name}
+                        </h3>
+                        {project.year && (
+                          <span className="text-body-s text-ink/60">
+                            {project.year}
+                          </span>
+                        )}
+                      </div>
+                      {project.description && (
+                        <p className="mt-1 text-body-s text-ink/70">
+                          {project.description}
+                        </p>
+                      )}
+                      {/* Rendered as visible text rather than a bare link:
+                          on paper a hyperlink with no URL is unusable, and
+                          this avoids needing ::after content injection. */}
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-1 inline-block break-all font-mono text-body-xs text-ink/50 transition-colors hover:text-accent"
+                      >
+                        {url.replace(/^https?:\/\//, "")}
+                      </a>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {education.length > 0 && (
             <div className={divider}>
               <h2 className="text-h2 mb-5 font-normal">Education</h2>
               <div className="flex flex-col gap-5">
                 {education.map((entry) => (
-                  <div key={entry.id}>
+                  <div key={entry.id} className={keepTogether}>
                     <div className="flex flex-wrap items-baseline justify-between gap-x-4">
                       <h3 className="text-body-l font-medium">
                         {entry.degree}
@@ -256,6 +351,41 @@ export default async function CvPage() {
                     )}
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {certifications.length > 0 && (
+            <div className={divider}>
+              <h2 className="text-h2 mb-5 font-normal">Certifications</h2>
+              <div className="flex flex-col gap-4">
+                {certifications.map((cert) => {
+                  // Both columns are `not null default ''`, and every row
+                  // currently has an empty issued_date — join rather than
+                  // interpolate so no stray separator survives.
+                  const meta = [cert.issuer, cert.issued_date]
+                    .filter(Boolean)
+                    .join(" · ");
+
+                  return (
+                    <div key={cert.id} className={keepTogether}>
+                      <h3 className="text-body-l font-medium">{cert.title}</h3>
+                      {meta && (
+                        <p className="text-body-s text-ink/60">{meta}</p>
+                      )}
+                      {cert.link_url && (
+                        <a
+                          href={cert.link_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-1 inline-block break-all font-mono text-body-xs text-ink/50 transition-colors hover:text-accent"
+                        >
+                          {cert.link_url.replace(/^https?:\/\//, "")}
+                        </a>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

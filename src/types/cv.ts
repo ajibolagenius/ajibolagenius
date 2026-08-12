@@ -54,6 +54,14 @@ export interface Certification {
   id: string;
   title: string;
   order: number;
+  /**
+   * Added by migration 20260714020000. Both text columns are `not null
+   * default ''`, so they are always present but frequently empty — every row
+   * currently has an empty `issued_date`. Render them conditionally.
+   */
+  issuer: string;
+  issued_date: string;
+  link_url: string | null;
 }
 
 export interface Language {

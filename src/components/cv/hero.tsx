@@ -1,21 +1,21 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
-import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
-import { CompanyIcon } from "@/components/company-icon";
-import { assignCompanyIcons } from "@/lib/company-icon";
-import type { ExperienceEntry, PersonalInfo } from "@/types/cv";
+import type { PersonalInfo } from "@/types/cv";
 
-export function Hero({
-  info,
-  experience,
-}: {
-  info: PersonalInfo | null;
-  experience: ExperienceEntry[];
-}) {
+/**
+ * Above-the-fold, so every animation here is mount-time.
+ *
+ * `.reveal` (and anything else on an `animation-timeline: view()`) is
+ * deliberately not used in this component: Chrome can paint the 0% state of a
+ * scroll-driven animation on load, which would flash an empty hero. The
+ * `.enter` / `--enter-i` stagger is time-based and safe.
+ *
+ * Kept deliberately spare — one statement, nothing competing with it. Identity
+ * and the derived proof stats both live in the Sidebar, which is on screen at
+ * the same time on desktop and stacked directly above this on mobile.
+ */
+export function Hero({ info }: { info: PersonalInfo | null }) {
   if (!info) return null;
-
-  const recentJobs = experience.slice(0, 3);
-  const iconStyles = assignCompanyIcons(recentJobs.map((j) => j.company));
 
   return (
     <section className="flex flex-col items-center gap-6 py-16 text-center">
@@ -33,45 +33,13 @@ export function Hero({
       >
         {info.tagline}
       </h2>
-      <span
-        aria-hidden
-        className="rule-draw h-px w-16 bg-accent/40"
-      />
+      <span aria-hidden className="rule-draw h-px w-16 bg-accent/40" />
       <p
         className="enter max-w-md text-body-m text-ink/60"
         style={{ "--enter-i": 2 } as CSSProperties}
       >
         {info.tagline_suffix}
       </p>
-      <a
-        href="#experience"
-        className="enter group inline-flex items-center gap-3 bg-ink/5 py-2 pl-2 pr-5 text-body-s font-medium text-ink transition-colors duration-[var(--dur-2)] hover:bg-ink/10"
-        style={{ "--enter-i": 3 } as CSSProperties}
-      >
-        {recentJobs.length > 0 && (
-          <span className="flex items-center">
-            {recentJobs.map((job, i) => (
-              <span
-                key={job.id}
-                className="-ml-2 border-2 border-cream first:ml-0"
-                style={{ zIndex: recentJobs.length - i }}
-              >
-                <CompanyIcon
-                  seed={job.company}
-                  size={28}
-                  style={iconStyles.get(job.company)}
-                />
-              </span>
-            ))}
-          </span>
-        )}
-        View Experience
-        <ArrowRight
-          weight="duotone"
-          size={16}
-          className="transition-transform group-hover:translate-x-1"
-        />
-      </a>
     </section>
   );
 }

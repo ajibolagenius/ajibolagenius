@@ -1,19 +1,62 @@
 import Image from "next/image";
 import {
+    Briefcase,
+    Buildings,
     DownloadSimple,
     Envelope,
     LinkedinLogo,
     MapPin,
-    Briefcase,
     Globe,
+    Stack,
     XLogo,
     GithubLogo,
 } from "@phosphor-icons/react/dist/ssr";
-import type { PersonalInfo } from "@/types/cv";
+import type { ExperienceEntry, PersonalInfo } from "@/types/cv";
 import { EdgeMarquee } from "@/components/cv/edge-marquee";
+import { experienceLabel } from "@/lib/experience-span";
 
-export function Sidebar({ info }: { info: PersonalInfo | null }) {
+export function Sidebar({
+    info,
+    experience = [],
+    projectCount,
+}: {
+    info: PersonalInfo | null;
+    /** Drives the derived proof stats below. */
+    experience?: ExperienceEntry[];
+    /** Total listed projects; omitted from the stats when unavailable. */
+    projectCount?: number | null;
+}) {
     if (!info) return null;
+
+    // Every figure is derived — a row that can't be computed is dropped rather
+    // than defaulted. This replaced a hardcoded "5+ years experience" that had
+    // drifted two years off the underlying data.
+    const yearsLabel = experienceLabel(experience);
+    const companyCount = new Set(experience.map((e) => e.company)).size;
+
+    // The proof stats read as more rows in this list rather than as a separate
+    // stats block, so the sidebar stays one consistent icon + label vocabulary.
+    const metaRows = [
+        info.location && { key: "location", Icon: MapPin, text: info.location },
+        yearsLabel && { key: "years", Icon: Briefcase, text: yearsLabel },
+        companyCount > 0 && {
+            key: "companies",
+            Icon: Buildings,
+            text: `${companyCount} companies`,
+        },
+        projectCount && {
+            key: "projects",
+            Icon: Stack,
+            text: `${projectCount} projects shipped`,
+        },
+        info.availability && {
+            key: "availability",
+            Icon: Globe,
+            text: info.availability,
+        },
+    ].filter((row): row is Exclude<typeof row, false | "" | 0 | null | undefined> =>
+        Boolean(row),
+    );
 
     const marqueeItems = [
         info.role,
@@ -49,22 +92,12 @@ export function Sidebar({ info }: { info: PersonalInfo | null }) {
             </div>
 
             <div className="flex flex-col gap-2 border-t border-ink/10 pt-4 text-body-s text-ink/70 md:flex-row md:flex-wrap md:gap-6 lg:flex-col lg:gap-2">
-                {info.location && (
-                    <div className="flex items-center gap-2">
-                        <MapPin weight="duotone" size={16} />
-                        {info.location}
+                {metaRows.map(({ key, Icon, text }) => (
+                    <div key={key} className="flex items-center gap-2">
+                        <Icon weight="duotone" size={16} />
+                        {text}
                     </div>
-                )}
-                <div className="flex items-center gap-2">
-                    <Briefcase weight="duotone" size={16} />
-                    5+ years experience
-                </div>
-                {info.availability && (
-                    <div className="flex items-center gap-2">
-                        <Globe weight="duotone" size={16} />
-                        {info.availability}
-                    </div>
-                )}
+                ))}
             </div>
 
             <div className="flex items-center gap-4 border-t border-ink/10 pt-4">

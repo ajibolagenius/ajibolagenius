@@ -270,6 +270,37 @@ body {
   }
 }
 
+/* ── Vertical timeline rule ────────────────────────────────────────────── */
+@keyframes rule-draw-y {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* The accent overlay is display:none by default and only turned on where
+   scroll-driven animation genuinely works. That way a browser without view()
+   support falls back to the plain hairline track rather than to a static
+   accent bar it could never "fill" — the same fail-open invariant as .reveal,
+   where the hidden state lives strictly inside the @supports block. */
+.timeline-progress {
+  display: none;
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .timeline-progress {
+      display: block;
+      transform-origin: 50% 0;
+      animation: rule-draw-y linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 65%;
+    }
+  }
+}
+
 /* ── Scroll progress — pure CSS, no listener ───────────────────────────── */
 .scroll-progress {
   transform: scaleX(0);
@@ -654,5 +685,22 @@ html[data-vt="lightbox"]::view-transition-new(root) {
   .cursor-accent,
   .indicator {
     display: none !important;
+  }
+
+  /* The other half of the `break-inside-avoid` on each CV entry: without
+     this a section heading can be stranded at the foot of a sheet with its
+     content overleaf, which reads as an empty section. */
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+
+  /* Stops a single trailing line of a paragraph or bullet from being pushed
+     onto the next page on its own. */
+  p,
+  li {
+    orphans: 3;
+    widows: 3;
   }
 }
