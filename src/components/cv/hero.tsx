@@ -1,5 +1,9 @@
-import type { CSSProperties } from "react";
+import { Suspense, type CSSProperties } from "react";
 import Image from "next/image";
+import {
+  ContributionGraph,
+  ContributionGraphFallback,
+} from "@/components/cv/contribution-graph";
 import type { PersonalInfo } from "@/types/cv";
 
 /**
@@ -40,6 +44,12 @@ export function Hero({ info }: { info: PersonalInfo | null }) {
       >
         {info.tagline_suffix}
       </p>
+
+      {/* Streamed in behind a boundary so a third-party request can never
+          delay the hero's first paint. Renders nothing when unavailable. */}
+      <Suspense fallback={<ContributionGraphFallback />}>
+        <ContributionGraph github={info.social?.github} />
+      </Suspense>
     </section>
   );
 }
