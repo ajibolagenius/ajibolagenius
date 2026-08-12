@@ -683,13 +683,22 @@ html[data-vt="lightbox"]::view-transition-new(root) {
     margin: 12mm;
   }
 
+  /* Paper is light, whatever the screen was. ThemeScript flips to dark on its
+     own after 18:00, so this is not an edge case — it is what an evening
+     "Download PDF" produced.
+
+     The tokens are re-pointed rather than body's background and colour being
+     overridden, which is what this rule used to do: that lit the text light-on
+     -light while every `bg-cream` / `text-ink` utility underneath still
+     resolved to the dark palette, so the CV printed as a black sheet with
+     near-invisible headings. Moving the fix to the tokens means every utility
+     downstream follows. */
   html.dark {
     color-scheme: light;
-  }
-
-  html.dark body {
-    background: #fbf5ef;
-    color: #1a0a06;
+    --color-cream: #fbf5ef;
+    --color-ink: #1a0a06;
+    --color-accent: #e64301;
+    --color-panel: #f0e9e3;
   }
 
   * {
@@ -741,5 +750,165 @@ html[data-vt="lightbox"]::view-transition-new(root) {
   li {
     orphans: 3;
     widows: 3;
+  }
+
+  /* ── The CV as an A4 document ────────────────────────────────────────────
+   * /cv is one DOM at two densities: an 860px sheet on screen, A4 on paper.
+   * This block is the second density. It exists because the printed version
+   * had three specific defects, each fixed below in order:
+   *
+   *  1. EMPTY GUTTER. Skills and languages sit in a grid column, and a CSS
+   *     column cannot repeat onto later sheets — so every page after the
+   *     first carried a blank 200px gutter, a quarter of the sheet, and the
+   *     document ran to four pages. Print flattens to a single column.
+   *
+   *  2. TORN ENTRIES. Chrome honours `break-inside: avoid` only when the box
+   *     AND its ancestors are block boxes: inside a flex or grid container it
+   *     slices items mid-paragraph. Roles were splitting across sheets even
+   *     though every entry already asked not to. The page is authored in
+   *     block flow with margin spacing for this reason, and the two grid
+   *     containers that remain are flattened here.
+   *
+   *  3. WEB TYPE SCALE. 32px section headings and 16px body are right for a
+   *     scrolling page and wrong for A4. Print gets its own scale, in pt.
+   *
+   * Sizes are in mm/pt deliberately — this is the one place in the codebase
+   * where the output has physical dimensions. Changing a number here changes
+   * how many sheets the CV is, so check the printed result, not the screen.
+   * -------------------------------------------------------------------- */
+  /* The sheet's background stops where its content stops, so the last page
+     was cream down to the final entry and bare below it. The root fills the
+     rest of that page's content box. (Not the @page margin box — Chrome never
+     paints that, which is why the 12mm frame stays white on every sheet.) */
+  html:has(.cv-sheet) {
+    background: var(--color-cream);
+  }
+
+  .cv-sheet {
+    max-width: none;
+    /* @page owns the margins; sheet padding on top of them would double up. */
+    padding: 0;
+    font-size: 9.5pt;
+    line-height: 1.42;
+  }
+
+  /* (1) One column, in DOM order: identity, contact, profile, skills,
+     languages, then history. */
+  .cv-sheet .cv-body {
+    display: block;
+    margin-top: 4mm;
+  }
+
+  .cv-sheet .cv-aside {
+    margin-bottom: 4mm;
+  }
+
+  /* (2) Nothing above an entry may be a flex or grid box. */
+  .cv-sheet .cv-list,
+  .cv-sheet .cv-main,
+  .cv-sheet .cv-aside {
+    display: block;
+  }
+
+  .cv-sheet .cv-entry {
+    break-inside: avoid;
+    /* The gutter held a decorative company swatch, hidden below. */
+    padding-left: 0;
+  }
+
+  .cv-sheet .cv-entry-icon {
+    display: none;
+  }
+
+  .cv-sheet .cv-section {
+    padding-top: 3mm;
+    /* A heading is worthless at the foot of a sheet, so keep it with at least
+       the start of its content. `break-after: avoid` on the h2 above handles
+       the heading itself. */
+    break-before: auto;
+  }
+
+  .cv-sheet .cv-keep {
+    break-inside: avoid;
+  }
+
+  /* Vertical rhythm. The screen's space-y-* margins are in px and far too
+     generous at this scale; these are the printed equivalents. */
+  .cv-sheet .cv-main > * + *,
+  .cv-sheet .cv-aside > * + * {
+    margin-top: 4mm;
+  }
+
+  .cv-sheet .cv-list > * + * {
+    margin-top: 3mm;
+  }
+
+  .cv-sheet .cv-entry p,
+  .cv-sheet .cv-entry ul {
+    margin-top: 1mm;
+  }
+
+  .cv-sheet .cv-entry li + li {
+    margin-top: 0.5mm;
+  }
+
+  /* (3) Print type scale. */
+  .cv-sheet .cv-name {
+    font-size: 17pt;
+    line-height: 1.1;
+  }
+
+  .cv-sheet .cv-role {
+    font-size: 10.5pt;
+  }
+
+  .cv-sheet .cv-h2 {
+    font-size: 11.5pt;
+    margin-bottom: 1.5mm;
+  }
+
+  .cv-sheet .cv-entry-title {
+    font-size: 10.5pt;
+    line-height: 1.25;
+  }
+
+  .cv-sheet .cv-meta,
+  .cv-sheet .cv-rail {
+    font-size: 8.5pt;
+  }
+
+  .cv-sheet .cv-url {
+    font-size: 7.5pt;
+    margin-top: 0.5mm;
+  }
+
+  .cv-sheet .cv-chips span {
+    font-size: 7.5pt;
+    padding: 0.2mm 1.2mm;
+  }
+
+  /* Header trim: a 20mm portrait and an eight-line contact list are screen
+     proportions. */
+  .cv-sheet .cv-avatar {
+    width: 15mm;
+    height: 15mm;
+  }
+
+  .cv-sheet .cv-rail {
+    margin-top: 2.5mm;
+    gap: 0.8mm 4mm;
+  }
+
+  .cv-sheet .cv-identity {
+    gap: 3mm;
+  }
+
+  /* Flags are decoration that costs a line of height each in colour. */
+  .cv-sheet .cv-flag {
+    display: none;
+  }
+
+  .cv-sheet .cv-langs > * + * {
+    margin-top: 0.8mm;
   }
 }

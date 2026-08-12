@@ -21,6 +21,32 @@ import { LISTED_KINDS } from "@/lib/project-kind";
 import { siteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
 
+/**
+ * The printable CV.
+ *
+ * AUTHORING RULES — this page is also an A4 document, and paged media is
+ * unforgiving in two ways that dictate how the markup below is written:
+ *
+ *  1. NO FLEX OR GRID AROUND ANYTHING THAT MIGHT BREAK. Chrome honours
+ *     `break-inside: avoid` only when the box and its ancestors are block
+ *     boxes; inside a flex or grid container it slices items mid-paragraph
+ *     instead. Every vertical stack here is therefore a block with margin
+ *     spacing (`space-y-*`, `mt-*`), never `flex flex-col gap-*`. Flex is used
+ *     only for single-line leaf rows — a title beside its dates, the contact
+ *     rail — which never need to fragment.
+ *
+ *  2. STRUCTURE IS SHARED, DENSITY IS NOT. The screen sheet and the A4
+ *     document are one DOM. The `cv-*` class names are the hooks the print
+ *     block in globals.css reflows: it drops to a single column (a CSS sidebar
+ *     cannot repeat onto later sheets, so keeping two would leave every page
+ *     after the first with a blank gutter) and switches to a pt type scale.
+ *     Read that block before changing any layout here.
+ *
+ * Content order is print order: identity, contact, profile, then skills and
+ * languages, then history. The screen's two columns are a grid placement of
+ * that same order, not a different one.
+ */
+
 /** The columns the CV's project block actually renders. */
 type CvProject = {
   id: string;
@@ -54,14 +80,38 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const divider = "border-t border-ink/10 pt-6";
+/** Section shell: hairline rule, heading, then block-flow content. */
+function Section({
+  title,
+  children,
+  className = "",
+}: {
+  title: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <section className={`cv-section border-t border-ink/10 pt-5 ${className}`}>
+      <h2 className="cv-h2 text-h3 mb-3 font-normal">{title}</h2>
+      {children}
+    </section>
+  );
+}
 
-/**
- * Entries must not tear across a page break — a role whose bullets land on the
- * next sheet reads as two half-jobs. `break-inside` only has meaning in paged
- * media, so this is safe to apply unconditionally.
- */
-const keepTogether = "break-inside-avoid";
+/** A URL printed as readable text — a hyperlink with no visible URL is
+ *  unusable on paper, and this avoids ::after content injection. */
+function UrlLine({ href }: { href: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="cv-url mt-1 inline-block break-all font-mono text-body-xs text-ink/50 transition-colors hover:text-accent"
+    >
+      {href.replace(/^https?:\/\//, "")}
+    </a>
+  );
+}
 
 export default async function CvPage() {
   const supabase = await createClient();
@@ -92,6 +142,38 @@ export default async function CvPage() {
   // fixed number, which is exactly how the old "5+ years" went stale.
   const yearsLabel = experienceLabel(experience);
 
+  // One rail instead of the old stacked sidebar list: eight facts down a 240px
+  // column ran to eight lines, the same eight across 186mm run to two.
+  const railItems = [
+    info.location && { key: "location", Icon: MapPin, text: info.location },
+    yearsLabel && { key: "years", Icon: Briefcase, text: yearsLabel },
+    info.availability && {
+      key: "availability",
+      Icon: Globe,
+      text: info.availability,
+    },
+    info.email && { key: "email", Icon: Envelope, text: info.email },
+    info.phone && { key: "phone", Icon: Phone, text: info.phone },
+    info.social?.github && {
+      key: "github",
+      Icon: GithubLogo,
+      text: info.social.github.replace(/^https?:\/\//, ""),
+    },
+    info.social?.linkedin && {
+      key: "linkedin",
+      Icon: LinkedinLogo,
+      text: info.social.linkedin.replace(/^https?:\/\//, ""),
+    },
+    info.social?.twitter && {
+      key: "twitter",
+      Icon: XLogo,
+      text: info.social.twitter.replace(/^https?:\/\//, ""),
+    },
+  ].filter(
+    (item): item is Exclude<typeof item, false | "" | null | undefined> =>
+      Boolean(item),
+  );
+
   return (
     <div className="min-h-screen bg-panel py-10 print:bg-cream print:py-0">
       <CvDownloadButton />
@@ -106,291 +188,223 @@ export default async function CvPage() {
         </Link>
       </div>
 
-      <div className="mx-auto grid max-w-[860px] grid-cols-1 gap-x-10 gap-y-10 bg-cream p-8 shadow-sm sm:grid-cols-[240px_1fr] sm:p-12 print:max-w-none print:shadow-none">
-        {/* Left column */}
-        <div className="flex flex-col gap-6">
-          <div className="h-20 w-20 overflow-hidden">
-            <Image
-              src={info.avatar_url || "/avatar_3d.png"}
-              alt={info.name}
-              width={160}
-              height={160}
-              className="h-full w-full object-cover"
-            />
-          </div>
-
-          {/* `description` deliberately does not appear here. It is the
-              Profile prose in the right-hand column, and printing the same
-              paragraph twice on one page was the single most visible defect
-              on this document. */}
-          <div>
-            <h1 className="text-h3 font-normal">{info.name}</h1>
-            <p className="text-body-s text-ink/60">{info.role}</p>
-          </div>
-
-          <div className={`flex flex-col gap-2 text-body-s text-ink/70 ${divider}`}>
-            {info.location && (
-              <div className="flex items-center gap-2">
-                <MapPin weight="duotone" size={16} />
-                {info.location}
-              </div>
-            )}
-            {yearsLabel && (
-              <div className="flex items-center gap-2">
-                <Briefcase weight="duotone" size={16} />
-                {yearsLabel}
-              </div>
-            )}
-            {info.availability && (
-              <div className="flex items-center gap-2">
-                <Globe weight="duotone" size={16} />
-                {info.availability}
-              </div>
-            )}
-          </div>
-
-          <div className={divider}>
-            <h2 className="text-h3 mb-3 font-normal">Contact</h2>
-            <div className="flex flex-col gap-2 text-body-s text-ink/70">
-              {info.email && (
-                <div className="flex items-center gap-2">
-                  <Envelope weight="duotone" size={16} />
-                  <span className="break-all">{info.email}</span>
-                </div>
-              )}
-              {info.phone && (
-                <div className="flex items-center gap-2">
-                  <Phone weight="duotone" size={16} />
-                  {info.phone}
-                </div>
-              )}
-              {info.social?.github && (
-                <div className="flex items-center gap-2">
-                  <GithubLogo weight="duotone" size={16} />
-                  <span className="break-all">
-                    {info.social.github.replace(/^https?:\/\//, "")}
-                  </span>
-                </div>
-              )}
-              {info.social?.linkedin && (
-                <div className="flex items-center gap-2">
-                  <LinkedinLogo weight="duotone" size={16} />
-                  <span className="break-all">
-                    {info.social.linkedin.replace(/^https?:\/\//, "")}
-                  </span>
-                </div>
-              )}
-              {info.social?.twitter && (
-                <div className="flex items-center gap-2">
-                  <XLogo weight="duotone" size={16} />
-                  <span className="break-all">
-                    {info.social.twitter.replace(/^https?:\/\//, "")}
-                  </span>
-                </div>
-              )}
+      <article className="cv-sheet mx-auto max-w-[860px] bg-cream p-8 shadow-sm sm:p-12 print:max-w-none print:shadow-none">
+        <header className="cv-head">
+          <div className="cv-identity flex items-center gap-4">
+            <div className="cv-avatar h-20 w-20 shrink-0 overflow-hidden">
+              <Image
+                src={info.avatar_url || "/avatar_3d.png"}
+                alt={info.name}
+                width={160}
+                height={160}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="min-w-0">
+              <h1 className="cv-name text-h2 font-normal">{info.name}</h1>
+              <p className="cv-role text-body-m text-ink/60">{info.role}</p>
             </div>
           </div>
 
-          {skills.length > 0 && (
-            <div className={divider}>
-              <h2 className="text-h3 mb-3 font-normal">Skills</h2>
-              <div className="flex flex-wrap gap-2">
-                {skills.map((skill) => (
-                  <span
-                    key={skill.id}
-                    className="bg-ink/5 px-2.5 py-1 font-mono text-body-xs text-ink/70"
-                  >
-                    {skill.name}
-                  </span>
-                ))}
-              </div>
-            </div>
+          <ul className="cv-rail mt-5 flex flex-wrap gap-x-5 gap-y-1.5 text-body-s text-ink/70">
+            {railItems.map(({ key, Icon, text }) => (
+              <li key={key} className="flex items-center gap-1.5">
+                <Icon weight="duotone" size={15} className="shrink-0" />
+                <span className="break-all">{text}</span>
+              </li>
+            ))}
+          </ul>
+
+          {/* `description` appears here and nowhere else — it used to print
+              both as the sidebar blurb and as the Profile prose. */}
+          {info.description && (
+            <Section title="Profile" className="cv-keep mt-6">
+              <p className="text-body-m text-ink/70">{info.description}</p>
+            </Section>
           )}
+        </header>
 
-          {languages.length > 0 && (
-            <div className={divider}>
-              <h2 className="text-h3 mb-3 font-normal">Languages</h2>
-              <div className="flex flex-col gap-3">
-                {languages.map((lang) => (
-                  <div key={lang.id} className="flex items-center gap-2">
-                    <Image
-                      src={`/flag-${lang.flag_code}.svg`}
-                      alt=""
-                      width={20}
-                      height={20}
-                      className="object-cover"
-                    />
-                    <div>
-                      <p className="text-body-s font-medium">{lang.name}</p>
-                      <p className="text-body-xs text-ink/60">
+        {/* Screen: skills/languages in a left column. Print: one column, in
+            this same DOM order — see the print block in globals.css. */}
+        <div className="cv-body mt-8 grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-[200px_1fr]">
+          <aside className="cv-aside space-y-6">
+            {skills.length > 0 && (
+              <Section title="Skills" className="cv-keep">
+                <div className="cv-chips flex flex-wrap gap-1.5">
+                  {skills.map((skill) => (
+                    <span
+                      key={skill.id}
+                      className="bg-ink/5 px-2 py-0.5 font-mono text-body-xs text-ink/70"
+                    >
+                      {skill.name}
+                    </span>
+                  ))}
+                </div>
+              </Section>
+            )}
+
+            {languages.length > 0 && (
+              <Section title="Languages" className="cv-keep">
+                <div className="cv-langs space-y-1.5">
+                  {languages.map((lang) => (
+                    <div
+                      key={lang.id}
+                      className="flex items-baseline gap-2 text-body-s"
+                    >
+                      <Image
+                        src={`/flag-${lang.flag_code}.svg`}
+                        alt=""
+                        width={16}
+                        height={16}
+                        className="cv-flag mt-0.5 shrink-0 object-cover"
+                      />
+                      <span className="font-medium">{lang.name}</span>
+                      <span className="text-body-xs text-ink/60">
                         {lang.proficiency}
-                      </p>
+                      </span>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+                  ))}
+                </div>
+              </Section>
+            )}
+          </aside>
 
-        {/* Right column */}
-        <div className="flex flex-col gap-8">
-          <div className={keepTogether}>
-            <h2 className="text-h2 mb-3 font-normal">Profile</h2>
-            <p className="text-body-m text-ink/70">{info.description}</p>
-          </div>
-
-          {experience.length > 0 && (
-            <div className={divider}>
-              <h2 className="text-h2 mb-5 font-normal">Experience</h2>
-              <div className="flex flex-col gap-6">
-                {experience.map((entry) => (
-                  <div key={entry.id} className={`flex gap-4 ${keepTogether}`}>
-                    <CompanyIcon
-                      seed={entry.company}
-                      style={iconStyles.get(entry.company)}
-                    />
-                    <div className="flex flex-1 flex-col gap-1">
+          <div className="cv-main space-y-6">
+            {experience.length > 0 && (
+              <Section title="Experience">
+                <div className="cv-list space-y-5">
+                  {experience.map((entry) => (
+                    <article key={entry.id} className="cv-entry relative pl-12">
+                      <span className="cv-entry-icon absolute left-0 top-0.5">
+                        <CompanyIcon
+                          seed={entry.company}
+                          style={iconStyles.get(entry.company)}
+                        />
+                      </span>
                       <div className="flex flex-wrap items-baseline justify-between gap-x-4">
-                        <h3 className="text-body-l font-medium">
+                        <h3 className="cv-entry-title text-body-l font-medium">
                           {entry.role_title}
                         </h3>
-                        <span className="text-body-s text-ink/60">
+                        <span className="cv-meta text-body-s text-ink/60">
                           {entry.start_date} &ndash; {entry.end_date}
                         </span>
                       </div>
-                      <p className="text-body-s text-ink/60">
+                      <p className="cv-meta text-body-s text-ink/60">
                         {entry.company} &middot; {entry.employment_type}
                       </p>
                       {entry.body && (
-                        <p className="mt-1 text-body-s text-ink/70">
+                        <p className="mt-1.5 text-body-s text-ink/70">
                           {entry.body}
                         </p>
                       )}
                       {entry.bullets?.length > 0 && (
-                        <ul className="mt-1 flex list-disc flex-col gap-1 pl-4 text-body-s text-ink/70">
+                        <ul className="mt-1.5 list-disc space-y-1 pl-4 text-body-s text-ink/70">
                           {entry.bullets.map((bullet) => (
                             <li key={bullet}>{bullet}</li>
                           ))}
                         </ul>
                       )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+                    </article>
+                  ))}
+                </div>
+              </Section>
+            )}
 
-          {projects.length > 0 && (
-            <div className={divider}>
-              <h2 className="text-h2 mb-5 font-normal">Selected Projects</h2>
-              <div className="flex flex-col gap-5">
-                {projects.map((project) => {
-                  // Prefer the live site; fall back to the portfolio entry so
-                  // every project carries a URL a reader can actually type.
-                  // '#' is the table's placeholder for "no live URL".
-                  const url =
-                    project.live_url && project.live_url !== "#"
-                      ? project.live_url
-                      : `${siteUrl}/projects/${project.slug}`;
+            {projects.length > 0 && (
+              <Section title="Selected Projects">
+                <div className="cv-list space-y-4">
+                  {projects.map((project) => {
+                    // Prefer the live site; fall back to the portfolio entry so
+                    // every project carries a URL a reader can actually type.
+                    // '#' is the table's placeholder for "no live URL".
+                    const url =
+                      project.live_url && project.live_url !== "#"
+                        ? project.live_url
+                        : `${siteUrl}/projects/${project.slug}`;
 
-                  return (
-                    <div key={project.id} className={keepTogether}>
-                      <div className="flex flex-wrap items-baseline justify-between gap-x-4">
-                        <h3 className="text-body-l font-medium">
-                          {project.name}
-                        </h3>
-                        {project.year && (
-                          <span className="text-body-s text-ink/60">
-                            {project.year}
-                          </span>
+                    return (
+                      <article key={project.id} className="cv-entry">
+                        <div className="flex flex-wrap items-baseline justify-between gap-x-4">
+                          <h3 className="cv-entry-title text-body-l font-medium">
+                            {project.name}
+                          </h3>
+                          {project.year && (
+                            <span className="cv-meta text-body-s text-ink/60">
+                              {project.year}
+                            </span>
+                          )}
+                        </div>
+                        {project.description && (
+                          <p className="mt-1 text-body-s text-ink/70">
+                            {project.description}
+                          </p>
                         )}
+                        <UrlLine href={url} />
+                      </article>
+                    );
+                  })}
+                </div>
+              </Section>
+            )}
+
+            {education.length > 0 && (
+              <Section title="Education">
+                <div className="cv-list space-y-4">
+                  {education.map((entry) => (
+                    <article key={entry.id} className="cv-entry">
+                      <div className="flex flex-wrap items-baseline justify-between gap-x-4">
+                        <h3 className="cv-entry-title text-body-l font-medium">
+                          {entry.degree}
+                        </h3>
+                        <span className="cv-meta text-body-s text-ink/60">
+                          {entry.year}
+                        </span>
                       </div>
-                      {project.description && (
+                      <p className="cv-meta text-body-s text-ink/60">
+                        {entry.school}
+                      </p>
+                      {entry.description && (
                         <p className="mt-1 text-body-s text-ink/70">
-                          {project.description}
+                          {entry.description}
                         </p>
                       )}
-                      {/* Rendered as visible text rather than a bare link:
-                          on paper a hyperlink with no URL is unusable, and
-                          this avoids needing ::after content injection. */}
-                      <a
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-1 inline-block break-all font-mono text-body-xs text-ink/50 transition-colors hover:text-accent"
-                      >
-                        {url.replace(/^https?:\/\//, "")}
-                      </a>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+                    </article>
+                  ))}
+                </div>
+              </Section>
+            )}
 
-          {education.length > 0 && (
-            <div className={divider}>
-              <h2 className="text-h2 mb-5 font-normal">Education</h2>
-              <div className="flex flex-col gap-5">
-                {education.map((entry) => (
-                  <div key={entry.id} className={keepTogether}>
-                    <div className="flex flex-wrap items-baseline justify-between gap-x-4">
-                      <h3 className="text-body-l font-medium">
-                        {entry.degree}
-                      </h3>
-                      <span className="text-body-s text-ink/60">
-                        {entry.year}
-                      </span>
-                    </div>
-                    <p className="text-body-s text-ink/60">{entry.school}</p>
-                    {entry.description && (
-                      <p className="mt-1 text-body-s text-ink/70">
-                        {entry.description}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+            {certifications.length > 0 && (
+              <Section title="Certifications">
+                <div className="cv-list space-y-3.5">
+                  {certifications.map((cert) => {
+                    // Both columns are `not null default ''`, and every row
+                    // currently has an empty issued_date — join rather than
+                    // interpolate so no stray separator survives.
+                    const meta = [cert.issuer, cert.issued_date]
+                      .filter(Boolean)
+                      .join(" · ");
 
-          {certifications.length > 0 && (
-            <div className={divider}>
-              <h2 className="text-h2 mb-5 font-normal">Certifications</h2>
-              <div className="flex flex-col gap-4">
-                {certifications.map((cert) => {
-                  // Both columns are `not null default ''`, and every row
-                  // currently has an empty issued_date — join rather than
-                  // interpolate so no stray separator survives.
-                  const meta = [cert.issuer, cert.issued_date]
-                    .filter(Boolean)
-                    .join(" · ");
-
-                  return (
-                    <div key={cert.id} className={keepTogether}>
-                      <h3 className="text-body-l font-medium">{cert.title}</h3>
-                      {meta && (
-                        <p className="text-body-s text-ink/60">{meta}</p>
-                      )}
-                      {cert.link_url && (
-                        <a
-                          href={cert.link_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-1 inline-block break-all font-mono text-body-xs text-ink/50 transition-colors hover:text-accent"
-                        >
-                          {cert.link_url.replace(/^https?:\/\//, "")}
-                        </a>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+                    return (
+                      <article key={cert.id} className="cv-entry">
+                        <h3 className="cv-entry-title text-body-l font-medium">
+                          {cert.title}
+                        </h3>
+                        {meta && (
+                          <p className="cv-meta text-body-s text-ink/60">
+                            {meta}
+                          </p>
+                        )}
+                        {cert.link_url && <UrlLine href={cert.link_url} />}
+                      </article>
+                    );
+                  })}
+                </div>
+              </Section>
+            )}
+          </div>
         </div>
-      </div>
+      </article>
     </div>
   );
 }
