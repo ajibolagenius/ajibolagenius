@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import { CaretLeft, CaretRight, X } from "@phosphor-icons/react/dist/ssr";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
+import { useViewTransition } from "@/hooks/use-view-transition";
 
 export function ScreenshotGallery({
   screenshots,
@@ -12,6 +14,13 @@ export function ScreenshotGallery({
   alt: string;
 }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const close = useCallback(() => setOpenIndex(null), []);
+  const transition = useViewTransition("lightbox");
+
+  // Adds a focus trap, Escape, body scroll lock and focus restore — the
+  // lightbox previously had none of the four.
+  useFocusTrap(dialogRef, openIndex !== null, close);
 
   // Keep prev/next mounted (invisible) so arrow-key navigation doesn't
   // fetch + decode the image inside the interaction (INP).
@@ -25,7 +34,6 @@ export function ScreenshotGallery({
   useEffect(() => {
     if (openIndex === null) return;
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpenIndex(null);
       if (e.key === "ArrowRight") {
         setOpenIndex((i) => (i === null ? i : (i + 1) % screenshots.length));
       }
@@ -46,8 +54,13 @@ export function ScreenshotGallery({
           <button
             key={src}
             type="button"
-            onClick={() => setOpenIndex(i)}
-            className="relative aspect-video w-full cursor-zoom-in overflow-hidden border border-ink/10 transition-transform duration-300 hover:scale-[1.03]"
+            onClick={() => transition(() => setOpenIndex(i))}
+            style={
+              openIndex === i
+                ? undefined
+                : ({ viewTransitionName: `shot-${i}` } as CSSProperties)
+            }
+            className="relative aspect-video w-full cursor-zoom-in overflow-hidden border border-ink/10 transition-transform duration-[var(--dur-3)] ease-out-quart hover:scale-[1.03]"
           >
             <Image
               src={src}
@@ -62,13 +75,17 @@ export function ScreenshotGallery({
 
       {openIndex !== null && (
         <div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${alt} screenshots`}
           className="fixed inset-0 z-50 flex items-center justify-center bg-ink/90 p-6"
-          onClick={() => setOpenIndex(null)}
+          onClick={() => transition(close)}
         >
           <button
             type="button"
-            onClick={() => setOpenIndex(null)}
-            className="absolute right-6 top-6 text-cream/70 transition-colors hover:text-cream"
+            onClick={() => transition(close)}
+            className="absolute right-6 top-6 text-cream/70 transition-colors duration-[var(--dur-2)] hover:text-cream"
             aria-label="Close"
           >
             <X size={28} weight="bold" />
@@ -120,7 +137,18 @@ export function ScreenshotGallery({
                   aria-hidden={!active}
                   fill
                   sizes="(max-width: 1024px) 100vw, 1024px"
-                  className={`object-contain ${active ? "" : "invisible"}`}
+                  style={
+                    active
+                      ? ({
+                          viewTransitionName: `shot-${openIndex}`,
+                        } as CSSProperties)
+                      : undefined
+                  }
+                  className={`object-contain transition-[opacity,transform] duration-[var(--dur-3)] ease-out-quart ${
+                    active
+                      ? "scale-100 opacity-100"
+                      : "pointer-events-none scale-[0.99] opacity-0"
+                  }`}
                 />
               );
             })}

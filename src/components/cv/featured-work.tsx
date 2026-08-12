@@ -1,35 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Pause, Play } from "@phosphor-icons/react/dist/ssr";
 import { SectionHeading } from "./section-heading";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { kindMeta, projectHref } from "@/lib/project-kind";
 import type { Project } from "@/types/project";
-
-const REDUCE_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-
-function subscribeReducedMotion(onStoreChange: () => void) {
-  const mq = window.matchMedia(REDUCE_MOTION_QUERY);
-  mq.addEventListener("change", onStoreChange);
-  return () => mq.removeEventListener("change", onStoreChange);
-}
-
-function getReducedMotionSnapshot() {
-  return window.matchMedia(REDUCE_MOTION_QUERY).matches;
-}
-
-function getReducedMotionServerSnapshot() {
-  return false;
-}
-
-function usePrefersReducedMotion() {
-  return useSyncExternalStore(
-    subscribeReducedMotion,
-    getReducedMotionSnapshot,
-    getReducedMotionServerSnapshot,
-  );
-}
 
 function FeaturedCard({
   project,
@@ -68,9 +46,18 @@ function FeaturedCard({
       </div>
       <div className="flex items-center justify-between gap-2 px-3 py-2.5">
         <div className="min-w-0">
-          <p className="truncate text-body-xs uppercase tracking-wide text-ink/60">
-            {project.category}
-          </p>
+          <div className="flex items-center gap-1.5">
+            {/* The reel is unified now, so each card states its own type. */}
+            <span
+              data-kind={project.kind}
+              className="shrink-0 px-1.5 py-0.5 font-mono text-body-xs text-ink/60 data-[kind=side]:bg-accent/10 data-[kind=side]:text-accent bg-ink/5"
+            >
+              {kindMeta(project.kind).label}
+            </span>
+            <p className="truncate text-body-xs uppercase tracking-wide text-ink/60">
+              {project.category}
+            </p>
+          </div>
           <h3 className="truncate text-body-s font-medium">{project.name}</h3>
         </div>
         <ArrowUpRight
@@ -94,11 +81,9 @@ function buildMarqueeBase(projects: Project[]) {
 
 function MarqueeTrack({
   projects,
-  linkPrefix,
   reverse,
 }: {
   projects: Project[];
-  linkPrefix: string;
   reverse: boolean;
 }) {
   const base = buildMarqueeBase(projects);
@@ -125,7 +110,7 @@ function MarqueeTrack({
             <FeaturedCard
               key={`${copy}-${project.id}-${i}`}
               project={project}
-              href={`${linkPrefix}/${project.slug}`}
+              href={projectHref(project)}
               className="w-[calc((100cqi-1.5rem)/3)]"
               sizes="(max-width: 640px) 85vw, 240px"
               // Leading card is the LCP on `/`. Its preload also covers the
@@ -139,13 +124,7 @@ function MarqueeTrack({
   );
 }
 
-function MobileCarousel({
-  projects,
-  linkPrefix,
-}: {
-  projects: Project[];
-  linkPrefix: string;
-}) {
+function MobileCarousel({ projects }: { projects: Project[] }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -176,7 +155,12 @@ function MobileCarousel({
     return () => el.removeEventListener("scroll", onScroll);
   }, [projects]);
 
-  const scrollToIndex = (index: number, behavior: ScrollBehavior = "smooth") => {
+  // CSS `scroll-behavior: auto` under prefers-reduced-motion does not affect
+  // scrollTo({behavior:"smooth"}) — the JS call has to opt out itself.
+  const scrollToIndex = (
+    index: number,
+    behavior: ScrollBehavior = reduceMotion ? "auto" : "smooth",
+  ) => {
     const el = scrollerRef.current;
     const card = el?.children[index] as HTMLElement | undefined;
     if (!el || !card) return;
@@ -209,7 +193,7 @@ function MobileCarousel({
           <FeaturedCard
             key={project.id}
             project={project}
-            href={`${linkPrefix}/${project.slug}`}
+            href={projectHref(project)}
             className="w-[min(85%,20rem)] snap-center"
             sizes="85vw"
           />
@@ -251,22 +235,15 @@ export function FeaturedWork({
   projects: Project[];
   sideProjects?: Project[];
 }) {
-  const hasClient = projects.length > 0;
-  const hasSide = sideProjects.length > 0;
-
-  const [activeTab, setActiveTab] = useState<"client" | "side">(
-    hasClient ? "client" : "side"
-  );
   const [hovered, setHovered] = useState(false);
   const reduceMotion = usePrefersReducedMotion();
 
-  if (!hasClient && !hasSide) return null;
+  // One unified reel now that /work and /side-projects have merged. Client
+  // work leads, side projects follow; each card carries its own type pill.
+  const currentProjects = [...projects, ...sideProjects];
 
-  const currentProjects = activeTab === "client" ? projects : sideProjects;
-  const viewAllLink = activeTab === "client" ? "/work" : "/side-projects";
-  const viewAllText =
-    activeTab === "client" ? "View all work" : "View all side projects";
-  const projectLinkPrefix = activeTab === "client" ? "/work" : "/side-projects";
+  if (currentProjects.length === 0) return null;
+
   const canMarquee = !reduceMotion && currentProjects.length > 0;
 
   return (
@@ -274,44 +251,17 @@ export function FeaturedWork({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-4">
           <SectionHeading id="work">Featured work</SectionHeading>
-
-          {hasClient && hasSide && (
-            <div className="inline-flex border border-ink/10 p-0.5 font-mono text-body-xs">
-              <button
-                type="button"
-                onClick={() => setActiveTab("client")}
-                className={`px-2.5 py-1 transition-colors ${
-                  activeTab === "client"
-                    ? "bg-ink text-cream"
-                    : "text-ink/60 hover:bg-ink/5 hover:text-ink"
-                }`}
-              >
-                Client
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("side")}
-                className={`px-2.5 py-1 transition-colors ${
-                  activeTab === "side"
-                    ? "bg-ink text-cream"
-                    : "text-ink/60 hover:bg-ink/5 hover:text-ink"
-                }`}
-              >
-                Side Projects
-              </button>
-            </div>
-          )}
         </div>
 
         <Link
-          href={viewAllLink}
-          className="group inline-flex shrink-0 items-center gap-1 text-body-s font-medium text-ink/60 transition-colors hover:text-accent"
+          href="/projects"
+          className="group inline-flex shrink-0 items-center gap-1 text-body-s font-medium text-ink/60 transition-colors duration-[var(--dur-2)] hover:text-accent"
         >
-          {viewAllText}
+          View all projects
           <ArrowUpRight
             size={16}
             weight="duotone"
-            className="transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            className="transition duration-[var(--dur-2)] ease-out-quart group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
           />
         </Link>
       </div>
@@ -342,17 +292,12 @@ export function FeaturedWork({
           <div
             className={`featured-marquee-host ${hovered ? "is-paused" : ""}`}
           >
-            <MarqueeTrack
-              key={activeTab}
-              projects={currentProjects}
-              linkPrefix={projectLinkPrefix}
-              reverse={activeTab === "side"}
-            />
+            <MarqueeTrack projects={currentProjects} reverse={false} />
           </div>
 
           <div className="mt-3 flex items-center justify-between gap-3">
             <p className="font-mono text-body-xs uppercase tracking-[0.18em] text-ink/35">
-              {activeTab === "client" ? "Client reel" : "Side reel"}
+              Featured reel
               <span className="mx-2 text-ink/15">·</span>
               {currentProjects.length} featured
             </p>
@@ -377,7 +322,7 @@ export function FeaturedWork({
             <FeaturedCard
               key={project.id}
               project={project}
-              href={`${projectLinkPrefix}/${project.slug}`}
+              href={projectHref(project)}
               sizes="(max-width: 640px) 100vw, 33vw"
               priority={i === 0}
             />
@@ -386,11 +331,7 @@ export function FeaturedWork({
       )}
 
       {/* Mobile: peek snap strip — one focus card + next peek */}
-      <MobileCarousel
-        key={activeTab}
-        projects={currentProjects}
-        linkPrefix={projectLinkPrefix}
-      />
+      <MobileCarousel projects={currentProjects} />
     </section>
   );
 }

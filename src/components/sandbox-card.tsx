@@ -1,6 +1,10 @@
+"use client";
+
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Flask, Play, Sparkle } from "@phosphor-icons/react/dist/ssr";
+import { useTilt } from "@/hooks/use-tilt";
 import { hasSandboxExperiment } from "@/lib/sandbox-experiments";
 import type { Project } from "@/types/project";
 
@@ -10,6 +14,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export function SandboxCard({ project }: { project: Project }) {
+  const tilt = useTilt();
   const cover = project.screenshots?.[0];
   const statusLabel = STATUS_LABELS[project.status];
   const playable = hasSandboxExperiment(project.slug);
@@ -17,7 +22,9 @@ export function SandboxCard({ project }: { project: Project }) {
   return (
     <Link
       href={`/sandbox/${project.slug}`}
-      className="group flex flex-col overflow-hidden border border-ink/10 transition hover:-translate-y-0.5 hover:border-accent/60"
+      {...tilt}
+      style={{ viewTransitionName: `sandbox-${project.slug}` } as CSSProperties}
+      className="tilt tilt-sheen group relative flex flex-col overflow-hidden border border-ink/10 transition-[border-color] duration-[var(--dur-2)] hover:border-accent/60 active:scale-[0.99]"
     >
       <div className="relative aspect-video w-full overflow-hidden bg-ink/5">
         {cover ? (
@@ -26,7 +33,7 @@ export function SandboxCard({ project }: { project: Project }) {
             alt={`${project.name} screenshot`}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover object-top transition-transform duration-300 group-hover:scale-[1.05]"
+            className="object-cover object-top transition-transform duration-[var(--dur-3)] ease-out-quart group-hover:scale-[1.05]"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
@@ -37,6 +44,14 @@ export function SandboxCard({ project }: { project: Project }) {
             />
           </div>
         )}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-[1] opacity-0 transition-opacity duration-[var(--dur-3)] group-hover:opacity-100"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(0deg, color-mix(in oklab, var(--color-ink) 4%, transparent) 0 1px, transparent 1px 3px)",
+          }}
+        />
         {playable && (
           <span className="absolute left-2 top-2 inline-flex items-center gap-1 bg-accent px-1.5 py-0.5 font-mono text-[10px] font-medium text-cream">
             <Play size={10} weight="fill" />

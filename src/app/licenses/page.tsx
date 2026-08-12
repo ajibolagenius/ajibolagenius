@@ -93,7 +93,7 @@ export default async function LicensesPage() {
       <div className="hidden lg:block">
         <Sidebar info={personalInfo} />
       </div>
-      <main className="flex-1 lg:ml-80">
+      <main className="page-enter flex-1 lg:ml-80">
         <div className="mx-auto w-full max-w-3xl px-6 py-10">
           <div className="text-center">
             <h1 className="text-h1 font-normal">Licenses</h1>

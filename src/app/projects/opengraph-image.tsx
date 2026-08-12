@@ -6,8 +6,9 @@ import {
   getSiteHost,
   loadAvatarSrc,
 } from "@/lib/og-template";
+import { LISTED_KINDS } from "@/lib/project-kind";
 
-export const alt = "Work — Ajibola Akelebe";
+export const alt = "Projects — Ajibola Akelebe";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 
@@ -17,7 +18,7 @@ export default async function Image() {
     supabase
       .from("projects")
       .select("*", { count: "exact", head: true })
-      .eq("kind", "client"),
+      .in("kind", LISTED_KINDS),
     supabase.from("personal_info").select("*").eq("id", 1).single(),
   ]);
   const avatarSrc = await loadAvatarSrc(
@@ -28,11 +29,11 @@ export default async function Image() {
     (
       <OgShell
         label={count ? `${count} Selected Projects` : "Selected Projects"}
-        title="Work"
-        subtitle="A collection of projects I've designed, built, and shipped."
+        title="Projects"
+        subtitle="Everything I've designed, built, and shipped — client work and side projects."
         avatarSrc={avatarSrc}
-        tags={["Case Studies", "Production Apps", "Web Design"]}
-        footerLeft="Commercial & client work"
+        tags={["Case Studies", "Production Apps", "Side Projects"]}
+        footerLeft="Client work & side projects"
         siteHost={getSiteHost()}
         isDark={true}
       />

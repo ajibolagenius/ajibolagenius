@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { projectHref } from "@/lib/project-kind";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ??
@@ -17,25 +18,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: siteUrl, changeFrequency: "monthly", priority: 1 },
-    { url: `${siteUrl}/work`, changeFrequency: "weekly", priority: 0.8 },
-    {
-      url: `${siteUrl}/side-projects`,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
+    // Never list a redirecting URL here — /work and /side-projects 301 now.
+    { url: `${siteUrl}/projects`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${siteUrl}/sandbox`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${siteUrl}/cv`, changeFrequency: "monthly", priority: 0.6 },
   ];
 
-  const basePathForKind = (kind: string) => {
-    if (kind === "side") return "side-projects";
-    if (kind === "sandbox") return "sandbox";
-    return "work";
-  };
-
   const projectRoutes: MetadataRoute.Sitemap = (projects ?? []).map(
     (project) => ({
-      url: `${siteUrl}/${basePathForKind(project.kind)}/${project.slug}`,
+      url: `${siteUrl}${projectHref(project)}`,
       lastModified: project.created_at ?? undefined,
       changeFrequency: "monthly",
       priority: 0.7,

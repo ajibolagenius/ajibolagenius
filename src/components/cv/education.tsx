@@ -5,7 +5,7 @@ export function Education({ entries }: { entries: EducationEntry[] }) {
   if (entries.length === 0) return null;
 
   return (
-    <section className="flex flex-col gap-6 border-t border-ink/10 py-10">
+    <section className="reveal flex flex-col gap-6 border-t border-ink/10 py-10">
       <SectionHeading id="education">Education</SectionHeading>
       <div className="flex flex-col gap-5">
         {entries.map((entry) => (

@@ -14,7 +14,7 @@ export default async function NotFound() {
       <div className="hidden lg:block">
         <Sidebar info={personalInfo} />
       </div>
-      <main className="flex-1 lg:ml-80">
+      <main className="page-enter flex-1 lg:ml-80">
         <div className="mx-auto flex w-full max-w-3xl flex-col items-center justify-center gap-4 px-6 py-24 text-center">
           <Image
             src="/illustration-404.svg"

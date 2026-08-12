@@ -11,7 +11,7 @@ export function About({
   if (!info) return null;
 
   return (
-    <section className="flex flex-col gap-4 border-t border-ink/10 py-10">
+    <section className="reveal flex flex-col gap-4 border-t border-ink/10 py-10">
       <SectionHeading id="about">About</SectionHeading>
       <p className="max-w-2xl text-body-m text-ink/70">{info.description}</p>
       {skills.length > 0 && (

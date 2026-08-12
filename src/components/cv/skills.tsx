@@ -40,7 +40,7 @@ export function Skills({ skills }: { skills: Skill[] }) {
   const techIcons = skills.filter((s) => s.icon_url);
 
   return (
-    <section className="flex flex-col gap-6 border-t border-ink/10 py-10">
+    <section className="reveal flex flex-col gap-6 border-t border-ink/10 py-10">
       <SectionHeading id="skills">Skills</SectionHeading>
       <div className="flex flex-wrap gap-2">
         {skills.map((skill) => (

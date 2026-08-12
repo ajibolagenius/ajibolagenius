@@ -80,7 +80,7 @@ function revalidateSite(resourceKey: string) {
   revalidatePath(`/admin/manage/${resourceKey}`);
   revalidatePath("/");
   revalidatePath("/cv");
-  revalidatePath("/work");
+  revalidatePath("/projects");
 }
 
 export async function createResourceRow(

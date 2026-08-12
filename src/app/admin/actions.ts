@@ -46,6 +46,29 @@ function projectInputFromForm(formData: FormData): ProjectInput {
   };
 }
 
+/**
+ * Purge every surface that renders project data.
+ *
+ * `/` and `/cv` were previously never revalidated on a project mutation, so
+ * publishing a featured project didn't reach the homepage reel (and un-
+ * featuring one left it visible) until the 60s window lapsed.
+ *
+ * Pass every slug the project has been known by — on a slug change or a
+ * delete, the OLD detail path also has to be purged or it keeps serving from
+ * cache.
+ */
+function revalidateProjectSurfaces(...slugs: (string | null | undefined)[]) {
+  revalidatePath("/admin");
+  revalidatePath("/");
+  revalidatePath("/cv");
+  revalidatePath("/projects");
+  revalidatePath("/sandbox");
+  for (const slug of new Set(slugs.filter(Boolean))) {
+    revalidatePath(`/projects/${slug}`);
+    revalidatePath(`/sandbox/${slug}`);
+  }
+}
+
 export async function createProject(formData: FormData) {
   const supabase = await assertOwner();
   const input = projectInputFromForm(formData);
@@ -53,10 +76,7 @@ export async function createProject(formData: FormData) {
   const { error } = await supabase.from("projects").insert(input);
   if (error) throw new Error(error.message);
 
-  revalidatePath("/admin");
-  revalidatePath("/work");
-  revalidatePath("/side-projects");
-  revalidatePath("/sandbox");
+  revalidateProjectSurfaces(input.slug);
   redirect("/admin");
 }
 
@@ -64,16 +84,17 @@ export async function updateProject(id: string, formData: FormData) {
   const supabase = await assertOwner();
   const input = projectInputFromForm(formData);
 
+  // Read the current slug first so a rename purges the path it used to live at.
+  const { data: existing } = await supabase
+    .from("projects")
+    .select("slug")
+    .eq("id", id)
+    .maybeSingle();
+
   const { error } = await supabase.from("projects").update(input).eq("id", id);
   if (error) throw new Error(error.message);
 
-  revalidatePath("/admin");
-  revalidatePath("/work");
-  revalidatePath(`/work/${input.slug}`);
-  revalidatePath("/side-projects");
-  revalidatePath(`/side-projects/${input.slug}`);
-  revalidatePath("/sandbox");
-  revalidatePath(`/sandbox/${input.slug}`);
+  revalidateProjectSurfaces(input.slug, existing?.slug);
   redirect("/admin");
 }
 
@@ -129,21 +150,24 @@ export async function toggleFeatured(id: string, featured: boolean) {
     .eq("id", id);
   if (error) throw new Error(error.message);
 
-  revalidatePath("/admin");
-  revalidatePath("/work");
-  revalidatePath("/side-projects");
-  revalidatePath("/sandbox");
+  revalidateProjectSurfaces();
 }
 
 export async function deleteProject(id: string) {
   const supabase = await assertOwner();
+
+  // Fetch the slug before the row is gone, or its detail path keeps serving
+  // a deleted project from the cache.
+  const { data: existing } = await supabase
+    .from("projects")
+    .select("slug")
+    .eq("id", id)
+    .maybeSingle();
+
   const { error } = await supabase.from("projects").delete().eq("id", id);
   if (error) throw new Error(error.message);
 
-  revalidatePath("/admin");
-  revalidatePath("/work");
-  revalidatePath("/side-projects");
-  revalidatePath("/sandbox");
+  revalidateProjectSurfaces(existing?.slug);
 }
 
 export async function signOut() {

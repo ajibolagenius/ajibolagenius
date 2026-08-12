@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { CompanyIcon } from "@/components/company-icon";
@@ -23,17 +24,29 @@ export function Hero({
         alt=""
         width={120}
         height={96}
-        className="animate-fade-in-up opacity-90"
+        className="enter animate-float opacity-90"
       />
-      <h2 className="animate-fade-in-up text-h1 font-normal [animation-delay:80ms]">
+      {/* Staggered by token rather than the previous magic 80/140/200ms. */}
+      <h2
+        className="enter text-h1 font-normal"
+        style={{ "--enter-i": 1 } as CSSProperties}
+      >
         {info.tagline}
       </h2>
-      <p className="max-w-md animate-fade-in-up text-body-m text-ink/60 [animation-delay:140ms]">
+      <span
+        aria-hidden
+        className="rule-draw h-px w-16 bg-accent/40"
+      />
+      <p
+        className="enter max-w-md text-body-m text-ink/60"
+        style={{ "--enter-i": 2 } as CSSProperties}
+      >
         {info.tagline_suffix}
       </p>
       <a
         href="#experience"
-        className="group inline-flex animate-fade-in-up items-center gap-3 bg-ink/5 py-2 pl-2 pr-5 text-body-s font-medium text-ink transition-colors hover:bg-ink/10 [animation-delay:200ms]"
+        className="enter group inline-flex items-center gap-3 bg-ink/5 py-2 pl-2 pr-5 text-body-s font-medium text-ink transition-colors duration-[var(--dur-2)] hover:bg-ink/10"
+        style={{ "--enter-i": 3 } as CSSProperties}
       >
         {recentJobs.length > 0 && (
           <span className="flex items-center">

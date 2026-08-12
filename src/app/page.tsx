@@ -76,7 +76,7 @@ export default async function HomePage() {
       )}
       <TopNav visibleSections={visibleSections} />
       <Sidebar info={personalInfo} />
-      <main className="flex-1 lg:ml-80">
+      <main className="page-enter flex-1 lg:ml-80">
         <div className="mx-auto w-full min-w-0 max-w-3xl px-6 py-10">
           <Hero info={personalInfo} experience={experience} />
           {visibleSections.map((key) => {

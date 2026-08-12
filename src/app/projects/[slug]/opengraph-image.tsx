@@ -8,7 +8,7 @@ import {
 } from "@/lib/og-template";
 import type { Project } from "@/types/project";
 
-export const alt = "Side Project — Ajibola Akelebe";
+export const alt = "Project Case Study — Ajibola Akelebe";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 
@@ -21,10 +21,10 @@ export default async function Image({
   const supabase = await createClient();
   const { data: project } = await supabase
     .from("projects")
+    // Slug is globally unique, so no kind filter is needed.
     .select("*")
     .eq("slug", slug)
-    .eq("kind", "side")
-    .single();
+    .maybeSingle();
 
   const p = project as Project | null;
 
@@ -32,9 +32,9 @@ export default async function Image({
     return new ImageResponse(
       (
         <OgShell
-          label="Side Project"
+          label="Project"
           title="Project Not Found"
-          footerLeft="Experiment"
+          footerLeft="Case Study"
           siteHost={getSiteHost()}
           isDark={true}
         />
@@ -65,12 +65,12 @@ export default async function Image({
   return new ImageResponse(
     (
       <OgShell
-        label={p.category || "Side Project"}
+        label={p.category || "Case Study"}
         title={p.name}
         subtitle={p.description}
         imageSrc={imageSrc}
         tags={tags}
-        footerLeft={`Side Project · ${p.year || "Experiment"}`}
+        footerLeft={`${p.role_title || "Developer"} · ${p.year || "Project"}`}
         siteHost={getSiteHost()}
         isDark={true}
       />

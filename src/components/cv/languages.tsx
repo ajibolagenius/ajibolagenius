@@ -6,7 +6,7 @@ export function Languages({ languages }: { languages: Language[] }) {
   if (languages.length === 0) return null;
 
   return (
-    <section className="flex flex-col gap-6 border-t border-ink/10 py-10">
+    <section className="reveal flex flex-col gap-6 border-t border-ink/10 py-10">
       <SectionHeading id="languages">Languages</SectionHeading>
       <div className="flex flex-col gap-4">
         {languages.map((lang) => (

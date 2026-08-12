@@ -58,7 +58,7 @@ export function Experience({ entries }: { entries: ExperienceEntry[] }) {
   const hasMore = entries.length > 3;
 
   return (
-    <section className="flex flex-col gap-6 border-t border-ink/10 py-10">
+    <section className="reveal flex flex-col gap-6 border-t border-ink/10 py-10">
       <SectionHeading id="experience">Experience</SectionHeading>
       <div className="flex flex-col gap-6">
         {visible.map((entry) => (

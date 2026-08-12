@@ -140,7 +140,7 @@ export default async function SandboxDetailPage({
         }}
       />
       <SandboxNav />
-      <main className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-10 sm:px-6">
+      <main className="page-enter mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-10 sm:px-6">
         <Link
           href="/sandbox"
           className="inline-flex w-fit items-center gap-2 text-body-s text-ink/60 transition-colors hover:text-accent"
@@ -209,7 +209,19 @@ export default async function SandboxDetailPage({
 
         {Experiment ? (
           <section className="flex flex-col gap-3">
-            <Experiment />
+            {/* Lab frame: hairline border, mono caption bar and accent corner
+                crosshairs. Makes a single experiment read as one of a series. */}
+            <div className="lab-frame">
+              <div className="flex items-center justify-between gap-3 border-b border-ink/10 px-3 py-1.5 font-mono text-body-xs uppercase tracking-[0.25em] text-ink/35">
+                <span>experiment</span>
+                <span className="truncate normal-case tracking-normal">
+                  {p.slug}
+                </span>
+              </div>
+              <div className="p-3">
+                <Experiment />
+              </div>
+            </div>
           </section>
         ) : (
           <>
