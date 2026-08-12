@@ -8,7 +8,13 @@ const STATUS_LABELS: Record<string, string> = {
   archived: "Archived",
 };
 
-export function ProjectCard({ project }: { project: Project }) {
+export function ProjectCard({
+  project,
+  priority = false,
+}: {
+  project: Project;
+  priority?: boolean;
+}) {
   const cover = project.screenshots?.[0];
   const basePath =
     project.kind === "sandbox"
@@ -30,6 +36,7 @@ export function ProjectCard({ project }: { project: Project }) {
             alt={`${project.name} screenshot`}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            priority={priority}
             className="object-cover object-top transition-transform duration-300 group-hover:scale-[1.03]"
           />
         ) : (

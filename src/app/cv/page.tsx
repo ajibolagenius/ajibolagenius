@@ -170,7 +170,7 @@ export default async function CvPage() {
                       src={`/flag-${lang.flag_code}.svg`}
                       alt=""
                       width={20}
-                      height={15}
+                      height={20}
                       className="object-cover"
                     />
                     <div>

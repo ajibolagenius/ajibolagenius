@@ -36,11 +36,13 @@ function FeaturedCard({
   href,
   className,
   sizes,
+  priority = false,
 }: {
   project: Project;
   href: string;
   className?: string;
   sizes: string;
+  priority?: boolean;
 }) {
   return (
     <Link
@@ -54,6 +56,7 @@ function FeaturedCard({
             alt={`${project.name} screenshot`}
             fill
             sizes={sizes}
+            priority={priority}
             className="object-cover object-top transition-transform duration-500 group-hover/card:scale-[1.04]"
           />
         ) : (
@@ -125,6 +128,9 @@ function MarqueeTrack({
               href={`${linkPrefix}/${project.slug}`}
               className="w-[calc((100cqi-1.5rem)/3)]"
               sizes="(max-width: 640px) 85vw, 240px"
+              // Leading card is the LCP on `/`. Its preload also covers the
+              // mobile carousel, which picks the same candidate at ≤640px.
+              priority={copy === 0 && i === 0}
             />
           ))}
         </div>
@@ -367,12 +373,13 @@ export function FeaturedWork({
         </div>
       ) : (
         <div className="hidden gap-3 sm:grid sm:grid-cols-3">
-          {currentProjects.slice(0, 3).map((project) => (
+          {currentProjects.slice(0, 3).map((project, i) => (
             <FeaturedCard
               key={project.id}
               project={project}
               href={`${projectLinkPrefix}/${project.slug}`}
               sizes="(max-width: 640px) 100vw, 33vw"
+              priority={i === 0}
             />
           ))}
         </div>

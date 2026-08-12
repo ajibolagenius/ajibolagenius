@@ -22,7 +22,7 @@ export function Hero({
         src="/illustration-hero.svg"
         alt=""
         width={120}
-        height={90}
+        height={96}
         className="animate-fade-in-up opacity-90"
       />
       <h2 className="animate-fade-in-up text-h1 font-normal [animation-delay:80ms]">

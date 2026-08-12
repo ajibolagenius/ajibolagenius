@@ -57,8 +57,12 @@ export function WorkGrid({
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         {active === null && pinnedCard}
-        {filtered.map((project) => (
-          <ProjectCard key={project.id} project={project} />
+        {filtered.map((project, i) => (
+          <ProjectCard
+            key={project.id}
+            project={project}
+            priority={i === 0}
+          />
         ))}
       </div>
 

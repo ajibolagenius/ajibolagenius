@@ -15,8 +15,8 @@ export function Languages({ languages }: { languages: Language[] }) {
               src={`/flag-${lang.flag_code}.svg`}
               alt=""
               width={24}
-              height={18}
-              className=" object-cover"
+              height={24}
+              className="object-cover"
             />
             <div>
               <p className="text-body-m font-medium">{lang.name}</p>

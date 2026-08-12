@@ -92,7 +92,7 @@ export function Connect({ info }: { info: PersonalInfo | null }) {
         src="/illustration-connect.svg"
         alt=""
         width={160}
-        height={120}
+        height={160}
         className="opacity-90"
       />
     </section>
