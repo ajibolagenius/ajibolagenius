@@ -154,14 +154,18 @@ export function TopNav({
         />
       </nav>
 
-      {/* Kept mounted so the exit animates. `inert` while closed is essential —
-          otherwise the links stay tabbable behind a hidden panel. */}
+      {/* Kept mounted so the exit animates, but positioned OUT OF FLOW.
+          visibility:hidden stops painting, not layout — in flow the closed
+          sheet still grew the sticky container, which then painted its
+          bg-cream/90 backdrop-blur over the page beneath it.
+          `inert` while closed is essential — otherwise the links stay
+          tabbable behind a hidden panel. */}
       <div
         id="mobile-menu"
         ref={sheetRef}
         data-open={open}
         inert={!open}
-        className="menu-sheet border-t border-ink/10 px-6 py-6 sm:hidden"
+        className="menu-sheet absolute inset-x-0 top-full border-t border-ink/10 bg-cream/95 px-6 py-6 backdrop-blur sm:hidden"
       >
         <ul className="flex flex-col items-center gap-6 text-body-m text-ink/70">
           {links.map((link, i) => (
