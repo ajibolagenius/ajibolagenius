@@ -56,6 +56,10 @@ function projectInputFromForm(formData: FormData): ProjectInput {
  * Pass every slug the project has been known by — on a slug change or a
  * delete, the OLD detail path also has to be purged or it keeps serving from
  * cache.
+ *
+ * `/licenses` and the `[slug]` page-level purges are here because the sidebar
+ * shows a total project count on every page: creating or deleting one project
+ * changes a number rendered site-wide, not just on that project's own routes.
  */
 function revalidateProjectSurfaces(...slugs: (string | null | undefined)[]) {
   revalidatePath("/admin");
@@ -63,6 +67,9 @@ function revalidateProjectSurfaces(...slugs: (string | null | undefined)[]) {
   revalidatePath("/cv");
   revalidatePath("/projects");
   revalidatePath("/sandbox");
+  revalidatePath("/licenses");
+  revalidatePath("/projects/[slug]", "page");
+  revalidatePath("/sandbox/[slug]", "page");
   for (const slug of new Set(slugs.filter(Boolean))) {
     revalidatePath(`/projects/${slug}`);
     revalidatePath(`/sandbox/${slug}`);

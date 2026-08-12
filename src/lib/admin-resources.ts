@@ -8,9 +8,16 @@ export type FieldType =
   | "image";
 
 export interface FieldConfig {
+  /**
+   * Column name, or a dotted path into a jsonb column (`social.github`).
+   * A dotted path means the WHOLE json column is rewritten on save, so every
+   * key that must survive needs its own field — see `nestFieldValues`.
+   */
   name: string;
   label: string;
   type: FieldType;
+  /** Optional hint rendered under the input. */
+  help?: string;
 }
 
 export interface ResourceConfig {
@@ -46,6 +53,19 @@ export const ADMIN_RESOURCES: Record<string, ResourceConfig> = {
       { name: "phone", label: "Phone", type: "text" },
       { name: "location", label: "Location", type: "text" },
       { name: "availability", label: "Availability", type: "text" },
+      // The four keys of the `social` jsonb column. All four are listed
+      // because saving replaces the column wholesale; dropping one here would
+      // silently wipe it. They render as links in the sidebar and footer, so
+      // store full URLs.
+      {
+        name: "social.github",
+        label: "GitHub URL",
+        type: "text",
+        help: "Full profile URL (https://github.com/<user>). Also drives the homepage contribution graph — clear it to hide the graph.",
+      },
+      { name: "social.linkedin", label: "LinkedIn URL", type: "text" },
+      { name: "social.twitter", label: "X / Twitter URL", type: "text" },
+      { name: "social.whatsapp", label: "WhatsApp URL", type: "text" },
     ],
   },
   skills: {
@@ -74,7 +94,12 @@ export const ADMIN_RESOURCES: Record<string, ResourceConfig> = {
       { name: "role_title", label: "Role title", type: "text" },
       { name: "company", label: "Company", type: "text" },
       { name: "employment_type", label: "Employment type", type: "text" },
-      { name: "start_date", label: "Start date", type: "text" },
+      {
+        name: "start_date",
+        label: "Start date",
+        type: "text",
+        help: 'Must contain a year ("2019", "Jan 2020"). The sidebar\'s years-of-experience row is derived from the earliest one and is omitted entirely if none parse.',
+      },
       { name: "end_date", label: "End date", type: "text" },
       { name: "body", label: "Description", type: "textarea" },
       { name: "bullets", label: "Bullets", type: "list" },
@@ -148,4 +173,50 @@ export const ADMIN_RESOURCES: Record<string, ResourceConfig> = {
 
 export function getResourceConfig(key: string): ResourceConfig | undefined {
   return ADMIN_RESOURCES[key];
+}
+
+/**
+ * Reads a field off a row, following a dotted path into a json column.
+ * Returns undefined for a missing column or key so the input renders empty.
+ */
+export function readFieldValue(
+  row: Record<string, unknown>,
+  name: string,
+): unknown {
+  if (!name.includes(".")) return row[name];
+
+  return name.split(".").reduce<unknown>((value, key) => {
+    if (value === null || typeof value !== "object") return undefined;
+    return (value as Record<string, unknown>)[key];
+  }, row);
+}
+
+/**
+ * Turns the flat, form-shaped values map into the row shape Postgres expects,
+ * folding `social.github` and friends into a single `social` object.
+ *
+ * The nested object is built from scratch, so it fully replaces whatever the
+ * column held. That is safe only while every key of that column has a field in
+ * the resource config — which is why the config comments say so.
+ */
+export function nestFieldValues(
+  flat: Record<string, unknown>,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+
+  for (const [name, value] of Object.entries(flat)) {
+    if (!name.includes(".")) {
+      out[name] = value;
+      continue;
+    }
+
+    const [column, ...path] = name.split(".");
+    let target = (out[column] ??= {}) as Record<string, unknown>;
+    for (const key of path.slice(0, -1)) {
+      target = (target[key] ??= {}) as Record<string, unknown>;
+    }
+    target[path[path.length - 1]] = value;
+  }
+
+  return out;
 }

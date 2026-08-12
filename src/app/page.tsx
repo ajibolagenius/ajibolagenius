@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCvData } from "@/lib/cv-data";
-import { LISTED_KINDS } from "@/lib/project-kind";
 import { JsonLd } from "@/components/json-ld";
 import { TopNav } from "@/components/cv/top-nav";
 import { Sidebar } from "@/components/cv/sidebar";
@@ -34,7 +33,6 @@ export default async function HomePage() {
     },
     { data: featuredProjects },
     { data: featuredSideProjects },
-    { count: projectCount },
   ] = await Promise.all([
     getCvData(),
     supabase
@@ -49,14 +47,7 @@ export default async function HomePage() {
       .eq("kind", "side")
       .eq("featured", true)
       .order("created_at", { ascending: false }),
-    // head: true fetches the count only — no rows cross the wire. Powers the
-    // hero's proof line, which must never disagree with what /projects lists.
-    supabase
-      .from("projects")
-      .select("id", { count: "exact", head: true })
-      .in("kind", LISTED_KINDS),
   ]);
-
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ??
@@ -84,11 +75,7 @@ export default async function HomePage() {
         />
       )}
       <TopNav visibleSections={visibleSections} />
-      <Sidebar
-        info={personalInfo}
-        experience={experience}
-        projectCount={projectCount}
-      />
+      <Sidebar info={personalInfo} />
       <main className="page-enter flex-1 lg:ml-80">
         <div className="mx-auto w-full min-w-0 max-w-3xl px-6 py-10">
           <Hero info={personalInfo} />

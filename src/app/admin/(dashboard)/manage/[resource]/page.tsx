@@ -1,6 +1,10 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getResourceConfig, type FieldConfig } from "@/lib/admin-resources";
+import {
+  getResourceConfig,
+  readFieldValue,
+  type FieldConfig,
+} from "@/lib/admin-resources";
 import { listTechLogos, type TechLogoOption } from "@/lib/tech-logos";
 import { BulletListInput } from "@/components/admin/bullet-list-input";
 import { createResourceRow, deleteResourceRow, updateResourceRow } from "./actions";
@@ -111,6 +115,41 @@ function FieldInput({
   );
 }
 
+/** Label + input + optional hint. Shared by the edit and create forms. */
+function Field({
+  field,
+  defaultValue,
+  techLogos,
+}: {
+  field: FieldConfig;
+  defaultValue?: unknown;
+  techLogos: TechLogoOption[];
+}) {
+  const wide =
+    field.type === "textarea" ||
+    field.type === "list" ||
+    field.type === "icon" ||
+    Boolean(field.help);
+
+  return (
+    <label
+      className={`flex flex-col gap-1 text-xs font-medium ${
+        wide ? "sm:col-span-2" : ""
+      }`}
+    >
+      {field.label}
+      <FieldInput
+        field={field}
+        defaultValue={defaultValue}
+        techLogos={techLogos}
+      />
+      {field.help && (
+        <span className="font-normal text-ink/50">{field.help}</span>
+      )}
+    </label>
+  );
+}
+
 export default async function ManageResourcePage({
   params,
 }: {
@@ -172,23 +211,12 @@ export default async function ManageResourcePage({
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {config.fields.map((field) => (
-                <label
+                <Field
                   key={field.name}
-                  className={`flex flex-col gap-1 text-xs font-medium ${
-                    field.type === "textarea" ||
-                    field.type === "list" ||
-                    field.type === "icon"
-                      ? "sm:col-span-2"
-                      : ""
-                  }`}
-                >
-                  {field.label}
-                  <FieldInput
-                    field={field}
-                    defaultValue={row[field.name]}
-                    techLogos={techLogos}
-                  />
-                </label>
+                  field={field}
+                  defaultValue={readFieldValue(row, field.name)}
+                  techLogos={techLogos}
+                />
               ))}
             </div>
             <button
@@ -214,19 +242,11 @@ export default async function ManageResourcePage({
           </p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {config.fields.map((field) => (
-              <label
+              <Field
                 key={field.name}
-                className={`flex flex-col gap-1 text-xs font-medium ${
-                  field.type === "textarea" ||
-                  field.type === "list" ||
-                  field.type === "icon"
-                    ? "sm:col-span-2"
-                    : ""
-                }`}
-              >
-                {field.label}
-                <FieldInput field={field} techLogos={techLogos} />
-              </label>
+                field={field}
+                techLogos={techLogos}
+              />
             ))}
           </div>
           <button

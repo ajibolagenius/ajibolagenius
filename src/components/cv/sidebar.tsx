@@ -11,28 +11,19 @@ import {
     XLogo,
     GithubLogo,
 } from "@phosphor-icons/react/dist/ssr";
-import type { ExperienceEntry, PersonalInfo } from "@/types/cv";
+import type { PersonalInfo } from "@/types/cv";
 import { EdgeMarquee } from "@/components/cv/edge-marquee";
-import { experienceLabel } from "@/lib/experience-span";
+import { getSidebarStats } from "@/lib/sidebar-stats";
 
-export function Sidebar({
-    info,
-    experience = [],
-    projectCount,
-}: {
-    info: PersonalInfo | null;
-    /** Drives the derived proof stats below. */
-    experience?: ExperienceEntry[];
-    /** Total listed projects; omitted from the stats when unavailable. */
-    projectCount?: number | null;
-}) {
+export async function Sidebar({ info }: { info: PersonalInfo | null }) {
     if (!info) return null;
 
-    // Every figure is derived — a row that can't be computed is dropped rather
-    // than defaulted. This replaced a hardcoded "5+ years experience" that had
-    // drifted two years off the underlying data.
-    const yearsLabel = experienceLabel(experience);
-    const companyCount = new Set(experience.map((e) => e.company)).size;
+    // Fetched here rather than passed in, so every page rendering the sidebar
+    // gets the same rows — see the note in lib/sidebar-stats.ts. Each figure is
+    // derived, and one that can't be computed is dropped rather than defaulted;
+    // this replaced a hardcoded "5+ years experience" that had drifted two
+    // years off the underlying data.
+    const { yearsLabel, companyCount, projectCount } = await getSidebarStats();
 
     // The proof stats read as more rows in this list rather than as a separate
     // stats block, so the sidebar stays one consistent icon + label vocabulary.

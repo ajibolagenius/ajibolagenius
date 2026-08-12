@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { assertOwner } from "@/lib/auth-guard";
-import { getResourceConfig, type ResourceConfig } from "@/lib/admin-resources";
+import {
+  getResourceConfig,
+  nestFieldValues,
+  type ResourceConfig,
+} from "@/lib/admin-resources";
 import sharp from "sharp";
 
 const MAX_IMAGE_SIZE = 1024;
@@ -73,14 +77,28 @@ async function parseFieldsFromForm(
       values[field.name] = String(raw ?? "").trim();
     }
   }
-  return values;
+  // Folds dotted field names (`social.github`) into nested objects for jsonb
+  // columns; a no-op for resources whose fields are all plain columns.
+  return nestFieldValues(values);
 }
 
+/**
+ * Every surface that renders this content.
+ *
+ * `/licenses` and the project detail pages are included because the sidebar
+ * appears there too, and it now renders personal info alongside figures
+ * derived from experience rows — so a CV edit is visible on all of them.
+ */
 function revalidateSite(resourceKey: string) {
   revalidatePath(`/admin/manage/${resourceKey}`);
   revalidatePath("/");
   revalidatePath("/cv");
   revalidatePath("/projects");
+  revalidatePath("/licenses");
+  // Page-level purge: the sidebar is on every detail page, so purging one slug
+  // would leave the rest serving the old copy.
+  revalidatePath("/projects/[slug]", "page");
+  revalidatePath("/sandbox/[slug]", "page");
 }
 
 export async function createResourceRow(

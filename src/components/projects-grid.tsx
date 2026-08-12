@@ -7,6 +7,7 @@ import { ProjectCard } from "@/components/project-card";
 import { FilterPills, type FilterOption } from "@/components/filter-pills";
 import { FilterSelect } from "@/components/filter-select";
 import { useViewTransition } from "@/hooks/use-view-transition";
+import { useInfiniteReveal } from "@/hooks/use-infinite-reveal";
 import {
   PROJECT_KINDS,
   kindForParam,
@@ -16,9 +17,14 @@ import type { ProjectCardData } from "@/types/project";
 
 const ALL = "all";
 
-// Above this, snapshotting every card for the refilter transition stops being
-// worth it and we fall back to a plain re-render.
+// Above this many *rendered* cards, snapshotting every one for the refilter
+// transition stops being worth it and we fall back to a plain re-render.
 const VIEW_TRANSITION_CARD_CAP = 24;
+
+// Cards revealed on load and per scroll page. Twelve fills six rows of the
+// two-column grid — comfortably past the fold on a laptop, so the first
+// sentinel hit is a real scroll rather than an immediate second page.
+const PAGE_SIZE = 12;
 
 const TYPE_OPTIONS: FilterOption[] = [
   { value: ALL, label: "All" },
@@ -66,10 +72,6 @@ export function ProjectsGrid({
   pinnedCard?: ReactNode;
 }) {
   const { type, category, setParams } = useFilterState();
-  const transition = useViewTransition(
-    "filter",
-    projects.length <= VIEW_TRANSITION_CARD_CAP,
-  );
 
   const activeKind = kindForParam(type === ALL ? null : type);
 
@@ -103,6 +105,27 @@ export function ProjectsGrid({
         ? byType
         : byType.filter((p) => splitCategories(p.category).includes(category)),
     [byType, category],
+  );
+
+  const {
+    visible,
+    hasMore,
+    sentinelRef,
+    revealMore,
+  } = useInfiniteReveal<HTMLButtonElement>({
+    total: filtered.length,
+    step: PAGE_SIZE,
+    resetKey: `${type}:${category}`,
+  });
+
+  const shown = useMemo(() => filtered.slice(0, visible), [filtered, visible]);
+
+  // Gated on what is on screen, not on the size of the whole set: a user who
+  // has scrolled deep into the list has hundreds of cards mounted, and that is
+  // exactly when snapshotting them all is too expensive.
+  const transition = useViewTransition(
+    "filter",
+    visible <= VIEW_TRANSITION_CARD_CAP,
   );
 
   const showPinned = type === ALL && category === ALL && Boolean(pinnedCard);
@@ -143,16 +166,44 @@ export function ProjectsGrid({
       </div>
 
       <p className="sr-only" role="status" aria-live="polite">
-        Showing {filtered.length} of {projects.length} projects
+        Showing {shown.length} of {filtered.length} projects
+        {filtered.length === projects.length
+          ? ""
+          : ` matching the current filters, out of ${projects.length}`}
       </p>
 
       {filtered.length > 0 ? (
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          {showPinned && pinnedCard}
-          {filtered.map((project, i) => (
-            <ProjectCard key={project.id} project={project} priority={i === 0} />
-          ))}
-        </div>
+        <>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            {showPinned && pinnedCard}
+            {shown.map((project, i) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                priority={i === 0}
+              />
+            ))}
+          </div>
+
+          {/* Both the observer target and the manual fallback: if
+              IntersectionObserver never fires — an unsupported browser, a
+              zero-height container — this is still a real button. */}
+          {hasMore && (
+            <div className="mt-8 flex justify-center">
+              <button
+                ref={sentinelRef}
+                type="button"
+                onClick={revealMore}
+                className="group inline-flex items-center gap-1.5 border border-ink/15 px-4 py-2 text-body-s font-medium text-ink/70 transition-colors duration-[var(--dur-2)] hover:border-accent/50 hover:text-accent"
+              >
+                Load more
+                <span className="font-mono text-body-xs text-ink/40 group-hover:text-accent/70">
+                  {filtered.length - shown.length}
+                </span>
+              </button>
+            </div>
+          )}
+        </>
       ) : (
         <div className="mt-8 border border-dashed border-ink/15 px-6 py-12 text-center">
           <p className="font-mono text-body-xs uppercase tracking-[0.25em] text-ink/35">
