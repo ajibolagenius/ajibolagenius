@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { ProjectCard } from "@/components/project-card";
 import { FilterPills, type FilterOption } from "@/components/filter-pills";
+import { FilterSelect } from "@/components/filter-select";
 import { useViewTransition } from "@/hooks/use-view-transition";
 import {
   PROJECT_KINDS,
@@ -120,23 +121,26 @@ export function ProjectsGrid({
 
   return (
     <div>
-      <FilterPills
-        className="mt-6"
-        label="Filter by project type"
-        options={TYPE_OPTIONS}
-        value={type}
-        onChange={onType}
-      />
-
-      {categoryOptions.length > 2 && (
+      <div className="mt-6 flex flex-wrap items-center gap-3">
         <FilterPills
-          className="mt-3"
-          label="Filter by category"
-          options={categoryOptions}
-          value={category}
-          onChange={onCategory}
+          label="Filter by project type"
+          options={TYPE_OPTIONS}
+          value={type}
+          onChange={onType}
         />
-      )}
+
+        {/* Only worth showing with 2+ real categories — filtering by the only
+            category that exists would just re-render the same grid. */}
+        {categoryOptions.length > 2 && (
+          <FilterSelect
+            className="sm:ml-auto"
+            label="Filter by category"
+            options={categoryOptions}
+            value={category}
+            onChange={onCategory}
+          />
+        )}
+      </div>
 
       <p className="sr-only" role="status" aria-live="polite">
         Showing {filtered.length} of {projects.length} projects
@@ -180,7 +184,7 @@ export function ProjectsGrid({
 }
 
 /**
- * Suspense shell. Reserves the filter rows' height so the grid doesn't jump
+ * Suspense shell. Reserves the filter row's height so the grid doesn't jump
  * when the boundary resolves — no cards, because duplicating the whole grid
  * into the fallback doubles the page HTML and the resolved grid is streamed
  * into the same response anyway.
@@ -189,7 +193,6 @@ export function ProjectsGridFallback() {
   return (
     <div>
       <div className="mt-6 h-[34px]" aria-hidden />
-      <div className="mt-3 h-[34px]" aria-hidden />
     </div>
   );
 }
