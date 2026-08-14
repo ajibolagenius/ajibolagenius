@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import {
   Play,
   Pause,
@@ -23,6 +23,10 @@ import {
   Tag,
   Trash,
   X,
+  Coffee,
+  Heart,
+  CreditCard,
+  XLogo,
 } from "@phosphor-icons/react/dist/ssr";
 import type { Project } from "@/types/project";
 
@@ -34,6 +38,7 @@ function getShowcaseTypeBySlug(slug: string): string | null {
   if (slug === "narvo_platform") return "api";
   if (slug === "hekaiq") return "duel";
   if (slug === "gorant") return "mood";
+  if (slug === "fidia") return "fidia";
   return null;
 }
 
@@ -886,14 +891,245 @@ function BookmarkShowcase() {
 }
 
 // ----------------------------------------------------
-// 6. MAIN SHOWCASE WRAPPER (FALLBACK & DATABASE DRIVEN)
+// 6. FIDIA CREATOR TIPPING & RETROSPECTIVE SHOWCASE
+// ----------------------------------------------------
+function FidiaShowcase() {
+  const [coffees, setCoffees] = useState<number>(3);
+  const [method, setMethod] = useState<"card" | "transfer" | "crypto">("card");
+  const [message, setMessage] = useState<string>("Love your work! Keep building awesome things.");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const pricePerUnit = 5; // $5 per unit
+  const totalAmount = coffees * pricePerUnit;
+
+  const handleTip = () => {
+    setIsProcessing(true);
+    setTimeout(() => {
+      setIsProcessing(false);
+      setIsSuccess(true);
+    }, 900);
+  };
+
+  const handleReset = () => {
+    setIsSuccess(false);
+    setCoffees(3);
+    setMessage("Love your work! Keep building awesome things.");
+  };
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Interactive Creator Tipping Widget Simulation */}
+      <div className="flex flex-col border border-ink/10 bg-cream p-5 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-ink/10 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center bg-accent text-cream">
+              <Coffee size={20} weight="duotone" />
+            </div>
+            <div>
+              <p className="text-body-s font-medium text-ink">Creator Tipping Simulator</p>
+              <p className="text-body-xs text-ink/60">Simulated 0-to-1 creator monetization flow</p>
+            </div>
+          </div>
+          <span className="font-mono text-body-xs bg-ink/5 px-2 py-0.5 text-ink/60">
+            Fidia Product Demo
+          </span>
+        </div>
+
+        {!isSuccess ? (
+          <div className="mt-5 flex flex-col gap-5">
+            {/* Amount Selection */}
+            <div className="flex flex-col gap-2">
+              <label className="text-body-xs font-medium uppercase tracking-wider text-ink/60">
+                Support with coffee ($5 each)
+              </label>
+              <div className="flex flex-wrap items-center gap-2">
+                {[1, 3, 5, 10].map((num) => (
+                  <button
+                    key={num}
+                    type="button"
+                    onClick={() => setCoffees(num)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 font-mono text-body-s transition-colors ${
+                      coffees === num
+                        ? "bg-accent text-cream"
+                        : "bg-ink/5 text-ink hover:bg-ink/10"
+                    }`}
+                  >
+                    <Coffee size={14} weight={coffees === num ? "fill" : "regular"} />
+                    <span>{num}</span>
+                    <span className="text-body-xs opacity-80">(${num * pricePerUnit})</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Payment Method Selector */}
+            <div className="flex flex-col gap-2">
+              <label className="text-body-xs font-medium uppercase tracking-wider text-ink/60">
+                Payment Channel
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: "card", label: "Card", icon: CreditCard },
+                  { id: "transfer", label: "Bank Transfer", icon: Globe },
+                  { id: "crypto", label: "Global / Crypto", icon: Sparkle },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setMethod(item.id as "card" | "transfer" | "crypto")}
+                      className={`flex flex-col items-center justify-center gap-1 p-2 text-center text-body-xs transition-colors ${
+                        method === item.id
+                          ? "border border-accent bg-accent/5 text-accent font-medium"
+                          : "border border-ink/10 bg-cream text-ink/70 hover:bg-ink/5"
+                      }`}
+                    >
+                      <Icon size={16} weight={method === item.id ? "duotone" : "regular"} />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Supporter Note */}
+            <div className="flex flex-col gap-2">
+              <label className="text-body-xs font-medium uppercase tracking-wider text-ink/60">
+                Supporter Message (Optional)
+              </label>
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={2}
+                placeholder="Say something nice..."
+                className="w-full border border-ink/10 bg-cream p-2.5 text-body-s text-ink placeholder:text-ink/30 focus:border-accent focus:outline-none"
+              />
+            </div>
+
+            {/* Action Button */}
+            <button
+              type="button"
+              onClick={handleTip}
+              disabled={isProcessing}
+              className="flex items-center justify-center gap-2 bg-ink py-2.5 text-body-s font-medium text-cream transition hover:bg-accent disabled:opacity-50"
+            >
+              {isProcessing ? (
+                <>
+                  <Spinner size={16} className="animate-spin" />
+                  Processing payment...
+                </>
+              ) : (
+                <>
+                  <Heart size={16} weight="fill" className="text-accent" />
+                  Support Creator (${totalAmount})
+                </>
+              )}
+            </button>
+          </div>
+        ) : (
+          <div className="mt-5 flex flex-col items-center gap-3 py-6 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 text-accent">
+              <CheckCircle size={32} weight="duotone" />
+            </div>
+            <h4 className="text-h3 font-medium text-ink">Payment Successful!</h4>
+            <p className="max-w-md text-body-s text-ink/70">
+              You sent <strong className="text-ink">${totalAmount}</strong> to support the creator via {method.toUpperCase()}.
+            </p>
+            {message && (
+              <p className="italic text-body-xs text-ink/60 border-l-2 border-accent/40 pl-3">
+                &ldquo;{message}&rdquo;
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={handleReset}
+              className="mt-2 inline-flex items-center gap-1.5 font-mono text-body-xs text-accent underline underline-offset-4"
+            >
+              Simulate another transaction
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Press Coverage & Retrospective Archive */}
+      <div className="flex flex-col gap-3 border border-ink/10 bg-ink/5 p-5">
+        <h4 className="text-body-s font-medium text-ink">Press & Archival References</h4>
+        <p className="text-body-xs text-ink/60">
+          Documented coverage, media features, and post-mortem retrospective from Fidia&apos;s 2020–2023 journey:
+        </p>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          <a
+            href="https://techcabal.com/2022/05/11/fidia-the-unwavering-bridge-for-african-creators-crowdfunding/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex flex-col justify-between border border-ink/10 bg-cream p-3 transition hover:border-accent"
+          >
+            <div>
+              <p className="font-mono text-body-xs text-accent">TechCabal Feature</p>
+              <p className="mt-1 text-body-xs font-medium text-ink group-hover:text-accent">
+                The Unwavering Bridge for African Creators
+              </p>
+            </div>
+            <div className="mt-2 flex items-center justify-between text-body-xs text-ink/50">
+              <span>Read article</span>
+              <ArrowSquareOut size={14} weight="duotone" />
+            </div>
+          </a>
+
+          <a
+            href="https://medium.com/soliudeen-case-studies/the-chronicles-of-fidia-post-mortem-edition-b6de681f6bef"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex flex-col justify-between border border-ink/10 bg-cream p-3 transition hover:border-accent"
+          >
+            <div>
+              <p className="font-mono text-body-xs text-accent">Case Study</p>
+              <p className="mt-1 text-body-xs font-medium text-ink group-hover:text-accent">
+                The Chronicles of Fidia (Post-Mortem)
+              </p>
+            </div>
+            <div className="mt-2 flex items-center justify-between text-body-xs text-ink/50">
+              <span>Read story</span>
+              <ArrowSquareOut size={14} weight="duotone" />
+            </div>
+          </a>
+
+          <a
+            href="https://x.com/getfidia"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex flex-col justify-between border border-ink/10 bg-cream p-3 transition hover:border-accent"
+          >
+            <div>
+              <p className="font-mono text-body-xs text-accent">Community</p>
+              <p className="mt-1 text-body-xs font-medium text-ink group-hover:text-accent">
+                @getfidia Twitter / X Archive
+              </p>
+            </div>
+            <div className="mt-2 flex items-center justify-between text-body-xs text-ink/50">
+              <span className="flex items-center gap-1"><XLogo size={12} /> Social Archive</span>
+              <ArrowSquareOut size={14} weight="duotone" />
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const emptySubscribe = () => () => {};
+
+// ----------------------------------------------------
+// 7. MAIN SHOWCASE WRAPPER (FALLBACK & DATABASE DRIVEN)
 // ----------------------------------------------------
 export function ProjectShowcase({ project }: { project: Project }) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
 
   // Graceful degradation: Check showcase_type first, fallback to checking the slug
   const type = project.showcase_type || getShowcaseTypeBySlug(project.slug);
@@ -908,6 +1144,8 @@ export function ProjectShowcase({ project }: { project: Project }) {
       {type === "duel" && <DuelShowcase />}
       {type === "mood" && <RantShowcase />}
       {type === "bookmark" && <BookmarkShowcase />}
+      {type === "fidia" && <FidiaShowcase />}
     </section>
   );
 }
+
