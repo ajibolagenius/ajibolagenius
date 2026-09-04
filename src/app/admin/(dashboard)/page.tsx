@@ -32,7 +32,11 @@ export default async function AdminPage() {
   ];
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12 focus:outline-none"
+    >
       <h1 className="mb-6 text-2xl font-semibold">Dashboard</h1>
 
       <section className="mb-10 grid grid-cols-3 gap-3">

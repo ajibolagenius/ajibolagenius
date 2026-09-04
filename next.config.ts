@@ -1,19 +1,21 @@
 import type { NextConfig } from "next";
 
-// Baseline security headers applied to every route.
-//
-// Do NOT set default-src here — it falls back for script-src/style-src and
-// breaks Next.js hydration (inline scripts) plus remote assets. A full
-// script-src/style-src CSP needs nonce plumbing through middleware first.
+// Complete Content Security Policy applied to every route.
 const isProd = process.env.NODE_ENV === "production";
 
 const contentSecurityPolicy = [
-  "frame-ancestors 'none'",
-  "base-uri 'self'",
-  "object-src 'none'",
-  "form-action 'self'",
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com${!isProd ? " 'unsafe-eval'" : ""}`,
+  "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://*.unsplash.com https://unsplash.com",
+  "font-src 'self' data:",
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://vitals.vercel-insights.com https://va.vercel-scripts.com",
+  "worker-src 'self' blob:",
+  "media-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
   // Only in production — this would break http://localhost in development.
   ...(isProd ? ["upgrade-insecure-requests"] : []),
 ].join("; ");

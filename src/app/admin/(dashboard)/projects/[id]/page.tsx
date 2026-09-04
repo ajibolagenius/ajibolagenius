@@ -22,7 +22,11 @@ export default async function EditProjectPage({
   const updateWithId = updateProject.bind(null, id);
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12">
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12 focus:outline-none"
+    >
       <h1 className="mb-8 text-2xl font-semibold">Edit project</h1>
       <ProjectForm
         project={project as Project}

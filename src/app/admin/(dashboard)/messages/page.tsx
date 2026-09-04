@@ -19,7 +19,11 @@ export default async function AdminMessagesPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12 focus:outline-none"
+    >
       <h1 className="mb-8 text-2xl font-semibold">Messages</h1>
 
       {error && <p className="text-sm text-red-600">{error.message}</p>}

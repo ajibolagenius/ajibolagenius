@@ -39,7 +39,11 @@ export default async function NotesPage() {
     <>
       <TopNav visibleSections={visibleSections} />
       <Sidebar info={personalInfo} />
-      <main className="page-enter flex-1 lg:ml-80">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="page-enter flex-1 lg:ml-80 focus:outline-none"
+      >
         <div className="mx-auto w-full min-w-0 max-w-3xl xl:max-w-5xl 2xl:max-w-6xl px-6 py-10">
           <header className="mb-8">
             <h1 className="text-h1 font-normal">Notes & Writing</h1>

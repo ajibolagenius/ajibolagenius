@@ -142,7 +142,11 @@ export default async function CvPage() {
         </Link>
       </div>
 
-      <div className="mx-auto max-w-[760px] bg-cream p-8 shadow-sm sm:p-12 print:max-w-none print:shadow-none">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="mx-auto max-w-[760px] bg-cream p-8 shadow-sm sm:p-12 print:max-w-none print:shadow-none focus:outline-none"
+      >
         {/* Header */}
         <header className="mb-8 border-b border-ink/15 pb-5 text-center">
           <h1 className="text-h1 font-normal uppercase tracking-wide">{info.name}</h1>
@@ -344,7 +348,7 @@ export default async function CvPage() {
             </section>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 }

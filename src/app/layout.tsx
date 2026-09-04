@@ -7,6 +7,7 @@ import { FlashToaster } from "@/components/toast/flash-toaster";
 import { AiAssistant } from "@/components/ai-assistant";
 import { CommandPalette } from "@/components/command-palette";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { siteUrl } from "@/lib/site-url";
 import "./globals.css";
 
@@ -87,6 +88,12 @@ export default function RootLayout({
         className="min-h-full flex flex-col font-sans"
         suppressHydrationWarning
       >
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:border focus:border-ink/20 focus:bg-panel focus:px-4 focus:py-2 focus:font-mono focus:text-body-s focus:text-ink focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-accent"
+        >
+          Skip to content
+        </a>
         {children}
         {/* One stack for the whole app — client-facing pages and /admin both
             render inside this layout. AiAssistant is the one exception: it
@@ -98,6 +105,7 @@ export default function RootLayout({
         <AiAssistant />
         <CommandPalette />
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

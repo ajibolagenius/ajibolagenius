@@ -71,7 +71,11 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="relative mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-6">
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className="relative mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-6 focus:outline-none"
+    >
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>

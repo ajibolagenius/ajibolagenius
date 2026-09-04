@@ -39,7 +39,11 @@ export default async function SandboxPage() {
   return (
     <>
       <SandboxNav />
-      <main className="page-enter mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="page-enter mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 focus:outline-none"
+      >
         <div>
           <p className="font-mono text-body-xs uppercase tracking-wide text-accent">
             Lab · playground · no roadmap

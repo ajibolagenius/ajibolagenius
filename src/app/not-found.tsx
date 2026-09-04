@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { House } from "@phosphor-icons/react/dist/ssr";
 import { getCvData } from "@/lib/cv-data";
 import { TopNav } from "@/components/cv/top-nav";
@@ -14,7 +15,11 @@ export default async function NotFound() {
       <div className="hidden lg:block">
         <Sidebar info={personalInfo} />
       </div>
-      <main className="page-enter flex-1 lg:ml-80">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="page-enter flex-1 lg:ml-80 focus:outline-none"
+      >
         <div className="mx-auto flex w-full max-w-3xl flex-col items-center justify-center gap-4 px-6 py-24 text-center">
           <Image
             src="/illustration-404.svg"
@@ -27,13 +32,13 @@ export default async function NotFound() {
             The page you&apos;re looking for doesn&apos;t exist. Go back home
             to browse the resume.
           </p>
-          <a
+          <Link
             href="/"
-            className="mt-2 inline-flex items-center gap-2  bg-ink px-4 py-2.5 text-body-s font-medium text-cream"
+            className="mt-2 inline-flex items-center gap-2 bg-ink px-4 py-2.5 text-body-s font-medium text-cream"
           >
             <House weight="duotone" size={16} />
             Return Home
-          </a>
+          </Link>
         </div>
       </main>
       <SiteFooter name={personalInfo?.name ?? ""} />
