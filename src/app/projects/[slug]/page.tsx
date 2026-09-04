@@ -19,6 +19,7 @@ import { ScreenshotGallery } from "@/components/screenshot-gallery";
 import { ShareButtons } from "@/components/cv/share-buttons";
 import { ProjectNavigation } from "@/components/project-navigation";
 import { ProjectShowcase } from "@/components/project-showcase";
+import { ProjectBackLink } from "@/components/project-back-link";
 import type { Project } from "@/types/project";
 
 export const revalidate = 60;
@@ -136,19 +137,12 @@ export default async function ProjectDetailPage({
       <Sidebar info={personalInfo} />
       <main className="page-enter flex-1 lg:ml-80">
         <div className="mx-auto flex w-full min-w-0 max-w-3xl flex-col gap-10 px-6 py-10">
-          <Link
-            href={backHref}
-            className="group inline-flex w-fit items-center gap-2 text-body-s text-ink/60 transition-colors duration-[var(--dur-2)] hover:text-accent"
-          >
-            <ArrowLeft
-              weight="duotone"
-              size={16}
-              className="transition-transform duration-[var(--dur-2)] ease-out-quart group-hover:-translate-x-0.5"
-            />
-            Back to projects
-          </Link>
+          <ProjectBackLink href={backHref} label="Back to projects" />
 
-          <header className="flex flex-col gap-4">
+          <header
+            className="flex flex-col gap-4"
+            style={{ viewTransitionName: `project-${p.slug}` } as React.CSSProperties}
+          >
             <div
               className="enter flex flex-wrap items-center gap-3 text-body-xs uppercase tracking-wide text-ink/60"
               style={{ "--enter-i": 0 } as React.CSSProperties}

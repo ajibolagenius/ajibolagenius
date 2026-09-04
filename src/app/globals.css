@@ -611,6 +611,42 @@ html[data-vt="lightbox"]::view-transition-new(root) {
   animation: none;
 }
 
+/* Route transition: project card ↔ project detail */
+html[data-vt="project-route"]::view-transition-group(*) {
+  animation-duration: var(--dur-4);
+  animation-timing-function: var(--ease-out-expo);
+}
+
+html[data-vt="project-route"]::view-transition-old(root) {
+  animation: vt-fade-out var(--dur-2) var(--ease-out-quart) both;
+}
+
+html[data-vt="project-route"]::view-transition-new(root) {
+  animation: vt-fade-in var(--dur-3) var(--ease-out-quart) both;
+}
+
+html[data-vt="project-route"] .page-enter {
+  animation: none;
+}
+
+@keyframes vt-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* ── Toasts ────────────────────────────────────────────────────────────────
  * Enter is the "reveal" layer of the motion language — --dur-4, opacity plus a
  * short translate, no overshoot. Exit is deliberately faster (--dur-2, the

@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "@phosphor-icons/react/dist/ssr";
+import { useRouteTransition } from "@/hooks/use-route-transition";
 
 interface NavProject {
   slug: string;
@@ -15,6 +18,7 @@ export function ProjectNavigation({
   next: NavProject | null;
   prefix: string;
 }) {
+  const navigate = useRouteTransition();
   if (!prev && !next) return null;
 
   return (
@@ -22,6 +26,19 @@ export function ProjectNavigation({
       {prev ? (
         <Link
           href={`${prefix}/${prev.slug}`}
+          onClick={(e) => {
+            if (
+              e.metaKey ||
+              e.ctrlKey ||
+              e.shiftKey ||
+              e.altKey ||
+              e.button !== 0
+            ) {
+              return;
+            }
+            e.preventDefault();
+            navigate(`${prefix}/${prev.slug}`);
+          }}
           className="group flex flex-col gap-1 text-left max-w-[45%] min-w-0"
         >
           <span className="flex items-center gap-1 text-body-xs uppercase tracking-wider text-ink/40 transition-colors group-hover:text-accent">
@@ -39,6 +56,19 @@ export function ProjectNavigation({
       {next ? (
         <Link
           href={`${prefix}/${next.slug}`}
+          onClick={(e) => {
+            if (
+              e.metaKey ||
+              e.ctrlKey ||
+              e.shiftKey ||
+              e.altKey ||
+              e.button !== 0
+            ) {
+              return;
+            }
+            e.preventDefault();
+            navigate(`${prefix}/${next.slug}`);
+          }}
           className="group flex flex-col gap-1 text-right max-w-[45%] min-w-0"
         >
           <span className="flex items-center justify-end gap-1 text-body-xs uppercase tracking-wider text-ink/40 transition-colors group-hover:text-accent">

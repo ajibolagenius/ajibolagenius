@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Pause, Play } from "@phosphor-icons/react/dist/ssr";
 import { SectionHeading } from "./section-heading";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { useRouteTransition } from "@/hooks/use-route-transition";
 import { kindMeta, projectHref } from "@/lib/project-kind";
 import type { Project } from "@/types/project";
 
@@ -22,9 +23,25 @@ function FeaturedCard({
   sizes: string;
   priority?: boolean;
 }) {
+  const navigate = useRouteTransition();
+
   return (
     <Link
       href={href}
+      onClick={(e) => {
+        if (
+          e.metaKey ||
+          e.ctrlKey ||
+          e.shiftKey ||
+          e.altKey ||
+          e.button !== 0
+        ) {
+          return;
+        }
+        e.preventDefault();
+        navigate(href);
+      }}
+      style={{ viewTransitionName: `project-${project.slug}` } as CSSProperties}
       className={`group/card flex shrink-0 flex-col overflow-hidden border border-ink/10 bg-cream transition hover:border-ink/30 ${className ?? ""}`}
     >
       <div className="relative aspect-16/10 w-full overflow-hidden bg-ink/5">

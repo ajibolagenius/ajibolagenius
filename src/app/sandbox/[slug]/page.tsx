@@ -16,6 +16,7 @@ import { SandboxNav } from "@/components/sandbox-nav";
 import { ScreenshotGallery } from "@/components/screenshot-gallery";
 import { ShareButtons } from "@/components/cv/share-buttons";
 import { ProjectNavigation } from "@/components/project-navigation";
+import { ProjectBackLink } from "@/components/project-back-link";
 import type { Project } from "@/types/project";
 
 export const revalidate = 60;
@@ -127,15 +128,12 @@ export default async function SandboxDetailPage({
       />
       <SandboxNav />
       <main className="page-enter mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-10 sm:px-6">
-        <Link
-          href="/sandbox"
-          className="inline-flex w-fit items-center gap-2 text-body-s text-ink/60 transition-colors hover:text-accent"
-        >
-          <ArrowLeft weight="duotone" size={16} />
-          Back to lab
-        </Link>
+        <ProjectBackLink href="/sandbox" label="Back to lab" />
 
-        <header className="flex flex-col gap-3">
+        <header
+          className="flex flex-col gap-3"
+          style={{ viewTransitionName: `sandbox-${p.slug}` } as React.CSSProperties}
+        >
           <div className="flex flex-wrap items-center gap-3 text-body-xs uppercase tracking-wide text-ink/60">
             {experiment && (
               <span className="inline-flex items-center bg-accent px-2 py-0.5 font-mono normal-case tracking-normal text-cream">

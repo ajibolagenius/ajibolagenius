@@ -32,6 +32,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import type { Icon } from "@phosphor-icons/react";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
+import { useRouteTransition } from "@/hooks/use-route-transition";
 import { toast } from "@/lib/toast";
 import { kindMeta } from "@/lib/project-kind";
 
@@ -132,6 +133,7 @@ function getIsMacServerSnapshot() {
 export function CommandPalette() {
   const router = useRouter();
   const pathname = usePathname();
+  const routeNavigate = useRouteTransition();
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -274,9 +276,9 @@ export function CommandPalette() {
         router.push(href);
         return;
       }
-      router.push(href);
+      routeNavigate(href);
     },
-    [close, pathname, router],
+    [close, pathname, routeNavigate, router],
   );
 
   // Build items catalog

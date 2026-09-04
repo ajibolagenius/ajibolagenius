@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Flask, Play, Sparkle } from "@phosphor-icons/react/dist/ssr";
 import { useTilt } from "@/hooks/use-tilt";
+import { useRouteTransition } from "@/hooks/use-route-transition";
 import { hasSandboxExperiment } from "@/lib/sandbox-experiments";
 import type { Project } from "@/types/project";
 
@@ -15,13 +16,28 @@ const STATUS_LABELS: Record<string, string> = {
 
 export function SandboxCard({ project }: { project: Project }) {
   const tilt = useTilt();
+  const navigate = useRouteTransition();
   const cover = project.screenshots?.[0];
   const statusLabel = STATUS_LABELS[project.status];
   const playable = hasSandboxExperiment(project.slug);
+  const href = `/sandbox/${project.slug}`;
 
   return (
     <Link
-      href={`/sandbox/${project.slug}`}
+      href={href}
+      onClick={(e) => {
+        if (
+          e.metaKey ||
+          e.ctrlKey ||
+          e.shiftKey ||
+          e.altKey ||
+          e.button !== 0
+        ) {
+          return;
+        }
+        e.preventDefault();
+        navigate(href);
+      }}
       {...tilt}
       style={{ viewTransitionName: `sandbox-${project.slug}` } as CSSProperties}
       className="tilt tilt-sheen group relative flex flex-col overflow-hidden border border-ink/10 transition-[border-color] duration-[var(--dur-2)] hover:border-accent/60 active:scale-[0.99]"

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Star } from "@phosphor-icons/react/dist/ssr";
 import { useTilt } from "@/hooks/use-tilt";
+import { useRouteTransition } from "@/hooks/use-route-transition";
 import { kindMeta, projectHref, splitCategories } from "@/lib/project-kind";
 import type { ProjectCardData } from "@/types/project";
 
@@ -23,17 +24,32 @@ export function ProjectCard({
   showKind?: boolean;
 }) {
   const tilt = useTilt();
+  const navigate = useRouteTransition();
   const cover = project.screenshots?.[0];
   const statusLabel = STATUS_LABELS[project.status];
   const kind = kindMeta(project.kind);
   const categories = splitCategories(project.category);
+  const href = projectHref(project);
 
   return (
     <Link
-      href={projectHref(project)}
+      href={href}
+      onClick={(e) => {
+        if (
+          e.metaKey ||
+          e.ctrlKey ||
+          e.shiftKey ||
+          e.altKey ||
+          e.button !== 0
+        ) {
+          return;
+        }
+        e.preventDefault();
+        navigate(href);
+      }}
       {...tilt}
-      // Named so the grid refilter can morph persisting cards into their new
-      // positions instead of hard-cutting. Must be document-unique.
+      // Named so the grid refilter and route navigation can morph persisting cards
+      // into their new positions or detail hero view. Must be document-unique.
       style={{ viewTransitionName: `project-${project.slug}` } as CSSProperties}
       className="tilt tilt-sheen group relative flex flex-col overflow-hidden border border-ink/10 transition-[border-color] duration-[var(--dur-2)] hover:border-ink/30 active:scale-[0.995]"
     >
