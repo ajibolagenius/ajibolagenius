@@ -98,7 +98,7 @@ export function TopNav({
 
   return (
     <div className="sticky top-0 z-40 bg-cream/90 backdrop-blur lg:ml-80">
-      <nav className="relative mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
+      <nav className="relative mx-auto flex max-w-3xl xl:max-w-5xl 2xl:max-w-6xl items-center justify-between px-6 py-4">
         <div className="flex items-center gap-6 sm:gap-7">
           <Link
             href="/"

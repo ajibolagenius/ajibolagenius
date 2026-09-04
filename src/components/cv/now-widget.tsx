@@ -62,7 +62,7 @@ export async function NowWidget({
   });
 
   return (
-    <figure className="enter flex w-full max-w-xl flex-col rounded-xl border border-ink/10 bg-panel/50 p-4 shadow-xs backdrop-blur-xs transition-colors hover:border-ink/20 sm:p-5 print:hidden">
+    <figure className="enter flex w-full max-w-xl xl:max-w-2xl flex-col rounded-xl border border-ink/10 bg-panel/50 p-4 shadow-xs backdrop-blur-xs transition-colors hover:border-ink/20 sm:p-5 print:hidden">
       {/* Top status bar: Live indicator + Role + Location & local time */}
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-ink/8 pb-3">
         <div className="flex items-center gap-2">
@@ -159,7 +159,7 @@ export function NowWidgetFallback() {
   return (
     <div
       aria-hidden
-      className="enter flex w-full max-w-xl flex-col rounded-xl border border-ink/10 bg-panel/50 p-4 shadow-xs backdrop-blur-xs sm:p-5 print:hidden"
+      className="enter flex w-full max-w-xl xl:max-w-2xl flex-col rounded-xl border border-ink/10 bg-panel/50 p-4 shadow-xs backdrop-blur-xs sm:p-5 print:hidden"
     >
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-ink/8 pb-3">
         <div className="flex items-center gap-2">

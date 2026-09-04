@@ -95,7 +95,7 @@ export default async function LicensesPage() {
         <Sidebar info={personalInfo} />
       </div>
       <main className="page-enter flex-1 lg:ml-80">
-        <div className="mx-auto w-full max-w-3xl px-6 py-10">
+        <div className="mx-auto w-full max-w-3xl xl:max-w-5xl 2xl:max-w-6xl px-6 py-10">
           <div className="text-center">
             <h1 className="text-h1 font-normal">Licenses</h1>
             <p className="mx-auto mt-3 max-w-md text-body-m text-ink/60">
@@ -105,7 +105,7 @@ export default async function LicensesPage() {
             </p>
           </div>
 
-          <div className="mt-10 grid gap-4 sm:grid-cols-2">
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {LICENSES.map(({ icon: Icon, title, body, link }) => (
               <div key={title} className=" bg-ink/5 p-6">
                 <div className="mb-4 flex h-10 w-10 items-center justify-center  bg-accent text-cream">

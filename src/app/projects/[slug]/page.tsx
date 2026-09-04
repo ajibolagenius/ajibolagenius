@@ -1,9 +1,7 @@
 import { cache } from "react";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import {
-  ArrowLeft,
   ArrowSquareOut,
   GithubLogo,
 } from "@phosphor-icons/react/dist/ssr";
@@ -136,7 +134,7 @@ export default async function ProjectDetailPage({
       <TopNav visibleSections={visibleSections} />
       <Sidebar info={personalInfo} />
       <main className="page-enter flex-1 lg:ml-80">
-        <div className="mx-auto flex w-full min-w-0 max-w-3xl flex-col gap-10 px-6 py-10">
+        <div className="mx-auto flex w-full min-w-0 max-w-3xl xl:max-w-5xl 2xl:max-w-6xl flex-col gap-10 px-6 py-10">
           <ProjectBackLink href={backHref} label="Back to projects" />
 
           <header
@@ -228,18 +226,26 @@ export default async function ProjectDetailPage({
             </dl>
           )}
 
-          {p.problem && (
-            <section className="reveal flex flex-col gap-2">
-              <h2 className="text-h3 font-normal">Problem</h2>
-              <p className="text-body-m text-ink/70">{p.problem}</p>
-            </section>
-          )}
+          {(p.problem || p.solution) && (
+            <div
+              className={`grid gap-6 ${
+                p.problem && p.solution ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1"
+              }`}
+            >
+              {p.problem && (
+                <section className="reveal flex flex-col gap-2">
+                  <h2 className="text-h3 font-normal">Problem</h2>
+                  <p className="text-body-m text-ink/70">{p.problem}</p>
+                </section>
+              )}
 
-          {p.solution && (
-            <section className="reveal flex flex-col gap-2">
-              <h2 className="text-h3 font-normal">Solution</h2>
-              <p className="text-body-m text-ink/70">{p.solution}</p>
-            </section>
+              {p.solution && (
+                <section className="reveal flex flex-col gap-2">
+                  <h2 className="text-h3 font-normal">Solution</h2>
+                  <p className="text-body-m text-ink/70">{p.solution}</p>
+                </section>
+              )}
+            </div>
           )}
 
           {p.tech_details?.length > 0 && (

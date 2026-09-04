@@ -1,3 +1,5 @@
+"use client";
+
 import { Flask } from "@phosphor-icons/react/dist/ssr";
 import { PinnedPromoCard } from "@/components/pinned-promo-card";
 

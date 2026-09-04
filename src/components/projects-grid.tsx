@@ -254,7 +254,11 @@ export function ProjectsGrid({
 
       {filtered.length > 0 ? (
         <>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          <div
+            className={`mt-8 grid gap-4 sm:grid-cols-2 ${
+              layout === "grid" ? "xl:grid-cols-3" : ""
+            }`}
+          >
             {showPinned && pinnedCard}
             {shown.map((project, i) => {
               const isWide =

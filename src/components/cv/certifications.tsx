@@ -9,7 +9,7 @@ export function Certifications({ entries }: { entries: Certification[] }) {
   return (
     <section className="reveal flex flex-col gap-6 border-t border-ink/10 py-10">
       <SectionHeading id="certifications">Certifications</SectionHeading>
-      <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         {entries.map((cert) => {
           // Joined rather than interpolated: both columns default to '' and
           // every row currently has an empty issued_date, which the old
@@ -19,11 +19,14 @@ export function Certifications({ entries }: { entries: Certification[] }) {
             .join(" · ");
 
           return (
-            <div key={cert.id} className="flex items-center gap-4">
+            <div
+              key={cert.id}
+              className="flex items-center gap-4 border border-ink/8 bg-panel/30 p-3.5 transition-colors hover:border-ink/20"
+            >
               <CompanyIcon seed={cert.title} size={28} />
-              <div className="flex-1">
-                <p className="text-body-m font-medium">{cert.title}</p>
-                {meta && <p className="text-body-s text-ink/60">{meta}</p>}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-body-m font-medium">{cert.title}</p>
+                {meta && <p className="truncate text-body-s text-ink/60">{meta}</p>}
               </div>
               {cert.link_url && (
                 <a
@@ -31,7 +34,7 @@ export function Certifications({ entries }: { entries: Certification[] }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`View ${cert.title} certificate`}
-                  className="bg-ink/5 p-2 text-ink/60 transition-colors duration-[var(--dur-2)] hover:text-ink"
+                  className="shrink-0 bg-ink/5 p-2 text-ink/60 transition-colors duration-[var(--dur-2)] hover:text-ink"
                 >
                   <ArrowUpRight weight="duotone" size={16} />
                 </a>
