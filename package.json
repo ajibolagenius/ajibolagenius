@@ -9,10 +9,12 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/react": "^4.0.94",
     "@phosphor-icons/react": "^2.1.10",
     "@supabase/ssr": "^0.12.1",
     "@supabase/supabase-js": "^2.110.4",
     "@vercel/analytics": "^2.0.1",
+    "ai": "^7.0.91",
     "clsx": "^2.1.1",
     "next": "16.2.10",
     "react": "19.2.4",

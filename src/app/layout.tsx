@@ -4,6 +4,7 @@ import { ThemeScript } from "@/components/theme-script";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
 import { Toaster } from "@/components/toast/toaster";
 import { FlashToaster } from "@/components/toast/flash-toaster";
+import { AiAssistant } from "@/components/ai-assistant";
 import { Analytics } from "@vercel/analytics/next";
 import { siteUrl } from "@/lib/site-url";
 import "./globals.css";
@@ -87,10 +88,13 @@ export default function RootLayout({
       >
         {children}
         {/* One stack for the whole app — client-facing pages and /admin both
-            render inside this layout. */}
+            render inside this layout. AiAssistant is the one exception: it
+            hides itself on /admin via usePathname rather than being excluded
+            here, since a visitor-facing widget has no place in the CMS. */}
         <Toaster />
         <FlashToaster />
         <ServiceWorkerRegistration />
+        <AiAssistant />
         <Analytics />
       </body>
     </html>
