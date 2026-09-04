@@ -132,7 +132,7 @@ export default async function SandboxDetailPage({
         tabIndex={-1}
         className="page-enter mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-10 sm:px-6 focus:outline-none"
       >
-        <ProjectBackLink href="/sandbox" label="Back to lab" />
+        <ProjectBackLink href="/sandbox" />
 
         <header
           className="flex flex-col gap-3"

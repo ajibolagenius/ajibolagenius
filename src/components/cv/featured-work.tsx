@@ -8,6 +8,7 @@ import { SectionHeading } from "./section-heading";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { useRouteTransition } from "@/hooks/use-route-transition";
 import { kindMeta, projectHref } from "@/lib/project-kind";
+import { useLanguage } from "@/lib/i18n";
 import type { Project } from "@/types/project";
 
 function FeaturedCard({
@@ -24,6 +25,7 @@ function FeaturedCard({
   priority?: boolean;
 }) {
   const navigate = useRouteTransition();
+  const { t } = useLanguage();
 
   return (
     <Link
@@ -56,7 +58,7 @@ function FeaturedCard({
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-body-xs text-ink/30">
-            No preview
+            {t.work.noPreview}
           </div>
         )}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-cream/80 to-transparent opacity-0 transition-opacity duration-300 group-hover/card:opacity-100" />
@@ -146,6 +148,7 @@ function MobileCarousel({ projects }: { projects: Project[] }) {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const reduceMotion = usePrefersReducedMotion();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const el = scrollerRef.current;
@@ -224,7 +227,7 @@ function MobileCarousel({ projects }: { projects: Project[] }) {
               <button
                 key={project.id}
                 type="button"
-                aria-label={`Go to ${project.name}`}
+                aria-label={`${t.work.goTo} ${project.name}`}
                 onClick={() => scrollToIndex(i)}
                 className={`h-1.5 transition-all ${
                   i === active
@@ -254,6 +257,7 @@ export function FeaturedWork({
 }) {
   const [hovered, setHovered] = useState(false);
   const reduceMotion = usePrefersReducedMotion();
+  const { t } = useLanguage();
 
   // One unified reel now that /work and /side-projects have merged. Client
   // work leads, side projects follow; each card carries its own type pill.
@@ -274,7 +278,7 @@ export function FeaturedWork({
           href="/projects"
           className="group inline-flex shrink-0 items-center gap-1 text-body-s font-medium text-ink/60 transition-colors duration-[var(--dur-2)] hover:text-accent"
         >
-          View all projects
+          {t.work.viewAllProjects}
           <ArrowUpRight
             size={16}
             weight="duotone"
@@ -314,7 +318,7 @@ export function FeaturedWork({
 
           <div className="mt-3 flex items-center justify-between gap-3">
             <p className="font-mono text-body-xs uppercase tracking-[0.18em] text-ink/35">
-              Featured reel
+              {t.work.featuredReel}
               <span className="mx-2 text-ink/15">·</span>
               {currentProjects.length} featured
             </p>
@@ -322,12 +326,12 @@ export function FeaturedWork({
               {hovered ? (
                 <>
                   <Pause size={12} weight="fill" className="text-accent" />
-                  Paused
+                  {t.work.paused}
                 </>
               ) : (
                 <>
                   <Play size={12} weight="fill" className="text-ink/30" />
-                  Auto
+                  {t.work.auto}
                 </>
               )}
             </span>

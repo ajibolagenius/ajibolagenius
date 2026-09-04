@@ -9,6 +9,7 @@ import {
   FacebookLogo,
   WhatsappLogo,
 } from "@phosphor-icons/react/dist/ssr";
+import { useLanguage } from "@/lib/i18n";
 
 export function ShareButtons({
   url,
@@ -18,28 +19,29 @@ export function ShareButtons({
   title: string;
 }) {
   const [copied, setCopied] = useState(false);
+  const { t } = useLanguage();
 
   const encodedUrl = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);
 
   const links = [
     {
-      label: "Share on X",
+      label: t.share.shareOnX,
       href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
       icon: XLogo,
     },
     {
-      label: "Share on LinkedIn",
+      label: t.share.shareOnLinkedIn,
       href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
       icon: LinkedinLogo,
     },
     {
-      label: "Share on Facebook",
+      label: t.share.shareOnFacebook,
       href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
       icon: FacebookLogo,
     },
     {
-      label: "Share on WhatsApp",
+      label: t.share.shareOnWhatsApp,
       href: `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`,
       icon: WhatsappLogo,
     },
@@ -58,7 +60,7 @@ export function ShareButtons({
   return (
     <div className="flex flex-wrap items-center gap-2">
       <span className="text-body-xs uppercase tracking-wide text-ink/60">
-        Share
+        {t.share.share}
       </span>
       {links.map(({ label, href, icon: Icon }) => (
         <a
@@ -75,7 +77,7 @@ export function ShareButtons({
       <button
         type="button"
         onClick={handleCopy}
-        aria-label="Copy link"
+        aria-label={t.share.copyLink}
         className="inline-flex h-9 w-9 shrink-0 items-center justify-center border border-ink/20 text-ink/70 transition-colors hover:border-ink hover:text-ink"
       >
         {copied ? (

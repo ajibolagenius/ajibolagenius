@@ -1,10 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { NoteCard } from "@/components/note-card";
 import { SectionHeading } from "@/components/cv/section-heading";
+import { useLanguage } from "@/lib/i18n";
 import type { Note } from "@/types/note";
 
 export function FeaturedNotes({ notes }: { notes: Note[] }) {
+  const { t } = useLanguage();
   if (!notes || notes.length === 0) return null;
 
   return (
@@ -20,7 +24,7 @@ export function FeaturedNotes({ notes }: { notes: Note[] }) {
           href="/notes"
           className="group inline-flex items-center gap-1.5 font-mono text-body-xs font-medium text-ink transition-colors hover:text-accent"
         >
-          All notes
+          {t.actions.allNotes}
           <ArrowRight
             size={13}
             className="transition-transform group-hover:translate-x-0.5"

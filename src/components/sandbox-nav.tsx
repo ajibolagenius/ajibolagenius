@@ -3,8 +3,12 @@
 import Link from "next/link";
 import { ArrowLeft, Flask, MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageToggle } from "@/components/language-toggle";
+import { useLanguage } from "@/lib/i18n";
 
 export function SandboxNav() {
+  const { t } = useLanguage();
+
   return (
     <div className="sticky top-0 z-40 border-b border-ink/10 bg-cream/90 backdrop-blur">
       <nav className="relative mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
@@ -13,7 +17,7 @@ export function SandboxNav() {
           className="inline-flex items-center gap-2 transition-colors hover:text-accent"
         >
           <Flask weight="duotone" size={22} className="shrink-0 text-accent" />
-          <span className="text-display">Sandbox</span>
+          <span className="text-display">{t.nav.sandbox}</span>
         </Link>
 
         <div className="flex items-center gap-3 sm:gap-4">
@@ -22,11 +26,11 @@ export function SandboxNav() {
             onClick={() =>
               window.dispatchEvent(new CustomEvent("open-command-palette"))
             }
-            aria-label="Search and command palette (⌘K)"
+            aria-label={`${t.nav.searchCommands} (⌘K)`}
             className="flex items-center gap-1.5 border border-ink/10 bg-ink/5 px-2 py-1 text-body-xs text-ink/65 transition-colors duration-[var(--dur-2)] hover:border-accent hover:text-ink sm:px-2.5"
           >
             <MagnifyingGlass weight="bold" size={14} className="text-accent" />
-            <span className="hidden md:inline font-sans">Search</span>
+            <span className="hidden md:inline font-sans">{t.nav.search}</span>
             <kbd className="hidden font-mono text-[10px] text-ink/40 border border-ink/15 px-1 py-0.5 sm:inline-block">
               ⌘K
             </kbd>
@@ -40,8 +44,9 @@ export function SandboxNav() {
               size={14}
               className="transition-transform duration-[var(--dur-2)] ease-out-quart group-hover:-translate-x-0.5"
             />
-            <span className="hidden sm:inline">Projects</span>
+            <span className="hidden sm:inline">{t.nav.projects}</span>
           </Link>
+          <LanguageToggle className="flex" />
           <ThemeToggle className="flex text-ink/60 transition-colors hover:text-ink" />
         </div>
         <span

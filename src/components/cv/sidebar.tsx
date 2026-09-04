@@ -14,6 +14,11 @@ import {
 import type { PersonalInfo } from "@/types/cv";
 import { EdgeMarquee } from "@/components/cv/edge-marquee";
 import { getSidebarStats } from "@/lib/sidebar-stats";
+import {
+    CompaniesLabel,
+    ProjectsShippedLabel,
+    DownloadCvLabel,
+} from "@/components/cv/sidebar-i18n";
 
 export async function Sidebar({ info }: { info: PersonalInfo | null }) {
     if (!info) return null;
@@ -33,12 +38,12 @@ export async function Sidebar({ info }: { info: PersonalInfo | null }) {
         companyCount > 0 && {
             key: "companies",
             Icon: Buildings,
-            text: `${companyCount} companies`,
+            text: <CompaniesLabel count={companyCount} />,
         },
         projectCount && {
             key: "projects",
             Icon: Stack,
-            text: `${projectCount} projects shipped`,
+            text: <ProjectsShippedLabel count={projectCount} />,
         },
         info.availability && {
             key: "availability",
@@ -130,7 +135,7 @@ export async function Sidebar({ info }: { info: PersonalInfo | null }) {
                     className="flex flex-1 items-center justify-center gap-2 bg-ink px-4 py-2.5 text-body-s font-medium text-cream transition-colors hover:bg-accent"
                 >
                     <DownloadSimple weight="duotone" size={16} />
-                    Download CV
+                    <DownloadCvLabel />
                 </a>
                 <a
                     href={`mailto:${info.email}`}

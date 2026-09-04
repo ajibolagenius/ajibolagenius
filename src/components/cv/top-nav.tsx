@@ -17,6 +17,8 @@ import {
   X,
 } from "@phosphor-icons/react/dist/ssr";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageToggle } from "@/components/language-toggle";
+import { useLanguage } from "@/lib/i18n";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { useIndicator } from "@/hooks/use-indicator";
 import { useScrollSpy } from "@/hooks/use-scroll-spy";
@@ -60,6 +62,7 @@ export function TopNav({
   /** Visible homepage section keys; links to hidden sections are omitted. */
   visibleSections?: string[];
 }) {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -68,6 +71,15 @@ export function TopNav({
     getIsMacSnapshot,
     getIsMacServerSnapshot,
   );
+
+  const getNavLabel = (link: NavLink) => {
+    if (link.section === "about") return t.nav.about;
+    if (link.section === "experience") return t.nav.experience;
+    if (link.href === "/projects") return t.nav.projects;
+    if (link.href === "/notes") return t.nav.notes;
+    if (link.href === "/sandbox") return t.nav.sandbox;
+    return link.label;
+  };
 
   const close = useCallback(() => setOpen(false), []);
   useFocusTrap(sheetRef, open, close);
@@ -103,7 +115,7 @@ export function TopNav({
           <Link
             href="/"
             className="text-ink transition-opacity hover:opacity-80 shrink-0"
-            aria-label="Home"
+            aria-label={t.nav.home}
           >
             <UserCircle weight="duotone" size={24} className="text-accent" />
           </Link>
@@ -134,7 +146,7 @@ export function TopNav({
                   aria-current={isActive(link) ? "page" : undefined}
                   className="whitespace-nowrap transition-colors duration-[var(--dur-2)] hover:text-ink"
                 >
-                  {link.label}
+                  {getNavLabel(link)}
                 </Link>
               </li>
             ))}
@@ -147,7 +159,7 @@ export function TopNav({
             onClick={() =>
               window.dispatchEvent(new CustomEvent("open-command-palette"))
             }
-            aria-label="Search and command palette (⌘K)"
+            aria-label={`${t.nav.searchCommands} (⌘K)`}
             className="group flex items-center gap-1.5 border border-ink/10 bg-ink/[0.04] px-2.5 py-1.5 text-body-xs text-ink/65 transition-colors duration-[var(--dur-2)] hover:border-accent hover:text-ink whitespace-nowrap"
           >
             <MagnifyingGlass
@@ -159,6 +171,7 @@ export function TopNav({
               {isMac ? "⌘K" : "Ctrl+K"}
             </kbd>
           </button>
+          <LanguageToggle className="flex" />
           <ThemeToggle className="flex text-ink/60 transition-colors duration-[var(--dur-2)] hover:text-ink" />
           {showContact && (
             <Link
@@ -166,7 +179,7 @@ export function TopNav({
               className="hidden items-center gap-2 bg-ink px-4 py-2 text-body-s font-medium text-cream whitespace-nowrap shrink-0 transition-colors duration-[var(--dur-2)] hover:bg-accent active:scale-[0.98] sm:flex"
             >
               <ChatCircle weight="duotone" size={16} />
-              Contact Me
+              {t.nav.contactMe}
             </Link>
           )}
 
@@ -174,7 +187,7 @@ export function TopNav({
             type="button"
             onClick={() => setOpen((v) => !v)}
             className="text-ink sm:hidden"
-            aria-label="Toggle menu"
+            aria-label={t.nav.toggleMenu}
             aria-expanded={open}
             aria-controls="mobile-menu"
           >
@@ -213,7 +226,7 @@ export function TopNav({
                 onClick={close}
                 className="whitespace-nowrap transition-colors duration-[var(--dur-2)] hover:text-ink"
               >
-                {link.label}
+                {getNavLabel(link)}
               </Link>
             </li>
           ))}
@@ -226,7 +239,7 @@ export function TopNav({
               onClick={close}
               className="whitespace-nowrap transition-colors duration-[var(--dur-2)] hover:text-ink"
             >
-              CV / Resume
+              {t.nav.cv}
             </Link>
           </li>
         </ul>
@@ -239,7 +252,7 @@ export function TopNav({
             className="mt-4 flex items-center justify-center gap-2 bg-ink px-4 py-2.5 text-body-s font-medium text-cream transition-colors duration-[var(--dur-2)] hover:bg-accent"
           >
             <ChatCircle weight="duotone" size={16} />
-            Contact Me
+            {t.nav.contactMe}
           </Link>
         )}
         <button
@@ -253,7 +266,7 @@ export function TopNav({
           className="mt-2.5 flex w-full items-center justify-center gap-2 border border-ink/15 bg-ink/5 px-4 py-2.5 text-body-s font-medium text-ink/75 transition-colors duration-[var(--dur-2)] hover:border-accent hover:text-ink"
         >
           <MagnifyingGlass weight="bold" size={16} className="text-accent" />
-          Search &amp; Commands (⌘K)
+          {t.nav.searchCommands} (⌘K)
         </button>
       </div>
     </div>

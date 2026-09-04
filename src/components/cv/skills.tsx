@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import { SectionHeading } from "./section-heading";
+import { useLanguage } from "@/lib/i18n";
 import type { Skill } from "@/types/cv";
 
 function TechIcon({ skill }: { skill: Skill }) {
@@ -49,6 +52,7 @@ function TechIcon({ skill }: { skill: Skill }) {
 }
 
 export function Skills({ skills }: { skills: Skill[] }) {
+  const { t } = useLanguage();
   if (skills.length === 0) return null;
 
   const techIcons = skills.filter((s) => s.icon_url);
@@ -70,7 +74,7 @@ export function Skills({ skills }: { skills: Skill[] }) {
       {techIcons.length > 0 && (
         <div className="flex flex-col gap-3">
           <p className="text-body-s font-medium text-ink/60">
-            Technologies &amp; tools
+            {t.headings.tools}
           </p>
           <div className="flex flex-wrap gap-2">
             {techIcons.map((skill) => (

@@ -13,6 +13,7 @@ import { getCvData } from "@/lib/cv-data";
 import { TopNav } from "@/components/cv/top-nav";
 import { Sidebar } from "@/components/cv/sidebar";
 import { SiteFooter } from "@/components/cv/site-footer";
+import { LicensesHeading } from "@/components/licenses-heading";
 
 const title = "Licenses";
 const description = "Attribution and licensing for images, icons, and illustrations used on this site.";
@@ -101,7 +102,7 @@ export default async function LicensesPage() {
       >
         <div className="mx-auto w-full max-w-3xl xl:max-w-5xl 2xl:max-w-6xl px-6 py-10">
           <div className="text-center">
-            <h1 className="text-h1 font-normal">Licenses</h1>
+            <LicensesHeading />
             <p className="mx-auto mt-3 max-w-md text-body-m text-ink/60">
               Credits for the assets, tools, and open-source software that
               power this site. If you&apos;d like to use a specific asset,

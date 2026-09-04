@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { ArrowClockwise, House, WarningCircle } from "@phosphor-icons/react";
+import { useLanguage } from "@/lib/i18n";
 
 export default function ErrorPage({
   error,
@@ -11,6 +12,8 @@ export default function ErrorPage({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const { t } = useLanguage();
+
   useEffect(() => {
     console.error("Application error:", error);
   }, [error]);
@@ -41,14 +44,14 @@ export default function ErrorPage({
             className="inline-flex items-center gap-2 bg-ink px-4 py-2.5 text-body-s font-medium text-cream transition-opacity hover:opacity-90 cursor-pointer"
           >
             <ArrowClockwise size={16} weight="bold" />
-            Try again
+            {t.actions.tryAgain}
           </button>
           <Link
             href="/"
             className="inline-flex items-center gap-2 border border-ink/20 bg-panel px-4 py-2.5 text-body-s font-medium text-ink transition-colors hover:border-ink/40"
           >
             <House size={16} weight="duotone" />
-            Return Home
+            {t.actions.returnHome}
           </Link>
         </div>
       </div>

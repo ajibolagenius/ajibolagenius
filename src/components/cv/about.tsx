@@ -1,4 +1,7 @@
+"use client";
+
 import { SectionHeading } from "./section-heading";
+import { useLanguage } from "@/lib/i18n";
 import type { PersonalInfo, Skill } from "@/types/cv";
 
 export function About({
@@ -8,6 +11,7 @@ export function About({
   info: PersonalInfo | null;
   skills: Skill[];
 }) {
+  const { t } = useLanguage();
   if (!info) return null;
 
   return (
@@ -16,7 +20,7 @@ export function About({
       <p className="max-w-2xl text-body-m text-ink/70">{info.description}</p>
       {skills.length > 0 && (
         <div className="flex flex-col gap-2">
-          <p className="text-body-s font-medium text-ink/60">Key skills:</p>
+          <p className="text-body-s font-medium text-ink/60">{t.about.keySkills}</p>
           <div className="flex flex-wrap gap-2">
             {skills.slice(0, 6).map((skill) => (
               <span

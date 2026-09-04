@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Habibi } from "next/font/google";
 import { ThemeScript } from "@/components/theme-script";
+import { LanguageScript } from "@/components/language-script";
+import { SkipLink } from "@/components/skip-link";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
 import { Toaster } from "@/components/toast/toaster";
 import { FlashToaster } from "@/components/toast/flash-toaster";
@@ -83,17 +85,13 @@ export default function RootLayout({
     >
       <head>
         <ThemeScript />
+        <LanguageScript />
       </head>
       <body
         className="min-h-full flex flex-col font-sans"
         suppressHydrationWarning
       >
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:border focus:border-ink/20 focus:bg-panel focus:px-4 focus:py-2 focus:font-mono focus:text-body-s focus:text-ink focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-accent"
-        >
-          Skip to content
-        </a>
+        <SkipLink />
         {children}
         {/* One stack for the whole app — client-facing pages and /admin both
             render inside this layout. AiAssistant is the one exception: it

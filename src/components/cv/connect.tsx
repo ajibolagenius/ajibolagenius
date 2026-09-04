@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import {
   Envelope,
@@ -8,21 +10,18 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import type { PersonalInfo } from "@/types/cv";
 import { ContactForm } from "@/components/cv/contact-form";
+import { SectionHeading } from "@/components/cv/section-heading";
+import { useLanguage } from "@/lib/i18n";
 
 export function Connect({ info }: { info: PersonalInfo | null }) {
+  const { t } = useLanguage();
   if (!info) return null;
 
   return (
-    <section
-      id="connect"
-      className="flex scroll-mt-24 flex-col items-center gap-8 border-t border-ink/10 py-16 text-center"
-    >
+    <section className="flex flex-col items-center gap-8 border-t border-ink/10 py-16 text-center">
       <div>
-        <h2 className="text-h1 font-normal">Let&apos;s Connect</h2>
-        <p className="mt-2 text-body-m text-ink/60">
-          Currently available for full-time roles, freelance work, and
-          collaborations.
-        </p>
+        <SectionHeading id="connect">Let&apos;s Connect</SectionHeading>
+        <p className="mt-2 text-body-m text-ink/60">{t.connect.availability}</p>
       </div>
 
       <div className="flex w-full max-w-md flex-col gap-3 sm:flex-row">
@@ -32,7 +31,7 @@ export function Connect({ info }: { info: PersonalInfo | null }) {
         >
           <Envelope weight="duotone" size={18} />
           <div>
-            <p className="text-body-s font-medium">Email Me</p>
+            <p className="text-body-s font-medium">{t.connect.emailMe}</p>
             <p className="text-body-xs text-ink/60">{info.email}</p>
           </div>
         </a>
@@ -43,7 +42,7 @@ export function Connect({ info }: { info: PersonalInfo | null }) {
           >
             <Phone weight="duotone" size={18} />
             <div>
-              <p className="text-body-s font-medium">Call Me</p>
+              <p className="text-body-s font-medium">{t.connect.callMe}</p>
               <p className="text-body-xs text-ink/60">WhatsApp</p>
             </div>
           </a>
@@ -53,7 +52,7 @@ export function Connect({ info }: { info: PersonalInfo | null }) {
       <ContactForm />
 
       <div>
-        <p className="text-body-s text-ink/60">Join my network:</p>
+        <p className="text-body-s text-ink/60">{t.connect.joinNetwork}</p>
         <div className="mt-2 flex items-center justify-center gap-3">
           {info.social?.linkedin && (
             <a

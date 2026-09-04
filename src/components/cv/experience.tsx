@@ -1,8 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { SectionHeading } from "./section-heading";
 import { CompanyIcon } from "@/components/company-icon";
 import { assignCompanyIcons, type CompanyIconStyle } from "@/lib/company-icon";
+import { useLanguage } from "@/lib/i18n";
 import type { ExperienceEntry } from "@/types/cv";
 
 /** Roles shown on the homepage; the rest live on /cv. */
@@ -56,6 +59,7 @@ function JobCard({
 }
 
 export function Experience({ entries }: { entries: ExperienceEntry[] }) {
+  const { t } = useLanguage();
   if (entries.length === 0) return null;
 
   const iconStyles = assignCompanyIcons(entries.map((e) => e.company));
@@ -99,7 +103,7 @@ export function Experience({ entries }: { entries: ExperienceEntry[] }) {
         >
           {/* Single interpolated child: three children would make React emit
               <!-- --> separators between the text and the count. */}
-          {`View all ${entries.length} roles`}
+          {t.experience.viewAllRoles.replace("{count}", String(entries.length))}
           <ArrowRight
             weight="duotone"
             size={16}

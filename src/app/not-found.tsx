@@ -1,10 +1,9 @@
 import Image from "next/image";
-import Link from "next/link";
-import { House } from "@phosphor-icons/react/dist/ssr";
 import { getCvData } from "@/lib/cv-data";
 import { TopNav } from "@/components/cv/top-nav";
 import { Sidebar } from "@/components/cv/sidebar";
 import { SiteFooter } from "@/components/cv/site-footer";
+import { NotFoundCopy } from "@/components/not-found-copy";
 
 export default async function NotFound() {
   const { personalInfo } = await getCvData();
@@ -27,18 +26,7 @@ export default async function NotFound() {
             width={100}
             height={100}
           />
-          <h1 className="text-h1 font-normal">Not Found</h1>
-          <p className="max-w-sm text-body-m text-ink/60">
-            The page you&apos;re looking for doesn&apos;t exist. Go back home
-            to browse the resume.
-          </p>
-          <Link
-            href="/"
-            className="mt-2 inline-flex items-center gap-2 bg-ink px-4 py-2.5 text-body-s font-medium text-cream"
-          >
-            <House weight="duotone" size={16} />
-            Return Home
-          </Link>
+          <NotFoundCopy />
         </div>
       </main>
       <SiteFooter name={personalInfo?.name ?? ""} />

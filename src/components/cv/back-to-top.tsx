@@ -1,9 +1,11 @@
 "use client";
 
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { useLanguage } from "@/lib/i18n";
 
 export function BackToTop({ className }: { className?: string }) {
   const reduceMotion = usePrefersReducedMotion();
+  const { t } = useLanguage();
 
   return (
     <button
@@ -14,7 +16,7 @@ export function BackToTop({ className }: { className?: string }) {
       }
       className={className}
     >
-      Back to Top
+      {t.actions.backToTop}
     </button>
   );
 }

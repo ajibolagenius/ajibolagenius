@@ -111,7 +111,7 @@ export default async function NoteDetailPage({
         className="page-enter flex-1 lg:ml-80 focus:outline-none"
       >
         <article className="mx-auto w-full min-w-0 max-w-3xl xl:max-w-4xl 2xl:max-w-5xl px-6 py-10">
-          <ProjectBackLink href="/notes" label="All notes" />
+          <ProjectBackLink href="/notes" />
 
           {/* Article Header */}
           <header
