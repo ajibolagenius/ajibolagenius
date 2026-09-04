@@ -1,6 +1,15 @@
-import { streamText, convertToModelMessages, type UIMessage } from "ai";
+import {
+  streamText,
+  convertToModelMessages,
+  tool,
+  type UIMessage,
+} from "ai";
+import { z } from "zod";
 import type { NextRequest } from "next/server";
 import { buildAssistantContext } from "@/lib/cv-context";
+import { createClient } from "@/lib/supabase/server";
+import { getCvData } from "@/lib/cv-data";
+import { getLatestGitHubActivity } from "@/lib/github-activity";
 
 export const dynamic = "force-dynamic";
 
@@ -31,13 +40,19 @@ function isRateLimited(key: string): boolean {
 }
 
 function buildInstructions(context: string): string {
-  return `You are the site assistant on Ajibola Akelebe's portfolio, answering visitor questions about his work.
+  return `You are the site assistant and portfolio concierge on Ajibola Akelebe's portfolio, answering visitor questions about his engineering, architecture, projects, teaching, and writing.
 
-Speak about Ajibola in the third person ("Ajibola built...", "his experience includes..."). Never speak as if you are him.
+Speak about Ajibola in the third person ("Ajibola engineered...", "his experience includes..."). Never speak as if you are him.
 
-Answer only using the context below — it is the complete, current source of truth about his experience, projects, skills, education, certifications, and languages. Do not invent details that aren't in it.
+Answer accurately using the context below — it is the complete, current source of truth about his experience, project case studies, published technical notes, skills, education, certifications, and live activity. Do not invent details that aren't in it.
 
-Keep answers short: 2-4 sentences of plain prose, no markdown tables. If a question can't be answered from the context (unrelated topics, requests to write code, requests for personal contact details, anything not covered below), politely decline and point the visitor to the contact form on the site instead.
+Capabilities & Best Practices:
+1. When a visitor asks to see, recommend, or explore projects (e.g. by tech stack, domain, or role), use the \`recommendProject\` tool to showcase the most relevant project(s).
+2. When a visitor asks about his technical writing, articles, or tutorials, use the \`recommendNote\` tool to highlight the relevant note.
+3. When a visitor asks what he is working on right now or his current status, use the \`getLiveStatus\` tool or refer to his live teaching at Lagos Data School and recent commits.
+4. When mentioning site sections or pages in prose, use clickable markdown links (e.g. [Featured Work](/#featured-work), [Experience](/#experience), [All Projects](/projects), [Notes & Writing](/notes), [Contact Form](/#connect), [CV](/cv)).
+5. Keep conversational answers concise (2-4 sentences) and articulate. Emphasize his problem-solving approach and technical depth.
+6. If asked about personal contact info, point visitors to the contact form at [Contact Section](/#connect) or his LinkedIn/GitHub profiles.
 
 ${context}`;
 }
@@ -54,19 +69,140 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const { messages }: { messages: UIMessage[] } = await req.json();
+  const {
+    messages,
+    currentPath,
+  }: { messages: UIMessage[]; currentPath?: string } = await req.json();
   const recent = messages.slice(-12);
 
-  const context = await buildAssistantContext();
+  const context = await buildAssistantContext(currentPath);
 
   const result = streamText({
-    // Free-tier AI Gateway accounts don't have access to Anthropic/most
-    // Google/Meta models yet (needs a paid credits top-up) — gpt-4o-mini is
-    // confirmed working without one and is plenty for bounded-context Q&A.
     model: "openai/gpt-4o-mini",
     instructions: buildInstructions(context),
     messages: await convertToModelMessages(recent),
-    maxOutputTokens: 600,
+    maxOutputTokens: 800,
+    tools: {
+      recommendProject: tool({
+        description:
+          "Showcase an interactive project card for a specific project from Ajibola's portfolio.",
+        inputSchema: z.object({
+          slug: z
+            .string()
+            .describe(
+              "The slug of the project (e.g. 'zora-market', 'anc', 'nego-empire', 'vibe-secure-me', 'afrograph', 'fidia', 'claude-ai-theme')",
+            ),
+          reason: z
+            .string()
+            .describe("Brief reason why this project is recommended or relevant"),
+        }),
+        execute: async ({ slug, reason }) => {
+          try {
+            const supabase = await createClient();
+            const { data } = await supabase
+              .from("projects")
+              .select(
+                "slug, name, category, kind, description, tags, year, live_url, github_url",
+              )
+              .eq("slug", slug)
+              .maybeSingle();
+
+            if (!data) return { found: false, slug, reason };
+            return {
+              found: true,
+              slug: data.slug,
+              name: data.name,
+              category: data.category,
+              kind: data.kind,
+              description: data.description,
+              tags: (data.tags ?? []).slice(0, 5),
+              year: data.year,
+              liveUrl: data.live_url || null,
+              githubUrl: data.github_url || null,
+              reason,
+            };
+          } catch {
+            return { found: false, slug, reason };
+          }
+        },
+      }),
+
+      recommendNote: tool({
+        description:
+          "Showcase an interactive card for a technical article or note published by Ajibola.",
+        inputSchema: z.object({
+          slug: z
+            .string()
+            .describe(
+              "The slug of the note (e.g. 'nego-empire-build-story', 'how-this-portfolio-was-built', 'shipping-security-guardrails-and-cleaner-builds')",
+            ),
+          reason: z
+            .string()
+            .describe("Brief reason why this article is relevant"),
+        }),
+        execute: async ({ slug, reason }) => {
+          try {
+            const supabase = await createClient();
+            const { data } = await supabase
+              .from("blog_posts")
+              .select("slug, title, category, excerpt, tags, read_time")
+              .eq("slug", slug)
+              .eq("published", true)
+              .maybeSingle();
+
+            if (!data) return { found: false, slug, reason };
+            return {
+              found: true,
+              slug: data.slug,
+              title: data.title,
+              category: data.category,
+              excerpt: data.excerpt,
+              readTime: data.read_time,
+              tags: (data.tags ?? []).slice(0, 4),
+              reason,
+            };
+          } catch {
+            return { found: false, slug, reason };
+          }
+        },
+      }),
+
+      getLiveStatus: tool({
+        description:
+          "Retrieve real-time live activity including Ajibola's teaching role, location, availability, and latest public GitHub commit.",
+        inputSchema: z.object({}),
+        execute: async () => {
+          try {
+            const { personalInfo } = await getCvData();
+            const activity = await getLatestGitHubActivity(
+              personalInfo?.social?.github,
+            ).catch(() => null);
+
+            return {
+              teaching: "Software Developer Instructor at Lagos Data School",
+              location: personalInfo?.location || "Lagos, Nigeria",
+              availability:
+                personalInfo?.availability || "Available for select advisory & builds",
+              latestCommit: activity
+                ? {
+                    repo: activity.repoShort,
+                    message: activity.message,
+                    relativeTime: activity.relativeTime,
+                    url: activity.url,
+                  }
+                : null,
+            };
+          } catch {
+            return {
+              teaching: "Software Developer Instructor at Lagos Data School",
+              location: "Lagos, Nigeria",
+              availability: "Available for select advisory & builds",
+              latestCommit: null,
+            };
+          }
+        },
+      }),
+    },
   });
 
   return result.toUIMessageStreamResponse();
