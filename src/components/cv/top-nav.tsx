@@ -1,12 +1,18 @@
 "use client";
 
-import { useCallback, useRef, useState, type CSSProperties } from "react";
+import {
+  useCallback,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+} from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  ArrowUpRight,
   ChatCircle,
   List,
+  MagnifyingGlass,
   UserCircle,
   X,
 } from "@phosphor-icons/react/dist/ssr";
@@ -20,26 +26,32 @@ type NavLink = {
   label: string;
   /** Homepage section key. Route links omit it and always render. */
   section?: string;
-  /** Renders in the accent-bordered pill treatment. */
-  emphasis?: boolean;
 };
 
-// Single source of truth. Both the desktop list and the mobile sheet render
-// from this — previously /work and /side-projects were hardcoded JSX in four
-// separate places.
+// Streamlined to 4 core destinations to keep the header airy and spacious.
+// Granular resume sections (education, skills, etc.) remain in page flow,
+// printable CV (/cv), and instantly searchable via the Command Palette (⌘K).
 const LINKS: NavLink[] = [
-  { href: "/#about", section: "about", label: "About" },
+  { href: "/projects", label: "Projects" },
   { href: "/#experience", section: "experience", label: "Experience" },
-  { href: "/#education", section: "education", label: "Education" },
-  { href: "/#skills", section: "skills", label: "Skills" },
+  { href: "/#about", section: "about", label: "About" },
   { href: "/sandbox", label: "Sandbox" },
-  { href: "/projects", label: "Projects", emphasis: true },
 ];
 
-const EMPHASIS_DESKTOP =
-  "inline-flex items-center gap-1 border border-accent/50 px-2.5 py-1 font-medium text-accent transition-colors duration-[var(--dur-2)] hover:bg-accent hover:text-cream";
-const EMPHASIS_MOBILE =
-  "inline-flex items-center gap-1 border border-accent/50 px-3 py-1.5 font-medium text-accent transition-colors duration-[var(--dur-2)] hover:bg-accent hover:text-cream";
+function subscribeEmpty() {
+  return () => {};
+}
+
+function getIsMacSnapshot() {
+  return (
+    typeof navigator !== "undefined" &&
+    /Mac|iPhone|iPad|iPod/.test(navigator.userAgent)
+  );
+}
+
+function getIsMacServerSnapshot() {
+  return true;
+}
 
 export function TopNav({
   visibleSections,
@@ -50,6 +62,11 @@ export function TopNav({
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const sheetRef = useRef<HTMLDivElement>(null);
+  const isMac = useSyncExternalStore(
+    subscribeEmpty,
+    getIsMacSnapshot,
+    getIsMacServerSnapshot,
+  );
 
   const close = useCallback(() => setOpen(false), []);
   useFocusTrap(sheetRef, open, close);
@@ -81,14 +98,18 @@ export function TopNav({
   return (
     <div className="sticky top-0 z-40 bg-cream/90 backdrop-blur lg:ml-80">
       <nav className="relative mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="text-ink" aria-label="Home">
+        <div className="flex items-center gap-6 sm:gap-7">
+          <Link
+            href="/"
+            className="text-ink transition-opacity hover:opacity-80 shrink-0"
+            aria-label="Home"
+          >
             <UserCircle weight="duotone" size={24} className="text-accent" />
           </Link>
 
           <ul
             ref={containerRef}
-            className="relative hidden items-center gap-6 text-body-s text-ink/70 sm:flex"
+            className="relative hidden items-center gap-5 md:gap-6 text-body-s text-ink/70 sm:flex"
           >
             <span
               aria-hidden
@@ -110,26 +131,38 @@ export function TopNav({
                 <Link
                   href={link.href}
                   aria-current={isActive(link) ? "page" : undefined}
-                  className={
-                    link.emphasis
-                      ? EMPHASIS_DESKTOP
-                      : "transition-colors duration-[var(--dur-2)] hover:text-ink"
-                  }
+                  className="whitespace-nowrap transition-colors duration-[var(--dur-2)] hover:text-ink"
                 >
                   {link.label}
-                  {link.emphasis && <ArrowUpRight weight="bold" size={12} />}
                 </Link>
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+          <button
+            type="button"
+            onClick={() =>
+              window.dispatchEvent(new CustomEvent("open-command-palette"))
+            }
+            aria-label="Search and command palette (⌘K)"
+            className="group flex items-center gap-1.5 border border-ink/10 bg-ink/[0.04] px-2.5 py-1.5 text-body-xs text-ink/65 transition-colors duration-[var(--dur-2)] hover:border-accent hover:text-ink whitespace-nowrap"
+          >
+            <MagnifyingGlass
+              weight="bold"
+              size={14}
+              className="text-accent transition-transform duration-[var(--dur-2)] group-hover:scale-110"
+            />
+            <kbd className="hidden font-mono text-[10px] text-ink/40 sm:inline-block">
+              {isMac ? "⌘K" : "Ctrl+K"}
+            </kbd>
+          </button>
           <ThemeToggle className="flex text-ink/60 transition-colors duration-[var(--dur-2)] hover:text-ink" />
           {showContact && (
             <Link
               href="/#connect"
-              className="hidden items-center gap-2 bg-ink px-4 py-2 text-body-s font-medium text-cream transition-colors duration-[var(--dur-2)] hover:bg-accent active:scale-[0.98] sm:flex"
+              className="hidden items-center gap-2 bg-ink px-4 py-2 text-body-s font-medium text-cream whitespace-nowrap shrink-0 transition-colors duration-[var(--dur-2)] hover:bg-accent active:scale-[0.98] sm:flex"
             >
               <ChatCircle weight="duotone" size={16} />
               Contact Me
@@ -177,17 +210,24 @@ export function TopNav({
               <Link
                 href={link.href}
                 onClick={close}
-                className={
-                  link.emphasis
-                    ? EMPHASIS_MOBILE
-                    : "transition-colors duration-[var(--dur-2)] hover:text-ink"
-                }
+                className="whitespace-nowrap transition-colors duration-[var(--dur-2)] hover:text-ink"
               >
                 {link.label}
-                {link.emphasis && <ArrowUpRight weight="bold" size={14} />}
               </Link>
             </li>
           ))}
+          <li
+            data-menu-item
+            style={{ "--enter-i": links.length } as CSSProperties}
+          >
+            <Link
+              href="/cv"
+              onClick={close}
+              className="whitespace-nowrap transition-colors duration-[var(--dur-2)] hover:text-ink"
+            >
+              CV / Resume
+            </Link>
+          </li>
         </ul>
         {showContact && (
           <Link
@@ -201,6 +241,19 @@ export function TopNav({
             Contact Me
           </Link>
         )}
+        <button
+          type="button"
+          onClick={() => {
+            close();
+            window.dispatchEvent(new CustomEvent("open-command-palette"));
+          }}
+          data-menu-item
+          style={{ "--enter-i": links.length + 1 } as CSSProperties}
+          className="mt-2.5 flex w-full items-center justify-center gap-2 border border-ink/15 bg-ink/5 px-4 py-2.5 text-body-s font-medium text-ink/75 transition-colors duration-[var(--dur-2)] hover:border-accent hover:text-ink"
+        >
+          <MagnifyingGlass weight="bold" size={16} className="text-accent" />
+          Search &amp; Commands (⌘K)
+        </button>
       </div>
     </div>
   );

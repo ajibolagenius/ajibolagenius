@@ -31,6 +31,12 @@ export function AiAssistant() {
   useFocusTrap(panelRef, isOpen, close);
 
   useEffect(() => {
+    const handleOpen = () => setIsOpen(true);
+    window.addEventListener("open-ai-assistant", handleOpen);
+    return () => window.removeEventListener("open-ai-assistant", handleOpen);
+  }, []);
+
+  useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
   }, [messages]);
 

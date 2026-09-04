@@ -1,24 +1,37 @@
 "use client";
 
-import { useEffect, useState, type MouseEvent } from "react";
+import { useSyncExternalStore, type MouseEvent } from "react";
 import { flushSync } from "react-dom";
 import { Moon, Sun } from "@phosphor-icons/react/dist/ssr";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
-export function ThemeToggle({ className }: { className?: string }) {
-  const [isDark, setIsDark] = useState(false);
-  const reduceMotion = usePrefersReducedMotion();
+function subscribeTheme(callback: () => void) {
+  window.addEventListener("theme-change", callback);
+  return () => window.removeEventListener("theme-change", callback);
+}
 
-  useEffect(() => {
-    setIsDark(document.documentElement.classList.contains("dark"));
-  }, []);
+function getThemeSnapshot() {
+  return document.documentElement.classList.contains("dark");
+}
+
+function getThemeServerSnapshot() {
+  return false;
+}
+
+export function ThemeToggle({ className }: { className?: string }) {
+  const isDark = useSyncExternalStore(
+    subscribeTheme,
+    getThemeSnapshot,
+    getThemeServerSnapshot,
+  );
+  const reduceMotion = usePrefersReducedMotion();
 
   function toggle(event: MouseEvent<HTMLButtonElement>) {
     const next = !isDark;
     const apply = () => {
-      setIsDark(next);
       document.documentElement.classList.toggle("dark", next);
       localStorage.setItem("theme", next ? "dark" : "light");
+      window.dispatchEvent(new CustomEvent("theme-change"));
     };
 
     if (reduceMotion || !document.startViewTransition) {

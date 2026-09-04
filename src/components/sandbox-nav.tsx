@@ -1,5 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import { ArrowLeft, Flask } from "@phosphor-icons/react/dist/ssr";
+import { ArrowLeft, Flask, MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export function SandboxNav() {
@@ -14,7 +16,21 @@ export function SandboxNav() {
           <span className="text-display">Sandbox</span>
         </Link>
 
-        <div className="flex items-center gap-4 sm:gap-5">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <button
+            type="button"
+            onClick={() =>
+              window.dispatchEvent(new CustomEvent("open-command-palette"))
+            }
+            aria-label="Search and command palette (⌘K)"
+            className="flex items-center gap-1.5 border border-ink/10 bg-ink/5 px-2 py-1 text-body-xs text-ink/65 transition-colors duration-[var(--dur-2)] hover:border-accent hover:text-ink sm:px-2.5"
+          >
+            <MagnifyingGlass weight="bold" size={14} className="text-accent" />
+            <span className="hidden md:inline font-sans">Search</span>
+            <kbd className="hidden font-mono text-[10px] text-ink/40 border border-ink/15 px-1 py-0.5 sm:inline-block">
+              ⌘K
+            </kbd>
+          </button>
           <Link
             href="/projects"
             className="group inline-flex items-center gap-1.5 text-body-s text-ink/60 transition-colors duration-[var(--dur-2)] hover:text-ink"

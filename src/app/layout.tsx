@@ -5,6 +5,7 @@ import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-regis
 import { Toaster } from "@/components/toast/toaster";
 import { FlashToaster } from "@/components/toast/flash-toaster";
 import { AiAssistant } from "@/components/ai-assistant";
+import { CommandPalette } from "@/components/command-palette";
 import { Analytics } from "@vercel/analytics/next";
 import { siteUrl } from "@/lib/site-url";
 import "./globals.css";
@@ -95,6 +96,7 @@ export default function RootLayout({
         <FlashToaster />
         <ServiceWorkerRegistration />
         <AiAssistant />
+        <CommandPalette />
         <Analytics />
       </body>
     </html>
