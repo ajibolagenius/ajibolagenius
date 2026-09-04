@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import { ColorLabExperiment } from "@/components/sandbox/experiments/color-lab";
+import { MeshLabExperiment } from "@/components/sandbox/experiments/mesh-lab";
 
 export type SandboxExperiment = {
   slug: string;
@@ -18,6 +19,11 @@ const SANDBOX_EXPERIMENTS: Record<string, SandboxExperiment> = {
     slug: "color-lab",
     label: "Play",
     component: ColorLabExperiment,
+  },
+  "mesh-lab": {
+    slug: "mesh-lab",
+    label: "Interact 3D",
+    component: MeshLabExperiment,
   },
 };
 
