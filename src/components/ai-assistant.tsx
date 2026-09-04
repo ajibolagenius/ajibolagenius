@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { usePathname } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
@@ -18,7 +18,11 @@ export function AiAssistant() {
   const [input, setInput] = useState("");
   const panelRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
-  const close = () => setIsOpen(false);
+  // Stable identity: useFocusTrap's effect re-runs whenever this changes, and
+  // re-running it re-focuses the panel's first focusable element (the close
+  // button) — an inline arrow here would do that on every keystroke, since
+  // typing re-renders this component.
+  const close = useCallback(() => setIsOpen(false), []);
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({ api: "/api/assistant" }),
