@@ -1,36 +1,50 @@
+import Image from "next/image";
 import { SectionHeading } from "./section-heading";
 import type { Skill } from "@/types/cv";
 
 function TechIcon({ skill }: { skill: Skill }) {
+  const isSvg = (url?: string | null) => Boolean(url && url.endsWith(".svg"));
+
   if (skill.icon_url_dark) {
     return (
-      <span className="flex h-8 w-8 items-center justify-center bg-ink/5 p-1.5">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+      <span
+        className="flex h-8 w-8 items-center justify-center bg-ink/5 p-1.5"
+        title={skill.name}
+      >
+        <Image
           src={skill.icon_url!}
           alt={skill.name}
-          title={skill.name}
+          width={32}
+          height={32}
           className="h-full w-full object-contain dark:hidden"
+          unoptimized={isSvg(skill.icon_url)}
         />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={skill.icon_url_dark}
           alt={skill.name}
-          title={skill.name}
+          width={32}
+          height={32}
           className="hidden h-full w-full object-contain dark:block"
+          unoptimized={isSvg(skill.icon_url_dark)}
         />
       </span>
     );
   }
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={skill.icon_url!}
-      alt={skill.name}
+    <span
+      className="flex h-8 w-8 items-center justify-center bg-ink/5 p-1.5"
       title={skill.name}
-      className="h-8 w-8 bg-ink/5 object-contain p-1.5"
-    />
+    >
+      <Image
+        src={skill.icon_url!}
+        alt={skill.name}
+        width={32}
+        height={32}
+        className="h-full w-full object-contain"
+        unoptimized={isSvg(skill.icon_url)}
+      />
+    </span>
   );
 }
 
