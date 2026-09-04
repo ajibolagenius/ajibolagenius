@@ -169,6 +169,44 @@ export const ADMIN_RESOURCES: Record<string, ResourceConfig> = {
       { name: "sort_order", label: "Order", type: "number" },
     ],
   },
+  notes: {
+    table: "blog_posts",
+    label: "Notes",
+    orderColumn: "date",
+    titleField: "title",
+    fields: [
+      { name: "title", label: "Title", type: "text" },
+      {
+        name: "slug",
+        label: "Slug",
+        type: "text",
+        help: "Unique URL slug (e.g. building-zora)",
+      },
+      { name: "category", label: "Category", type: "text" },
+      {
+        name: "date",
+        label: "Date",
+        type: "text",
+        help: "YYYY-MM-DD format (e.g. 2026-04-27)",
+      },
+      {
+        name: "read_time",
+        label: "Read time",
+        type: "text",
+        help: "e.g. 4 min",
+      },
+      { name: "excerpt", label: "Excerpt", type: "textarea" },
+      { name: "body", label: "Body (HTML / Markdown)", type: "textarea" },
+      { name: "tags", label: "Tags", type: "list" },
+      { name: "published", label: "Published", type: "boolean" },
+      { name: "og_image", label: "Cover image URL", type: "text" },
+      {
+        name: "meta_description",
+        label: "Meta description",
+        type: "textarea",
+      },
+    ],
+  },
 };
 
 export function getResourceConfig(key: string): ResourceConfig | undefined {

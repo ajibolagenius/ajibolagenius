@@ -14,6 +14,8 @@ import { Languages } from "@/components/cv/languages";
 import { Recommendations } from "@/components/cv/recommendations";
 import { Connect } from "@/components/cv/connect";
 import { SiteFooter } from "@/components/cv/site-footer";
+import { FeaturedNotes } from "@/components/cv/featured-notes";
+import { getFeaturedNotes } from "@/lib/notes";
 import { siteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
 import type { Project } from "@/types/project";
@@ -88,6 +90,7 @@ export default async function HomePage() {
     },
     { data: featuredProjects },
     { data: featuredSideProjects },
+    featuredNotes,
   ] = await Promise.all([
     getCvData(),
     supabase
@@ -102,6 +105,7 @@ export default async function HomePage() {
       .eq("kind", "side")
       .eq("featured", true)
       .order("created_at", { ascending: false }),
+    getFeaturedNotes(2),
   ]);
 
   return (
@@ -137,11 +141,15 @@ export default async function HomePage() {
             switch (key) {
               case "featured-work":
                 return (
-                  <FeaturedWork
-                    key={key}
-                    projects={(featuredProjects as Project[] | null) ?? []}
-                    sideProjects={(featuredSideProjects as Project[] | null) ?? []}
-                  />
+                  <div key={key} className="flex flex-col gap-6">
+                    <FeaturedWork
+                      projects={(featuredProjects as Project[] | null) ?? []}
+                      sideProjects={
+                        (featuredSideProjects as Project[] | null) ?? []
+                      }
+                    />
+                    <FeaturedNotes notes={featuredNotes} />
+                  </div>
                 );
               case "about":
                 return <About key={key} info={personalInfo} skills={skills} />;

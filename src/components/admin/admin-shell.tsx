@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import {
   ArrowSquareOut,
+  Article,
   Briefcase,
   Certificate,
   ChatCircleText,
@@ -36,6 +37,7 @@ const RESOURCE_ICONS: Record<string, Icon> = {
   languages: Translate,
   sections: SquaresFour,
   recommendations: Quotes,
+  notes: Article,
 };
 
 function NavLink({

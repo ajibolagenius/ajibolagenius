@@ -12,7 +12,7 @@ const contentSecurityPolicy = [
   "base-uri 'self'",
   "object-src 'none'",
   "form-action 'self'",
-  "img-src 'self' data: blob: https://*.supabase.co",
+  "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://*.unsplash.com https://unsplash.com",
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://vitals.vercel-insights.com https://va.vercel-scripts.com",
   // Only in production — this would break http://localhost in development.
   ...(isProd ? ["upgrade-insecure-requests"] : []),
@@ -53,6 +53,18 @@ const nextConfig: NextConfig = {
         hostname: "*.supabase.co",
         pathname: "/storage/v1/object/public/**",
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "unsplash.com",
+      },
     ],
     formats: ["image/avif", "image/webp"],
   },
@@ -89,6 +101,16 @@ const nextConfig: NextConfig = {
       {
         source: "/side-projects/:path*",
         destination: "/projects/:path*",
+        statusCode: 301,
+      },
+      {
+        source: "/blog",
+        destination: "/notes",
+        statusCode: 301,
+      },
+      {
+        source: "/blog/:path*",
+        destination: "/notes/:path*",
         statusCode: 301,
       },
     ];

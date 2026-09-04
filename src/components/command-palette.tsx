@@ -12,6 +12,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   ArrowRight,
   ArrowUpRight,
+  Article,
   Briefcase,
   Certificate,
   ChatCircle,
@@ -48,8 +49,20 @@ interface ProjectData {
   description?: string;
 }
 
+interface NoteData {
+  id: string;
+  slug: string;
+  title: string;
+  category?: string;
+  date?: string;
+  read_time?: string;
+  excerpt?: string;
+  tags?: string[];
+}
+
 interface PaletteData {
   projects: ProjectData[];
+  notes?: NoteData[];
   email: string | null;
   social: {
     github?: string;
@@ -61,6 +74,7 @@ interface PaletteData {
 export type PaletteGroup =
   | "Quick Actions"
   | "Pages & Sections"
+  | "Notes"
   | "Projects"
   | "Sandbox";
 
@@ -428,6 +442,16 @@ export function CommandPalette() {
         onSelect: () => handleNavigate("/projects"),
       },
       {
+        id: "nav-notes",
+        title: "Notes & Writing",
+        subtitle: "Technical essays and case studies",
+        group: "Pages & Sections",
+        icon: Article,
+        badge: "Page",
+        keywords: ["notes", "writing", "blog", "articles", "essays"],
+        onSelect: () => handleNavigate("/notes"),
+      },
+      {
         id: "nav-sandbox",
         title: "Sandbox Experiments",
         subtitle: "Interactive web toys and creative code labs",
@@ -555,6 +579,34 @@ export function CommandPalette() {
       }
     }
 
+    // Notes from Supabase
+    if (data?.notes) {
+      for (const n of data.notes) {
+        const badge = [n.category, n.read_time].filter(Boolean).join(" · ");
+        const href = `/notes/${n.slug}`;
+
+        items.push({
+          id: `note-${n.id}`,
+          title: n.title,
+          subtitle: n.excerpt || n.category,
+          group: "Notes",
+          icon: Article,
+          badge,
+          keywords: [
+            n.title,
+            n.category || "",
+            ...(n.tags || []),
+            n.excerpt || "",
+            "note",
+            "writing",
+            "article",
+            "post",
+          ],
+          onSelect: () => handleNavigate(href),
+        });
+      }
+    }
+
     return items;
   }, [
     isDark,
@@ -625,6 +677,7 @@ export function CommandPalette() {
     const groupOrder: PaletteGroup[] = [
       "Projects",
       "Sandbox",
+      "Notes",
       "Quick Actions",
       "Pages & Sections",
     ];

@@ -33,6 +33,7 @@ type NavLink = {
 // printable CV (/cv), and instantly searchable via the Command Palette (⌘K).
 const LINKS: NavLink[] = [
   { href: "/projects", label: "Projects" },
+  { href: "/notes", label: "Notes" },
   { href: "/#experience", section: "experience", label: "Experience" },
   { href: "/#about", section: "about", label: "About" },
   { href: "/sandbox", label: "Sandbox" },
