@@ -24,6 +24,7 @@ import {
   LinkedinLogo,
   MagnifyingGlass,
   Moon,
+  Pulse,
   Sparkle,
   Stack,
   Sun,
@@ -387,6 +388,22 @@ export function CommandPalette() {
         },
       });
     }
+
+    // Live Activity API
+    items.push({
+      id: "action-now-api",
+      title: "View Live Activity (Personal API)",
+      subtitle: "GET /api/now — teaching status, commit, local time",
+      group: "Quick Actions",
+      icon: Pulse,
+      badge: "API",
+      external: true,
+      keywords: ["now", "live", "activity", "api", "teaching", "status", "commit", "lagos"],
+      onSelect: () => {
+        close();
+        window.open("/api/now", "_blank");
+      },
+    });
 
     // Pages & Sections
     items.push(

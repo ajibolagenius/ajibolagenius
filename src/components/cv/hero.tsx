@@ -1,10 +1,10 @@
 import { Suspense, type CSSProperties } from "react";
 import Image from "next/image";
 import {
-  ContributionGraph,
-  ContributionGraphFallback,
-} from "@/components/cv/contribution-graph";
-import type { PersonalInfo } from "@/types/cv";
+  NowWidget,
+  NowWidgetFallback,
+} from "@/components/cv/now-widget";
+import type { ExperienceEntry, PersonalInfo } from "@/types/cv";
 
 /**
  * Above-the-fold, so every animation here is mount-time.
@@ -18,7 +18,13 @@ import type { PersonalInfo } from "@/types/cv";
  * and the derived proof stats both live in the Sidebar, which is on screen at
  * the same time on desktop and stacked directly above this on mobile.
  */
-export function Hero({ info }: { info: PersonalInfo | null }) {
+export function Hero({
+  info,
+  currentExperience,
+}: {
+  info: PersonalInfo | null;
+  currentExperience?: ExperienceEntry | null;
+}) {
   if (!info) return null;
 
   return (
@@ -46,9 +52,15 @@ export function Hero({ info }: { info: PersonalInfo | null }) {
       </p>
 
       {/* Streamed in behind a boundary so a third-party request can never
-          delay the hero's first paint. Renders nothing when unavailable. */}
-      <Suspense fallback={<ContributionGraphFallback />}>
-        <ContributionGraph github={info.social?.github} />
+          delay the hero's first paint. Live activity widget extends the
+          contribution graph with real-time teaching status and latest shipping. */}
+      <Suspense fallback={<NowWidgetFallback />}>
+        <NowWidget
+          github={info.social?.github}
+          currentRole={currentExperience?.role_title}
+          currentCompany={currentExperience?.company}
+          availability={info.availability}
+        />
       </Suspense>
     </section>
   );

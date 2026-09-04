@@ -125,7 +125,14 @@ export default async function HomePage() {
       <Sidebar info={personalInfo} />
       <main className="page-enter flex-1 lg:ml-80">
         <div className="mx-auto w-full min-w-0 max-w-3xl px-6 py-10">
-          <Hero info={personalInfo} />
+          <Hero
+            info={personalInfo}
+            currentExperience={
+              experience.find((e) => e.end_date.toLowerCase() === "present") ||
+              experience[0] ||
+              null
+            }
+          />
           {visibleSections.map((key) => {
             switch (key) {
               case "featured-work":
