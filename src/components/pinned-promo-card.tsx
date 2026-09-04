@@ -1,6 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import type { Icon } from "@phosphor-icons/react";
+import { useTilt } from "@/hooks/use-tilt";
+import { useRouteTransition } from "@/hooks/use-route-transition";
 
 export function PinnedPromoCard({
   href,
@@ -15,10 +19,27 @@ export function PinnedPromoCard({
   title: string;
   description: string;
 }) {
+  const tilt = useTilt();
+  const navigate = useRouteTransition();
+
   return (
     <Link
       href={href}
-      className="group flex flex-col overflow-hidden border border-ink/10 transition hover:border-ink/30"
+      onClick={(e) => {
+        if (
+          e.metaKey ||
+          e.ctrlKey ||
+          e.shiftKey ||
+          e.altKey ||
+          e.button !== 0
+        ) {
+          return;
+        }
+        e.preventDefault();
+        navigate(href);
+      }}
+      {...tilt}
+      className="tilt tilt-sheen group relative flex flex-col overflow-hidden border border-ink/10 transition-[border-color] duration-[var(--dur-2)] hover:border-ink/30 active:scale-[0.995]"
     >
       <div className="relative flex aspect-16/10 w-full items-center justify-center overflow-hidden bg-ink/5">
         <IconComponent

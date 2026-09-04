@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useMemo, type ReactNode } from "react";
+import { useCallback, useMemo, useSyncExternalStore, type ReactNode } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
+import { ArrowUpRight, GridFour, Layout } from "@phosphor-icons/react/dist/ssr";
 import { ProjectCard } from "@/components/project-card";
 import { FilterPills, type FilterOption } from "@/components/filter-pills";
 import { FilterSelect } from "@/components/filter-select";
@@ -16,6 +16,27 @@ import {
 import type { ProjectCardData } from "@/types/project";
 
 const ALL = "all";
+
+type LayoutMode = "bento" | "grid";
+
+function subscribeLayout(callback: () => void) {
+  window.addEventListener("storage", callback);
+  return () => window.removeEventListener("storage", callback);
+}
+
+function getLayoutSnapshot(): LayoutMode {
+  try {
+    const saved = localStorage.getItem("projects-layout");
+    if (saved === "grid" || saved === "bento") return saved;
+  } catch {
+    // Storage access may fail in restricted sandboxes
+  }
+  return "bento";
+}
+
+function getLayoutServerSnapshot(): LayoutMode {
+  return "bento";
+}
 
 // Above this many *rendered* cards, snapshotting every one for the refilter
 // transition stops being worth it and we fall back to a plain re-render.
@@ -72,6 +93,11 @@ export function ProjectsGrid({
   pinnedCard?: ReactNode;
 }) {
   const { type, category, setParams } = useFilterState();
+  const layout = useSyncExternalStore(
+    subscribeLayout,
+    getLayoutSnapshot,
+    getLayoutServerSnapshot,
+  );
 
   const activeKind = kindForParam(type === ALL ? null : type);
 
@@ -139,12 +165,24 @@ export function ProjectsGrid({
   const onCategory = (next: string) =>
     transition(() => setParams({ category: next }, "replace"));
 
+  const setLayoutMode = (next: LayoutMode) => {
+    if (next === layout) return;
+    transition(() => {
+      try {
+        localStorage.setItem("projects-layout", next);
+        window.dispatchEvent(new Event("storage"));
+      } catch {
+        // Ignore storage write failure
+      }
+    });
+  };
+
   const activeCategoryLabel =
     categoryOptions.find((o) => o.value === category)?.label ?? category;
 
   return (
     <div>
-      <div className="mt-6 flex flex-wrap items-center gap-3">
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
         <FilterPills
           label="Filter by project type"
           options={TYPE_OPTIONS}
@@ -152,17 +190,59 @@ export function ProjectsGrid({
           onChange={onType}
         />
 
-        {/* Only worth showing with 2+ real categories — filtering by the only
-            category that exists would just re-render the same grid. */}
-        {categoryOptions.length > 2 && (
-          <FilterSelect
-            className="sm:ml-auto"
-            label="Filter by category"
-            options={categoryOptions}
-            value={category}
-            onChange={onCategory}
-          />
-        )}
+        <div className="flex items-center gap-2 sm:ml-auto">
+          {/* Only worth showing with 2+ real categories — filtering by the only
+              category that exists would just re-render the same grid. */}
+          {categoryOptions.length > 2 && (
+            <FilterSelect
+              label="Filter by category"
+              options={categoryOptions}
+              value={category}
+              onChange={onCategory}
+            />
+          )}
+
+          <div
+            className="flex items-center border border-ink/15 p-0.5"
+            role="group"
+            aria-label="Grid layout style"
+          >
+            <button
+              type="button"
+              onClick={() => setLayoutMode("bento")}
+              className={`p-1.5 transition-colors duration-[var(--dur-2)] ${
+                layout === "bento"
+                  ? "bg-ink text-cream"
+                  : "text-ink/60 hover:text-ink hover:bg-ink/5"
+              }`}
+              title="Bento layout (asymmetric editorial)"
+              aria-label="Bento layout"
+              aria-pressed={layout === "bento"}
+            >
+              <Layout
+                size={15}
+                weight={layout === "bento" ? "fill" : "regular"}
+              />
+            </button>
+            <button
+              type="button"
+              onClick={() => setLayoutMode("grid")}
+              className={`p-1.5 transition-colors duration-[var(--dur-2)] ${
+                layout === "grid"
+                  ? "bg-ink text-cream"
+                  : "text-ink/60 hover:text-ink hover:bg-ink/5"
+              }`}
+              title="Grid layout (uniform cards)"
+              aria-label="Grid layout"
+              aria-pressed={layout === "grid"}
+            >
+              <GridFour
+                size={15}
+                weight={layout === "grid" ? "fill" : "regular"}
+              />
+            </button>
+          </div>
+        </div>
       </div>
 
       <p className="sr-only" role="status" aria-live="polite">
@@ -176,13 +256,20 @@ export function ProjectsGrid({
         <>
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {showPinned && pinnedCard}
-            {shown.map((project, i) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                priority={i === 0}
-              />
-            ))}
+            {shown.map((project, i) => {
+              const isWide =
+                layout === "bento" &&
+                (showPinned ? i % 3 === 1 : i % 3 === 0);
+
+              return (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  priority={i === 0}
+                  variant={isWide ? "wide" : "standard"}
+                />
+              );
+            })}
           </div>
 
           {/* Both the observer target and the manual fallback: if

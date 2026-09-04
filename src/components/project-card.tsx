@@ -18,12 +18,16 @@ export function ProjectCard({
   project,
   priority = false,
   showKind = true,
+  variant = "standard",
 }: {
   project: ProjectCardData;
   priority?: boolean;
   showKind?: boolean;
+  variant?: "standard" | "wide";
 }) {
-  const tilt = useTilt();
+  const tilt = useTilt(
+    variant === "wide" ? { max: 3, lift: -2 } : { max: 5, lift: -2 },
+  );
   const navigate = useRouteTransition();
   const cover = project.screenshots?.[0];
   const statusLabel = STATUS_LABELS[project.status];
@@ -31,22 +35,132 @@ export function ProjectCard({
   const categories = splitCategories(project.category);
   const href = projectHref(project);
 
+  const handleClick = (e: React.MouseEvent) => {
+    if (
+      e.metaKey ||
+      e.ctrlKey ||
+      e.shiftKey ||
+      e.altKey ||
+      e.button !== 0
+    ) {
+      return;
+    }
+    e.preventDefault();
+    navigate(href);
+  };
+
+  if (variant === "wide") {
+    return (
+      <Link
+        href={href}
+        onClick={handleClick}
+        {...tilt}
+        style={{ viewTransitionName: `project-${project.slug}` } as CSSProperties}
+        className="tilt tilt-sheen group relative col-span-1 flex flex-col overflow-hidden border border-ink/10 transition-[border-color] duration-[var(--dur-2)] hover:border-ink/30 active:scale-[0.995] sm:col-span-2 sm:grid sm:grid-cols-12"
+      >
+        <div className="relative aspect-16/10 w-full overflow-hidden border-b border-ink/10 bg-ink/5 sm:col-span-7 sm:h-full sm:min-h-[280px] sm:border-b-0 sm:border-r">
+          {cover ? (
+            <Image
+              src={cover}
+              alt={`${project.name} screenshot`}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 60vw"
+              priority={priority}
+              className="object-cover object-top transition-transform duration-[var(--dur-3)] ease-out-quart group-hover:scale-[1.03]"
+            />
+          ) : (
+            <div className="flex h-full min-h-[220px] w-full items-center justify-center text-body-xs text-ink/30">
+              No preview
+            </div>
+          )}
+          {project.featured && (
+            <span className="absolute left-3 top-3 inline-flex items-center gap-1 bg-ink px-2 py-1 font-mono text-body-xs font-medium text-cream">
+              <Star size={12} weight="fill" />
+              Featured
+            </span>
+          )}
+          {statusLabel && (
+            <span
+              className={`absolute right-3 top-3 inline-flex items-center gap-1 px-2 py-1 font-mono text-body-xs font-medium ${
+                project.status === "in-progress"
+                  ? "bg-accent text-cream"
+                  : "bg-ink/10 text-ink/60 backdrop-blur"
+              }`}
+            >
+              {statusLabel}
+            </span>
+          )}
+        </div>
+
+        <div className="flex flex-col justify-between bg-cream p-5 sm:col-span-5 sm:p-6">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              {showKind && (
+                <span
+                  data-kind={project.kind}
+                  className="bg-ink/5 px-2 py-0.5 font-mono text-body-xs text-ink/60 data-[kind=side]:bg-accent/10 data-[kind=side]:text-accent"
+                >
+                  {kind.label}
+                </span>
+              )}
+              {categories.length > 0 && (
+                <p className="text-body-xs uppercase tracking-wide text-ink/60">
+                  {categories.join(" · ")}
+                </p>
+              )}
+            </div>
+
+            <div className="mt-2 flex items-start justify-between gap-4">
+              <h3 className="text-h3 font-medium text-ink transition-colors duration-[var(--dur-2)] group-hover:text-accent">
+                {project.name}
+              </h3>
+              <ArrowUpRight
+                size={22}
+                weight="duotone"
+                className="mt-1 shrink-0 text-ink/60 transition duration-[var(--dur-2)] ease-out-quart group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-ink"
+              />
+            </div>
+
+            <p className="mt-2.5 line-clamp-3 text-body-s leading-relaxed text-ink/70">
+              {project.description}
+            </p>
+
+            {project.tags?.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                {project.tags.slice(0, 5).map((tag) => (
+                  <span
+                    key={tag}
+                    className="bg-ink/5 px-2 py-0.5 font-mono text-body-xs text-ink/60"
+                  >
+                    {tag}
+                  </span>
+                ))}
+                {project.tags.length > 5 && (
+                  <span className="px-1.5 py-0.5 font-mono text-body-xs text-ink/40">
+                    +{project.tags.length - 5}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="mt-6 flex items-center justify-between border-t border-ink/10 pt-3.5 text-body-xs font-mono font-medium text-ink/60 transition-colors duration-[var(--dur-2)] group-hover:text-ink">
+            <span className="transition-colors group-hover:text-accent">
+              Case study & details
+            </span>
+            <span className="transition-transform duration-[var(--dur-2)] ease-out-quart group-hover:translate-x-0.5 group-hover:text-accent">
+              &rarr;
+            </span>
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
   return (
     <Link
       href={href}
-      onClick={(e) => {
-        if (
-          e.metaKey ||
-          e.ctrlKey ||
-          e.shiftKey ||
-          e.altKey ||
-          e.button !== 0
-        ) {
-          return;
-        }
-        e.preventDefault();
-        navigate(href);
-      }}
+      onClick={handleClick}
       {...tilt}
       // Named so the grid refilter and route navigation can morph persisting cards
       // into their new positions or detail hero view. Must be document-unique.
