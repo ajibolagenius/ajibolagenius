@@ -7,6 +7,10 @@
   --color-ink: #1a0a06;
   --color-accent: #e64301;
   --color-panel: #f0e9e3;
+  --color-cream: oklch(97.31% 0.0103 67.71);
+  --color-ink: oklch(16.82% 0.0299 36.9);
+  --color-accent: oklch(61.6% 0.2079 36.56);
+  --color-panel: oklch(93.78% 0.0111 63.36);
   color-scheme: light;
 }
 
@@ -15,7 +19,20 @@
   --color-ink: #f5ede6;
   --color-accent: #ff6a3d;
   --color-panel: #221c18;
+  --color-cream: oklch(18.73% 0.0102 52.83);
+  --color-ink: oklch(95.04% 0.0128 63.92);
+  --color-accent: oklch(70.39% 0.1915 37.13);
+  --color-panel: oklch(23.2% 0.0121 55.72);
   color-scheme: dark;
+}
+
+@media (color-gamut: p3) {
+  :root {
+    --color-accent: oklch(61.6% 0.228 36.56);
+  }
+  .dark {
+    --color-accent: oklch(70.39% 0.21 37.13);
+  }
 }
 
 @theme inline {
@@ -845,6 +862,10 @@ html[data-vt="project-route"] .page-enter {
     --color-ink: #1a0a06;
     --color-accent: #e64301;
     --color-panel: #f0e9e3;
+    --color-cream: oklch(97.31% 0.0103 67.71);
+    --color-ink: oklch(16.82% 0.0299 36.9);
+    --color-accent: oklch(61.6% 0.2079 36.56);
+    --color-panel: oklch(93.78% 0.0111 63.36);
   }
 
   * {
