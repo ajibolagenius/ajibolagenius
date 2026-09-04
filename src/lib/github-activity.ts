@@ -12,7 +12,7 @@ export interface GitHubActivity {
 
 const TIMEOUT_MS = 5000;
 const COMMIT_TIMEOUT_MS = 3000;
-const REVALIDATE_SECONDS = 300; // 5 minutes cache
+const REVALIDATE_SECONDS = 60; // 1 minute real-time cache
 
 export function formatRelativeTime(dateString: string): string {
   try {
@@ -39,6 +39,28 @@ export function formatRelativeTime(dateString: string): string {
   }
 }
 
+interface GitHubRepo {
+  id: number;
+  name: string;
+  full_name: string;
+  pushed_at?: string | null;
+  html_url: string;
+}
+
+interface GitHubCommitResponse {
+  sha: string;
+  html_url?: string;
+  commit?: {
+    message?: string;
+    author?: {
+      date?: string;
+    };
+    committer?: {
+      date?: string;
+    };
+  };
+}
+
 interface GitHubEvent {
   id: string;
   type: string;
@@ -59,6 +81,13 @@ interface GitHubEvent {
   };
 }
 
+/**
+ * Retrieves the user's latest public commit across repositories in real-time.
+ *
+ * Checks both recently pushed public repositories (which update immediately upon push)
+ * and the public events feed (which captures contributions to external/org repositories),
+ * then selects whichever is most recent.
+ */
 export async function getLatestGitHubActivity(
   usernameOrUrl?: string | null,
 ): Promise<GitHubActivity | null> {
@@ -75,89 +104,177 @@ export async function getLatestGitHubActivity(
     headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
   }
 
-  try {
-    const response = await fetch(
-      `https://api.github.com/users/${encodeURIComponent(login)}/events/public`,
-      {
-        headers,
-        signal: AbortSignal.timeout(TIMEOUT_MS),
-        next: { revalidate: REVALIDATE_SECONDS },
-      },
-    );
+  // 1. Fetch most recently pushed public repositories
+  const fetchRepoActivity = async (): Promise<GitHubActivity | null> => {
+    try {
+      const reposRes = await fetch(
+        `https://api.github.com/users/${encodeURIComponent(login)}/repos?sort=pushed&direction=desc&per_page=3`,
+        {
+          headers,
+          signal: AbortSignal.timeout(TIMEOUT_MS),
+          next: { revalidate: REVALIDATE_SECONDS },
+        },
+      );
+      if (!reposRes.ok) return null;
+      const repos: GitHubRepo[] = await reposRes.json();
+      if (!Array.isArray(repos) || repos.length === 0) return null;
 
-    if (!response.ok) return null;
-    const events: GitHubEvent[] = await response.json();
-    if (!Array.isArray(events) || events.length === 0) return null;
+      for (const repo of repos) {
+        if (!repo.pushed_at) continue;
 
-    // First preference: PushEvent
-    const push = events.find((e) => e.type === "PushEvent");
-    if (push && push.repo?.name) {
-      const repo = push.repo.name;
-      const repoShort = repo.split("/")[1] || repo;
-      let message = push.payload?.commits?.[0]?.message?.split("\n")[0]?.trim();
+        // Try getting latest commit by author first
+        let commitsRes = await fetch(
+          `https://api.github.com/repos/${repo.full_name}/commits?author=${encodeURIComponent(login)}&per_page=1`,
+          {
+            headers,
+            signal: AbortSignal.timeout(COMMIT_TIMEOUT_MS),
+            next: { revalidate: REVALIDATE_SECONDS },
+          },
+        );
 
-      // If commit message isn't in payload, try fetching the specific commit
-      if (!message && push.payload?.head) {
-        try {
-          const commitRes = await fetch(
-            `https://api.github.com/repos/${repo}/commits/${push.payload.head}`,
+        let commits: GitHubCommitResponse[] = commitsRes.ok ? await commitsRes.json() : [];
+
+        // Fallback to top branch commit if author-filtered query returned empty
+        if (!Array.isArray(commits) || commits.length === 0) {
+          commitsRes = await fetch(
+            `https://api.github.com/repos/${repo.full_name}/commits?per_page=1`,
             {
               headers,
               signal: AbortSignal.timeout(COMMIT_TIMEOUT_MS),
-              next: { revalidate: 1800 },
+              next: { revalidate: REVALIDATE_SECONDS },
             },
           );
-          if (commitRes.ok) {
-            const commitData = await commitRes.json();
-            message = commitData.commit?.message?.split("\n")[0]?.trim();
-          }
-        } catch {
-          // Graceful fallback if commit details fetch fails
+          commits = commitsRes.ok ? await commitsRes.json() : [];
+        }
+
+        if (Array.isArray(commits) && commits.length > 0) {
+          const c = commits[0];
+          const message =
+            c.commit?.message?.split("\n")[0]?.trim() || "Pushed updates";
+          const date =
+            c.commit?.author?.date ||
+            c.commit?.committer?.date ||
+            repo.pushed_at;
+
+          return {
+            type: "push",
+            repo: repo.full_name,
+            repoShort: repo.name,
+            message,
+            url:
+              c.html_url ||
+              `https://github.com/${repo.full_name}/commit/${c.sha}`,
+            createdAt: date,
+            relativeTime: formatRelativeTime(date),
+          };
         }
       }
-
-      const commitSha = push.payload?.head;
-      const url = commitSha
-        ? `https://github.com/${repo}/commit/${commitSha}`
-        : `https://github.com/${repo}`;
-
-      return {
-        type: "push",
-        repo,
-        repoShort,
-        message: message || "Pushed updates",
-        url,
-        createdAt: push.created_at,
-        relativeTime: formatRelativeTime(push.created_at),
-      };
+      return null;
+    } catch {
+      return null;
     }
+  };
 
-    // Secondary preference: any other public activity
-    const otherEvent = events[0];
-    if (otherEvent && otherEvent.repo?.name) {
-      const repo = otherEvent.repo.name;
-      const repoShort = repo.split("/")[1] || repo;
-      let message = "Active contribution";
-      if (otherEvent.type === "CreateEvent") {
-        message = "Created repository";
-      } else if (otherEvent.type === "ForkEvent") {
-        message = "Forked repository";
-      } else if (otherEvent.type === "WatchEvent") {
-        message = "Starred repository";
+  // 2. Fetch public events feed (for external org/repo contributions and events)
+  const fetchEventActivity = async (): Promise<GitHubActivity | null> => {
+    try {
+      const eventsRes = await fetch(
+        `https://api.github.com/users/${encodeURIComponent(login)}/events/public`,
+        {
+          headers,
+          signal: AbortSignal.timeout(TIMEOUT_MS),
+          next: { revalidate: REVALIDATE_SECONDS },
+        },
+      );
+      if (!eventsRes.ok) return null;
+      const events: GitHubEvent[] = await eventsRes.json();
+      if (!Array.isArray(events) || events.length === 0) return null;
+
+      const push = events.find((e) => e.type === "PushEvent");
+      if (push && push.repo?.name) {
+        const repo = push.repo.name;
+        const repoShort = repo.split("/")[1] || repo;
+        const commitsList = push.payload?.commits;
+        let message = commitsList && commitsList.length > 0
+          ? commitsList[commitsList.length - 1]?.message?.split("\n")[0]?.trim()
+          : undefined;
+
+        if (!message && push.payload?.head) {
+          try {
+            const commitRes = await fetch(
+              `https://api.github.com/repos/${repo}/commits/${push.payload.head}`,
+              {
+                headers,
+                signal: AbortSignal.timeout(COMMIT_TIMEOUT_MS),
+                next: { revalidate: REVALIDATE_SECONDS },
+              },
+            );
+            if (commitRes.ok) {
+              const commitData = await commitRes.json();
+              message = commitData.commit?.message?.split("\n")[0]?.trim();
+            }
+          } catch {}
+        }
+
+        const commitSha = push.payload?.head;
+        const url = commitSha
+          ? `https://github.com/${repo}/commit/${commitSha}`
+          : `https://github.com/${repo}`;
+
+        return {
+          type: "push",
+          repo,
+          repoShort,
+          message: message || "Pushed updates",
+          url,
+          createdAt: push.created_at,
+          relativeTime: formatRelativeTime(push.created_at),
+        };
       }
 
-      return {
-        type: "other",
-        repo,
-        repoShort,
-        message,
-        url: `https://github.com/${repo}`,
-        createdAt: otherEvent.created_at,
-        relativeTime: formatRelativeTime(otherEvent.created_at),
-      };
+      // Fallback: Other public events (CreateEvent, ForkEvent, WatchEvent)
+      const otherEvent = events[0];
+      if (otherEvent && otherEvent.repo?.name) {
+        const repo = otherEvent.repo.name;
+        const repoShort = repo.split("/")[1] || repo;
+        let message = "Active contribution";
+        if (otherEvent.type === "CreateEvent") {
+          message = "Created repository";
+        } else if (otherEvent.type === "ForkEvent") {
+          message = "Forked repository";
+        } else if (otherEvent.type === "WatchEvent") {
+          message = "Starred repository";
+        }
+
+        return {
+          type: "other",
+          repo,
+          repoShort,
+          message,
+          url: `https://github.com/${repo}`,
+          createdAt: otherEvent.created_at,
+          relativeTime: formatRelativeTime(otherEvent.created_at),
+        };
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
+  try {
+    const [repoActivity, eventActivity] = await Promise.all([
+      fetchRepoActivity(),
+      fetchEventActivity(),
+    ]);
+
+    if (repoActivity && eventActivity) {
+      const repoTime = new Date(repoActivity.createdAt).getTime();
+      const eventTime = new Date(eventActivity.createdAt).getTime();
+      return repoTime >= eventTime ? repoActivity : eventActivity;
     }
 
-    return null;
+    return repoActivity || eventActivity;
   } catch {
     return null;
   }

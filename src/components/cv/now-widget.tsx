@@ -1,10 +1,10 @@
-import { GitCommit, ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import {
   getContributions,
   type ContributionDay,
 } from "@/lib/github-contributions";
 import { getLatestGitHubActivity } from "@/lib/github-activity";
 import { LiveClock } from "@/components/live-clock";
+import { NowLiveCommit } from "@/components/cv/now-live-commit";
 
 /** Cell edge and gap, in viewBox units. */
 const CELL = 10;
@@ -123,43 +123,7 @@ export async function NowWidget({
 
       {/* Bottom: Latest Commit & Contributions legend */}
       <figcaption className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-ink/8 pt-3 font-mono text-body-xs text-ink/60">
-        {activity ? (
-          <div className="flex min-w-0 max-w-[260px] sm:max-w-[320px] items-center gap-1.5 truncate">
-            <GitCommit
-              size={14}
-              weight="bold"
-              className="shrink-0 text-accent"
-              aria-hidden
-            />
-            <a
-              href={activity.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group inline-flex min-w-0 items-center gap-1 truncate text-ink/70 transition-colors hover:text-accent"
-              title={`${activity.repo}: ${activity.message}`}
-            >
-              <span className="font-medium text-ink group-hover:text-accent">
-                {activity.repoShort}
-              </span>
-              <span className="text-ink/40">:</span>
-              <span className="truncate">{activity.message}</span>
-              <ArrowUpRight
-                size={11}
-                className="shrink-0 text-ink/40 opacity-70 group-hover:text-accent"
-              />
-            </a>
-            <span className="shrink-0 text-[10px] text-ink/40">
-              ({activity.relativeTime})
-            </span>
-          </div>
-        ) : (
-          <div className="flex items-center gap-1.5 text-ink/50">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent/60" />
-            <span className="truncate">
-              {availability || "Available for select advisory & builds"}
-            </span>
-          </div>
-        )}
+        <NowLiveCommit initialActivity={activity} availability={availability} />
 
         <div className="flex items-center gap-3 text-ink/60">
           {calendar ? (

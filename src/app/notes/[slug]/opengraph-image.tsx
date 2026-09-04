@@ -7,6 +7,7 @@ import {
   loadImageSrc,
 } from "@/lib/og-template";
 import { siteUrl } from "@/lib/site-url";
+import { resolveNoteCoverImage } from "@/lib/notes";
 import type { Note } from "@/types/note";
 
 export const alt = "Note — Ajibola Akelebe";
@@ -44,14 +45,21 @@ export default async function Image({
     );
   }
 
-  const rawImage = note.og_image;
+  const rawImage = resolveNoteCoverImage(note.og_image);
   const imageUrl = rawImage
     ? rawImage.startsWith("http")
       ? rawImage
       : `${siteUrl}${rawImage}`
     : undefined;
 
-  const imageSrc = imageUrl ? await loadImageSrc(imageUrl) : undefined;
+  let imageSrc: string | undefined;
+  if (imageUrl) {
+    try {
+      imageSrc = await loadImageSrc(imageUrl);
+    } catch {
+      // Graceful fallback if image cannot be loaded
+    }
+  }
   const tags = note.tags?.slice(0, 3) ?? [];
 
   return new ImageResponse(

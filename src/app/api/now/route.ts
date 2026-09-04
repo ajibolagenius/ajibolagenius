@@ -47,6 +47,7 @@ export async function GET() {
         latestCommit: activity
           ? {
               repo: activity.repo,
+              repoShort: activity.repoShort,
               message: activity.message,
               url: activity.url,
               pushedAt: activity.createdAt,
@@ -70,7 +71,7 @@ export async function GET() {
     return NextResponse.json(payload, {
       status: 200,
       headers: {
-        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60",
         "Access-Control-Allow-Origin": "*",
       },
     });
