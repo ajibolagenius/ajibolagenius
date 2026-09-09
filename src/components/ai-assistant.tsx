@@ -24,8 +24,13 @@ import {
   ArrowUpRight,
   BookOpen,
   GitCommit,
+  CheckCircle,
+  DownloadSimple,
+  Envelope,
+  Briefcase,
 } from "@phosphor-icons/react/dist/ssr";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
+import { sound } from "@/lib/sound";
 
 interface RecommendProjectOutput {
   found: boolean;
@@ -64,7 +69,29 @@ interface LiveStatusOutput {
   } | null;
 }
 
+interface JobMatchOutput {
+  roleTitle: string;
+  matchScore: number;
+  matchedSkills: string[];
+  transferableSkills?: Array<{ required: string; equivalent: string }>;
+  projects: Array<{
+    slug: string;
+    name: string;
+    category: string;
+    kind: string;
+    description: string;
+    tags?: string[];
+    year?: string;
+    liveUrl?: string | null;
+    githubUrl?: string | null;
+  }>;
+  yearsExperience: string;
+  education: string;
+  summaryVerdict: string;
+}
+
 const STARTER_PROMPTS = [
+  "⚡ Match My Job Description / Role",
   "What tech stack & architecture does Ajibola specialize in?",
   "Showcase featured client projects & case studies",
   "What is Ajibola working on right now?",
@@ -148,7 +175,10 @@ export function AiAssistant() {
   useFocusTrap(panelRef, isOpen, close);
 
   useEffect(() => {
-    const handleOpen = () => setIsOpen(true);
+    const handleOpen = () => {
+      sound.playDrawer();
+      setIsOpen(true);
+    };
     window.addEventListener("open-ai-assistant", handleOpen);
     return () => window.removeEventListener("open-ai-assistant", handleOpen);
   }, []);
@@ -182,11 +212,13 @@ export function AiAssistant() {
     e.preventDefault();
     const text = input.trim();
     if (!text || isBusy) return;
+    sound.playTap();
     sendMessage({ text });
     setInput("");
   }
 
   function handleStarterClick(prompt: string) {
+    sound.playTap();
     if (isBusy) return;
     sendMessage({ text: prompt });
   }
@@ -471,6 +503,177 @@ export function AiAssistant() {
                         </div>
                       );
                     }
+
+                    if (
+                      toolPart.type === "tool-matchJobDescription" &&
+                      toolPart.state === "output-available" &&
+                      toolPart.output &&
+                      typeof toolPart.output === "object"
+                    ) {
+                      const match = toolPart.output as JobMatchOutput;
+                      return (
+                        <div
+                          key={i}
+                          className="my-2 flex flex-col gap-3 rounded-xl border border-accent/30 bg-panel/95 p-3.5 shadow-xs"
+                        >
+                          {/* Role Title & Match Score Badge */}
+                          <div className="flex items-start justify-between gap-2 border-b border-ink/8 pb-2.5">
+                            <div>
+                              <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-accent">
+                                Role Match Analysis
+                              </span>
+                              <h4 className="text-body-m font-semibold text-ink">
+                                {match.roleTitle}
+                              </h4>
+                            </div>
+                            <div className="flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-1 text-accent">
+                              <Sparkle size={12} weight="fill" />
+                              <span className="font-mono text-body-xs font-bold">
+                                {match.matchScore}% Match
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Summary Assessment */}
+                          <p className="text-body-xs text-ink/80 leading-relaxed">
+                            {match.summaryVerdict}
+                          </p>
+
+                          {/* Grounded Credentials */}
+                          <div className="flex flex-col gap-1 rounded-md bg-ink/3 p-2 font-mono text-[11px] text-ink/70">
+                            <div className="flex items-center gap-1.5">
+                              <CheckCircle
+                                size={13}
+                                className="text-emerald-600 dark:text-emerald-400 shrink-0"
+                                weight="fill"
+                              />
+                              <span>{match.yearsExperience}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <CheckCircle
+                                size={13}
+                                className="text-emerald-600 dark:text-emerald-400 shrink-0"
+                                weight="fill"
+                              />
+                              <span>{match.education}</span>
+                            </div>
+                          </div>
+
+                          {/* Matched Stack */}
+                          {match.matchedSkills?.length > 0 && (
+                            <div className="flex flex-col gap-1.5">
+                              <span className="font-mono text-[10px] font-medium uppercase tracking-wider text-ink/50">
+                                Verified Production Stack
+                              </span>
+                              <div className="flex flex-wrap gap-1">
+                                {match.matchedSkills.map((skill) => (
+                                  <span
+                                    key={skill}
+                                    className="rounded bg-accent/10 px-1.5 py-0.5 font-mono text-[10px] font-medium text-accent"
+                                  >
+                                    {skill}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Transferable Skills (if any) */}
+                          {match.transferableSkills &&
+                            match.transferableSkills.length > 0 && (
+                              <div className="flex flex-col gap-1">
+                                <span className="font-mono text-[10px] font-medium uppercase tracking-wider text-ink/50">
+                                  Transferable Parallels
+                                </span>
+                                <div className="flex flex-col gap-1 rounded bg-ink/3 p-2 font-mono text-[10px]">
+                                  {match.transferableSkills.map((ts, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="flex items-center justify-between text-ink/70"
+                                    >
+                                      <span className="text-ink/40 line-through decoration-ink/30">
+                                        {ts.required}
+                                      </span>
+                                      <span className="text-accent font-medium">
+                                        → {ts.equivalent}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                          {/* Top Proof Projects */}
+                          {match.projects?.length > 0 && (
+                            <div className="flex flex-col gap-1.5">
+                              <span className="font-mono text-[10px] font-medium uppercase tracking-wider text-ink/50">
+                                Top Proof Projects
+                              </span>
+                              <div className="flex flex-col gap-1.5">
+                                {match.projects.map((proj) => (
+                                  <div
+                                    key={proj.slug}
+                                    className="flex flex-col gap-1 rounded-md border border-ink/8 bg-cream/50 p-2 text-body-xs dark:bg-panel"
+                                  >
+                                    <div className="flex items-center justify-between gap-2">
+                                      <span className="font-medium text-ink">
+                                        {proj.name}
+                                      </span>
+                                      {proj.year && (
+                                        <span className="font-mono text-[10px] text-ink/40">
+                                          {proj.year}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="line-clamp-1 text-[11px] text-ink/60">
+                                      {proj.description}
+                                    </p>
+                                    <div className="flex items-center gap-2 pt-1 border-t border-ink/5">
+                                      <Link
+                                        href={`/projects/${proj.slug}`}
+                                        className="inline-flex items-center gap-1 font-mono text-[10px] font-medium text-accent hover:underline"
+                                      >
+                                        <span>Case Study</span>
+                                        <ArrowRight size={10} />
+                                      </Link>
+                                      {proj.liveUrl && proj.liveUrl !== "#" && (
+                                        <a
+                                          href={proj.liveUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="ml-auto inline-flex items-center gap-0.5 font-mono text-[10px] text-ink/50 hover:text-ink hover:underline"
+                                        >
+                                          <span>Live App</span>
+                                          <ArrowUpRight size={9} />
+                                        </a>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Action CTA Bar */}
+                          <div className="flex items-center gap-2 border-t border-ink/8 pt-2">
+                            <Link
+                              href="/cv"
+                              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md bg-ink px-2.5 py-1.5 font-mono text-[11px] font-medium text-cream transition-colors hover:bg-accent"
+                            >
+                              <DownloadSimple size={12} weight="bold" />
+                              <span>View / Print CV</span>
+                            </Link>
+                            <Link
+                              href="/#connect"
+                              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md border border-ink/20 px-2.5 py-1.5 font-mono text-[11px] font-medium text-ink transition-colors hover:border-ink"
+                            >
+                              <Envelope size={12} weight="duotone" />
+                              <span>Contact Ajibola</span>
+                            </Link>
+                          </div>
+                        </div>
+                      );
+                    }
                   }
 
                   return null;
@@ -519,7 +722,12 @@ export function AiAssistant() {
       {/* Floating Toggle Button */}
       <button
         type="button"
-        onClick={() => setIsOpen((v) => !v)}
+        onClick={() =>
+          setIsOpen((v) => {
+            if (!v) sound.playDrawer();
+            return !v;
+          })
+        }
         aria-label={isOpen ? "Close chat" : "Ask about my work"}
         className="flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-body-s font-medium text-cream shadow-xl transition-all hover:bg-accent hover:shadow-accent/20 active:scale-95"
       >

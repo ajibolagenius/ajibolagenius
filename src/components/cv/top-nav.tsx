@@ -18,6 +18,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageToggle } from "@/components/language-toggle";
+import { SoundToggle } from "@/components/sound-toggle";
 import { useLanguage } from "@/lib/i18n";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { useIndicator } from "@/hooks/use-indicator";
@@ -173,6 +174,7 @@ export function TopNav({
           </button>
           <LanguageToggle className="flex" />
           <ThemeToggle className="flex text-ink/60 transition-colors duration-[var(--dur-2)] hover:text-ink" />
+          <SoundToggle className="flex text-ink/60 transition-colors duration-[var(--dur-2)] hover:text-ink" />
           {showContact && (
             <Link
               href="/#connect"

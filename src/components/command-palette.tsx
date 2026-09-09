@@ -33,6 +33,7 @@ import {
   X,
 } from "@phosphor-icons/react/dist/ssr";
 import type { Icon } from "@phosphor-icons/react";
+import { sound } from "@/lib/sound";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { useRouteTransition } from "@/hooks/use-route-transition";
 import { toast } from "@/lib/toast";
@@ -219,6 +220,7 @@ export function CommandPalette() {
             if (res) setData(res);
           });
         }
+        sound.playDrawer();
         setIsOpen(true);
       }
     };
@@ -229,6 +231,7 @@ export function CommandPalette() {
           if (res) setData(res);
         });
       }
+      sound.playDrawer();
       setIsOpen(true);
     };
 
@@ -352,6 +355,27 @@ export function CommandPalette() {
           "llm",
           "questions",
           "agent",
+        ],
+        onSelect: handleOpenAiAssistant,
+      },
+      {
+        id: "action-match-jd",
+        title: "Match My Job Description (Recruiter Mode)",
+        subtitle: "Instant AI match analysis against your open role requirements",
+        group: "Quick Actions",
+        icon: Briefcase,
+        badge: "Recruiter",
+        keywords: [
+          "recruiter",
+          "hiring",
+          "job",
+          "jd",
+          "match",
+          "requirements",
+          "role",
+          "hire",
+          "evaluate",
+          "fit",
         ],
         onSelect: handleOpenAiAssistant,
       },
@@ -712,6 +736,7 @@ export function CommandPalette() {
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
+      sound.playTap();
       setActiveIndex((prev) =>
         flatDisplayItems.length === 0
           ? 0
@@ -719,6 +744,7 @@ export function CommandPalette() {
       );
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
+      sound.playTap();
       setActiveIndex((prev) =>
         flatDisplayItems.length === 0
           ? 0
@@ -728,6 +754,7 @@ export function CommandPalette() {
       e.preventDefault();
       const current = flatDisplayItems[activeIndex];
       if (current) {
+        sound.playTap();
         current.onSelect();
       }
     } else if (e.key === "Escape") {
@@ -828,7 +855,10 @@ export function CommandPalette() {
                       role="option"
                       aria-selected={isSelected}
                       data-item-index={currentIndex}
-                      onClick={item.onSelect}
+                      onClick={() => {
+                        sound.playTap();
+                        item.onSelect();
+                      }}
                       onMouseEnter={() => setActiveIndex(currentIndex)}
                       className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left transition-colors duration-[var(--dur-1)] ${
                         isSelected

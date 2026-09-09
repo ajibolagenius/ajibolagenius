@@ -50,9 +50,14 @@ Capabilities & Best Practices:
 1. When a visitor asks to see, recommend, or explore projects (e.g. by tech stack, domain, or role), use the \`recommendProject\` tool to showcase the most relevant project(s).
 2. When a visitor asks about his technical writing, articles, or tutorials, use the \`recommendNote\` tool to highlight the relevant note.
 3. When a visitor asks what he is working on right now or his current status, use the \`getLiveStatus\` tool or refer to his live teaching at Lagos Data School and recent commits.
-4. When mentioning site sections or pages in prose, use clickable markdown links (e.g. [Featured Work](/#featured-work), [Experience](/#experience), [All Projects](/projects), [Notes & Writing](/notes), [Contact Form](/#connect), [CV](/cv)).
-5. Keep conversational answers concise (2-4 sentences) and articulate. Emphasize his problem-solving approach and technical depth.
-6. If asked about personal contact info, point visitors to the contact form at [Contact Section](/#connect) or his LinkedIn/GitHub profiles.
+4. When a visitor or recruiter pastes a job description (JD), job requirements, or asks if Ajibola is a fit for a specific role (e.g. Senior Frontend, Full Stack Engineer, Mobile/React Native, or Backend), use the \`matchJobDescription\` tool to generate an immediate, evidence-grounded match analysis:
+   - Ground evaluation in his verified experience: 3+ years professional software engineering, 5+ years professional design, 10+ years combined as a working professional.
+   - Cite his Advanced Diploma in Software Engineering (ADSE).
+   - Surface the top 2-3 project proofs (e.g. Zora Market on Apple App Store & Google Play, AfroGraph openCypher/D3 graph application, ALU Exchange microservices, NEGOtivity storefront, Narvo Platform).
+   - If the JD requires tools he hasn't shipped (e.g. Shopify, AWS, named ERP/CRM), provide his transferable production equivalents (e.g. Shopify -> custom NEGOtivity storefront; AWS -> Vercel/Cloudflare Workers; ERP -> Zora inventory & multi-vendor system).
+5. When mentioning site sections or pages in prose, use clickable markdown links (e.g. [Featured Work](/#featured-work), [Experience](/#experience), [All Projects](/projects), [Notes & Writing](/notes), [Contact Form](/#connect), [CV](/cv)).
+6. Keep conversational answers concise (2-4 sentences) and articulate. Emphasize his problem-solving approach and technical depth.
+7. If asked about personal contact info, point visitors to the contact form at [Contact Section](/#connect) or his LinkedIn/GitHub profiles.
 
 ${context}`;
 }
@@ -81,7 +86,7 @@ export async function POST(req: NextRequest) {
     model: "openai/gpt-4o-mini",
     instructions: buildInstructions(context),
     messages: await convertToModelMessages(recent),
-    maxOutputTokens: 800,
+    maxOutputTokens: 1200,
     tools: {
       recommendProject: tool({
         description:
@@ -198,6 +203,103 @@ export async function POST(req: NextRequest) {
               location: "Lagos, Nigeria",
               availability: "Available for select advisory & builds",
               latestCommit: null,
+            };
+          }
+        },
+      }),
+
+      matchJobDescription: tool({
+        description:
+          "Analyze and score a job description or role requirements against Ajibola's verified engineering track record, returning match score, verified skills, transferable equivalents, and top proof projects.",
+        inputSchema: z.object({
+          roleTitle: z
+            .string()
+            .describe(
+              "The role title from the JD (e.g. 'Senior Frontend Engineer', 'Full Stack Engineer', 'Mobile Engineer', 'Staff UI Architect')",
+            ),
+          matchScore: z
+            .number()
+            .min(0)
+            .max(100)
+            .describe("Estimated match percentage (0-100) based on verified requirements overlap"),
+          matchedSkills: z
+            .array(z.string())
+            .describe("Key skills and technologies in the JD that Ajibola has shipped in production"),
+          transferableSkills: z
+            .array(
+              z.object({
+                required: z.string(),
+                equivalent: z.string(),
+              }),
+            )
+            .optional()
+            .describe(
+              "Required tools Ajibola hasn't shipped directly mapped to his shipped production parallels",
+            ),
+          recommendedProjectSlugs: z
+            .array(z.string())
+            .describe("The top 2 or 3 project slugs providing direct proof for this role"),
+          summaryVerdict: z
+            .string()
+            .describe(
+              "A crisp 2-3 sentence assessment of the fit and key engineering differentiator",
+            ),
+        }),
+        execute: async ({
+          roleTitle,
+          matchScore,
+          matchedSkills,
+          transferableSkills = [],
+          recommendedProjectSlugs,
+          summaryVerdict,
+        }) => {
+          try {
+            const supabase = await createClient();
+            const { data: projects } = await supabase
+              .from("projects")
+              .select(
+                "slug, name, category, kind, description, tags, year, live_url, github_url",
+              )
+              .in("slug", recommendedProjectSlugs);
+
+            const projectMap = new Map((projects ?? []).map((p) => [p.slug, p]));
+            const orderedProjects = recommendedProjectSlugs
+              .map((slug) => projectMap.get(slug))
+              .filter(Boolean)
+              .map((p) => ({
+                slug: p!.slug,
+                name: p!.name,
+                category: p!.category,
+                kind: p!.kind,
+                description: p!.description,
+                tags: (p!.tags ?? []).slice(0, 4),
+                year: p!.year,
+                liveUrl: p!.live_url || null,
+                githubUrl: p!.github_url || null,
+              }));
+
+            return {
+              roleTitle,
+              matchScore,
+              matchedSkills,
+              transferableSkills,
+              projects: orderedProjects,
+              yearsExperience:
+                "3+ years professional software engineering · 5+ years design · 10+ years combined",
+              education: "Advanced Diploma in Software Engineering (ADSE)",
+              summaryVerdict,
+            };
+          } catch {
+            return {
+              roleTitle,
+              matchScore,
+              matchedSkills,
+              transferableSkills,
+              projects: [],
+              yearsExperience:
+                "3+ years professional software engineering · 5+ years design · 10+ years combined",
+              education: "Advanced Diploma in Software Engineering (ADSE)",
+              summaryVerdict,
             };
           }
         },

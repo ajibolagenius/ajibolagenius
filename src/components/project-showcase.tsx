@@ -29,6 +29,10 @@ import {
   XLogo,
 } from "@phosphor-icons/react/dist/ssr";
 import type { Project } from "@/types/project";
+import {
+  ZoraArchitectureShowcase,
+  AfroGraphArchitectureShowcase,
+} from "@/components/architecture-visualizer";
 
 // ----------------------------------------------------
 // FALLBACK UTILITY BY SLUG
@@ -39,6 +43,8 @@ function getShowcaseTypeBySlug(slug: string): string | null {
   if (slug === "hekaiq") return "duel";
   if (slug === "gorant") return "mood";
   if (slug === "fidia") return "fidia";
+  if (slug === "zora-market" || slug === "zora-market-mobile" || slug === "zora") return "zora-architecture";
+  if (slug === "afrograph") return "afrograph-architecture";
   return null;
 }
 
@@ -1145,6 +1151,8 @@ export function ProjectShowcase({ project }: { project: Project }) {
       {type === "mood" && <RantShowcase />}
       {type === "bookmark" && <BookmarkShowcase />}
       {type === "fidia" && <FidiaShowcase />}
+      {type === "zora-architecture" && <ZoraArchitectureShowcase />}
+      {type === "afrograph-architecture" && <AfroGraphArchitectureShowcase />}
     </section>
   );
 }

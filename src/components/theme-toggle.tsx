@@ -4,6 +4,7 @@ import { useSyncExternalStore, type MouseEvent } from "react";
 import { flushSync } from "react-dom";
 import { Moon, Sun } from "@phosphor-icons/react/dist/ssr";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { sound } from "@/lib/sound";
 
 function subscribeTheme(callback: () => void) {
   window.addEventListener("theme-change", callback);
@@ -27,6 +28,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   const reduceMotion = usePrefersReducedMotion();
 
   function toggle(event: MouseEvent<HTMLButtonElement>) {
+    sound.playChime();
     const next = !isDark;
     const apply = () => {
       document.documentElement.classList.toggle("dark", next);
