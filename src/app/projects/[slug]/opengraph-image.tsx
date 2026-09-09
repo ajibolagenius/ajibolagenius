@@ -63,7 +63,7 @@ export default async function Image({
         subtitle={p.description}
         imageSrc={imageSrc}
         tags={tags}
-        footerLeft={`${p.role_title || "Developer"} · ${p.year || "Project"}`}
+        footerLeft={`${p.role_title || "Engineer"} · ${p.year || "Project"}`}
         siteHost={getSiteHost()}
         isDark={true}
       />

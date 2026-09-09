@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     // Kept in step with the fallback description in layout.tsx — this is the
     // copy the install prompt shows.
     description:
-      "Portfolio, CV, and sandbox of Ajibola Akelebe — a developer and designer building for the web.",
+      "Portfolio, CV, and sandbox of Ajibola Akelebe — a full-stack engineer and designer building for the web.",
     start_url: "/",
     display: "standalone",
     background_color: "#fbf5ef",

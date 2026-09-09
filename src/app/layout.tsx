@@ -37,7 +37,7 @@ const habibi = Habibi({
  */
 const title = "Ajibola Akelebe — Portfolio";
 const description =
-  "Portfolio, CV, and sandbox of Ajibola Akelebe — a developer and designer building for the web.";
+  "Portfolio, CV, and sandbox of Ajibola Akelebe — a full-stack engineer and designer building for the web.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

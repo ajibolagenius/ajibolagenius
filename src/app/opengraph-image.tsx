@@ -16,7 +16,7 @@ export default async function Image() {
   const avatarSrc = await loadAvatarSrc(personalInfo?.avatar_url);
 
   const name = personalInfo?.name ?? "Ajibola Akelebe";
-  const role = personalInfo?.role ?? "Full-Stack · Design · Educator";
+  const role = personalInfo?.role ?? "Full-Stack Engineer · Design · Educator";
   const tagline = personalInfo?.tagline ?? "Design & Engineering.";
   const taglineSuffix = personalInfo?.tagline_suffix ?? "No Boundaries.";
 
