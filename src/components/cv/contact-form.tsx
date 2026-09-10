@@ -80,6 +80,7 @@ export function ContactForm() {
         name="name"
         placeholder={t.contact.namePlaceholder}
         required
+        suppressHydrationWarning
         className="w-full border border-ink/10 bg-ink/5 px-4 py-3 text-body-s outline-none focus:border-accent"
       />
       <input
@@ -87,6 +88,7 @@ export function ContactForm() {
         type="email"
         placeholder={t.contact.emailPlaceholder}
         required
+        suppressHydrationWarning
         className="w-full border border-ink/10 bg-ink/5 px-4 py-3 text-body-s outline-none focus:border-accent"
       />
       <textarea
@@ -94,6 +96,7 @@ export function ContactForm() {
         placeholder={t.contact.messagePlaceholder}
         required
         rows={4}
+        suppressHydrationWarning
         className="w-full resize-none border border-ink/10 bg-ink/5 px-4 py-3 text-body-s outline-none focus:border-accent"
       />
       <button
