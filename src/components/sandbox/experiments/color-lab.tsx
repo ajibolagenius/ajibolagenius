@@ -57,6 +57,14 @@ export function ColorLabExperiment() {
   const result = grade(ratio);
   const ratioLabel = ratio != null ? ratio.toFixed(2) : "—";
 
+  const prevGradeRef = useRef(result.label);
+  useEffect(() => {
+    if (result.label === "AAA" && prevGradeRef.current !== "AAA") {
+      sound.playMatch();
+    }
+    prevGradeRef.current = result.label;
+  }, [result.label]);
+
   return (
     <div className="border border-ink/10">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 px-4 py-3">
@@ -69,6 +77,7 @@ export function ColorLabExperiment() {
               key={preset.label}
               type="button"
               onClick={() => {
+                sound.playTap();
                 setFg(preset.fg);
                 setBg(preset.bg);
               }}
