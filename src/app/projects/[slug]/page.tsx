@@ -239,14 +239,14 @@ export default async function ProjectDetailPage({
               {p.problem && (
                 <section className="reveal flex flex-col gap-2">
                   <h2 className="text-h3 font-normal">Problem</h2>
-                  <p className="text-body-m text-ink/70">{p.problem}</p>
+                  <p className="whitespace-pre-wrap text-body-m text-ink/70">{p.problem}</p>
                 </section>
               )}
 
               {p.solution && (
                 <section className="reveal flex flex-col gap-2">
                   <h2 className="text-h3 font-normal">Solution</h2>
-                  <p className="text-body-m text-ink/70">{p.solution}</p>
+                  <p className="whitespace-pre-wrap text-body-m text-ink/70">{p.solution}</p>
                 </section>
               )}
             </div>
