@@ -15,6 +15,8 @@
  * mutated in place.
  */
 
+import { sound } from "@/lib/sound";
+
 export type ToastTone = "success" | "error" | "info";
 
 export type ToastRecord = {
@@ -32,6 +34,8 @@ export type ToastRecord = {
 export type ToastOptions = {
   description?: string;
   duration?: number;
+  /** Set to true to suppress sound feedback (e.g. if caller triggered a dedicated sound). */
+  silent?: boolean;
 };
 
 /** Beyond three, the stack covers content and stops being readable. */
@@ -124,6 +128,13 @@ function show(
   records = [...kept, record];
 
   if (!paused) startTimer(id, duration);
+  if (!options.silent) {
+    if (tone === "error") {
+      sound.playError();
+    } else {
+      sound.playTap();
+    }
+  }
   notify();
   return id;
 }

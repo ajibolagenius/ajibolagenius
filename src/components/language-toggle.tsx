@@ -2,6 +2,7 @@
 
 import { useLanguage } from "@/lib/i18n";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { sound } from "@/lib/sound";
 import { flushSync } from "react-dom";
 import clsx from "clsx";
 
@@ -10,6 +11,7 @@ export function LanguageToggle({ className }: { className?: string }) {
   const reduceMotion = usePrefersReducedMotion();
 
   function handleToggle() {
+    sound.playTap();
     if (reduceMotion || !document.startViewTransition) {
       toggleLocale();
       return;

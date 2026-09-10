@@ -10,6 +10,7 @@ import {
   WhatsappLogo,
 } from "@phosphor-icons/react/dist/ssr";
 import { useLanguage } from "@/lib/i18n";
+import { sound } from "@/lib/sound";
 
 export function ShareButtons({
   url,
@@ -50,9 +51,11 @@ export function ShareButtons({
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(url);
+      sound.playTap();
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
+      sound.playError();
       // clipboard unavailable, ignore
     }
   };

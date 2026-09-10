@@ -5,6 +5,7 @@ import Image from "next/image";
 import { CaretLeft, CaretRight, X } from "@phosphor-icons/react/dist/ssr";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { useViewTransition } from "@/hooks/use-view-transition";
+import { sound } from "@/lib/sound";
 
 export function ScreenshotGallery({
   screenshots,
@@ -15,7 +16,10 @@ export function ScreenshotGallery({
 }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
-  const close = useCallback(() => setOpenIndex(null), []);
+  const close = useCallback(() => {
+    sound.playTap();
+    setOpenIndex(null);
+  }, []);
   const transition = useViewTransition("lightbox");
 
   // Adds a focus trap, Escape, body scroll lock and focus restore — the
@@ -35,9 +39,11 @@ export function ScreenshotGallery({
     if (openIndex === null) return;
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") {
+        sound.playTap();
         setOpenIndex((i) => (i === null ? i : (i + 1) % screenshots.length));
       }
       if (e.key === "ArrowLeft") {
+        sound.playTap();
         setOpenIndex((i) =>
           i === null ? i : (i - 1 + screenshots.length) % screenshots.length,
         );
@@ -54,7 +60,10 @@ export function ScreenshotGallery({
           <button
             key={src}
             type="button"
-            onClick={() => transition(() => setOpenIndex(i))}
+            onClick={() => {
+              sound.playDrawer();
+              transition(() => setOpenIndex(i));
+            }}
             style={
               openIndex === i
                 ? undefined
@@ -97,6 +106,7 @@ export function ScreenshotGallery({
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
+                  sound.playTap();
                   setOpenIndex(
                     (i) => ((i ?? 0) - 1 + screenshots.length) % screenshots.length,
                   );
@@ -110,6 +120,7 @@ export function ScreenshotGallery({
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
+                  sound.playTap();
                   setOpenIndex((i) => ((i ?? 0) + 1) % screenshots.length);
                 }}
                 className="absolute right-4 text-cream/70 transition-colors hover:text-cream sm:right-6"

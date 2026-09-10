@@ -4,6 +4,7 @@ import { useRef, useState, type FormEvent } from "react";
 import { PaperPlaneRight, Spinner } from "@phosphor-icons/react/dist/ssr";
 import { submitContactMessage } from "@/app/actions";
 import { toast } from "@/lib/toast";
+import { sound } from "@/lib/sound";
 import { useLanguage } from "@/lib/i18n";
 
 export function ContactForm() {
@@ -16,6 +17,7 @@ export function ContactForm() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    sound.playTap();
     setStatus("sending");
     setError(null);
     const formData = new FormData(e.currentTarget);
@@ -28,21 +30,25 @@ export function ContactForm() {
       // inline error would be the only signal on a long page, and the submit
       // button is often scrolled past by the time this resolves.
       setStatus("error");
+      sound.playError();
       const message = t.contact.errorOffline;
       setError(message);
-      toast.error(message);
+      toast.error(message, { silent: true });
       return;
     }
 
     if ("error" in result) {
       setStatus("error");
+      sound.playError();
       setError(result.error);
-      toast.error(result.error);
+      toast.error(result.error, { silent: true });
       return;
     }
     setStatus("sent");
+    sound.playMatch();
     toast.success(t.contact.successTitle, {
       description: t.contact.successDesc,
+      silent: true,
     });
     formRef.current?.reset();
   };

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { sound } from "@/lib/sound";
 import {
   DeviceMobile,
   Database,
@@ -227,12 +228,17 @@ export function ZoraArchitectureShowcase() {
 
   // Simulation runner
   const startSimulation = () => {
+    sound.playTap();
     setIsSimulating(true);
     setActiveStep(0);
   };
 
   useEffect(() => {
     if (!isSimulating) return;
+
+    if (activeStep >= 0 && activeStep < flow.steps.length) {
+      sound.playStep(activeStep);
+    }
 
     if (activeStep < flow.steps.length - 1) {
       timerRef.current = setTimeout(() => {
@@ -241,6 +247,7 @@ export function ZoraArchitectureShowcase() {
     } else {
       timerRef.current = setTimeout(() => {
         setIsSimulating(false);
+        sound.playMatch();
       }, 1600);
     }
 
@@ -250,6 +257,7 @@ export function ZoraArchitectureShowcase() {
   }, [isSimulating, activeStep, flow.steps.length]);
 
   const handleFlowSelect = (k: ZoraFlowKey) => {
+    sound.playTap();
     setActiveFlow(k);
     setIsSimulating(false);
     setActiveStep(-1);
@@ -329,7 +337,10 @@ export function ZoraArchitectureShowcase() {
             <button
               key={node.id}
               type="button"
-              onClick={() => setSelectedNodeId(node.id)}
+              onClick={() => {
+                sound.playTap();
+                setSelectedNodeId(node.id);
+              }}
               className={`relative flex flex-col items-start gap-1.5 rounded-lg border p-3 text-left transition-all ${
                 isSelected
                   ? "border-accent bg-accent/5 ring-1 ring-accent"
@@ -533,23 +544,28 @@ export function AfroGraphArchitectureShowcase() {
   const handleCopy = () => {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(flow.cypher);
+      sound.playTap();
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
   };
 
   const handleSimulate = () => {
+    sound.playTap();
     setSimulating(true);
     setSimStep(0);
+    sound.playStep(0);
+    let currentStep = 0;
     const interval = setInterval(() => {
-      setSimStep((prev) => {
-        if (prev >= flow.nodes.length - 1) {
-          clearInterval(interval);
-          setSimulating(false);
-          return prev;
-        }
-        return prev + 1;
-      });
+      currentStep++;
+      if (currentStep >= flow.nodes.length) {
+        clearInterval(interval);
+        setSimulating(false);
+        sound.playMatch();
+      } else {
+        setSimStep(currentStep);
+        sound.playStep(currentStep);
+      }
     }, 600);
   };
 
@@ -579,6 +595,7 @@ export function AfroGraphArchitectureShowcase() {
           <button
             type="button"
             onClick={() => {
+              sound.playTap();
               setActiveFlow("shortest-path");
               setSimStep(0);
             }}
@@ -593,6 +610,7 @@ export function AfroGraphArchitectureShowcase() {
           <button
             type="button"
             onClick={() => {
+              sound.playTap();
               setActiveFlow("lineage");
               setSimStep(0);
             }}
@@ -607,6 +625,7 @@ export function AfroGraphArchitectureShowcase() {
           <button
             type="button"
             onClick={() => {
+              sound.playTap();
               setActiveFlow("security");
               setSimStep(0);
             }}

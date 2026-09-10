@@ -168,6 +168,63 @@ class SoundManager {
       });
     } catch {}
   }
+
+  /** Soft low-frequency double tone for errors or failures */
+  public playError() {
+    if (!this.enabled) return;
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    try {
+      const now = ctx.currentTime;
+      [0, 0.08].forEach((offset) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(180, now + offset);
+        osc.frequency.exponentialRampToValueAtTime(110, now + offset + 0.05);
+
+        gain.gain.setValueAtTime(0.06, now + offset);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.06);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now + offset);
+        osc.stop(now + offset + 0.07);
+      });
+    } catch {}
+  }
+
+  /** Ascending subtle pitch pip for pipeline/step progress */
+  public playStep(stepIndex: number = 0) {
+    if (!this.enabled) return;
+    const ctx = this.initContext();
+    if (!ctx) return;
+
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      const baseFreq = 440;
+      const freq = baseFreq * (1 + (stepIndex % 8) * 0.12);
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, now);
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.15, now + 0.03);
+
+      gain.gain.setValueAtTime(0.05, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.05);
+    } catch {}
+  }
 }
 
 export const sound = new SoundManager();

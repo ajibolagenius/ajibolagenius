@@ -183,6 +183,16 @@ export function AiAssistant() {
     return () => window.removeEventListener("open-ai-assistant", handleOpen);
   }, []);
 
+  const prevStatusRef = useRef(status);
+  useEffect(() => {
+    if (prevStatusRef.current === "streaming" && status === "ready") {
+      sound.playTap();
+    } else if (status === "error" && prevStatusRef.current !== "error") {
+      sound.playError();
+    }
+    prevStatusRef.current = status;
+  }, [status]);
+
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
   }, [messages]);

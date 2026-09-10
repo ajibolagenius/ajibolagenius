@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { useIndicator } from "@/hooks/use-indicator";
+import { sound } from "@/lib/sound";
 
 export type FilterOption = {
   value: string;
@@ -63,7 +64,12 @@ export function FilterPills({
           type="button"
           data-active={value === option.value}
           aria-pressed={value === option.value}
-          onClick={() => onChange(option.value)}
+          onClick={() => {
+            if (value !== option.value) {
+              sound.playTap();
+            }
+            onChange(option.value);
+          }}
           // The delay on the active state is the detail that sells it: the
           // label turns cream as the block arrives under it, not before.
           className="relative z-10 px-3 py-1.5 font-mono text-body-xs text-ink/60 transition-colors duration-[var(--dur-2)] hover:bg-ink/10 hover:text-ink data-[active=true]:bg-transparent data-[active=true]:text-cream data-[active=true]:delay-[90ms] data-[active=true]:hover:bg-transparent"

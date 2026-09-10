@@ -1,6 +1,7 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, useEffect, useRef } from "react";
+import { sound } from "@/lib/sound";
 
 function hexToRgb(hex: string): [number, number, number] | null {
   const cleaned = hex.replace("#", "");
