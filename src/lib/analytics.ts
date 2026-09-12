@@ -40,3 +40,55 @@ export function analyticsIds(): {
     sessionId: posthog.get_session_id(),
   };
 }
+
+// ---------------------------------------------------------------------------
+// Owner exclusion
+// ---------------------------------------------------------------------------
+
+const OWNER_KEY = "portfolio_is_owner";
+
+/**
+ * Marks this browser as the owner's, so his own visits can be dropped from
+ * every insight via PostHog's "Filter test accounts" toggle.
+ *
+ * A super property rather than `opt_out_capturing()`: events still record, so
+ * session replay and error tracking keep working while he browses his own
+ * site — they are just excluded from the numbers.
+ *
+ * posthog-js already drops localhost and 127.0.0.1 on its own (the
+ * `defaults: "2026-01-30"` behaviour), so this only has to cover the owner
+ * browsing the deployed site.
+ */
+export function setOwnerFlag(isOwner: boolean) {
+  try {
+    if (isOwner) localStorage.setItem(OWNER_KEY, "1");
+    else localStorage.removeItem(OWNER_KEY);
+  } catch {
+    // Private mode or blocked storage — fall through and register anyway, so
+    // the flag at least holds for this page load.
+  }
+  if (enabled) {
+    if (isOwner) posthog.register({ is_owner: true });
+    else posthog.unregister("is_owner");
+  }
+}
+
+/**
+ * Applies the sticky owner flag on load, and lets `?ph_owner=1` set it (or
+ * `?ph_owner=0` clear it) on any device without needing to log in.
+ */
+export function syncOwnerFlag() {
+  let stored = false;
+  try {
+    stored = localStorage.getItem(OWNER_KEY) === "1";
+  } catch {
+    // Unreadable storage — treat as not the owner.
+  }
+
+  const param = new URLSearchParams(window.location.search).get("ph_owner");
+  if (param === "1" || param === "0") {
+    setOwnerFlag(param === "1");
+    return;
+  }
+  if (stored) setOwnerFlag(true);
+}

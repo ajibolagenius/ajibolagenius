@@ -28,6 +28,7 @@ import { ADMIN_RESOURCES } from "@/lib/admin-resources";
 import { signOut } from "@/app/admin/actions";
 import { createClient } from "@/lib/supabase/client";
 import posthog from "posthog-js";
+import { setOwnerFlag } from "@/lib/analytics";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 const posthogConfigured = Boolean(
@@ -96,7 +97,12 @@ export function AdminShell({
 
     const supabase = createClient();
     void supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user && posthog.get_distinct_id() !== user.id) {
+      if (!user) return;
+      // Only one person can reach /admin, so an authenticated session is
+      // proof this browser is the owner's. Sticky from here on, including
+      // on the public pages.
+      setOwnerFlag(true);
+      if (posthog.get_distinct_id() !== user.id) {
         posthog.identify(
           user.id,
           user.email ? { email: user.email } : undefined,

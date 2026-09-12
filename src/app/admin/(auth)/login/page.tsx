@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import posthog from "posthog-js";
+import { setOwnerFlag } from "@/lib/analytics";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { toast } from "@/lib/toast";
 
@@ -48,6 +49,7 @@ export default function AdminLoginPage() {
         process.env.NEXT_PUBLIC_POSTHOG_KEY &&
         process.env.NEXT_PUBLIC_POSTHOG_HOST
       ) {
+        setOwnerFlag(true);
         posthog.identify(
           user.id,
           user.email ? { email: user.email } : undefined,

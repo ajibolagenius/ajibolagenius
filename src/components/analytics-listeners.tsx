@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { sound } from "@/lib/sound";
-import { track, registerProps } from "@/lib/analytics";
+import { track, registerProps, syncOwnerFlag } from "@/lib/analytics";
 
 /**
  * Site-wide analytics that would otherwise mean editing every component.
@@ -87,6 +87,10 @@ export function AnalyticsListeners() {
 
   // ---- Preferences as super properties ------------------------------------
   useEffect(() => {
+    // Before the first event of the session, so nothing slips through
+    // unflagged when the owner lands on the deployed site.
+    syncOwnerFlag();
+
     const sync = () =>
       registerProps({
         theme: currentTheme(),
