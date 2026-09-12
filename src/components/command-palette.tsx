@@ -38,6 +38,7 @@ import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { useRouteTransition } from "@/hooks/use-route-transition";
 import { toast } from "@/lib/toast";
 import { kindMeta } from "@/lib/project-kind";
+import { track } from "@/lib/analytics";
 
 interface ProjectData {
   id: string;
@@ -195,6 +196,7 @@ export function CommandPalette() {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setIsOpen((open) => {
+          if (!open) track("command_palette_opened", { trigger: "hotkey" });
           if (!open && !cachedData) {
             loadPaletteData().then((res) => {
               if (res) setData(res);
@@ -220,6 +222,7 @@ export function CommandPalette() {
             if (res) setData(res);
           });
         }
+        track("command_palette_opened", { trigger: "slash_key" });
         sound.playDrawer();
         setIsOpen(true);
       }
@@ -231,6 +234,7 @@ export function CommandPalette() {
           if (res) setData(res);
         });
       }
+      track("command_palette_opened", { trigger: "ui_button" });
       sound.playDrawer();
       setIsOpen(true);
     };
@@ -252,6 +256,31 @@ export function CommandPalette() {
       });
     }
   }, [isOpen]);
+
+  // Every selection funnels through here, so the two call sites below are the
+  // only places that need to know about analytics — not each of the ~20 item
+  // definitions.
+  const select = useCallback(
+    (
+      item: PaletteItem,
+      method: "keyboard" | "click",
+      searchQuery: string,
+      resultCount: number,
+    ) => {
+      sound.playTap();
+      track("command_palette_action_selected", {
+        item_id: item.id,
+        item_group: item.group,
+        method,
+        // What was typed to reach it — the single most useful signal here,
+        // since it says what people expect the site to have.
+        query: searchQuery,
+        result_count: resultCount,
+      });
+      item.onSelect();
+    },
+    [],
+  );
 
   // Actions
   const handleToggleTheme = useCallback(() => {
@@ -696,6 +725,16 @@ export function CommandPalette() {
     return scored;
   }, [allItems, query]);
 
+  useEffect(() => {
+    const q = query.trim();
+    if (!isOpen || q.length < 2 || filteredResults.length > 0) return;
+    const timer = setTimeout(
+      () => track("command_palette_search_empty", { query: q }),
+      600,
+    );
+    return () => clearTimeout(timer);
+  }, [query, filteredResults, isOpen]);
+
   // Group filtered results while preserving flat list order
   const groupedResults = useMemo(() => {
     const groupOrder: PaletteGroup[] = [
@@ -754,8 +793,7 @@ export function CommandPalette() {
       e.preventDefault();
       const current = flatDisplayItems[activeIndex];
       if (current) {
-        sound.playTap();
-        current.onSelect();
+        select(current, "keyboard", query, flatDisplayItems.length);
       }
     } else if (e.key === "Escape") {
       e.preventDefault();
@@ -855,10 +893,9 @@ export function CommandPalette() {
                       role="option"
                       aria-selected={isSelected}
                       data-item-index={currentIndex}
-                      onClick={() => {
-                        sound.playTap();
-                        item.onSelect();
-                      }}
+                      onClick={() =>
+                        select(item, "click", query, flatDisplayItems.length)
+                      }
                       onMouseEnter={() => setActiveIndex(currentIndex)}
                       className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left transition-colors duration-[var(--dur-1)] ${
                         isSelected

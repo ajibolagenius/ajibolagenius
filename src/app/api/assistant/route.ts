@@ -10,6 +10,11 @@ import { buildAssistantContext } from "@/lib/cv-context";
 import { createClient } from "@/lib/supabase/server";
 import { getCvData } from "@/lib/cv-data";
 import { getLatestGitHubActivity } from "@/lib/github-activity";
+import {
+  trackServer,
+  trackServerException,
+  fallbackDistinctId,
+} from "@/lib/posthog-server";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +26,8 @@ export const dynamic = "force-dynamic";
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 10;
 const hits = new Map<string, number[]>();
+
+const MODEL = "openai/gpt-4o-mini";
 
 function isRateLimited(key: string): boolean {
   const now = Date.now();
@@ -77,16 +84,66 @@ export async function POST(req: NextRequest) {
   const {
     messages,
     currentPath,
-  }: { messages: UIMessage[]; currentPath?: string } = await req.json();
+    distinctId,
+    sessionId,
+  }: {
+    messages: UIMessage[];
+    currentPath?: string;
+    distinctId?: string;
+    sessionId?: string;
+  } = await req.json();
   const recent = messages.slice(-12);
+
+  // The browser sends its own PostHog identifiers so the generation below
+  // attaches to the same person and the same replay. Falls back to a per-IP
+  // hash when analytics is blocked client-side.
+  const personId = distinctId || fallbackDistinctId(ip);
+  const traceId = crypto.randomUUID();
+  const startedAt = Date.now();
 
   const context = await buildAssistantContext(currentPath);
 
   const result = streamText({
-    model: "openai/gpt-4o-mini",
+    model: MODEL,
     instructions: buildInstructions(context),
     messages: await convertToModelMessages(recent),
     maxOutputTokens: 1200,
+    // PostHog LLM analytics. Emitted manually rather than through the
+    // OpenTelemetry integration: that route needs four more dependencies and
+    // an OTel NodeSDK bootstrap to produce the same $ai_generation event.
+    onFinish: async ({ text, usage, finishReason }) => {
+      await trackServer("$ai_generation", personId, {
+        $ai_trace_id: traceId,
+        $ai_session_id: sessionId ?? null,
+        $ai_model: MODEL,
+        $ai_provider: "vercel-ai-gateway",
+        // Only the visitor's turns — the instructions block is a constant of
+        // several kilobytes and would dominate every stored trace.
+        $ai_input: recent.map((m) => ({
+          role: m.role,
+          content: m.parts
+            .filter((part) => part.type === "text")
+            .map((part) => (part as { text: string }).text)
+            .join(""),
+        })),
+        $ai_output_choices: [{ role: "assistant", content: text }],
+        $ai_input_tokens: usage?.inputTokens ?? 0,
+        $ai_output_tokens: usage?.outputTokens ?? 0,
+        $ai_latency: (Date.now() - startedAt) / 1000,
+        $ai_stream: true,
+        $ai_span_name: "portfolio_assistant",
+        $session_id: sessionId ?? null,
+        finish_reason: finishReason,
+        page_path: currentPath ?? "/",
+      });
+    },
+    onError: async ({ error }) => {
+      await trackServerException(error, personId, {
+        $ai_trace_id: traceId,
+        source: "api/assistant",
+        page_path: currentPath ?? "/",
+      });
+    },
     tools: {
       recommendProject: tool({
         description:

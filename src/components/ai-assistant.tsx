@@ -31,11 +31,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { sound } from "@/lib/sound";
-import posthog from "posthog-js";
-
-const posthogConfigured = Boolean(
-  process.env.NEXT_PUBLIC_POSTHOG_KEY && process.env.NEXT_PUBLIC_POSTHOG_HOST,
-);
+import { track, analyticsIds } from "@/lib/analytics";
 
 interface RecommendProjectOutput {
   found: boolean;
@@ -168,7 +164,9 @@ export function AiAssistant() {
     () =>
       new DefaultChatTransport({
         api: "/api/assistant",
-        body: { currentPath: pathname },
+        // The server captures $ai_generation; without these its events would
+        // land on a separate anonymous person and never join the replay.
+        body: { currentPath: pathname, ...analyticsIds() },
       }),
     [pathname],
   );
@@ -182,6 +180,7 @@ export function AiAssistant() {
   useEffect(() => {
     const handleOpen = () => {
       sound.playDrawer();
+      track("ai_assistant_opened", { source: "command_palette" });
       setIsOpen(true);
     };
     window.addEventListener("open-ai-assistant", handleOpen);
@@ -189,14 +188,31 @@ export function AiAssistant() {
   }, []);
 
   const prevStatusRef = useRef(status);
+  const askedAtRef = useRef<number | null>(null);
   useEffect(() => {
-    if (prevStatusRef.current === "streaming" && status === "ready") {
+    if (status === "submitted" && prevStatusRef.current !== "submitted") {
+      askedAtRef.current = Date.now();
+    } else if (prevStatusRef.current === "streaming" && status === "ready") {
       sound.playTap();
+      const last = messages[messages.length - 1];
+      track("ai_assistant_response_completed", {
+        latency_ms: askedAtRef.current ? Date.now() - askedAtRef.current : null,
+        // Which tools fired is the signal worth having: a recruiter pasting a
+        // JD trips matchJobDescription, a browser trips recommendProject.
+        tools_used:
+          last?.parts?.filter(isToolUIPart).map((part) => part.type) ?? [],
+        turn_count: messages.filter((m) => m.role === "user").length,
+      });
+      askedAtRef.current = null;
     } else if (status === "error" && prevStatusRef.current !== "error") {
       sound.playError();
+      track("ai_assistant_failed", {
+        latency_ms: askedAtRef.current ? Date.now() - askedAtRef.current : null,
+      });
+      askedAtRef.current = null;
     }
     prevStatusRef.current = status;
-  }, [status]);
+  }, [status, messages]);
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
@@ -228,12 +244,11 @@ export function AiAssistant() {
     const text = input.trim();
     if (!text || isBusy) return;
     sound.playTap();
-    if (posthogConfigured) {
-      posthog.capture("ai_assistant_prompt_submitted", {
-        prompt_source: "free_form",
-        page_path: pathname ?? "/",
-      });
-    }
+    track("ai_assistant_prompt_submitted", {
+      prompt_source: "free_form",
+      page_path: pathname ?? "/",
+      prompt_length: text.length,
+    });
     sendMessage({ text });
     setInput("");
   }
@@ -241,12 +256,11 @@ export function AiAssistant() {
   function handleStarterClick(prompt: string) {
     sound.playTap();
     if (isBusy) return;
-    if (posthogConfigured) {
-      posthog.capture("ai_assistant_prompt_submitted", {
-        prompt_source: "suggested",
-        page_path: pathname ?? "/",
-      });
-    }
+    track("ai_assistant_prompt_submitted", {
+      prompt_source: "suggested",
+      page_path: pathname ?? "/",
+      suggested_prompt: prompt,
+    });
     sendMessage({ text: prompt });
   }
 
@@ -751,7 +765,13 @@ export function AiAssistant() {
         type="button"
         onClick={() =>
           setIsOpen((v) => {
-            if (!v) sound.playDrawer();
+            if (!v) {
+              sound.playDrawer();
+              track("ai_assistant_opened", {
+                source: "floating_button",
+                page_path: pathname ?? "/",
+              });
+            }
             return !v;
           })
         }

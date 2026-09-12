@@ -6,11 +6,7 @@ import { submitContactMessage } from "@/app/actions";
 import { toast } from "@/lib/toast";
 import { sound } from "@/lib/sound";
 import { useLanguage } from "@/lib/i18n";
-import posthog from "posthog-js";
-
-const posthogConfigured = Boolean(
-  process.env.NEXT_PUBLIC_POSTHOG_KEY && process.env.NEXT_PUBLIC_POSTHOG_HOST,
-);
+import { track } from "@/lib/analytics";
 
 export function ContactForm() {
   const { t } = useLanguage();
@@ -35,6 +31,7 @@ export function ContactForm() {
       // inline error would be the only signal on a long page, and the submit
       // button is often scrolled past by the time this resolves.
       setStatus("error");
+      track("contact_message_failed", { reason: "request_dropped" });
       sound.playError();
       const message = t.contact.errorOffline;
       setError(message);
@@ -44,13 +41,18 @@ export function ContactForm() {
 
     if ("error" in result) {
       setStatus("error");
+      // The message itself, not the visitor's input — these are a fixed set of
+      // strings from the server action, so they group cleanly.
+      track("contact_message_failed", { reason: result.error });
       sound.playError();
       setError(result.error);
       toast.error(result.error, { silent: true });
       return;
     }
     setStatus("sent");
-    if (posthogConfigured) posthog.capture("contact_message_submitted");
+    track("contact_message_submitted", {
+      message_length: String(formData.get("message") ?? "").length,
+    });
     sound.playMatch();
     toast.success(t.contact.successTitle, {
       description: t.contact.successDesc,
@@ -71,6 +73,7 @@ export function ContactForm() {
     <form
       ref={formRef}
       onSubmit={handleSubmit}
+      data-ph-mask
       className="flex w-full max-w-md flex-col gap-3 text-left"
     >
       {/* Honeypot: hidden from real users, bots that fill every field trip it. */}

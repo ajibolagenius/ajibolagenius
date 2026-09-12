@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { UpdateModal } from "./update-modal";
+import { track } from "@/lib/analytics";
 
 const UPDATE_CHECK_INTERVAL_MS = 60_000;
 
@@ -25,7 +26,9 @@ export function ServiceWorkerRegistration() {
     let cancelled = false;
 
     const handleWaitingWorker = (worker: ServiceWorker | null) => {
-      if (worker) setWaitingWorker(worker);
+      if (!worker) return;
+      track("pwa_update_offered");
+      setWaitingWorker(worker);
     };
 
     async function register() {
@@ -67,6 +70,11 @@ export function ServiceWorkerRegistration() {
 
     const cleanupPromise = register();
 
+    const onBeforeInstallPrompt = () => track("pwa_install_prompted");
+    const onInstalled = () => track("pwa_installed");
+    window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);
+    window.addEventListener("appinstalled", onInstalled);
+
     const onControllerChange = () => {
       if (reloadingRef.current) return;
       reloadingRef.current = true;
@@ -79,6 +87,8 @@ export function ServiceWorkerRegistration() {
 
     return () => {
       cancelled = true;
+      window.removeEventListener("beforeinstallprompt", onBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", onInstalled);
       cleanupPromise.then((cleanup) => cleanup?.());
       navigator.serviceWorker.removeEventListener(
         "controllerchange",
@@ -89,6 +99,7 @@ export function ServiceWorkerRegistration() {
 
   const handleUpdate = useCallback(() => {
     if (!waitingWorker) return;
+    track("pwa_update_accepted");
     setUpdating(true);
     waitingWorker.postMessage({ type: "SKIP_WAITING" });
   }, [waitingWorker]);

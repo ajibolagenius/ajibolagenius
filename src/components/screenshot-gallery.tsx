@@ -6,6 +6,7 @@ import { CaretLeft, CaretRight, X } from "@phosphor-icons/react/dist/ssr";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { useViewTransition } from "@/hooks/use-view-transition";
 import { sound } from "@/lib/sound";
+import { track } from "@/lib/analytics";
 
 export function ScreenshotGallery({
   screenshots,
@@ -62,6 +63,11 @@ export function ScreenshotGallery({
             type="button"
             onClick={() => {
               sound.playDrawer();
+              track("screenshot_lightbox_opened", {
+                index: i,
+                total: screenshots.length,
+                alt,
+              });
               transition(() => setOpenIndex(i));
             }}
             style={

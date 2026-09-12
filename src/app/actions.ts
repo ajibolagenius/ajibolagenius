@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { trackServer, fallbackDistinctId } from "@/lib/posthog-server";
 
 // Lightweight in-process rate limiter. On Fluid Compute instances are reused
 // across requests, so this throttles bursts from a single IP without external
@@ -38,6 +39,11 @@ export async function submitContactMessage(
   // every input trip it. Silently accept to avoid signalling the check.
   const trap = String(formData.get("company") ?? "").trim();
   if (trap) {
+    // Counted, not stored. Bot volume is the only way to tell a quiet week
+    // apart from a broken form.
+    await trackServer("contact_message_rejected", "anon_bot", {
+      reason: "honeypot",
+    });
     return { success: true };
   }
 
@@ -47,6 +53,9 @@ export async function submitContactMessage(
     headerStore.get("x-real-ip") ||
     "unknown";
   if (isRateLimited(ip)) {
+    await trackServer("contact_message_rejected", fallbackDistinctId(ip), {
+      reason: "rate_limited",
+    });
     return { error: "Too many messages. Please try again in a minute." };
   }
 
@@ -72,7 +81,16 @@ export async function submitContactMessage(
     .from("contact_messages")
     .insert({ name, email, message });
 
-  if (error) return { error: "Something went wrong. Please try again." };
+  if (error) {
+    // The one failure the visitor can do nothing about, and the one the
+    // client-side `contact_message_failed` event cannot distinguish from a
+    // validation error. Worth its own server-side event.
+    await trackServer("contact_message_rejected", fallbackDistinctId(ip), {
+      reason: "database_insert_failed",
+      code: error.code ?? null,
+    });
+    return { error: "Something went wrong. Please try again." };
+  }
 
   return { success: true };
 }

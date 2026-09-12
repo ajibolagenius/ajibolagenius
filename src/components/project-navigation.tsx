@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { useRouteTransition } from "@/hooks/use-route-transition";
+import { track } from "@/lib/analytics";
 
 interface NavProject {
   slug: string;
@@ -37,6 +38,11 @@ export function ProjectNavigation({
               return;
             }
             e.preventDefault();
+            track("adjacent_content_opened", {
+              direction: "previous",
+              slug: prev.slug,
+              prefix,
+            });
             navigate(`${prefix}/${prev.slug}`);
           }}
           className="group flex flex-col gap-1 text-left max-w-[45%] min-w-0"
@@ -67,6 +73,11 @@ export function ProjectNavigation({
               return;
             }
             e.preventDefault();
+            track("adjacent_content_opened", {
+              direction: "next",
+              slug: next.slug,
+              prefix,
+            });
             navigate(`${prefix}/${next.slug}`);
           }}
           className="group flex flex-col gap-1 text-right max-w-[45%] min-w-0"

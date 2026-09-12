@@ -11,11 +11,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { useLanguage } from "@/lib/i18n";
 import { sound } from "@/lib/sound";
-import posthog from "posthog-js";
-
-const posthogConfigured = Boolean(
-  process.env.NEXT_PUBLIC_POSTHOG_KEY && process.env.NEXT_PUBLIC_POSTHOG_HOST,
-);
+import { track } from "@/lib/analytics";
 
 export function ShareButtons({
   url,
@@ -61,9 +57,7 @@ export function ShareButtons({
     try {
       await navigator.clipboard.writeText(url);
       sound.playTap();
-      if (posthogConfigured) {
-        posthog.capture("content_shared", { channel: "copy_link" });
-      }
+      track("content_shared", { channel: "copy_link", url });
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -82,9 +76,7 @@ export function ShareButtons({
           key={label}
           href={href}
           onClick={() => {
-            if (posthogConfigured) {
-              posthog.capture("content_shared", { channel });
-            }
+            track("content_shared", { channel, url });
           }}
           target="_blank"
           rel="noopener noreferrer"

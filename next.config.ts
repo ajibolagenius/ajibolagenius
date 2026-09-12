@@ -45,6 +45,11 @@ const nextConfig: NextConfig = {
     root: __dirname,
   },
 
+  // Required by the PostHog reverse proxy below: posthog-js posts to paths
+  // with and without a trailing slash, and Next's normalising redirect would
+  // turn those into 308s that the SDK does not follow.
+  skipTrailingSlashRedirect: true,
+
   experimental: {
     serverActions: {
       bodySizeLimit: "25mb",
@@ -82,6 +87,23 @@ const nextConfig: NextConfig = {
   // Config redirects (not proxy.ts) because they compile into the routing
   // manifest and are handled before any function runs — no Supabase client,
   // no cold start, and they can't be defeated by a stale route file.
+  // Reverse proxy for PostHog. Ad blockers and DNS filters block
+  // *.i.posthog.com by hostname; served from our own origin the requests are
+  // indistinguishable from any other first-party fetch. `api_host` in
+  // instrumentation-client.ts points here.
+  async rewrites() {
+    if (!posthogHost || !posthogAssetsHost) return [];
+    return [
+      // Static assets (the recorder bundle, surveys, toolbar) come from the
+      // separate assets host — must be matched before the catch-all below.
+      {
+        source: "/ingest/static/:path*",
+        destination: `${posthogAssetsHost}/static/:path*`,
+      },
+      { source: "/ingest/:path*", destination: `${posthogHost}/:path*` },
+    ];
+  },
+
   async redirects() {
     return [
       // Exact listing pages FIRST. `:path*` below matches zero segments too,

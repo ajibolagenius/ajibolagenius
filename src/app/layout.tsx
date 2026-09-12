@@ -8,6 +8,7 @@ import { Toaster } from "@/components/toast/toaster";
 import { FlashToaster } from "@/components/toast/flash-toaster";
 import { AiAssistant } from "@/components/ai-assistant";
 import { CommandPalette } from "@/components/command-palette";
+import { AnalyticsListeners } from "@/components/analytics-listeners";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { siteUrl } from "@/lib/site-url";
@@ -102,6 +103,7 @@ export default function RootLayout({
         <ServiceWorkerRegistration />
         <AiAssistant />
         <CommandPalette />
+        <AnalyticsListeners />
         <Analytics />
         <SpeedInsights />
       </body>

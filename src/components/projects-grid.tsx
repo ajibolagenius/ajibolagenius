@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useMemo, useSyncExternalStore, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { ArrowUpRight, GridFour, Layout } from "@phosphor-icons/react/dist/ssr";
 import { ProjectCard } from "@/components/project-card";
@@ -14,6 +20,7 @@ import {
   splitCategories,
 } from "@/lib/project-kind";
 import type { ProjectCardData } from "@/types/project";
+import { track } from "@/lib/analytics";
 
 const ALL = "all";
 
@@ -156,17 +163,32 @@ export function ProjectsGrid({
 
   const showPinned = type === ALL && category === ALL && Boolean(pinnedCard);
 
+  // An empty grid after a filter is the frustration signal the replay scanner
+  // is looking for; without this it has no event to hang off.
+  useEffect(() => {
+    if (filtered.length === 0 && projects.length > 0) {
+      track("project_filter_returned_empty", { type, category });
+    }
+  }, [filtered.length, projects.length, type, category]);
+
   const onType = (next: string) =>
     // Clearing category in the same click prevents stranding the UI on a
     // category that doesn't exist in the new type slice — an empty grid with
     // an active pill, the classic two-facet bug.
-    transition(() => setParams({ type: next, category: null }, "push"));
+    transition(() => {
+      track("project_filter_applied", { facet: "type", value: next });
+      setParams({ type: next, category: null }, "push");
+    });
 
   const onCategory = (next: string) =>
-    transition(() => setParams({ category: next }, "replace"));
+    transition(() => {
+      track("project_filter_applied", { facet: "category", value: next });
+      setParams({ category: next }, "replace");
+    });
 
   const setLayoutMode = (next: LayoutMode) => {
     if (next === layout) return;
+    track("project_layout_changed", { layout: next });
     transition(() => {
       try {
         localStorage.setItem("projects-layout", next);

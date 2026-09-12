@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { useRouteTransition } from "@/hooks/use-route-transition";
 import type { Note } from "@/types/note";
+import { track } from "@/lib/analytics";
 
 export function NoteCard({
   note,
@@ -30,6 +31,11 @@ export function NoteCard({
           return;
         }
         e.preventDefault();
+        track("note_opened", {
+          note_slug: note.slug,
+          note_category: note.category ?? null,
+          card_variant: compact ? "compact" : "standard",
+        });
         navigate(href);
       }}
       style={{ viewTransitionName: `note-${note.slug}` } as CSSProperties}

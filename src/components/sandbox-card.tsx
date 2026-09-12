@@ -8,6 +8,7 @@ import { useTilt } from "@/hooks/use-tilt";
 import { useRouteTransition } from "@/hooks/use-route-transition";
 import { hasSandboxExperiment } from "@/lib/sandbox-experiments";
 import type { Project } from "@/types/project";
+import { track } from "@/lib/analytics";
 
 const STATUS_LABELS: Record<string, string> = {
   "in-progress": "In Progress",
@@ -36,6 +37,10 @@ export function SandboxCard({ project }: { project: Project }) {
           return;
         }
         e.preventDefault();
+        track("sandbox_experiment_opened", {
+          slug: project.slug,
+          playable,
+        });
         navigate(href);
       }}
       {...tilt}
