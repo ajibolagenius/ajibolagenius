@@ -2,14 +2,16 @@ import type { NextConfig } from "next";
 
 // Complete Content Security Policy applied to every route.
 const isProd = process.env.NODE_ENV === "production";
+const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST;
+const posthogAssetsHost = posthogHost?.replace(".i.", "-assets.i.");
 
 const contentSecurityPolicy = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com${!isProd ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com ${posthogHost ?? ""} ${posthogAssetsHost ?? ""}${!isProd ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://*.unsplash.com https://unsplash.com",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://vitals.vercel-insights.com https://va.vercel-scripts.com",
+  `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://vitals.vercel-insights.com https://va.vercel-scripts.com ${posthogHost ?? ""}`,
   "worker-src 'self' blob:",
   "media-src 'self'",
   "object-src 'none'",

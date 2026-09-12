@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import posthog from "posthog-js";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { toast } from "@/lib/toast";
 
@@ -28,7 +29,10 @@ export default function AdminLoginPage() {
 
     setStatus("signing-in");
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -39,7 +43,16 @@ export default function AdminLoginPage() {
       // copy of something already in the reader's eyeline.
       setStatus("error");
       setMessage(error.message);
-    } else {
+    } else if (user) {
+      if (
+        process.env.NEXT_PUBLIC_POSTHOG_KEY &&
+        process.env.NEXT_PUBLIC_POSTHOG_HOST
+      ) {
+        posthog.identify(
+          user.id,
+          user.email ? { email: user.email } : undefined,
+        );
+      }
       toast.success("Signed in");
       router.push("/admin");
     }

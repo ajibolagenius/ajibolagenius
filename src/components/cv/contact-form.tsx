@@ -6,6 +6,11 @@ import { submitContactMessage } from "@/app/actions";
 import { toast } from "@/lib/toast";
 import { sound } from "@/lib/sound";
 import { useLanguage } from "@/lib/i18n";
+import posthog from "posthog-js";
+
+const posthogConfigured = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_KEY && process.env.NEXT_PUBLIC_POSTHOG_HOST,
+);
 
 export function ContactForm() {
   const { t } = useLanguage();
@@ -45,6 +50,7 @@ export function ContactForm() {
       return;
     }
     setStatus("sent");
+    if (posthogConfigured) posthog.capture("contact_message_submitted");
     sound.playMatch();
     toast.success(t.contact.successTitle, {
       description: t.contact.successDesc,

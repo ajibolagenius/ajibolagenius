@@ -26,7 +26,13 @@ import {
 import type { Icon } from "@phosphor-icons/react";
 import { ADMIN_RESOURCES } from "@/lib/admin-resources";
 import { signOut } from "@/app/admin/actions";
+import { createClient } from "@/lib/supabase/client";
+import posthog from "posthog-js";
 import { ThemeToggle } from "@/components/theme-toggle";
+
+const posthogConfigured = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_KEY && process.env.NEXT_PUBLIC_POSTHOG_HOST,
+);
 
 const RESOURCE_ICONS: Record<string, Icon> = {
   "personal-info": IdentificationBadge,
@@ -85,6 +91,20 @@ export function AdminShell({
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
+  useEffect(() => {
+    if (!posthogConfigured) return;
+
+    const supabase = createClient();
+    void supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user && posthog.get_distinct_id() !== user.id) {
+        posthog.identify(
+          user.id,
+          user.email ? { email: user.email } : undefined,
+        );
+      }
+    });
+  }, []);
+
   // Prevent background scroll while the drawer is open.
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -95,6 +115,10 @@ export function AdminShell({
 
   const isActive = (href: string) =>
     href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
+
+  const handleSignOut = () => {
+    if (posthogConfigured) posthog.reset();
+  };
 
   const sidebar = (
     <div className="flex h-full flex-col">
@@ -183,7 +207,7 @@ export function AdminShell({
           icon={Password}
           active={isActive("/admin/reset-password")}
         />
-        <form action={signOut}>
+        <form action={signOut} onSubmit={handleSignOut}>
           <button
             type="submit"
             className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-ink/70 transition-colors hover:bg-red-500/10 hover:text-red-600"

@@ -8,6 +8,11 @@ import { useTilt } from "@/hooks/use-tilt";
 import { useRouteTransition } from "@/hooks/use-route-transition";
 import { kindMeta, projectHref, splitCategories } from "@/lib/project-kind";
 import type { ProjectCardData } from "@/types/project";
+import posthog from "posthog-js";
+
+const posthogConfigured = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_KEY && process.env.NEXT_PUBLIC_POSTHOG_HOST,
+);
 
 const STATUS_LABELS: Record<string, string> = {
   "in-progress": "In Progress",
@@ -46,6 +51,13 @@ export function ProjectCard({
       return;
     }
     e.preventDefault();
+    if (posthogConfigured) {
+      posthog.capture("project_case_study_opened", {
+        project_slug: project.slug,
+        project_kind: project.kind,
+        card_variant: variant,
+      });
+    }
     navigate(href);
   };
 

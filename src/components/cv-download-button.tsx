@@ -2,6 +2,11 @@
 
 import { DownloadSimple } from "@phosphor-icons/react/dist/ssr";
 import { sound } from "@/lib/sound";
+import posthog from "posthog-js";
+
+const posthogConfigured = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_KEY && process.env.NEXT_PUBLIC_POSTHOG_HOST,
+);
 
 export function CvDownloadButton() {
   return (
@@ -9,6 +14,7 @@ export function CvDownloadButton() {
       type="button"
       onClick={() => {
         sound.playTap();
+        if (posthogConfigured) posthog.capture("cv_download_requested");
         window.print();
       }}
       className="fixed right-6 top-6 z-40 flex items-center gap-2 bg-ink px-4 py-2.5 text-body-s font-medium text-cream shadow-lg transition-colors hover:bg-accent print:hidden"

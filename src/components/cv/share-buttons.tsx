@@ -11,6 +11,11 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { useLanguage } from "@/lib/i18n";
 import { sound } from "@/lib/sound";
+import posthog from "posthog-js";
+
+const posthogConfigured = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_KEY && process.env.NEXT_PUBLIC_POSTHOG_HOST,
+);
 
 export function ShareButtons({
   url,
@@ -28,21 +33,25 @@ export function ShareButtons({
   const links = [
     {
       label: t.share.shareOnX,
+      channel: "x",
       href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
       icon: XLogo,
     },
     {
       label: t.share.shareOnLinkedIn,
+      channel: "linkedin",
       href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
       icon: LinkedinLogo,
     },
     {
       label: t.share.shareOnFacebook,
+      channel: "facebook",
       href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
       icon: FacebookLogo,
     },
     {
       label: t.share.shareOnWhatsApp,
+      channel: "whatsapp",
       href: `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`,
       icon: WhatsappLogo,
     },
@@ -52,6 +61,9 @@ export function ShareButtons({
     try {
       await navigator.clipboard.writeText(url);
       sound.playTap();
+      if (posthogConfigured) {
+        posthog.capture("content_shared", { channel: "copy_link" });
+      }
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -65,10 +77,15 @@ export function ShareButtons({
       <span className="text-body-xs uppercase tracking-wide text-ink/60">
         {t.share.share}
       </span>
-      {links.map(({ label, href, icon: Icon }) => (
+      {links.map(({ label, channel, href, icon: Icon }) => (
         <a
           key={label}
           href={href}
+          onClick={() => {
+            if (posthogConfigured) {
+              posthog.capture("content_shared", { channel });
+            }
+          }}
           target="_blank"
           rel="noopener noreferrer"
           aria-label={label}

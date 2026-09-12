@@ -1,6 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
+import posthog from "posthog-js";
+
+const posthogConfigured = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_KEY && process.env.NEXT_PUBLIC_POSTHOG_HOST,
+);
 
 export default function GlobalError({
   error,
@@ -10,6 +15,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
+    if (posthogConfigured) posthog.captureException(error);
     console.error("Global uncaught error:", error);
   }, [error]);
 

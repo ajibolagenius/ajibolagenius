@@ -31,6 +31,11 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { sound } from "@/lib/sound";
+import posthog from "posthog-js";
+
+const posthogConfigured = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_KEY && process.env.NEXT_PUBLIC_POSTHOG_HOST,
+);
 
 interface RecommendProjectOutput {
   found: boolean;
@@ -223,6 +228,12 @@ export function AiAssistant() {
     const text = input.trim();
     if (!text || isBusy) return;
     sound.playTap();
+    if (posthogConfigured) {
+      posthog.capture("ai_assistant_prompt_submitted", {
+        prompt_source: "free_form",
+        page_path: pathname ?? "/",
+      });
+    }
     sendMessage({ text });
     setInput("");
   }
@@ -230,6 +241,12 @@ export function AiAssistant() {
   function handleStarterClick(prompt: string) {
     sound.playTap();
     if (isBusy) return;
+    if (posthogConfigured) {
+      posthog.capture("ai_assistant_prompt_submitted", {
+        prompt_source: "suggested",
+        page_path: pathname ?? "/",
+      });
+    }
     sendMessage({ text: prompt });
   }
 
