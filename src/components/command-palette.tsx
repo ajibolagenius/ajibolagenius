@@ -26,6 +26,7 @@ import {
   MagnifyingGlass,
   Moon,
   Pulse,
+  Radio,
   Sparkle,
   Stack,
   Sun,
@@ -34,6 +35,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import type { Icon } from "@phosphor-icons/react";
 import { sound } from "@/lib/sound";
+import { vintageRadio } from "@/lib/vintage-radio";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { useRouteTransition } from "@/hooks/use-route-transition";
 import { toast } from "@/lib/toast";
@@ -417,6 +419,57 @@ export function CommandPalette() {
         badge: "CV",
         keywords: ["cv", "resume", "pdf", "download", "print", "curriculum"],
         onSelect: () => handleNavigate("/cv"),
+      },
+      {
+        id: "action-toggle-vintage-radio",
+        title: "Toggle Vintage Radio (Play / Pause)",
+        subtitle: "Background vintage Nigerian classics (Highlife, Jùjú, Afrobeat)",
+        group: "Quick Actions",
+        icon: Radio,
+        badge: "Radio",
+        keywords: [
+          "music",
+          "radio",
+          "song",
+          "audio",
+          "naija",
+          "play",
+          "pause",
+          "fela",
+          "sunny ade",
+          "highlife",
+          "juju",
+          "afrobeat",
+        ],
+        onSelect: () => {
+          close();
+          vintageRadio.setEnabled(true);
+          vintageRadio.togglePlay();
+          toast.info("Vintage Radio toggled");
+        },
+      },
+      {
+        id: "action-next-vintage-radio",
+        title: "Next Track (Vintage Radio)",
+        subtitle: "Shuffle to another classic Nigerian record",
+        group: "Quick Actions",
+        icon: Radio,
+        badge: "Radio",
+        keywords: [
+          "next",
+          "track",
+          "skip",
+          "shuffle",
+          "music",
+          "song",
+          "radio",
+        ],
+        onSelect: () => {
+          close();
+          vintageRadio.setEnabled(true);
+          vintageRadio.nextTrack(true);
+          toast.info("Switched to next classic track");
+        },
       },
     ];
 

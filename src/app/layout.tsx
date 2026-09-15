@@ -7,6 +7,7 @@ import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-regis
 import { Toaster } from "@/components/toast/toaster";
 import { FlashToaster } from "@/components/toast/flash-toaster";
 import { AiAssistant } from "@/components/ai-assistant";
+import { VintageRadio } from "@/components/vintage-radio";
 import { CommandPalette } from "@/components/command-palette";
 import { AnalyticsListeners } from "@/components/analytics-listeners";
 import { Analytics } from "@vercel/analytics/next";
@@ -102,6 +103,7 @@ export default function RootLayout({
         <FlashToaster />
         <ServiceWorkerRegistration />
         <AiAssistant />
+        <VintageRadio />
         <CommandPalette />
         <AnalyticsListeners />
         <Analytics />
