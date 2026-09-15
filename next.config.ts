@@ -13,7 +13,8 @@ const contentSecurityPolicy = [
   "font-src 'self' data:",
   `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://vitals.vercel-insights.com https://va.vercel-scripts.com ${posthogHost ?? ""}`,
   "worker-src 'self' blob:",
-  "media-src 'self'",
+  // The vintage radio streams Apple's preview clips rather than hosting them.
+  "media-src 'self' https://audio-ssl.itunes.apple.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -41,6 +42,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["127.0.0.1", "localhost"],
   turbopack: {
     root: __dirname,
   },

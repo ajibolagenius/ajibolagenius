@@ -15,9 +15,9 @@ export interface VintageTrack {
   wikiUrl: string;
   /** Search term for the Apple lookup. Explicit so a match is never ambiguous. */
   appleQuery: string;
-  /** Apple 30s preview when resolved, local ambience loop otherwise. */
+  /** Local audio preview when resolved, local ambience loop otherwise. */
   src: string;
-  /** Apple Music page. Shown alongside a preview as required attribution. */
+  /** Apple Music page. Shown alongside track as attribution citation. */
   listenUrl?: string;
 }
 

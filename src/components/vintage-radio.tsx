@@ -166,6 +166,8 @@ export function SidebarVintageRadio() {
       <div
         role="region"
         aria-label="Vintage Nigerian Radio (Sidebar Docked)"
+      onMouseEnter={() => vintageRadio.warmCurrent()}
+      onFocus={() => vintageRadio.warmCurrent()}
         className="flex w-full flex-col gap-2 border border-ink/10 bg-ink/[0.02] p-2.5 transition-all"
       >
         <div className="flex items-center justify-between gap-2">
@@ -265,6 +267,8 @@ export function SidebarVintageRadio() {
     <div
       role="region"
       aria-label="Vintage Nigerian Radio Cassette Player"
+      onMouseEnter={() => vintageRadio.warmCurrent()}
+      onFocus={() => vintageRadio.warmCurrent()}
       className="flex w-full flex-col gap-2.5 border border-ink/10 bg-ink/[0.02] p-3 transition-all"
     >
       {/* Header */}
@@ -587,6 +591,8 @@ export function VintageRadio() {
         <div
           role="region"
           aria-label="Vintage Nigerian Radio (Minimized)"
+      onMouseEnter={() => vintageRadio.warmCurrent()}
+      onFocus={() => vintageRadio.warmCurrent()}
           className="flex items-center gap-2 border border-ink/15 bg-cream/95 py-1.5 pl-2 pr-2.5 shadow-xl backdrop-blur-md dark:bg-panel/95"
         >
           {/* Status Indicator & Spool */}
@@ -687,6 +693,8 @@ export function VintageRadio() {
     <div
       role="region"
       aria-label="Vintage Nigerian Radio Cassette Player"
+      onMouseEnter={() => vintageRadio.warmCurrent()}
+      onFocus={() => vintageRadio.warmCurrent()}
       className={`fixed bottom-4 left-4 z-40 w-[300px] max-w-[calc(100vw-2rem)] border border-ink/15 bg-cream/95 p-3 shadow-2xl backdrop-blur-md dark:bg-panel/95 print:hidden transition-all flex flex-col gap-2.5 ${visibilityClass}`}
     >
       {/* Top Header */}

@@ -30,6 +30,9 @@ class VintageRadioManager {
   private isEnabled: boolean = true;
   private hasStartedOnce: boolean = false;
   private isInitialized: boolean = false;
+  /** Silent element that warms the next track's buffer while this one plays. */
+  private prefetch: HTMLAudioElement | null = null;
+  private nextTrackIndex: number = -1;
 
   constructor() {
     if (typeof window !== "undefined") {
@@ -74,7 +77,7 @@ class VintageRadioManager {
     if (typeof window === "undefined" || this.audio) return this.audio;
 
     const audio = new Audio();
-    audio.preload = "none";
+    audio.preload = "metadata";
     audio.volume = this.isMuted ? 0 : this.volume;
 
     audio.addEventListener("ended", () => {
@@ -104,6 +107,62 @@ class VintageRadioManager {
     this.audio = audio;
     this.isInitialized = true;
     return audio;
+  }
+
+  /** Picks a track other than the current one, when the crate allows it. */
+  private pickNextIndex(): number {
+    if (VINTAGE_TRACKS.length < 2) return this.currentTrackIndex;
+    let idx = this.currentTrackIndex;
+    while (idx === this.currentTrackIndex) {
+      idx = Math.floor(Math.random() * VINTAGE_TRACKS.length);
+    }
+    return idx;
+  }
+
+  /**
+   * Decides the next track early and warms its buffer, so the handoff at
+   * `ended` is gapless instead of stalling. The playing element reuses this
+   * fetch straight from the HTTP cache rather than repeating it.
+   */
+  private prebufferNext() {
+    if (typeof window === "undefined") return;
+    this.nextTrackIndex = this.pickNextIndex();
+    this.warm(VINTAGE_TRACKS[this.nextTrackIndex]?.src);
+  }
+
+  /**
+   * Pulls a clip into the HTTP cache on a single shared element.
+   *
+   * ponytail: one warming slot, so warming the current track discards a queued
+   * next track. They fire at opposite ends of playback, so in practice they
+   * don't collide; give them an element each if that ever stops being true.
+   */
+  private warm(src: string | undefined) {
+    if (typeof window === "undefined" || !src) return;
+
+    if (!this.prefetch) {
+      this.prefetch = new Audio();
+      this.prefetch.preload = "auto";
+      this.prefetch.volume = 0;
+      // A failed warm-up is not worth surfacing: the real element will retry
+      // on play and route any genuine failure through its own error handler.
+      this.prefetch.addEventListener("error", () => {});
+    }
+
+    if (this.prefetch.getAttribute("src") !== src) {
+      this.prefetch.src = src;
+      this.prefetch.load();
+    }
+  }
+
+  /**
+   * Warms the track that is cued up, on hover or focus of the radio. Turns the
+   * first press of play from a cold round trip into a cache hit, and costs
+   * nothing for the visitors who never reach for it.
+   */
+  public warmCurrent() {
+    if (!this.isEnabled || this.isPlaying) return;
+    this.warm(VINTAGE_TRACKS[this.currentTrackIndex]?.src);
   }
 
   private syncAudioSource() {
@@ -168,6 +227,7 @@ class VintageRadioManager {
       await audio.play();
       this.isPlaying = true;
       this.notify();
+      this.prebufferNext();
       return true;
     } catch {
       // Browser autoplay restriction or interruption
@@ -194,11 +254,12 @@ class VintageRadioManager {
   }
 
   public nextTrack(autoPlay: boolean = false) {
-    // Pick random different track
-    let nextIdx = Math.floor(Math.random() * VINTAGE_TRACKS.length);
-    if (VINTAGE_TRACKS.length > 1 && nextIdx === this.currentTrackIndex) {
-      nextIdx = (this.currentTrackIndex + 1) % VINTAGE_TRACKS.length;
-    }
+    // Prefer the track we already warmed; fall back if nothing is buffered yet.
+    const nextIdx =
+      this.nextTrackIndex >= 0 && this.nextTrackIndex < VINTAGE_TRACKS.length
+        ? this.nextTrackIndex
+        : this.pickNextIndex();
+    this.nextTrackIndex = -1;
     this.setTrack(nextIdx, autoPlay || this.isPlaying);
   }
 

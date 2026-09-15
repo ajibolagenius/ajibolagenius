@@ -1,19 +1,21 @@
 /**
- * Resolves Apple 30-second preview + store URLs for the vintage radio crate.
+ * Resolves Apple 30-second preview + store URLs for the vintage radio crate,
+ * and downloads the audio clips to public/audio/tracks/ for zero-latency local playback.
  *
- * We never host these recordings: the player hotlinks Apple's preview CDN and
- * always renders the accompanying store link as attribution. Run this whenever
- * the curation changes, or if a preview URL rots (the player's `error` handler
- * falls the track back to the local ambience loop until then).
+ * Attribution links (listenUrl) are preserved for every track alongside its
+ * cultural note and wikiUrl citation.
  *
  *   node scripts/resolve-radio-previews.mjs [--dry]
  */
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, writeFile, stat, mkdir } from "node:fs/promises";
+import { createWriteStream } from "node:fs";
+import { pipeline } from "node:stream/promises";
 import { setTimeout as sleep } from "node:timers/promises";
 import assert from "node:assert/strict";
 
 const SRC = new URL("../src/lib/vintage-radio-tracks.ts", import.meta.url);
 const OUT = new URL("../src/lib/vintage-radio-previews.ts", import.meta.url);
+const TRACKS_DIR = new URL("../public/audio/tracks/", import.meta.url);
 const dry = process.argv.includes("--dry");
 
 /**
@@ -36,8 +38,8 @@ function readCurationFields(source, field) {
 }
 
 /**
- * No-network self-check. The invariant that actually matters: a hotlinked Apple
- * preview must never ship without the store link that makes it attributable.
+ * No-network self-check. Verifies all curated tracks have valid citations,
+ * attribution links, and local audio files in public/audio/tracks/.
  */
 async function check() {
   const source = await readFile(SRC, "utf8");
@@ -58,9 +60,19 @@ async function check() {
     assert.ok(ids.has(id), `preview "${id}" has no matching curated track`);
     assert.ok(entry.previewUrl, `preview "${id}" is missing previewUrl`);
     assert.ok(entry.listenUrl, `preview "${id}" plays audio with no attribution link`);
+
+    const trackFile = new URL(`../public${entry.previewUrl}`, import.meta.url);
+    try {
+      const s = await stat(trackFile);
+      assert.ok(s.size > 0, `audio file for "${id}" is empty`);
+    } catch {
+      assert.fail(`local audio file missing for "${id}" at public${entry.previewUrl}`);
+    }
   }
 
-  console.log(`ok - ${curated.length} curated, ${Object.keys(previews).length} attributed previews`);
+  console.log(
+    `ok - ${curated.length} curated, ${Object.keys(previews).length} attributed local audio files verified in public/audio/tracks/`
+  );
 }
 
 if (process.argv.includes("--check")) {
@@ -69,6 +81,7 @@ if (process.argv.includes("--check")) {
 }
 
 const VINTAGE_TRACKS = readCuration(await readFile(SRC, "utf8"));
+await mkdir(TRACKS_DIR, { recursive: true });
 
 async function lookup({ id, appleQuery }) {
   const url = new URL("https://itunes.apple.com/search");
@@ -83,7 +96,7 @@ async function lookup({ id, appleQuery }) {
   if (!hit?.previewUrl || !hit?.trackViewUrl) return null;
 
   return {
-    previewUrl: hit.previewUrl,
+    remotePreviewUrl: hit.previewUrl,
     listenUrl: hit.trackViewUrl,
     matchedTitle: hit.trackName,
     matchedArtist: hit.artistName,
@@ -96,11 +109,25 @@ for (const track of VINTAGE_TRACKS) {
   try {
     const hit = await lookup(track);
     if (hit) {
-      const { releaseDate, ...entry } = hit;
-      resolved[track.id] = entry;
+      const localRelPath = `/audio/tracks/${track.id}.m4a`;
+      const localAbsPath = new URL(`../public${localRelPath}`, import.meta.url);
+
+      if (!dry) {
+        const audioRes = await fetch(hit.remotePreviewUrl);
+        if (!audioRes.ok) throw new Error(`Download failed: HTTP ${audioRes.status}`);
+        await pipeline(audioRes.body, createWriteStream(localAbsPath));
+      }
+
+      resolved[track.id] = {
+        previewUrl: localRelPath,
+        listenUrl: hit.listenUrl,
+        matchedTitle: hit.matchedTitle,
+        matchedArtist: hit.matchedArtist,
+      };
+
       const drift = hit.matchedTitle.toLowerCase().includes(track.title.toLowerCase().split("(")[0].trim());
       console.log(
-        `${drift ? "ok  " : "CHECK"} ${track.id.padEnd(20)} ${hit.matchedTitle.slice(0, 32).padEnd(32)} ${hit.matchedArtist.slice(0, 24).padEnd(24)} ${(releaseDate ?? "").slice(0, 4)}`
+        `${drift ? "ok  " : "CHECK"} ${track.id.padEnd(20)} ${hit.matchedTitle.slice(0, 32).padEnd(32)} ${hit.matchedArtist.slice(0, 24).padEnd(24)} ${(hit.releaseDate ?? "").slice(0, 4)}`
       );
     } else {
       console.log(`miss ${track.id.padEnd(20)} no preview — falls back to ambience loop`);
@@ -115,9 +142,9 @@ const body = `/**
  * GENERATED FILE — do not edit by hand.
  * Regenerate with: node scripts/resolve-radio-previews.mjs
  *
- * Apple 30-second preview + store URLs for the curated crate. Previews are
- * hotlinked from Apple's CDN, never redistributed: no audio is stored in this
- * repo, and every preview is paired with its \`listenUrl\` as attribution.
+ * Local audio tracks and store attribution URLs for the curated crate.
+ * Audio is served directly from /audio/tracks/ for zero-latency instant playback,
+ * and every track is paired with its \`listenUrl\` as attribution.
  */
 export interface RadioPreview {
   previewUrl: string;
@@ -133,3 +160,4 @@ console.log(`\n${Object.keys(resolved).length}/${VINTAGE_TRACKS.length} resolved
 if (dry) process.exit(0);
 await writeFile(OUT, body);
 console.log(`wrote ${OUT.pathname.split("/").slice(-3).join("/")}`);
+
