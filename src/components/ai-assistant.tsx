@@ -27,7 +27,6 @@ import {
   CheckCircle,
   DownloadSimple,
   Envelope,
-  Briefcase,
 } from "@phosphor-icons/react/dist/ssr";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { sound } from "@/lib/sound";
@@ -272,12 +271,12 @@ export function AiAssistant() {
           role="dialog"
           aria-modal="true"
           aria-label="Ask about Ajibola's work"
-          className="flex h-[min(75vh,560px)] w-[min(380px,calc(100vw-2rem))] flex-col rounded-xl border border-ink/10 bg-cream shadow-2xl overflow-hidden backdrop-blur-md"
+          className="flex h-[min(75vh,560px)] w-[min(380px,calc(100vw-2rem))] flex-col border border-ink/10 bg-cream shadow-2xl overflow-hidden backdrop-blur-md"
         >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-ink/10 bg-panel/30 px-4 py-3">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center border border-accent/20 bg-accent/10 text-accent">
                 <Sparkle size={15} weight="fill" />
               </div>
               <div className="min-w-0">
@@ -303,7 +302,7 @@ export function AiAssistant() {
                   onClick={() => setMessages([])}
                   aria-label="Reset conversation"
                   title="Clear conversation"
-                  className="rounded p-1 text-ink/40 transition-colors hover:bg-ink/5 hover:text-ink"
+                  className="p-1 text-ink/40 transition-colors hover:bg-ink/5 hover:text-ink"
                 >
                   <ArrowClockwise size={15} />
                 </button>
@@ -312,7 +311,7 @@ export function AiAssistant() {
                 type="button"
                 onClick={close}
                 aria-label="Close chat"
-                className="rounded p-1 text-ink/40 transition-colors hover:bg-ink/5 hover:text-ink"
+                className="p-1 text-ink/40 transition-colors hover:bg-ink/5 hover:text-ink"
               >
                 <X size={16} weight="bold" />
               </button>
@@ -326,7 +325,7 @@ export function AiAssistant() {
           >
             {messages.length === 0 && (
               <div className="flex flex-col gap-3">
-                <div className="rounded-lg border border-ink/8 bg-panel/40 p-3 text-body-xs">
+                <div className="border border-ink/8 bg-panel/40 p-3 text-body-xs">
                   <p className="font-medium text-ink">
                     Ask me anything about Ajibola&apos;s engineering, architecture, or writing.
                   </p>
@@ -345,7 +344,7 @@ export function AiAssistant() {
                       type="button"
                       onClick={() => handleStarterClick(prompt)}
                       disabled={isBusy}
-                      className="group flex items-center justify-between rounded-lg border border-ink/8 bg-panel/20 px-3 py-2 text-left text-body-xs text-ink/80 transition-colors hover:border-accent hover:bg-accent/5 hover:text-accent disabled:opacity-60"
+                      className="group flex items-center justify-between border border-ink/8 bg-panel/20 px-3 py-2 text-left text-body-xs text-ink/80 transition-colors hover:border-accent hover:bg-accent/5 hover:text-accent disabled:opacity-60"
                     >
                       <span className="truncate">{prompt}</span>
                       <ArrowRight
@@ -363,7 +362,7 @@ export function AiAssistant() {
                 key={message.id}
                 className={
                   message.role === "user"
-                    ? "ml-auto max-w-[85%] rounded-lg bg-ink px-3 py-2 text-body-s text-cream shadow-xs"
+                    ? "ml-auto max-w-[85%] border border-ink/10 bg-ink px-3 py-2 text-body-s text-cream shadow-xs"
                     : "max-w-[90%] text-body-s text-ink/90 flex flex-col gap-2"
                 }
               >
@@ -396,7 +395,7 @@ export function AiAssistant() {
                       return (
                         <div
                           key={i}
-                          className="my-1.5 flex flex-col gap-2 rounded-lg border border-accent/25 bg-panel/80 p-3 shadow-xs"
+                          className="my-1.5 flex flex-col gap-2 border border-accent/25 bg-panel/80 p-3 shadow-xs"
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
@@ -423,7 +422,7 @@ export function AiAssistant() {
                               {proj.tags.slice(0, 4).map((tag) => (
                                 <span
                                   key={tag}
-                                  className="rounded bg-ink/5 px-1.5 py-0.5 font-mono text-[10px] text-ink/60"
+                                  className="bg-ink/5 px-1.5 py-0.5 font-mono text-[10px] text-ink/60"
                                 >
                                   {tag}
                                 </span>
@@ -467,7 +466,7 @@ export function AiAssistant() {
                       return (
                         <div
                           key={i}
-                          className="my-1.5 flex flex-col gap-2 rounded-lg border border-accent/25 bg-panel/80 p-3 shadow-xs"
+                          className="my-1.5 flex flex-col gap-2 border border-accent/25 bg-panel/80 p-3 shadow-xs"
                         >
                           <div className="flex items-center justify-between gap-2">
                             <span className="font-mono text-[10px] uppercase font-semibold tracking-wider text-accent">
@@ -509,7 +508,7 @@ export function AiAssistant() {
                       return (
                         <div
                           key={i}
-                          className="my-1.5 flex flex-col gap-1.5 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-body-xs shadow-xs"
+                          className="my-1.5 flex flex-col gap-1.5 border border-emerald-500/20 bg-emerald-500/5 p-3 text-body-xs shadow-xs"
                         >
                           <div className="flex items-center gap-2">
                             <span
@@ -555,7 +554,7 @@ export function AiAssistant() {
                       return (
                         <div
                           key={i}
-                          className="my-2 flex flex-col gap-3 rounded-xl border border-accent/30 bg-panel/95 p-3.5 shadow-xs"
+                          className="my-2 flex flex-col gap-3 border border-accent/30 bg-panel/95 p-3.5 shadow-xs"
                         >
                           {/* Role Title & Match Score Badge */}
                           <div className="flex items-start justify-between gap-2 border-b border-ink/8 pb-2.5">
@@ -567,7 +566,7 @@ export function AiAssistant() {
                                 {match.roleTitle}
                               </h4>
                             </div>
-                            <div className="flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-1 text-accent">
+                            <div className="flex items-center gap-1 border border-accent/20 bg-accent/10 px-2 py-0.5 text-accent">
                               <Sparkle size={12} weight="fill" />
                               <span className="font-mono text-body-xs font-bold">
                                 {match.matchScore}% Match
@@ -581,7 +580,7 @@ export function AiAssistant() {
                           </p>
 
                           {/* Grounded Credentials */}
-                          <div className="flex flex-col gap-1 rounded-md bg-ink/3 p-2 font-mono text-[11px] text-ink/70">
+                          <div className="flex flex-col gap-1 bg-ink/3 p-2 font-mono text-[11px] text-ink/70">
                             <div className="flex items-center gap-1.5">
                               <CheckCircle
                                 size={13}
@@ -610,7 +609,7 @@ export function AiAssistant() {
                                 {match.matchedSkills.map((skill) => (
                                   <span
                                     key={skill}
-                                    className="rounded bg-accent/10 px-1.5 py-0.5 font-mono text-[10px] font-medium text-accent"
+                                    className="border border-accent/20 bg-accent/10 px-1.5 py-0.5 font-mono text-[10px] font-medium text-accent"
                                   >
                                     {skill}
                                   </span>
@@ -626,7 +625,7 @@ export function AiAssistant() {
                                 <span className="font-mono text-[10px] font-medium uppercase tracking-wider text-ink/50">
                                   Transferable Parallels
                                 </span>
-                                <div className="flex flex-col gap-1 rounded bg-ink/3 p-2 font-mono text-[10px]">
+                                <div className="flex flex-col gap-1 bg-ink/3 p-2 font-mono text-[10px]">
                                   {match.transferableSkills.map((ts, idx) => (
                                     <div
                                       key={idx}
@@ -654,7 +653,7 @@ export function AiAssistant() {
                                 {match.projects.map((proj) => (
                                   <div
                                     key={proj.slug}
-                                    className="flex flex-col gap-1 rounded-md border border-ink/8 bg-cream/50 p-2 text-body-xs dark:bg-panel"
+                                    className="flex flex-col gap-1 border border-ink/8 bg-cream/50 p-2 text-body-xs dark:bg-panel"
                                   >
                                     <div className="flex items-center justify-between gap-2">
                                       <span className="font-medium text-ink">
@@ -699,14 +698,14 @@ export function AiAssistant() {
                           <div className="flex items-center gap-2 border-t border-ink/8 pt-2">
                             <Link
                               href="/cv"
-                              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md bg-ink px-2.5 py-1.5 font-mono text-[11px] font-medium text-cream transition-colors hover:bg-accent"
+                              className="inline-flex flex-1 items-center justify-center gap-1.5 bg-ink px-2.5 py-1.5 font-mono text-[11px] font-medium text-cream transition-colors hover:bg-accent"
                             >
                               <DownloadSimple size={12} weight="bold" />
                               <span>View / Print CV</span>
                             </Link>
                             <Link
                               href="/#connect"
-                              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md border border-ink/20 px-2.5 py-1.5 font-mono text-[11px] font-medium text-ink transition-colors hover:border-ink"
+                              className="inline-flex flex-1 items-center justify-center gap-1.5 border border-ink/20 px-2.5 py-1.5 font-mono text-[11px] font-medium text-ink transition-colors hover:border-ink"
                             >
                               <Envelope size={12} weight="duotone" />
                               <span>Contact Ajibola</span>
@@ -746,13 +745,13 @@ export function AiAssistant() {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask a question about Ajibola's work…"
               disabled={status !== "ready"}
-              className="w-full rounded-lg border border-ink/10 bg-ink/5 px-3 py-2 text-body-s outline-none transition-colors focus:border-accent focus:bg-cream disabled:opacity-60"
+              className="w-full border border-ink/10 bg-ink/5 px-3 py-2 text-body-s outline-none transition-colors focus:border-accent focus:bg-cream disabled:opacity-60"
             />
             <button
               type="submit"
               disabled={status !== "ready" || !input.trim()}
               aria-label="Send"
-              className="flex items-center justify-center rounded-lg bg-ink px-3 text-cream transition-colors hover:bg-accent disabled:opacity-60 shadow-xs"
+              className="flex items-center justify-center bg-ink px-3 text-cream transition-colors hover:bg-accent disabled:opacity-60 shadow-xs"
             >
               <PaperPlaneRight weight="duotone" size={16} />
             </button>
@@ -776,7 +775,7 @@ export function AiAssistant() {
           })
         }
         aria-label={isOpen ? "Close chat" : "Ask about my work"}
-        className="flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-body-s font-medium text-cream shadow-xl transition-all hover:bg-accent hover:shadow-accent/20 active:scale-95"
+        className="flex items-center gap-2 border border-ink/10 bg-ink px-4 py-2.5 text-body-s font-medium text-cream shadow-xl transition-all hover:bg-accent hover:shadow-accent/20 active:scale-95"
       >
         {isOpen ? (
           <X weight="bold" size={16} />

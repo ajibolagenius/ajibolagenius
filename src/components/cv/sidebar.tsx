@@ -19,6 +19,7 @@ import {
     ProjectsShippedLabel,
     DownloadCvLabel,
 } from "@/components/cv/sidebar-i18n";
+import { SidebarVintageRadio } from "@/components/vintage-radio";
 
 export async function Sidebar({ info }: { info: PersonalInfo | null }) {
     if (!info) return null;
@@ -129,7 +130,12 @@ export async function Sidebar({ info }: { info: PersonalInfo | null }) {
                 )}
             </div>
 
-            <div className="flex items-center gap-2 lg:mt-auto lg:pt-6">
+            {/* Desktop Embedded Swiss Vintage Radio Rail */}
+            <div className="hidden lg:block lg:mt-auto pt-4 border-t border-ink/10">
+                <SidebarVintageRadio />
+            </div>
+
+            <div className="flex items-center gap-2 pt-2 lg:pt-0">
                 <a
                     href="/cv"
                     className="flex flex-1 items-center justify-center gap-2 bg-ink px-4 py-2.5 text-body-s font-medium text-cream transition-colors hover:bg-accent"
