@@ -1,3 +1,8 @@
+import { RADIO_PREVIEWS } from "./vintage-radio-previews";
+
+/** Ambience bed used when a track has no resolved Apple preview. */
+export const FALLBACK_LOOP = "/audio/vintage-highlife-loop.mp3";
+
 export interface VintageTrack {
   id: string;
   title: string;
@@ -6,11 +11,24 @@ export interface VintageTrack {
   genre: string;
   label?: string;
   culturalNote: string;
-  /** Audio source file path or URL. Defaults to local sample loop if file is not customized. */
+  /** Source backing the cultural note, surfaced as a citation in the player. */
+  wikiUrl: string;
+  /** Search term for the Apple lookup. Explicit so a match is never ambiguous. */
+  appleQuery: string;
+  /** Apple 30s preview when resolved, local ambience loop otherwise. */
   src: string;
+  /** Apple Music page. Shown alongside a preview as required attribution. */
+  listenUrl?: string;
 }
 
-export const VINTAGE_TRACKS: VintageTrack[] = [
+type Curated = Omit<VintageTrack, "src" | "listenUrl">;
+
+/**
+ * Editorial curation — hand-maintained. Audio URLs are resolved separately by
+ * scripts/resolve-radio-previews.mjs so that the crate's writing and its
+ * playback links never have to be edited in the same place.
+ */
+const CURATION: Curated[] = [
   {
     id: "synchro-system",
     title: "Synchro System",
@@ -20,7 +38,8 @@ export const VINTAGE_TRACKS: VintageTrack[] = [
     label: "Island Records",
     culturalNote:
       "A landmark global release featuring talking drums, pedal steel guitars, and hypnotic polyrhythms.",
-    src: "/audio/vintage-highlife-loop.mp3",
+    wikiUrl: "https://en.wikipedia.org/wiki/Synchro_System",
+    appleQuery: "King Sunny Ade Synchro System",
   },
   {
     id: "water-no-get-enemy",
@@ -31,7 +50,8 @@ export const VINTAGE_TRACKS: VintageTrack[] = [
     label: "Kalakuta Records",
     culturalNote:
       "A philosophical Afrobeat masterpiece weaving electric piano meditation with poignant horn arrangements.",
-    src: "/audio/vintage-highlife-loop.mp3",
+    wikiUrl: "https://en.wikipedia.org/wiki/Expensive_Shit",
+    appleQuery: "Fela Kuti Water No Get Enemy",
   },
   {
     id: "guitar-boy",
@@ -42,7 +62,8 @@ export const VINTAGE_TRACKS: VintageTrack[] = [
     label: "Philips West Africa",
     culturalNote:
       "Inspired by Uwaifo's midnight encounter at Lagos Bar Beach, pioneering Nigeria's first gold disc record.",
-    src: "/audio/vintage-highlife-loop.mp3",
+    wikiUrl: "https://en.wikipedia.org/wiki/Victor_Uwaifo",
+    appleQuery: "Victor Uwaifo Guitar Boy",
   },
   {
     id: "board-members",
@@ -53,7 +74,8 @@ export const VINTAGE_TRACKS: VintageTrack[] = [
     label: "Decca Records",
     culturalNote:
       "The quintessential Miliki anthem celebrating Lagos high society, philosophy, and good fortune.",
-    src: "/audio/vintage-highlife-loop.mp3",
+    wikiUrl: "https://en.wikipedia.org/wiki/Ebenezer_Obey",
+    appleQuery: "Ebenezer Obey Board Members",
   },
   {
     id: "fantastic-man",
@@ -64,7 +86,8 @@ export const VINTAGE_TRACKS: VintageTrack[] = [
     label: "Wilfilms Records",
     culturalNote:
       "Recorded in Enugu using early Moog synthesizers, decades ahead of its time in electronic groove.",
-    src: "/audio/vintage-highlife-loop.mp3",
+    wikiUrl: "https://en.wikipedia.org/wiki/William_Onyeabor",
+    appleQuery: "William Onyeabor Fantastic Man",
   },
   {
     id: "one-love",
@@ -75,17 +98,27 @@ export const VINTAGE_TRACKS: VintageTrack[] = [
     label: "PolyGram Nigeria",
     culturalNote:
       "The enduring anthem of unity, resilience, and compassion that soundtracked a generation.",
-    src: "/audio/vintage-highlife-loop.mp3",
+    wikiUrl: "https://en.wikipedia.org/wiki/Onyeka_Onwenu",
+    appleQuery: "Onyeka Onwenu One Love",
   },
   {
-    id: "ijo-shina",
-    title: "Ijo Shina (Ace)",
+    id: "shinamania",
+    title: "Shinamania",
     artist: "Sir Shina Peters & His International Stars",
-    year: "1989",
+    year: "1990",
     genre: "Afro-Jùjú",
-    label: "CBS Nigeria",
     culturalNote:
-      "The high-energy revolution blending Jùjú with fast electronic tempo that took the nation by storm.",
-    src: "/audio/vintage-highlife-loop.mp3",
+      "The follow-up to Ace that cemented Afro-Jùjú's reign, fusing Jùjú with a fast electronic tempo that took the nation by storm.",
+    wikiUrl: "https://en.wikipedia.org/wiki/Shina_Peters",
+    appleQuery: "Shina Peters Shinamania",
   },
 ];
+
+export const VINTAGE_TRACKS: VintageTrack[] = CURATION.map((track) => {
+  const preview = RADIO_PREVIEWS[track.id];
+  return {
+    ...track,
+    src: preview?.previewUrl ?? FALLBACK_LOOP,
+    listenUrl: preview?.listenUrl,
+  };
+});

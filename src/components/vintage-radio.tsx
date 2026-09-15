@@ -18,6 +18,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { useVintageRadio } from "@/hooks/use-vintage-radio";
 import { vintageRadio } from "@/lib/vintage-radio";
+import type { VintageTrack } from "@/lib/vintage-radio-tracks";
 import { sound } from "@/lib/sound";
 import { track } from "@/lib/analytics";
 
@@ -28,6 +29,40 @@ function routeHasSidebar(pathname: string | null): boolean {
   if (pathname.startsWith("/cv")) return false;
   if (pathname.startsWith("/admin")) return false;
   return true;
+}
+
+/**
+ * Source + attribution row. The cultural note gets a citation, and Apple's
+ * terms require the store link wherever one of their previews plays.
+ */
+function TrackCitation({ track }: { track: VintageTrack }) {
+  return (
+    <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-wider text-ink/45">
+      <a
+        href={track.wikiUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Read about ${track.title} on Wikipedia`}
+        className="underline decoration-dotted underline-offset-2 transition-colors hover:text-accent focus-visible:text-accent focus-visible:outline-none"
+      >
+        Source
+      </a>
+      {track.listenUrl && (
+        <>
+          <span aria-hidden="true" className="text-ink/25">/</span>
+          <a
+            href={track.listenUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Listen to ${track.title} in full on Apple Music`}
+            className="underline decoration-dotted underline-offset-2 transition-colors hover:text-accent focus-visible:text-accent focus-visible:outline-none"
+          >
+            Apple Music
+          </a>
+        </>
+      )}
+    </div>
+  );
 }
 
 /**
@@ -333,6 +368,9 @@ export function SidebarVintageRadio() {
             &ldquo;{currentTrack.culturalNote}&rdquo;
           </p>
         )}
+        <div className="mt-1.5">
+          <TrackCitation track={currentTrack} />
+        </div>
       </div>
 
       {/* Playback Controls */}
@@ -744,6 +782,9 @@ export function VintageRadio() {
         <p className="font-sans text-[11px] text-ink/70 truncate">
           {currentTrack.artist}
         </p>
+        <div className="mt-1.5">
+          <TrackCitation track={currentTrack} />
+        </div>
       </div>
 
       {/* Transport Controls */}
