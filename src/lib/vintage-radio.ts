@@ -25,11 +25,13 @@ class VintageRadioManager {
   private currentTrackIndex: number = 0;
   private isPlaying: boolean = false;
   private isMuted: boolean = false;
-  private volume: number = 0.20; // Default low-mid background level (20%)
+  private volume: number = 0.08; // Default low ambient background level (8%)
   private isMinimized: boolean = false;
   private isEnabled: boolean = true;
   private hasStartedOnce: boolean = false;
   private isInitialized: boolean = false;
+  private userPaused: boolean = false;
+  private autoplayAttempted: boolean = false;
   /** Silent element that warms the next track's buffer while this one plays. */
   private prefetch: HTMLAudioElement | null = null;
   private nextTrackIndex: number = -1;
@@ -216,6 +218,7 @@ class VintageRadioManager {
 
   public async play(): Promise<boolean> {
     if (!this.isEnabled) return false;
+    this.userPaused = false;
     this.hasStartedOnce = true;
     this.syncAudioSource();
     const audio = this.initAudio();
@@ -237,7 +240,10 @@ class VintageRadioManager {
     }
   }
 
-  public pause() {
+  public pause(userInitiated: boolean = true) {
+    if (userInitiated) {
+      this.userPaused = true;
+    }
     if (this.audio) {
       this.audio.pause();
     }
@@ -255,10 +261,12 @@ class VintageRadioManager {
 
   public nextTrack(autoPlay: boolean = false) {
     // Prefer the track we already warmed; fall back if nothing is buffered yet.
-    const nextIdx =
-      this.nextTrackIndex >= 0 && this.nextTrackIndex < VINTAGE_TRACKS.length
-        ? this.nextTrackIndex
-        : this.pickNextIndex();
+    // A manual setTrack() can land on the queued index, which would stall here.
+    const queued =
+      this.nextTrackIndex >= 0 &&
+      this.nextTrackIndex < VINTAGE_TRACKS.length &&
+      this.nextTrackIndex !== this.currentTrackIndex;
+    const nextIdx = queued ? this.nextTrackIndex : this.pickNextIndex();
     this.nextTrackIndex = -1;
     this.setTrack(nextIdx, autoPlay || this.isPlaying);
   }
@@ -323,13 +331,52 @@ class VintageRadioManager {
   public setEnabled(enabled: boolean) {
     this.isEnabled = enabled;
     if (!enabled) {
-      this.pause();
+      this.userPaused = true;
+      this.pause(true);
     }
     try {
       localStorage.setItem(STORAGE_KEYS.ENABLED, enabled ? "true" : "false");
     } catch {}
     this.notify();
   }
+
+  /**
+   * Starts playback on page load at low background volume (8%).
+   * If browser autoplay policy prevents immediate unmuted audio, it arms a
+   * one-time listener on the first user interaction (scroll, click, touch, keydown)
+   * so audio begins seamlessly and continues uninterrupted.
+   */
+  public async startAutoplay() {
+    if (typeof window === "undefined") return;
+    if (this.autoplayAttempted || this.isPlaying || this.userPaused || !this.isEnabled) return;
+    this.autoplayAttempted = true;
+
+    const started = await this.play();
+    if (started) return;
+
+    // Autoplay was restricted by browser policy; start on first user interaction anywhere on the page
+    const onFirstInteraction = async () => {
+      cleanup();
+      if (!this.isPlaying && !this.userPaused && this.isEnabled) {
+        await this.play();
+      }
+    };
+
+    const cleanup = () => {
+      window.removeEventListener("pointerdown", onFirstInteraction);
+      window.removeEventListener("keydown", onFirstInteraction);
+      window.removeEventListener("touchstart", onFirstInteraction);
+      window.removeEventListener("scroll", onFirstInteraction);
+      window.removeEventListener("click", onFirstInteraction);
+    };
+
+    window.addEventListener("pointerdown", onFirstInteraction, { once: true, passive: true });
+    window.addEventListener("keydown", onFirstInteraction, { once: true, passive: true });
+    window.addEventListener("touchstart", onFirstInteraction, { once: true, passive: true });
+    window.addEventListener("scroll", onFirstInteraction, { once: true, passive: true });
+    window.addEventListener("click", onFirstInteraction, { once: true, passive: true });
+  }
 }
 
 export const vintageRadio = new VintageRadioManager();
+

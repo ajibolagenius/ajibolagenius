@@ -18,7 +18,7 @@ const SERVER_SNAPSHOT: VintageRadioState = {
   currentTrack: VINTAGE_TRACKS[0],
   isPlaying: false,
   isMuted: false,
-  volume: 0.20,
+  volume: 0.08,
   isMinimized: false,
   isEnabled: true,
   hasStartedOnce: false,

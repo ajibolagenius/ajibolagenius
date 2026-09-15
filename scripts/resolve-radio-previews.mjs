@@ -113,7 +113,9 @@ for (const track of VINTAGE_TRACKS) {
       const localAbsPath = new URL(`../public${localRelPath}`, import.meta.url);
 
       if (!dry) {
-        const audioRes = await fetch(hit.remotePreviewUrl);
+        const audioRes = await fetch(hit.remotePreviewUrl, {
+          signal: AbortSignal.timeout(15_000),
+        });
         if (!audioRes.ok) throw new Error(`Download failed: HTTP ${audioRes.status}`);
         await pipeline(audioRes.body, createWriteStream(localAbsPath));
       }

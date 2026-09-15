@@ -79,6 +79,10 @@ export function SidebarVintageRadio() {
     isEnabled,
   } = useVintageRadio();
 
+  useEffect(() => {
+    vintageRadio.startAutoplay();
+  }, []);
+
   const handleTogglePlay = useCallback(() => {
     sound.playTap();
     if (isPlaying) {
@@ -558,6 +562,11 @@ export function VintageRadio() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleToggleMute, pathname]);
+
+  useEffect(() => {
+    if (pathname?.startsWith("/admin")) return;
+    vintageRadio.startAutoplay();
+  }, [pathname]);
 
   if (pathname?.startsWith("/admin")) return null;
 
