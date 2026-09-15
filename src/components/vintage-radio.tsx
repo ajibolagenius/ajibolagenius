@@ -94,6 +94,8 @@ export function VintageRadio() {
 
   // Keyboard shortcut listener: Shift+M to toggle playback, or global space when focused
   useEffect(() => {
+    if (pathname?.startsWith("/admin")) return;
+
     function handleKeyDown(e: KeyboardEvent) {
       if (
         e.target instanceof HTMLInputElement ||
@@ -111,7 +113,7 @@ export function VintageRadio() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleToggleMute]);
+  }, [handleToggleMute, pathname]);
 
   if (pathname?.startsWith("/admin")) return null;
 
