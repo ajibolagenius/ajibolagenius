@@ -32,6 +32,8 @@ class VintageRadioManager {
   private isInitialized: boolean = false;
   private userPaused: boolean = false;
   private autoplayAttempted: boolean = false;
+  /** Removes the armed first-interaction listeners; null when none are armed. */
+  private cancelPendingAutoplay: (() => void) | null = null;
   /** Silent element that warms the next track's buffer while this one plays. */
   private prefetch: HTMLAudioElement | null = null;
   private nextTrackIndex: number = -1;
@@ -356,25 +358,38 @@ class VintageRadioManager {
 
     // Autoplay was restricted by browser policy; start on first user interaction anywhere on the page
     const onFirstInteraction = async () => {
-      cleanup();
+      this.disarmAutoplay();
       if (!this.isPlaying && !this.userPaused && this.isEnabled) {
         await this.play();
       }
     };
 
-    const cleanup = () => {
-      window.removeEventListener("pointerdown", onFirstInteraction);
-      window.removeEventListener("keydown", onFirstInteraction);
-      window.removeEventListener("touchstart", onFirstInteraction);
-      window.removeEventListener("scroll", onFirstInteraction);
-      window.removeEventListener("click", onFirstInteraction);
-    };
+    const events = ["pointerdown", "keydown", "touchstart", "scroll", "click"] as const;
+    for (const type of events) {
+      window.addEventListener(type, onFirstInteraction, { once: true, passive: true });
+    }
 
-    window.addEventListener("pointerdown", onFirstInteraction, { once: true, passive: true });
-    window.addEventListener("keydown", onFirstInteraction, { once: true, passive: true });
-    window.addEventListener("touchstart", onFirstInteraction, { once: true, passive: true });
-    window.addEventListener("scroll", onFirstInteraction, { once: true, passive: true });
-    window.addEventListener("click", onFirstInteraction, { once: true, passive: true });
+    this.cancelPendingAutoplay = () => {
+      for (const type of events) {
+        window.removeEventListener(type, onFirstInteraction);
+      }
+    };
+  }
+
+  /**
+   * Disarms the pending first-interaction listeners, so a later click cannot
+   * start playback somewhere the radio has no business playing (e.g. /admin).
+   */
+  public cancelAutoplay() {
+    if (!this.cancelPendingAutoplay) return;
+    this.disarmAutoplay();
+    // Let a later mount on a normal route arm autoplay again.
+    this.autoplayAttempted = false;
+  }
+
+  private disarmAutoplay() {
+    this.cancelPendingAutoplay?.();
+    this.cancelPendingAutoplay = null;
   }
 }
 

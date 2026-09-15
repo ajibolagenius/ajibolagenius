@@ -81,6 +81,7 @@ export function SidebarVintageRadio() {
 
   useEffect(() => {
     vintageRadio.startAutoplay();
+    return () => vintageRadio.cancelAutoplay();
   }, []);
 
   const handleTogglePlay = useCallback(() => {
@@ -566,6 +567,9 @@ export function VintageRadio() {
   useEffect(() => {
     if (pathname?.startsWith("/admin")) return;
     vintageRadio.startAutoplay();
+    // Navigating away (notably into /admin) disarms any pending autoplay, so a
+    // click there cannot start the radio.
+    return () => vintageRadio.cancelAutoplay();
   }, [pathname]);
 
   if (pathname?.startsWith("/admin")) return null;
