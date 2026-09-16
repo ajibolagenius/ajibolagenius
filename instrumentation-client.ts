@@ -26,7 +26,10 @@ if (!posthogKey) {
     // links need it spelled out.
     ui_host: posthogHost,
     defaults: "2026-01-30",
-    capture_exceptions: true,
+    // Autocapture exceptions only in production. A developer's local errors,
+    // such as a Next.js dev-server hot-reload chunk failure at localhost, must
+    // not open issues in error tracking next to real user exceptions.
+    capture_exceptions: process.env.NODE_ENV === "production",
     // Anonymous visitors stay profile-less: a portfolio is almost all one-off
     // traffic, and a person row per drive-by visit is cost with no payoff.
     // Preferences ride along as super properties instead (lib/analytics.ts).
