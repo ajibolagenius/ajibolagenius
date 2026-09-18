@@ -86,7 +86,7 @@ export const TRANSLATIONS = {
       goTo: "Go to",
     },
     sidebar: {
-      companies: "{count} companies",
+      companies: "{count} companies / institutions",
       projectsShipped: "{count} projects shipped",
       basedIn: "Based in {location}",
     },
@@ -186,7 +186,7 @@ export const TRANSLATIONS = {
       goTo: "Lọ sí",
     },
     sidebar: {
-      companies: "{count} àwọn ilé-iṣẹ́",
+      companies: "{count} àwọn ilé-iṣẹ́ / ilé-ẹ̀kọ́",
       projectsShipped: "{count} àwọn iṣẹ́ tí a parí",
       basedIn: "Ń gbé ní {location}",
     },
