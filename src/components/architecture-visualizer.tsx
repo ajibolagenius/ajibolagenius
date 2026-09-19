@@ -5,19 +5,14 @@ import { sound } from "@/lib/sound";
 import {
   DeviceMobile,
   Database,
-  Lock,
   CreditCard,
   CloudArrowUp,
-  Lightning,
   ArrowRight,
   Play,
   ArrowClockwise,
-  Graph,
-  ShieldCheck,
   CheckCircle,
   Code,
   Cpu,
-  HardDrives,
 } from "@phosphor-icons/react/dist/ssr";
 
 // ============================================================================
@@ -113,6 +108,8 @@ const ZORA_FLOWS: Record<
   ZoraFlowKey,
   {
     title: string;
+    /** Pill label in the flow selector. */
+    tab: string;
     description: string;
     steps: {
       from: string;
@@ -125,6 +122,7 @@ const ZORA_FLOWS: Record<
 > = {
   ota: {
     title: "App Launch & EAS OTA Runtime Sync",
+    tab: "OTA & Biometrics",
     description:
       "Cold-start verification of embedded bundle fingerprint against EAS release channel, followed by Face ID biometric token unlock.",
     steps: [
@@ -153,6 +151,7 @@ const ZORA_FLOWS: Record<
   },
   checkout: {
     title: "Multi-Vendor Checkout & Native Stripe Flow",
+    tab: "Monorepo Checkout",
     description:
       "End-to-end checkout with shared TypeScript monorepo validation, Stripe native sheet initialization, and atomic Postgres RLS inventory locks.",
     steps: [
@@ -188,6 +187,7 @@ const ZORA_FLOWS: Record<
   },
   offline: {
     title: "Low-Bandwidth 3G Resiliency & Local Cache",
+    tab: "3G Resiliency",
     description:
       "Fallback behavior when spotty 3G/4G connectivity is detected: client intercepts queries, serves MMKV cache, and queues background mutations.",
     steps: [
@@ -286,39 +286,20 @@ export function ZoraArchitectureShowcase() {
 
         {/* Flow selector pills */}
         <div className="flex flex-wrap gap-1 p-0.5 border border-ink/10 rounded font-mono text-body-xs bg-cream/40">
-          <button
-            type="button"
-            onClick={() => handleFlowSelect("ota")}
-            className={`px-2.5 py-1 rounded transition-colors text-[11px] ${
-              activeFlow === "ota"
-                ? "bg-ink text-cream font-medium"
-                : "text-ink/60 hover:text-ink"
-            }`}
-          >
-            OTA & Biometrics
-          </button>
-          <button
-            type="button"
-            onClick={() => handleFlowSelect("checkout")}
-            className={`px-2.5 py-1 rounded transition-colors text-[11px] ${
-              activeFlow === "checkout"
-                ? "bg-ink text-cream font-medium"
-                : "text-ink/60 hover:text-ink"
-            }`}
-          >
-            Monorepo Checkout
-          </button>
-          <button
-            type="button"
-            onClick={() => handleFlowSelect("offline")}
-            className={`px-2.5 py-1 rounded transition-colors text-[11px] ${
-              activeFlow === "offline"
-                ? "bg-ink text-cream font-medium"
-                : "text-ink/60 hover:text-ink"
-            }`}
-          >
-            3G Resiliency
-          </button>
+          {(Object.keys(ZORA_FLOWS) as ZoraFlowKey[]).map((key) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => handleFlowSelect(key)}
+              className={`px-2.5 py-1 rounded transition-colors text-[11px] ${
+                activeFlow === key
+                  ? "bg-ink text-cream font-medium"
+                  : "text-ink/60 hover:text-ink"
+              }`}
+            >
+              {ZORA_FLOWS[key].tab}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -501,6 +482,8 @@ const AFROGRAPH_FLOWS: Record<
   AfroGraphFlowKey,
   {
     title: string;
+    /** Pill label in the tab selector. */
+    tab: string;
     cypher: string;
     description: string;
     runtimeMetrics: string;
@@ -509,6 +492,7 @@ const AFROGRAPH_FLOWS: Record<
 > = {
   "shortest-path": {
     title: "Six Degrees of African Music (BFS Traversal)",
+    tab: "Shortest Path",
     cypher: `MATCH (a:Artist {name: 'Fela Kuti'}), (b:Artist {name: 'Burna Boy'})\nMATCH p = shortestPath((a)-[:COLLABORATED_WITH|INFLUENCED*..6]-(b))\nRETURN p, length(p) AS separation;`,
     description:
       "Bidirectional Breadth-First Search (BFS) over Bolt protocol exploring musical lineage, shared production credits, and sample interpolations in under 20ms.",
@@ -517,6 +501,7 @@ const AFROGRAPH_FLOWS: Record<
   },
   lineage: {
     title: "Talent Incubation Blast-Radius Tree",
+    tab: "Blast Radius",
     cypher: `MATCH (hub:RecordLabel {name: 'MoHits'})<-[:SIGNED_TO]-(p:Producer)\nMATCH (p)-[:PRODUCED]->(track:Song)-[:SAMPLED_BY*1..3]->(derivative:Song)\nRETURN hub, p, count(DISTINCT derivative) AS totalReach\nORDER BY totalReach DESC LIMIT 10;`,
     description:
       "Deep recursive tree traversal evaluating how an individual producer hub's sound cascaded across three generations of Afrobeats tracks.",
@@ -525,6 +510,7 @@ const AFROGRAPH_FLOWS: Record<
   },
   security: {
     title: "Defensive Cypher Tokenizer & Sanitization",
+    tab: "AST Security",
     cypher: `// AST Tokenizer blocks destructive clauses before transmission\nVALIDATE_CYPHER(rawQuery) {\n  DENY_CLAUSES: ['DELETE', 'DROP', 'SET', 'CREATE', 'MERGE', 'DETACH']\n  TIMEOUT_BUDGET: 2000ms\n  MODE: 'READ_ONLY_TRANSACTION'\n}`,
     description:
       "Public-facing Cypher Query Studio sanitizes arbitrary visitor queries using client-side AST inspection, preventing graph mutation or denial-of-service query loops.",
@@ -592,51 +578,24 @@ export function AfroGraphArchitectureShowcase() {
 
         {/* Tab Pills */}
         <div className="flex flex-wrap gap-1 p-0.5 border border-ink/10 rounded font-mono text-body-xs bg-cream/40">
-          <button
-            type="button"
-            onClick={() => {
-              sound.playTap();
-              setActiveFlow("shortest-path");
-              setSimStep(0);
-            }}
-            className={`px-2.5 py-1 rounded transition-colors text-[11px] ${
-              activeFlow === "shortest-path"
-                ? "bg-ink text-cream font-medium"
-                : "text-ink/60 hover:text-ink"
-            }`}
-          >
-            Shortest Path
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              sound.playTap();
-              setActiveFlow("lineage");
-              setSimStep(0);
-            }}
-            className={`px-2.5 py-1 rounded transition-colors text-[11px] ${
-              activeFlow === "lineage"
-                ? "bg-ink text-cream font-medium"
-                : "text-ink/60 hover:text-ink"
-            }`}
-          >
-            Blast Radius
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              sound.playTap();
-              setActiveFlow("security");
-              setSimStep(0);
-            }}
-            className={`px-2.5 py-1 rounded transition-colors text-[11px] ${
-              activeFlow === "security"
-                ? "bg-ink text-cream font-medium"
-                : "text-ink/60 hover:text-ink"
-            }`}
-          >
-            AST Security
-          </button>
+          {(Object.keys(AFROGRAPH_FLOWS) as AfroGraphFlowKey[]).map((key) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => {
+                sound.playTap();
+                setActiveFlow(key);
+                setSimStep(0);
+              }}
+              className={`px-2.5 py-1 rounded transition-colors text-[11px] ${
+                activeFlow === key
+                  ? "bg-ink text-cream font-medium"
+                  : "text-ink/60 hover:text-ink"
+              }`}
+            >
+              {AFROGRAPH_FLOWS[key].tab}
+            </button>
+          ))}
         </div>
       </div>
 

@@ -146,77 +146,49 @@ function BlueprintGrid({ color = "#1a0a06", opacity = 0.05 }) {
 }
 
 /** Color-coded category tags (Valentin style) */
-function getPillColors(tag: string, isDark: boolean) {
+type Pill = { bg: string; text: string; border: string };
+
+/** [matcher, dark, light]. First match wins; the last entry is the default. */
+const PILL_RULES: [RegExp, Pill, Pill][] = [
+  [/react|next|node|api|work/, { bg: "#065f46", text: "#a7f3d0", border: "#047857" }, { bg: "#e6f4ea", text: "#137333", border: "#b8e1c4" }], // Emerald
+  [/typescript|js|front|web|source/, { bg: "#1e3a8a", text: "#93c5fd", border: "#1d4ed8" }, { bg: "#e8f0fe", text: "#1a73e8", border: "#b4d2fc" }], // Blue
+  [/design|ux|ui|css|experi|art/, { bg: "#831843", text: "#fbcfe8", border: "#be185d" }, { bg: "#fce8f3", text: "#c2185b", border: "#fbc3db" }], // Pink
+  [/db|postgres|supabase|server|cv|resume/, { bg: "#4c1d95", text: "#ddd6fe", border: "#6d28d9" }, { bg: "#f3e8fd", text: "#7b1fa2", border: "#e1bee7" }], // Purple
+  [/./, { bg: "#7c2d12", text: "#ffedd5", border: "#ea580c" }, { bg: "#fdeee7", text: "#e64301", border: "#f9cab6" }], // Orange — default
+];
+
+function getPillColors(tag: string, isDark: boolean): Pill {
   const t = tag.toLowerCase();
-  if (isDark) {
-    if (t.includes("react") || t.includes("next") || t.includes("node") || t.includes("api") || t.includes("work")) {
-      return { bg: "#065f46", text: "#a7f3d0", border: "#047857" }; // Emerald
-    }
-    if (t.includes("typescript") || t.includes("js") || t.includes("front") || t.includes("web") || t.includes("source")) {
-      return { bg: "#1e3a8a", text: "#93c5fd", border: "#1d4ed8" }; // Blue
-    }
-    if (t.includes("design") || t.includes("ux") || t.includes("ui") || t.includes("css") || t.includes("experi") || t.includes("art")) {
-      return { bg: "#831843", text: "#fbcfe8", border: "#be185d" }; // Pink
-    }
-    if (t.includes("db") || t.includes("postgres") || t.includes("supabase") || t.includes("server") || t.includes("cv") || t.includes("resume")) {
-      return { bg: "#4c1d95", text: "#ddd6fe", border: "#6d28d9" }; // Purple
-    }
-    return { bg: "#7c2d12", text: "#ffedd5", border: "#ea580c" }; // Orange
-  } else {
-    if (t.includes("react") || t.includes("next") || t.includes("node") || t.includes("api") || t.includes("work")) {
-      return { bg: "#e6f4ea", text: "#137333", border: "#b8e1c4" };
-    }
-    if (t.includes("typescript") || t.includes("js") || t.includes("front") || t.includes("web") || t.includes("source")) {
-      return { bg: "#e8f0fe", text: "#1a73e8", border: "#b4d2fc" };
-    }
-    if (t.includes("design") || t.includes("ux") || t.includes("ui") || t.includes("css") || t.includes("experi") || t.includes("art")) {
-      return { bg: "#fce8f3", text: "#c2185b", border: "#fbc3db" };
-    }
-    if (t.includes("db") || t.includes("postgres") || t.includes("supabase") || t.includes("server") || t.includes("cv") || t.includes("resume")) {
-      return { bg: "#f3e8fd", text: "#7b1fa2", border: "#e1bee7" };
-    }
-    return { bg: "#fdeee7", text: "#e64301", border: "#f9cab6" };
-  }
+  const rule = PILL_RULES.find(([match]) => match.test(t)) ?? PILL_RULES.at(-1)!;
+  return isDark ? rule[1] : rule[2];
 }
 
-/** Framed project image (clean bordered card layout) */
-function ProjectImageFrame({ imageSrc, themeColor }: { imageSrc: string; themeColor: typeof OG | typeof OG_DARK }) {
+/**
+ * The right-hand visual. `project` is the bordered landscape card, `portrait`
+ * the high-contrast square avatar (Frida Wiig style) — the only differences
+ * are size, radius, border width and which colour the offset shadow takes.
+ */
+function Framed({
+  imageSrc,
+  themeColor,
+  variant,
+}: {
+  imageSrc: string;
+  themeColor: typeof OG | typeof OG_DARK;
+  variant: "project" | "portrait";
+}) {
+  const isPortrait = variant === "portrait";
   return (
     <div
       style={{
         display: "flex",
-        width: "440px",
-        height: "320px",
-        borderRadius: "14px",
-        border: `3px solid ${themeColor.ink}`,
-        boxShadow: `12px 12px 0px ${themeColor.ink}`,
-        overflow: "hidden",
-        background: themeColor.panel,
-      }}
-    >
-      <img
-        src={imageSrc}
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-        }}
-      />
-    </div>
-  );
-}
-
-/** High contrast human portrait avatar (Frida Wiig style) */
-function EditorialPortrait({ imageSrc, themeColor }: { imageSrc: string; themeColor: typeof OG | typeof OG_DARK }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        width: "360px",
-        height: "360px",
-        borderRadius: "24px",
-        border: `4px solid ${themeColor.ink}`,
-        boxShadow: `12px 12px 0px ${themeColor.accent}`,
+        width: isPortrait ? "360px" : "440px",
+        height: isPortrait ? "360px" : "320px",
+        borderRadius: isPortrait ? "24px" : "14px",
+        border: `${isPortrait ? 4 : 3}px solid ${themeColor.ink}`,
+        boxShadow: `12px 12px 0px ${
+          isPortrait ? themeColor.accent : themeColor.ink
+        }`,
         overflow: "hidden",
         background: themeColor.panel,
       }}
@@ -439,9 +411,17 @@ export function OgShell({
           }}
         >
           {imageSrc ? (
-            <ProjectImageFrame imageSrc={imageSrc} themeColor={themeColor} />
+            <Framed
+              imageSrc={imageSrc}
+              themeColor={themeColor}
+              variant="project"
+            />
           ) : avatarSrc ? (
-            <EditorialPortrait imageSrc={avatarSrc} themeColor={themeColor} />
+            <Framed
+              imageSrc={avatarSrc}
+              themeColor={themeColor}
+              variant="portrait"
+            />
           ) : null}
         </div>
       )}
@@ -474,33 +454,40 @@ export function OgShell({
 }
 
 /**
- * Resolve remote URL or public asset into a base64 data URI for edge rendering compatibility.
+ * Load a remote image into a Base64 data URI for Satori, which cannot fetch.
+ * Satori has no webp decoder, so those are transcoded to png on the way
+ * through. Returns undefined for anything that doesn't resolve — callers
+ * decide what to show instead.
  */
+export async function loadImageSrc(
+  url?: string | null,
+): Promise<string | undefined> {
+  if (!url) return undefined;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return undefined;
+
+    const type = res.headers.get("content-type") ?? "image/png";
+    const buffer = Buffer.from(new Uint8Array(await res.arrayBuffer()));
+
+    if (type.includes("webp") || url.toLowerCase().endsWith(".webp")) {
+      const sharp = (await import("sharp")).default;
+      return `data:image/png;base64,${(await sharp(buffer).png().toBuffer()).toString("base64")}`;
+    }
+
+    return `data:${type};base64,${buffer.toString("base64")}`;
+  } catch {
+    return undefined;
+  }
+}
+
+/** As above, but falls back to the bundled avatar so it always returns a src. */
 export async function loadAvatarSrc(
   remoteUrl?: string | null,
 ): Promise<string> {
-  if (remoteUrl) {
-    try {
-      const res = await fetch(remoteUrl);
-      if (res.ok) {
-        const type = res.headers.get("content-type") ?? "image/png";
-        const arrayBuffer = await res.arrayBuffer();
-        let buffer: any = Buffer.from(new Uint8Array(arrayBuffer));
-        
-        let targetType = type;
-        if (type.includes("webp") || remoteUrl.toLowerCase().endsWith(".webp")) {
-          const sharp = (await import("sharp")).default;
-          buffer = await sharp(buffer).png().toBuffer();
-          targetType = "image/png";
-        }
-        
-        const data = buffer.toString("base64");
-        return `data:${targetType};base64,${data}`;
-      }
-    } catch {
-      // fallback
-    }
-  }
+  const remote = await loadImageSrc(remoteUrl);
+  if (remote) return remote;
+
   const { readFile } = await import("node:fs/promises");
   const { join } = await import("node:path");
   const data = await readFile(
@@ -508,34 +495,6 @@ export async function loadAvatarSrc(
     "base64",
   );
   return `data:image/png;base64,${data}`;
-}
-
-/**
- * Helper to load generic image file/URL into a Base64 string for edge/Satori.
- */
-export async function loadImageSrc(url?: string | null): Promise<string | undefined> {
-  if (!url) return undefined;
-  try {
-    const res = await fetch(url);
-    if (res.ok) {
-      const type = res.headers.get("content-type") ?? "image/png";
-      const arrayBuffer = await res.arrayBuffer();
-      let buffer: any = Buffer.from(new Uint8Array(arrayBuffer));
-      
-      let targetType = type;
-      if (type.includes("webp") || url.toLowerCase().endsWith(".webp")) {
-        const sharp = (await import("sharp")).default;
-        buffer = await sharp(buffer).png().toBuffer();
-        targetType = "image/png";
-      }
-      
-      const data = buffer.toString("base64");
-      return `data:${targetType};base64,${data}`;
-    }
-  } catch {
-    // fallback
-  }
-  return undefined;
 }
 
 export function getSiteHost(): string {

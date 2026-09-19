@@ -134,21 +134,6 @@ function getThemeServerSnapshot() {
   return false;
 }
 
-function subscribePlatform() {
-  return () => {};
-}
-
-function getIsMacSnapshot() {
-  return (
-    typeof navigator !== "undefined" &&
-    /Mac|iPhone|iPad|iPod/.test(navigator.userAgent)
-  );
-}
-
-function getIsMacServerSnapshot() {
-  return true;
-}
-
 export function CommandPalette() {
   const router = useRouter();
   const pathname = usePathname();
@@ -163,10 +148,13 @@ export function CommandPalette() {
     getThemeSnapshot,
     getThemeServerSnapshot,
   );
-  const isMac = useSyncExternalStore(
-    subscribePlatform,
-    getIsMacSnapshot,
-    getIsMacServerSnapshot,
+  // Only drives the ⌘K / Ctrl+K hint in the footer. Read once on mount: the
+  // palette renders null until a client event opens it, so the server's
+  // `false` is never on screen and there is nothing to flash.
+  const [isMac] = useState(
+    () =>
+      typeof navigator !== "undefined" &&
+      /Mac|iPhone|iPad|iPod/.test(navigator.userAgent),
   );
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -341,15 +329,7 @@ export function CommandPalette() {
         group: "Quick Actions",
         icon: isDark ? Sun : Moon,
         badge: "Action",
-        keywords: [
-          "theme",
-          "mode",
-          "dark",
-          "light",
-          "toggle",
-          "colors",
-          "appearance",
-        ],
+        keywords: ["theme", "mode", "dark", "light", "toggle", "colors", "appearance"],
         onSelect: handleToggleTheme,
       },
       {
@@ -359,15 +339,7 @@ export function CommandPalette() {
         group: "Quick Actions",
         icon: Copy,
         badge: "Action",
-        keywords: [
-          "email",
-          "copy",
-          "contact",
-          "mail",
-          "address",
-          "message",
-          "reach out",
-        ],
+        keywords: ["email", "copy", "contact", "mail", "address", "message", "reach out"],
         onSelect: handleCopyEmail,
       },
       {
@@ -377,16 +349,7 @@ export function CommandPalette() {
         group: "Quick Actions",
         icon: Sparkle,
         badge: "AI",
-        keywords: [
-          "ai",
-          "assistant",
-          "chat",
-          "ask",
-          "gpt",
-          "llm",
-          "questions",
-          "agent",
-        ],
+        keywords: ["ai", "assistant", "chat", "ask", "gpt", "llm", "questions", "agent"],
         onSelect: handleOpenAiAssistant,
       },
       {
@@ -396,18 +359,7 @@ export function CommandPalette() {
         group: "Quick Actions",
         icon: Briefcase,
         badge: "Recruiter",
-        keywords: [
-          "recruiter",
-          "hiring",
-          "job",
-          "jd",
-          "match",
-          "requirements",
-          "role",
-          "hire",
-          "evaluate",
-          "fit",
-        ],
+        keywords: ["recruiter", "hiring", "job", "jd", "match", "requirements", "role", "hire", "evaluate", "fit"],
         onSelect: handleOpenAiAssistant,
       },
       {
@@ -427,20 +379,7 @@ export function CommandPalette() {
         group: "Quick Actions",
         icon: Radio,
         badge: "Radio",
-        keywords: [
-          "music",
-          "radio",
-          "song",
-          "audio",
-          "naija",
-          "play",
-          "pause",
-          "fela",
-          "sunny ade",
-          "highlife",
-          "juju",
-          "afrobeat",
-        ],
+        keywords: ["music", "radio", "song", "audio", "naija", "play", "pause", "fela", "sunny ade", "highlife", "juju", "afrobeat"],
         onSelect: () => {
           close();
           vintageRadio.setEnabled(true);
@@ -455,15 +394,7 @@ export function CommandPalette() {
         group: "Quick Actions",
         icon: Radio,
         badge: "Radio",
-        keywords: [
-          "next",
-          "track",
-          "skip",
-          "shuffle",
-          "music",
-          "song",
-          "radio",
-        ],
+        keywords: ["next", "track", "skip", "shuffle", "music", "song", "radio"],
         onSelect: () => {
           close();
           vintageRadio.setEnabled(true);
@@ -604,15 +535,7 @@ export function CommandPalette() {
         group: "Pages & Sections",
         icon: Briefcase,
         badge: "Section",
-        keywords: [
-          "experience",
-          "jobs",
-          "companies",
-          "instructor",
-          "lagos data school",
-          "aptech",
-          "deejoft",
-        ],
+        keywords: ["experience", "jobs", "companies", "instructor", "lagos data school", "aptech", "deejoft"],
         onSelect: () => handleNavigate("/#experience"),
       },
       {
@@ -632,17 +555,7 @@ export function CommandPalette() {
         group: "Pages & Sections",
         icon: Stack,
         badge: "Section",
-        keywords: [
-          "skills",
-          "stack",
-          "tools",
-          "technologies",
-          "react",
-          "nextjs",
-          "typescript",
-          "node",
-          "tailwind",
-        ],
+        keywords: ["skills", "stack", "tools", "technologies", "react", "nextjs", "typescript", "node", "tailwind"],
         onSelect: () => handleNavigate("/#skills"),
       },
       {

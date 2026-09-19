@@ -9,6 +9,8 @@ import type { NextRequest } from "next/server";
 import { buildAssistantContext } from "@/lib/cv-context";
 import { createClient } from "@/lib/supabase/server";
 import { getCvData } from "@/lib/cv-data";
+import { experienceLabel } from "@/lib/experience-span";
+import { getProjectCard, getProjectCards } from "@/lib/project-cards";
 import { getLatestGitHubActivity } from "@/lib/github-activity";
 import {
   trackServer,
@@ -159,33 +161,10 @@ export async function POST(req: NextRequest) {
             .describe("Brief reason why this project is recommended or relevant"),
         }),
         execute: async ({ slug, reason }) => {
-          try {
-            const supabase = await createClient();
-            const { data } = await supabase
-              .from("projects")
-              .select(
-                "slug, name, category, kind, description, tags, year, live_url, github_url",
-              )
-              .eq("slug", slug)
-              .maybeSingle();
-
-            if (!data) return { found: false, slug, reason };
-            return {
-              found: true,
-              slug: data.slug,
-              name: data.name,
-              category: data.category,
-              kind: data.kind,
-              description: data.description,
-              tags: (data.tags ?? []).slice(0, 5),
-              year: data.year,
-              liveUrl: data.live_url || null,
-              githubUrl: data.github_url || null,
-              reason,
-            };
-          } catch {
-            return { found: false, slug, reason };
-          }
+          const card = await getProjectCard(slug);
+          return card
+            ? { found: true, ...card, reason }
+            : { found: false, slug, reason };
         },
       }),
 
@@ -310,55 +289,24 @@ export async function POST(req: NextRequest) {
           recommendedProjectSlugs,
           summaryVerdict,
         }) => {
-          try {
-            const supabase = await createClient();
-            const { data: projects } = await supabase
-              .from("projects")
-              .select(
-                "slug, name, category, kind, description, tags, year, live_url, github_url",
-              )
-              .in("slug", recommendedProjectSlugs);
+          const [projects, { experience }] = await Promise.all([
+            getProjectCards(recommendedProjectSlugs),
+            getCvData(),
+          ]);
 
-            const projectMap = new Map((projects ?? []).map((p) => [p.slug, p]));
-            const orderedProjects = recommendedProjectSlugs
-              .map((slug) => projectMap.get(slug))
-              .filter(Boolean)
-              .map((p) => ({
-                slug: p!.slug,
-                name: p!.name,
-                category: p!.category,
-                kind: p!.kind,
-                description: p!.description,
-                tags: (p!.tags ?? []).slice(0, 4),
-                year: p!.year,
-                liveUrl: p!.live_url || null,
-                githubUrl: p!.github_url || null,
-              }));
-
-            return {
-              roleTitle,
-              matchScore,
-              matchedSkills,
-              transferableSkills,
-              projects: orderedProjects,
-              yearsExperience:
-                "3+ years professional software engineering · 5+ years design · 10+ years combined",
-              education: "Advanced Diploma in Software Engineering (ADSE)",
-              summaryVerdict,
-            };
-          } catch {
-            return {
-              roleTitle,
-              matchScore,
-              matchedSkills,
-              transferableSkills,
-              projects: [],
-              yearsExperience:
-                "3+ years professional software engineering · 5+ years design · 10+ years combined",
-              education: "Advanced Diploma in Software Engineering (ADSE)",
-              summaryVerdict,
-            };
-          }
+          return {
+            roleTitle,
+            matchScore,
+            matchedSkills,
+            transferableSkills,
+            projects,
+            // Derived from the experience rows, not hardcoded: experienceLabel
+            // exists to stop this figure drifting. Omitted when no entry
+            // carries a parseable year — never replaced with a guess.
+            yearsExperience: experienceLabel(experience),
+            education: "Advanced Diploma in Software Engineering (ADSE)",
+            summaryVerdict,
+          };
         },
       }),
     },

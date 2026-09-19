@@ -85,7 +85,8 @@ interface JobMatchOutput {
     liveUrl?: string | null;
     githubUrl?: string | null;
   }>;
-  yearsExperience: string;
+  /** Derived from the experience rows; null when none carry a parseable year. */
+  yearsExperience: string | null;
   education: string;
   summaryVerdict: string;
 }
@@ -581,22 +582,21 @@ export function AiAssistant() {
 
                           {/* Grounded Credentials */}
                           <div className="flex flex-col gap-1 bg-ink/3 p-2 font-mono text-[11px] text-ink/70">
-                            <div className="flex items-center gap-1.5">
-                              <CheckCircle
-                                size={13}
-                                className="text-emerald-600 dark:text-emerald-400 shrink-0"
-                                weight="fill"
-                              />
-                              <span>{match.yearsExperience}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <CheckCircle
-                                size={13}
-                                className="text-emerald-600 dark:text-emerald-400 shrink-0"
-                                weight="fill"
-                              />
-                              <span>{match.education}</span>
-                            </div>
+                            {[match.yearsExperience, match.education]
+                              .filter(Boolean)
+                              .map((line) => (
+                                <div
+                                  key={line}
+                                  className="flex items-center gap-1.5"
+                                >
+                                  <CheckCircle
+                                    size={13}
+                                    className="text-emerald-600 dark:text-emerald-400 shrink-0"
+                                    weight="fill"
+                                  />
+                                  <span>{line}</span>
+                                </div>
+                              ))}
                           </div>
 
                           {/* Matched Stack */}
