@@ -5,6 +5,7 @@ import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import type { Icon } from "@phosphor-icons/react";
 import { useTilt } from "@/hooks/use-tilt";
 import { useRouteTransition } from "@/hooks/use-route-transition";
+import { track } from "@/lib/analytics";
 
 export function PinnedPromoCard({
   href,
@@ -36,16 +37,17 @@ export function PinnedPromoCard({
           return;
         }
         e.preventDefault();
+        track("pinned_card_clicked", { href, title });
         navigate(href);
       }}
       {...tilt}
       className="tilt tilt-sheen group relative flex flex-col overflow-hidden border border-ink/10 transition-[border-color] duration-[var(--dur-2)] hover:border-ink/30 active:scale-[0.995]"
     >
-      <div className="relative flex aspect-16/10 w-full items-center justify-center overflow-hidden bg-ink/5">
+      <div className="relative flex aspect-16/10 w-full items-center justify-center overflow-hidden bg-linear-to-br from-accent/15 via-cream to-ink/5">
         <IconComponent
-          size={40}
+          size={44}
           weight="duotone"
-          className="text-ink/20 transition-transform duration-300 group-hover:scale-110"
+          className="text-accent/70 transition-transform duration-300 group-hover:scale-110"
         />
         <span className="absolute left-3 top-3 inline-flex items-center bg-ink px-2 py-1 font-mono text-body-xs font-medium text-cream">
           Pinned

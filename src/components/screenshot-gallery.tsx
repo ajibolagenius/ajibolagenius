@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import Image from "next/image";
 import { CaretLeft, CaretRight, X } from "@phosphor-icons/react/dist/ssr";
+import { ImageWithFallback } from "@/components/image-with-fallback";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { useViewTransition } from "@/hooks/use-view-transition";
 import { sound } from "@/lib/sound";
@@ -77,12 +77,17 @@ export function ScreenshotGallery({
             }
             className="relative aspect-video w-full cursor-zoom-in overflow-hidden border border-ink/10 transition-transform duration-[var(--dur-3)] ease-out-quart hover:scale-[1.03]"
           >
-            <Image
+            <ImageWithFallback
               src={src}
               alt={`${alt} screenshot ${i + 1}`}
               fill
               sizes="(max-width: 640px) 50vw, 33vw"
               className="object-cover object-top"
+              fallback={
+                <div className="flex h-full w-full items-center justify-center text-body-xs text-ink/30">
+                  No preview
+                </div>
+              }
             />
           </button>
         ))}
@@ -147,7 +152,7 @@ export function ScreenshotGallery({
               }
               const active = i === openIndex;
               return (
-                <Image
+                <ImageWithFallback
                   key={src}
                   src={src}
                   alt={active ? `${alt} screenshot ${i + 1}` : ""}
@@ -166,6 +171,16 @@ export function ScreenshotGallery({
                       ? "scale-100 opacity-100"
                       : "pointer-events-none scale-[0.99] opacity-0"
                   }`}
+                  fallback={
+                    <div
+                      aria-hidden={!active}
+                      className={`absolute inset-0 flex items-center justify-center text-body-s text-cream/60 ${
+                        active ? "opacity-100" : "pointer-events-none opacity-0"
+                      }`}
+                    >
+                      No preview
+                    </div>
+                  }
                 />
               );
             })}

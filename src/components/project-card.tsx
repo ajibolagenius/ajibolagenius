@@ -1,9 +1,9 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Star } from "@phosphor-icons/react/dist/ssr";
+import { ImageWithFallback } from "@/components/image-with-fallback";
 import { useTilt } from "@/hooks/use-tilt";
 import { useRouteTransition } from "@/hooks/use-route-transition";
 import { kindMeta, projectHref, splitCategories } from "@/lib/project-kind";
@@ -56,6 +56,11 @@ export function ProjectCard({
   };
 
   if (variant === "wide") {
+    const noPreview = (
+      <div className="flex h-full min-h-[220px] w-full items-center justify-center text-body-xs text-ink/30">
+        No preview
+      </div>
+    );
     return (
       <Link
         href={href}
@@ -66,18 +71,17 @@ export function ProjectCard({
       >
         <div className="relative aspect-16/10 w-full overflow-hidden border-b border-ink/10 bg-ink/5 sm:col-span-7 sm:h-full sm:min-h-[280px] sm:border-b-0 sm:border-r">
           {cover ? (
-            <Image
+            <ImageWithFallback
               src={cover}
               alt={`${project.name} screenshot`}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 60vw"
               priority={priority}
               className="object-cover object-top transition-transform duration-[var(--dur-3)] ease-out-quart group-hover:scale-[1.03]"
+              fallback={noPreview}
             />
           ) : (
-            <div className="flex h-full min-h-[220px] w-full items-center justify-center text-body-xs text-ink/30">
-              No preview
-            </div>
+            noPreview
           )}
           {project.featured && (
             <span className="absolute left-3 top-3 inline-flex items-center gap-1 bg-ink px-2 py-1 font-mono text-body-xs font-medium text-cream">
@@ -163,6 +167,12 @@ export function ProjectCard({
     );
   }
 
+  const noPreview = (
+    <div className="flex h-full w-full items-center justify-center text-body-xs text-ink/30">
+      No preview
+    </div>
+  );
+
   return (
     <Link
       href={href}
@@ -175,18 +185,17 @@ export function ProjectCard({
     >
       <div className="relative aspect-16/10 w-full overflow-hidden bg-ink/5">
         {cover ? (
-          <Image
+          <ImageWithFallback
             src={cover}
             alt={`${project.name} screenshot`}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             priority={priority}
             className="object-cover object-top transition-transform duration-[var(--dur-3)] ease-out-quart group-hover:scale-[1.03]"
+            fallback={noPreview}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-body-xs text-ink/30">
-            No preview
-          </div>
+          noPreview
         )}
         {project.featured && (
           <span className="absolute left-3 top-3 inline-flex items-center gap-1 bg-ink px-2 py-1 font-mono text-body-xs font-medium text-cream">

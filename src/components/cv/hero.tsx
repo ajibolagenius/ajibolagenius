@@ -1,5 +1,5 @@
 import { Suspense, type CSSProperties } from "react";
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/image-with-fallback";
 import {
   NowWidget,
   NowWidgetFallback,
@@ -29,12 +29,13 @@ export function Hero({
 
   return (
     <section className="flex flex-col items-center gap-6 py-16 text-center">
-      <Image
+      <ImageWithFallback
         src="/illustration-hero.svg"
         alt=""
         width={120}
         height={96}
         className="enter animate-float opacity-90"
+        fallback={null}
       />
       {/* Staggered by token rather than the previous magic 80/140/200ms. */}
       <h2

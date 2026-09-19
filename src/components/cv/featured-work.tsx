@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Pause, Play } from "@phosphor-icons/react/dist/ssr";
+import { ImageWithFallback } from "@/components/image-with-fallback";
 import { SectionHeading } from "./section-heading";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { useRouteTransition } from "@/hooks/use-route-transition";
@@ -27,6 +27,12 @@ function FeaturedCard({
   const navigate = useRouteTransition();
   const { t } = useLanguage();
 
+  const noPreview = (
+    <div className="flex h-full w-full items-center justify-center text-body-xs text-ink/30">
+      {t.work.noPreview}
+    </div>
+  );
+
   return (
     <Link
       href={href}
@@ -48,18 +54,17 @@ function FeaturedCard({
     >
       <div className="relative aspect-16/10 w-full overflow-hidden bg-ink/5">
         {project.screenshots?.[0] ? (
-          <Image
+          <ImageWithFallback
             src={project.screenshots[0]}
             alt={`${project.name} screenshot`}
             fill
             sizes={sizes}
             priority={priority}
             className="object-cover object-top transition-transform duration-500 group-hover/card:scale-[1.04]"
+            fallback={noPreview}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-body-xs text-ink/30">
-            {t.work.noPreview}
-          </div>
+          noPreview
         )}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-cream/80 to-transparent opacity-0 transition-opacity duration-300 group-hover/card:opacity-100" />
       </div>
