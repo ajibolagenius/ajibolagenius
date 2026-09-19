@@ -66,23 +66,13 @@ function TrackCitation({ track }: { track: VintageTrack }) {
 }
 
 /**
- * Embedded Vintage Radio component for the desktop sidebar rail.
- * Adheres strictly to the sharp-corner Swiss-grid aesthetic.
+ * Player state plus the handlers that act on it. Both variants below drove
+ * byte-identical copies of these seven — the only thing that ever differed
+ * between them is the markup.
  */
-export function SidebarVintageRadio() {
-  const {
-    currentTrack,
-    isPlaying,
-    isMuted,
-    volume,
-    isMinimized,
-    isEnabled,
-  } = useVintageRadio();
-
-  useEffect(() => {
-    vintageRadio.startAutoplay();
-    return () => vintageRadio.cancelAutoplay();
-  }, []);
+function useRadioControls() {
+  const state = useVintageRadio();
+  const { currentTrack, isPlaying, isMuted } = state;
 
   const handleTogglePlay = useCallback(() => {
     sound.playTap();
@@ -126,8 +116,7 @@ export function SidebarVintageRadio() {
   }, [isMuted]);
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value);
-    vintageRadio.setVolume(val);
+    vintageRadio.setVolume(parseFloat(e.target.value));
   };
 
   const handleTurnOff = () => {
@@ -142,6 +131,44 @@ export function SidebarVintageRadio() {
     vintageRadio.play();
     track("vintage_radio_enabled");
   };
+
+  return {
+    ...state,
+    handleTogglePlay,
+    handleNext,
+    handlePrev,
+    handleToggleMute,
+    handleVolumeChange,
+    handleTurnOff,
+    handleTurnOn,
+  };
+}
+
+/**
+ * Embedded Vintage Radio component for the desktop sidebar rail.
+ * Adheres strictly to the sharp-corner Swiss-grid aesthetic.
+ */
+export function SidebarVintageRadio() {
+  const {
+    currentTrack,
+    isPlaying,
+    isMuted,
+    volume,
+    isMinimized,
+    isEnabled,
+    handleTogglePlay,
+    handleNext,
+    handlePrev,
+    handleToggleMute,
+    handleVolumeChange,
+    handleTurnOff,
+    handleTurnOn,
+  } = useRadioControls();
+
+  useEffect(() => {
+    vintageRadio.startAutoplay();
+    return () => vintageRadio.cancelAutoplay();
+  }, []);
 
   if (!isEnabled) {
     return (
@@ -478,68 +505,16 @@ export function VintageRadio() {
     volume,
     isMinimized,
     isEnabled,
-  } = useVintageRadio();
+    handleTogglePlay,
+    handleNext,
+    handlePrev,
+    handleToggleMute,
+    handleVolumeChange,
+    handleTurnOff,
+    handleTurnOn,
+  } = useRadioControls();
 
   const hasSidebar = routeHasSidebar(pathname);
-
-  const handleTogglePlay = useCallback(() => {
-    sound.playTap();
-    if (isPlaying) {
-      vintageRadio.pause();
-      track("vintage_radio_paused", {
-        track_id: currentTrack.id,
-        title: currentTrack.title,
-      });
-    } else {
-      vintageRadio.play();
-      track("vintage_radio_played", {
-        track_id: currentTrack.id,
-        title: currentTrack.title,
-      });
-    }
-  }, [isPlaying, currentTrack]);
-
-  const handleNext = useCallback(() => {
-    sound.playTap();
-    vintageRadio.nextTrack(isPlaying);
-    track("vintage_radio_next", {
-      track_id: currentTrack.id,
-    });
-  }, [isPlaying, currentTrack]);
-
-  const handlePrev = useCallback(() => {
-    sound.playTap();
-    vintageRadio.prevTrack();
-    track("vintage_radio_prev", {
-      track_id: currentTrack.id,
-    });
-  }, [currentTrack]);
-
-  const handleToggleMute = useCallback(() => {
-    sound.playTap();
-    vintageRadio.toggleMute();
-    track("vintage_radio_mute_toggled", {
-      is_muted: !isMuted,
-    });
-  }, [isMuted]);
-
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value);
-    vintageRadio.setVolume(val);
-  };
-
-  const handleTurnOff = () => {
-    sound.playTap();
-    vintageRadio.setEnabled(false);
-    track("vintage_radio_disabled");
-  };
-
-  const handleTurnOn = () => {
-    sound.playTap();
-    vintageRadio.setEnabled(true);
-    vintageRadio.play();
-    track("vintage_radio_enabled");
-  };
 
   // Keyboard shortcut listener: Shift+M to toggle playback, or global space when focused
   useEffect(() => {
