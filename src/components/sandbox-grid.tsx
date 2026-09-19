@@ -5,7 +5,7 @@ import { SandboxCard } from "@/components/sandbox-card";
 import { FilterPills, type FilterOption } from "@/components/filter-pills";
 import { useViewTransition } from "@/hooks/use-view-transition";
 import { hasSandboxExperiment } from "@/lib/sandbox-experiments";
-import { splitCategories } from "@/lib/project-kind";
+import { splitList } from "@/lib/project-kind";
 import type { Project } from "@/types/project";
 
 const ALL = "all";
@@ -23,7 +23,7 @@ export function SandboxGrid({ projects }: { projects: Project[] }) {
   const options = useMemo<FilterOption[]>(() => {
     const counts = new Map<string, number>();
     for (const project of projects) {
-      for (const c of splitCategories(project.category)) {
+      for (const c of splitList(project.category)) {
         counts.set(c, (counts.get(c) ?? 0) + 1);
       }
     }
@@ -51,7 +51,7 @@ export function SandboxGrid({ projects }: { projects: Project[] }) {
     if (active === PLAYABLE) {
       return projects.filter((p) => hasSandboxExperiment(p.slug));
     }
-    return projects.filter((p) => splitCategories(p.category).includes(active));
+    return projects.filter((p) => splitList(p.category).includes(active));
   }, [active, projects]);
 
   return (

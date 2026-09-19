@@ -17,7 +17,7 @@ import { useInfiniteReveal } from "@/hooks/use-infinite-reveal";
 import {
   PROJECT_KINDS,
   kindForParam,
-  splitCategories,
+  splitList,
 } from "@/lib/project-kind";
 import type { ProjectCardData } from "@/types/project";
 import { track } from "@/lib/analytics";
@@ -119,7 +119,7 @@ export function ProjectsGrid({
   const categoryOptions = useMemo<FilterOption[]>(() => {
     const counts = new Map<string, number>();
     for (const project of byType) {
-      for (const c of splitCategories(project.category)) {
+      for (const c of splitList(project.category)) {
         counts.set(c, (counts.get(c) ?? 0) + 1);
       }
     }
@@ -136,7 +136,7 @@ export function ProjectsGrid({
     () =>
       category === ALL
         ? byType
-        : byType.filter((p) => splitCategories(p.category).includes(category)),
+        : byType.filter((p) => splitList(p.category).includes(category)),
     [byType, category],
   );
 

@@ -9,16 +9,13 @@ import { failed, ok, type ActionResult } from "@/lib/action-result";
 import type { ProjectInput } from "@/types/project";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import sharp from "sharp";
+import { splitList } from "@/lib/project-kind";
 
 const MAX_SCREENSHOT_WIDTH = 1920;
 const SCREENSHOT_QUALITY = 80;
 
 function parseListField(value: FormDataEntryValue | null): string[] {
-  if (!value) return [];
-  return String(value)
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
+  return splitList(value === null ? null : String(value));
 }
 
 function projectInputFromForm(formData: FormData): ProjectInput {

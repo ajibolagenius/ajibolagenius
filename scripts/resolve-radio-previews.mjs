@@ -23,18 +23,20 @@ const dry = process.argv.includes("--dry");
  * resolver can't follow that file's extensionless imports, and pulling in a TS
  * loader to read two string literals is not worth it.
  */
+function readCurationFields(source, field) {
+  return [...source.matchAll(new RegExp(`^\\s+${field}: "([^"]+)"`, "gm"))].map((m) => m[1]);
+}
+
 function readCuration(source) {
-  const ids = [...source.matchAll(/^\s+id: "([^"]+)"/gm)].map((m) => m[1]);
-  const queries = [...source.matchAll(/^\s+appleQuery: "([^"]+)"/gm)].map((m) => m[1]);
-  const titles = [...source.matchAll(/^\s+title: "([^"]+)"/gm)].map((m) => m[1]);
+  const ids = readCurationFields(source, "id");
+  const queries = readCurationFields(source, "appleQuery");
+  const titles = readCurationFields(source, "title");
+  // Zipping by index is only safe while all three sweeps return the same
+  // count — a track missing a field would silently shift every later pairing.
   assert.equal(ids.length, queries.length, "every curated track needs an appleQuery");
   assert.equal(ids.length, titles.length, "every curated track needs a title");
   assert.ok(ids.length > 0, "found no curated tracks - did the file format change?");
   return ids.map((id, i) => ({ id, appleQuery: queries[i], title: titles[i] }));
-}
-
-function readCurationFields(source, field) {
-  return [...source.matchAll(new RegExp(`^\\s+${field}: "([^"]+)"`, "gm"))].map((m) => m[1]);
 }
 
 /**

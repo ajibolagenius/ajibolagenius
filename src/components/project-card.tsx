@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ArrowUpRight, Star } from "@phosphor-icons/react/dist/ssr";
 import { useTilt } from "@/hooks/use-tilt";
 import { useRouteTransition } from "@/hooks/use-route-transition";
-import { kindMeta, projectHref, splitCategories } from "@/lib/project-kind";
+import { kindMeta, projectHref, splitList } from "@/lib/project-kind";
 import type { ProjectCardData } from "@/types/project";
 import { track } from "@/lib/analytics";
 
@@ -33,7 +33,7 @@ export function ProjectCard({
   const cover = project.screenshots?.[0];
   const statusLabel = STATUS_LABELS[project.status];
   const kind = kindMeta(project.kind);
-  const categories = splitCategories(project.category);
+  const categories = splitList(project.category);
   const href = projectHref(project);
 
   const handleClick = (e: React.MouseEvent) => {

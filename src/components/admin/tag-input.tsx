@@ -2,13 +2,7 @@
 
 import { useId, useState, type KeyboardEvent } from "react";
 import { X } from "@phosphor-icons/react/dist/ssr";
-
-function parseTags(value: string): string[] {
-  return value
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
+import { splitList } from "@/lib/project-kind";
 
 export function TagInput({
   name,
@@ -26,7 +20,7 @@ export function TagInput({
   const listId = useId();
 
   const addFromDraft = (raw: string) => {
-    const parsed = parseTags(raw);
+    const parsed = splitList(raw);
     if (parsed.length === 0) return;
     setTags((prev) => Array.from(new Set([...prev, ...parsed])));
   };

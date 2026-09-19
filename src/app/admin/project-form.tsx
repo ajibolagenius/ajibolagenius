@@ -13,6 +13,7 @@ import type { ActionResult } from "@/lib/action-result";
 import { toast } from "@/lib/toast";
 import { TagInput } from "@/components/admin/tag-input";
 import { ScreenshotsInput } from "@/components/admin/screenshots-input";
+import { splitList } from "@/lib/project-kind";
 
 type Draft = Record<string, string>;
 
@@ -49,10 +50,7 @@ function draftField(draft: Draft | undefined, name: string, fallback?: string) {
 
 function draftList(draft: Draft | undefined, name: string, fallback?: string[]) {
   if (!draft || draft[name] === undefined) return fallback;
-  return draft[name]
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
+  return splitList(draft[name]);
 }
 
 const inputClass =
@@ -308,9 +306,7 @@ export function ProjectForm({
             draftList(
               draft,
               "category",
-              project?.category
-                ? project.category.split(",").map((s) => s.trim()).filter(Boolean)
-                : [],
+              splitList(project?.category),
             )
           }
           placeholder="e.g. E-commerce, Marketplace"

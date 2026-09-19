@@ -62,11 +62,14 @@ export function kindForParam(param?: string | null): ProjectKind | null {
 }
 
 /**
- * `category` is a comma-separated string, not an array. Splitting it is what
- * turns a composite facet like "Web App, Dashboard" into two real filter
- * pills instead of one nonsense one.
+ * Splits the comma-separated strings this schema uses in place of arrays —
+ * `category`, `label`, `type`, screenshot URLs, admin list fields.
+ *
+ * Named generically because it is the only copy: the same four lines were
+ * duplicated in tag-input, project-options, project-form (twice) and
+ * screenshots-input before this.
  */
-export function splitCategories(value?: string | null): string[] {
+export function splitList(value?: string | null): string[] {
   if (!value) return [];
   return value
     .split(",")

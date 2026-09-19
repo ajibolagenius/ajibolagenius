@@ -11,6 +11,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { uploadProjectScreenshot } from "@/app/admin/actions";
 import { toast } from "@/lib/toast";
+import { splitList } from "@/lib/project-kind";
 
 const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
 
@@ -28,10 +29,7 @@ export function ScreenshotsInput({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const addUrls = (raw: string) => {
-    const parsed = raw
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
+    const parsed = splitList(raw);
     if (parsed.length === 0) return;
     setUrls((prev) => Array.from(new Set([...prev, ...parsed])));
   };

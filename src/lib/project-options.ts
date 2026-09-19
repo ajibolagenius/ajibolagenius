@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { splitList } from "@/lib/project-kind";
 
 const DEFAULT_TYPES = ["dev", "design", "mobile", "writing"];
 
@@ -6,8 +7,7 @@ function splitValues(values: (string | null | undefined)[]): string[] {
   return Array.from(
     new Set(
       values
-        .flatMap((v) => (v ? v.split(",").map((s) => s.trim()) : []))
-        .filter(Boolean),
+        .flatMap((v) => splitList(v)),
     ),
   ).sort((a, b) => a.localeCompare(b));
 }
