@@ -220,7 +220,13 @@ Two nested dev-only `throw`s with near-identical copy. One check on
 These two are not mechanical. Do not start either until the questions below
 are answered.
 
-### 5.1 Service worker / PWA — product decision
+### 5.1 Service worker / PWA — **decided: keep, fix separately**
+
+Not deleting. The PWA stays and gets a real offline story instead, tracked in
+[`docs/pwa-offline-story.md`](./pwa-offline-story.md). The analysis below is
+retained because it is the brief for that task.
+
+
 
 `src/app/sw.js/route.ts` (72) + `src/components/pwa/service-worker-registration.tsx`
 (110) + `src/components/pwa/update-modal.tsx` (~38) ≈ **220 lines**.
@@ -245,7 +251,24 @@ for this plan; file it separately.
 
 **−220 if deleted.**
 
-### 5.2 `showcase_type` — needs a data check
+### 5.2 `showcase_type` — **checked: column was empty; backfill written**
+
+Queried via the Supabase CLI against the linked project. Of 24 projects,
+**only `mark_me` had `showcase_type` set** (to `bookmark`, a value the slug map
+does not even contain). Every one of the 7 showcases on the site today is
+being resolved by the hardcoded fallback.
+
+`supabase/migrations/20260919000000_backfill_showcase_type.sql` fills the nine
+affected rows and is idempotent — it only touches rows where the column is
+still null, so it cannot stomp a value set later through the admin UI.
+(`zora` from the slug map has no row; the real slugs are `zora-market` and
+`zora-market-mobile`.)
+
+**Blocked on applying it.** `supabase migration up --linked` is a production
+write and was refused by the sandbox. Once it is applied, delete
+`getShowcaseTypeBySlug` and simplify line 1141 to `project.showcase_type`.
+
+
 
 `src/components/project-showcase.tsx:40-49` — `getShowcaseTypeBySlug` is a
 hardcoded slug→type map covering 7 slugs. `project-showcase.tsx:1141` reads
@@ -277,10 +300,11 @@ Baseline: 20,619 lines across `.ts`/`.tsx`/`.js`/`.jsx` (excluding
 |---|---|---|---|---|
 | 1 | Dead code | −234 | **−239** | done (`ad7af71`) |
 | 2 | Local duplication | −463 | **−181** | done (`b517f84`) |
-| 3 | Vintage radio | −258 | **−25** | step 1 done (`4450140`), step 2 gated |
+| 3 | Vintage radio | −258 | **−153** | done (`4450140`, `6e0e3c6`) |
 | 4 | Cross-file duplication | −38 | **−49** | done (`4ae0fe3`) |
-| 5 | Gated (SW, showcase_type) | −230 | — | not started |
-| | **Total so far** | | **−394** | 20,619 → 20,225 |
+| 5.1 | Service worker | −220 | **0** | kept by decision — see `pwa-offline-story.md` |
+| 5.2 | `showcase_type` | −10 | — | migration written, blocked on applying it |
+| | **Total so far** | | **−522** | 20,619 → 20,097 |
 
 Lint went from 32 problems (9 errors) to 23 (7 errors); nothing new was
 introduced. `next build`, `tsc --noEmit`, all 11 Playwright specs and
@@ -299,8 +323,12 @@ Three items came in far under, and the reasons are worth keeping:
   `useState` + `useEffect` replacement, which is *why* it was written that
   way. A lazy `useState` initialiser does work (the palette renders null
   until opened, so there is no hydration surface) and that is what shipped.
-- **3 step 2 — gated, see below.** 54% of the two radio variants' lines are
-  identical, but the divergence is fine-grained rather than structural.
+- **3 step 2 — done after normalising.** 54% of the two radio variants' lines
+  were identical, but the divergence was fine-grained rather than structural,
+  so the merge was only viable once the drift was normalised away. With the
+  owner's go-ahead on that, the expanded deck collapsed to one component with
+  four real props (−128). The off and minimised states stayed separate: those
+  are two genuine designs, not one design drifted.
 
 The general lesson: structural similarity is not the same as
 parametrisability. Count the *divergence points*, not the shared shape,
@@ -330,16 +358,16 @@ Recording these so they do not get re-litigated:
 
 ---
 
-## Open questions
+## Resolved questions
 
-Phases 1–4 are shipped. These three block the rest.
+All three were answered on 2026-09-19.
 
-1. **Service worker (5.1)** — delete the ~220 lines, or keep the PWA and file a
-   separate task to give it a real offline story?
-2. **`showcase_type` (5.2)** — is the column populated for those 7 slugs? If
-   not, who runs the backfill before the slug map comes out?
-3. **Vintage radio markup (3, step 2)** — the two variants' expanded panels
-   differ at ~15 points. Most read as copy-paste drift rather than intent:
+1. **Service worker** — keep the PWA; a real offline story is filed as
+   [`docs/pwa-offline-story.md`](./pwa-offline-story.md). No lines cut here.
+2. **`showcase_type`** — column was empty on every relevant row; backfill
+   migration written. Still needs applying (see 5.2).
+3. **Vintage radio markup** — normalise, then merge. Done. For the record,
+   the drift that was normalised away:
 
    | | sidebar | floating |
    |---|---|---|
@@ -354,11 +382,11 @@ Phases 1–4 are shipped. These three block the rest.
    (they collapse in opposite directions), the header label, and the cultural
    note which only the sidebar has room for.
 
-   **If the drift is unintentional**, normalising it makes the two panels
-   identical bar four real props and the merge is worth ~200 lines. That is a
-   (small) visual change to the site, so it needs a yes. **If any of it is
-   deliberate**, leave both components as they are — threading 15 props
-   through reads worse than the duplication.
+   Each was normalised to whichever value was already used more widely in the
+   file. Genuinely intentional and now props: wrapper positioning, header
+   label, collapse direction, and the cultural note.
+
+## Still open
 
 4. **`posthog-replay-vision-report.md` and `posthog-self-driving-report.md`**
    (repo root, ~12KB, tracked) — generated tool output. Keep as documentation,
