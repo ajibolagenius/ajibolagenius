@@ -17,7 +17,6 @@ export interface VintageRadioState {
   volume: number;
   isMinimized: boolean;
   isEnabled: boolean;
-  hasStartedOnce: boolean;
 }
 
 class VintageRadioManager {
@@ -28,8 +27,6 @@ class VintageRadioManager {
   private volume: number = 0.08; // Default low ambient background level (8%)
   private isMinimized: boolean = false;
   private isEnabled: boolean = true;
-  private hasStartedOnce: boolean = false;
-  private isInitialized: boolean = false;
   private userPaused: boolean = false;
   private autoplayAttempted: boolean = false;
   /** Removes the armed first-interaction listeners; null when none are armed. */
@@ -109,7 +106,6 @@ class VintageRadioManager {
     });
 
     this.audio = audio;
-    this.isInitialized = true;
     return audio;
   }
 
@@ -206,7 +202,6 @@ class VintageRadioManager {
       volume: this.volume,
       isMinimized: this.isMinimized,
       isEnabled: this.isEnabled,
-      hasStartedOnce: this.hasStartedOnce,
     };
     return this.cachedState;
   }
@@ -221,7 +216,6 @@ class VintageRadioManager {
   public async play(): Promise<boolean> {
     if (!this.isEnabled) return false;
     this.userPaused = false;
-    this.hasStartedOnce = true;
     this.syncAudioSource();
     const audio = this.initAudio();
     if (!audio) return false;

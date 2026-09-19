@@ -10,8 +10,3 @@ import { useMediaQuery } from "./use-media-query";
 export function usePrefersReducedMotion() {
   return useMediaQuery("(prefers-reduced-motion: reduce)");
 }
-
-/** Mouse/trackpad only. Gate tilt, cursor accents and sheens on this. */
-export function usePointerFine() {
-  return useMediaQuery("(hover: hover) and (pointer: fine)");
-}

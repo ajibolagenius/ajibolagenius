@@ -21,7 +21,6 @@ const SERVER_SNAPSHOT: VintageRadioState = {
   volume: 0.08,
   isMinimized: false,
   isEnabled: true,
-  hasStartedOnce: false,
 };
 
 function getVintageRadioServerSnapshot(): VintageRadioState {
