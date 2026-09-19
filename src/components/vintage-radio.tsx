@@ -65,6 +65,242 @@ function TrackCitation({ track }: { track: VintageTrack }) {
   );
 }
 
+type RadioControls = ReturnType<typeof useRadioControls>;
+
+/**
+ * The expanded cassette deck — the only part of the two variants that was
+ * genuinely the same UI. Both copies had drifted apart on about a dozen
+ * cosmetic values (text-ink/40 vs /50, size 11 vs 12, bg-ink/[0.02] vs
+ * [0.03], "SIDE A" vs "STEREO"); those are normalised here to one set.
+ *
+ * What actually differs between the two mounts is the four props below: the
+ * sidebar is a block in the rail that collapses upward, the floating player
+ * is fixed to the viewport and collapses down into a bar, and only the
+ * sidebar has the width to carry the cultural note.
+ */
+function ExpandedDeck({
+  className,
+  label,
+  CollapseIcon,
+  collapseTitle,
+  showCulturalNote = false,
+  controls,
+}: {
+  className: string;
+  label: string;
+  CollapseIcon: typeof CaretUp;
+  collapseTitle: string;
+  showCulturalNote?: boolean;
+  controls: RadioControls;
+}) {
+  const {
+    currentTrack,
+    isPlaying,
+    isMuted,
+    volume,
+    handleTogglePlay,
+    handleNext,
+    handlePrev,
+    handleToggleMute,
+    handleVolumeChange,
+    handleTurnOff,
+  } = controls;
+
+  return (
+    <div
+      role="region"
+      aria-label="Vintage Nigerian Radio Cassette Player"
+      onMouseEnter={() => vintageRadio.warmCurrent()}
+      onFocus={() => vintageRadio.warmCurrent()}
+      className={className}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-ink/10 pb-1.5">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span
+            className={`h-1.5 w-1.5 shrink-0 transition-colors ${
+              isPlaying ? "bg-accent animate-pulse" : "bg-ink/30"
+            }`}
+            aria-hidden
+          />
+          <span className="font-mono text-[9px] uppercase tracking-widest text-accent font-semibold truncate">
+            {label}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => {
+              sound.playTap();
+              vintageRadio.toggleMinimized();
+            }}
+            aria-label="Minimize player"
+            title={collapseTitle}
+            className="flex h-5 w-5 items-center justify-center text-ink/50 transition-colors hover:text-ink"
+          >
+            <CollapseIcon size={12} weight="bold" />
+          </button>
+          <button
+            type="button"
+            onClick={handleTurnOff}
+            aria-label="Turn off radio"
+            title="Turn off radio"
+            className="flex h-5 w-5 items-center justify-center text-ink/50 transition-colors hover:text-accent"
+          >
+            <X size={12} weight="bold" />
+          </button>
+        </div>
+      </div>
+
+      {/* Swiss Cassette Window with Spools */}
+      <div className="border border-ink/10 bg-panel/60 dark:bg-ink/[0.1] p-2 flex flex-col gap-1.5">
+        <div className="flex items-center justify-between font-mono text-[8px] text-ink/40 border-b border-ink/5 pb-1">
+          <span>HIGH BIAS · C-90</span>
+          <span className="text-accent font-medium">SIDE A</span>
+        </div>
+
+        <div className="flex items-center justify-between px-3 py-1.5 bg-ink/[0.03] border border-ink/5">
+          {/* Left Spool */}
+          <div
+            className={`flex h-6 w-6 items-center justify-center border border-ink/30 bg-cream dark:bg-panel transition-transform ${
+              isPlaying ? "animate-[spin_4s_linear_infinite]" : ""
+            }`}
+            aria-hidden
+          >
+            <span className="h-1 w-1 bg-accent" />
+          </div>
+
+          {/* Equalizer Meter */}
+          <div className="flex flex-col items-center gap-0.5">
+            <div className="flex h-3 items-end gap-1" aria-hidden>
+              <span className={`w-0.5 bg-accent ${isPlaying ? "eq-bar-1" : "h-1 opacity-30"}`} />
+              <span className={`w-0.5 bg-accent ${isPlaying ? "eq-bar-2" : "h-1 opacity-30"}`} />
+              <span className={`w-0.5 bg-accent ${isPlaying ? "eq-bar-3" : "h-1 opacity-30"}`} />
+              <span className={`w-0.5 bg-accent ${isPlaying ? "eq-bar-4" : "h-1 opacity-30"}`} />
+              <span className={`w-0.5 bg-accent ${isPlaying ? "eq-bar-5" : "h-1 opacity-30"}`} />
+            </div>
+            <span className="font-mono text-[7px] uppercase tracking-widest text-ink/40">
+              {isPlaying ? "PLAYING" : "STANDBY"}
+            </span>
+          </div>
+
+          {/* Right Spool */}
+          <div
+            className={`flex h-6 w-6 items-center justify-center border border-ink/30 bg-cream dark:bg-panel transition-transform ${
+              isPlaying ? "animate-[spin_4s_linear_infinite]" : ""
+            }`}
+            aria-hidden
+          >
+            <span className="h-1 w-1 bg-accent" />
+          </div>
+        </div>
+      </div>
+
+      {/* Track Details */}
+      <div className="flex flex-col gap-0.5">
+        <div className="flex items-baseline justify-between gap-1">
+          <span className="font-display text-[13px] font-medium text-ink truncate">
+            {currentTrack.title}
+          </span>
+          <span className="font-mono text-[9px] border border-accent/20 bg-accent/5 px-1 text-accent shrink-0">
+            {currentTrack.year}
+          </span>
+        </div>
+        <p className="font-sans text-[11px] text-ink/70 truncate">
+          {currentTrack.artist}
+        </p>
+        {showCulturalNote && currentTrack.culturalNote && (
+          <p className="mt-1 font-serif text-[10px] italic leading-relaxed text-ink/60 border-l-2 border-accent/30 pl-2">
+            &ldquo;{currentTrack.culturalNote}&rdquo;
+          </p>
+        )}
+        <div className="mt-1.5">
+          <TrackCitation track={currentTrack} />
+        </div>
+      </div>
+
+      {/* Playback Controls */}
+      <div className="flex items-center justify-between pt-1">
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={handlePrev}
+            aria-label="Previous track"
+            title="Previous track"
+            className="flex h-7 w-7 items-center justify-center border border-ink/10 bg-ink/[0.03] text-ink transition-colors hover:border-accent hover:bg-accent hover:text-cream active:scale-95"
+          >
+            <SkipBack size={13} weight="fill" />
+          </button>
+
+          <button
+            type="button"
+            onClick={handleTogglePlay}
+            aria-label={isPlaying ? "Pause music" : "Play music"}
+            title={isPlaying ? "Pause" : "Play"}
+            className="flex h-7 w-7 items-center justify-center bg-ink text-cream transition-colors hover:bg-accent active:scale-95"
+          >
+            {isPlaying ? <Pause size={13} weight="fill" /> : <Play size={13} weight="fill" />}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleNext}
+            aria-label="Next track"
+            title="Next track"
+            className="flex h-7 w-7 items-center justify-center border border-ink/10 bg-ink/[0.03] text-ink transition-colors hover:border-accent hover:bg-accent hover:text-cream active:scale-95"
+          >
+            <SkipForward size={13} weight="fill" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              sound.playTap();
+              vintageRadio.nextTrack(true);
+              track("vintage_radio_shuffled");
+            }}
+            aria-label="Shuffle track"
+            title="Shuffle track"
+            className="flex h-7 w-7 items-center justify-center border border-ink/10 bg-ink/[0.03] text-ink/50 transition-colors hover:border-accent hover:text-accent active:scale-95"
+          >
+            <Shuffle size={13} weight="bold" />
+          </button>
+        </div>
+
+        {/* Volume & Mute */}
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={handleToggleMute}
+            aria-label={isMuted ? "Unmute" : "Mute"}
+            title={isMuted ? "Unmute (Shift+M)" : "Mute (Shift+M)"}
+            className="flex h-6 w-6 items-center justify-center text-ink/50 transition-colors hover:text-ink"
+          >
+            {isMuted || volume === 0 ? (
+              <SpeakerSimpleSlash size={13} className="text-accent" />
+            ) : volume < 0.4 ? (
+              <SpeakerSimpleLow size={13} />
+            ) : (
+              <SpeakerSimpleHigh size={13} />
+            )}
+          </button>
+          <input
+            type="range"
+            min="0"
+            max="0.80"
+            step="0.01"
+            value={isMuted ? 0 : volume}
+            onChange={handleVolumeChange}
+            aria-label="Volume"
+            className="h-1 w-14 cursor-pointer appearance-none bg-ink/15 accent-accent"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /**
  * Player state plus the handlers that act on it. Both variants below drove
  * byte-identical copies of these seven — the only thing that ever differed
@@ -149,6 +385,7 @@ function useRadioControls() {
  * Adheres strictly to the sharp-corner Swiss-grid aesthetic.
  */
 export function SidebarVintageRadio() {
+  const controls = useRadioControls();
   const {
     currentTrack,
     isPlaying,
@@ -157,13 +394,9 @@ export function SidebarVintageRadio() {
     isMinimized,
     isEnabled,
     handleTogglePlay,
-    handleNext,
-    handlePrev,
     handleToggleMute,
-    handleVolumeChange,
-    handleTurnOff,
     handleTurnOn,
-  } = useRadioControls();
+  } = controls;
 
   useEffect(() => {
     vintageRadio.startAutoplay();
@@ -296,197 +529,14 @@ export function SidebarVintageRadio() {
 
   // Expanded State inside Sidebar Rail
   return (
-    <div
-      role="region"
-      aria-label="Vintage Nigerian Radio Cassette Player"
-      onMouseEnter={() => vintageRadio.warmCurrent()}
-      onFocus={() => vintageRadio.warmCurrent()}
+    <ExpandedDeck
+      controls={controls}
       className="flex w-full flex-col gap-2.5 border border-ink/10 bg-ink/[0.02] p-3 transition-all"
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-ink/10 pb-1.5">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <span
-            className={`h-1.5 w-1.5 shrink-0 transition-colors ${
-              isPlaying ? "bg-accent animate-pulse" : "bg-ink/30"
-            }`}
-            aria-hidden
-          />
-          <span className="font-mono text-[9px] uppercase tracking-widest text-accent font-semibold truncate">
-            Tape Deck · Stereo
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => {
-              sound.playTap();
-              vintageRadio.toggleMinimized();
-            }}
-            aria-label="Minimize radio player"
-            title="Dock player"
-            className="flex h-5 w-5 items-center justify-center text-ink/40 transition-colors hover:text-ink"
-          >
-            <CaretUp size={11} weight="bold" />
-          </button>
-          <button
-            type="button"
-            onClick={handleTurnOff}
-            aria-label="Turn off radio feature"
-            title="Turn off radio"
-            className="flex h-5 w-5 items-center justify-center text-ink/40 transition-colors hover:text-accent"
-          >
-            <X size={11} weight="bold" />
-          </button>
-        </div>
-      </div>
-
-      {/* Swiss Cassette Window with Spools */}
-      <div className="border border-ink/10 bg-panel/50 dark:bg-ink/[0.1] p-2 flex flex-col gap-1.5">
-        <div className="flex items-center justify-between font-mono text-[8px] text-ink/40 border-b border-ink/5 pb-1">
-          <span>HIGH BIAS C-90</span>
-          <span className="text-accent font-medium">SIDE A</span>
-        </div>
-
-        <div className="flex items-center justify-between px-2 py-1 bg-ink/[0.03] border border-ink/5">
-          {/* Left Spool */}
-          <div
-            className={`flex h-6 w-6 items-center justify-center border border-ink/30 bg-cream dark:bg-panel transition-transform ${
-              isPlaying ? "animate-[spin_4s_linear_infinite]" : ""
-            }`}
-            aria-hidden
-          >
-            <span className="h-1 w-1 bg-accent" />
-          </div>
-
-          {/* Equalizer Meter */}
-          <div className="flex flex-col items-center gap-0.5">
-            <div className="flex h-3 items-end gap-1" aria-hidden>
-              <span className={`w-0.5 bg-accent ${isPlaying ? "eq-bar-1" : "h-1 opacity-30"}`} />
-              <span className={`w-0.5 bg-accent ${isPlaying ? "eq-bar-2" : "h-1 opacity-30"}`} />
-              <span className={`w-0.5 bg-accent ${isPlaying ? "eq-bar-3" : "h-1 opacity-30"}`} />
-              <span className={`w-0.5 bg-accent ${isPlaying ? "eq-bar-4" : "h-1 opacity-30"}`} />
-              <span className={`w-0.5 bg-accent ${isPlaying ? "eq-bar-5" : "h-1 opacity-30"}`} />
-            </div>
-            <span className="font-mono text-[7px] uppercase tracking-widest text-ink/40">
-              {isPlaying ? "PLAYING" : "STANDBY"}
-            </span>
-          </div>
-
-          {/* Right Spool */}
-          <div
-            className={`flex h-6 w-6 items-center justify-center border border-ink/30 bg-cream dark:bg-panel transition-transform ${
-              isPlaying ? "animate-[spin_4s_linear_infinite]" : ""
-            }`}
-            aria-hidden
-          >
-            <span className="h-1 w-1 bg-accent" />
-          </div>
-        </div>
-      </div>
-
-      {/* Track Details */}
-      <div className="flex flex-col gap-0.5">
-        <div className="flex items-baseline justify-between gap-1">
-          <span className="font-display text-[13px] font-medium text-ink truncate">
-            {currentTrack.title}
-          </span>
-          <span className="font-mono text-[9px] border border-accent/20 bg-accent/5 px-1 text-accent shrink-0">
-            {currentTrack.year}
-          </span>
-        </div>
-        <p className="font-sans text-[11px] text-ink/65 truncate">
-          {currentTrack.artist}
-        </p>
-        {currentTrack.culturalNote && (
-          <p className="mt-1 font-serif text-[10px] italic leading-relaxed text-ink/60 border-l-2 border-accent/30 pl-2">
-            &ldquo;{currentTrack.culturalNote}&rdquo;
-          </p>
-        )}
-        <div className="mt-1.5">
-          <TrackCitation track={currentTrack} />
-        </div>
-      </div>
-
-      {/* Playback Controls */}
-      <div className="flex items-center justify-between pt-1">
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={handlePrev}
-            aria-label="Previous track"
-            title="Previous track"
-            className="flex h-7 w-7 items-center justify-center border border-ink/10 bg-ink/[0.02] text-ink transition-colors hover:border-accent hover:bg-accent hover:text-cream active:scale-95"
-          >
-            <SkipBack size={13} weight="fill" />
-          </button>
-
-          <button
-            type="button"
-            onClick={handleTogglePlay}
-            aria-label={isPlaying ? "Pause music" : "Play music"}
-            title={isPlaying ? "Pause" : "Play"}
-            className="flex h-7 w-7 items-center justify-center bg-ink text-cream transition-colors hover:bg-accent active:scale-95"
-          >
-            {isPlaying ? <Pause size={13} weight="fill" /> : <Play size={13} weight="fill" />}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleNext}
-            aria-label="Next track"
-            title="Next track"
-            className="flex h-7 w-7 items-center justify-center border border-ink/10 bg-ink/[0.02] text-ink transition-colors hover:border-accent hover:bg-accent hover:text-cream active:scale-95"
-          >
-            <SkipForward size={13} weight="fill" />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              sound.playTap();
-              vintageRadio.nextTrack(true);
-              track("vintage_radio_shuffled");
-            }}
-            aria-label="Shuffle track"
-            title="Shuffle track"
-            className="flex h-7 w-7 items-center justify-center border border-ink/10 bg-ink/[0.02] text-ink/50 transition-colors hover:border-accent hover:text-accent active:scale-95"
-          >
-            <Shuffle size={13} weight="bold" />
-          </button>
-        </div>
-
-        {/* Volume & Mute */}
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={handleToggleMute}
-            aria-label={isMuted ? "Unmute" : "Mute"}
-            title={isMuted ? "Unmute (Shift+M)" : "Mute (Shift+M)"}
-            className="flex h-6 w-6 items-center justify-center text-ink/50 transition-colors hover:text-ink"
-          >
-            {isMuted || volume === 0 ? (
-              <SpeakerSimpleSlash size={13} className="text-accent" />
-            ) : volume < 0.4 ? (
-              <SpeakerSimpleLow size={13} />
-            ) : (
-              <SpeakerSimpleHigh size={13} />
-            )}
-          </button>
-          <input
-            type="range"
-            min="0"
-            max="0.80"
-            step="0.01"
-            value={isMuted ? 0 : volume}
-            onChange={handleVolumeChange}
-            aria-label="Volume"
-            className="h-1 w-14 cursor-pointer appearance-none bg-ink/15 accent-accent"
-          />
-        </div>
-      </div>
-    </div>
+      label="Tape Deck · Stereo"
+      CollapseIcon={CaretUp}
+      collapseTitle="Dock player"
+      showCulturalNote
+    />
   );
 }
 
@@ -498,6 +548,7 @@ export function SidebarVintageRadio() {
  */
 export function VintageRadio() {
   const pathname = usePathname();
+  const controls = useRadioControls();
   const {
     currentTrack,
     isPlaying,
@@ -506,13 +557,9 @@ export function VintageRadio() {
     isMinimized,
     isEnabled,
     handleTogglePlay,
-    handleNext,
-    handlePrev,
     handleToggleMute,
-    handleVolumeChange,
-    handleTurnOff,
     handleTurnOn,
-  } = useRadioControls();
+  } = controls;
 
   const hasSidebar = routeHasSidebar(pathname);
 
@@ -678,187 +725,12 @@ export function VintageRadio() {
 
   // Expanded Floating Player on Mobile / Non-sidebar pages
   return (
-    <div
-      role="region"
-      aria-label="Vintage Nigerian Radio Cassette Player"
-      onMouseEnter={() => vintageRadio.warmCurrent()}
-      onFocus={() => vintageRadio.warmCurrent()}
+    <ExpandedDeck
+      controls={controls}
       className={`fixed bottom-4 left-4 z-40 w-[300px] max-w-[calc(100vw-2rem)] border border-ink/15 bg-cream/95 p-3 shadow-2xl backdrop-blur-md dark:bg-panel/95 print:hidden transition-all flex flex-col gap-2.5 ${visibilityClass}`}
-    >
-      {/* Top Header */}
-      <div className="flex items-center justify-between border-b border-ink/10 pb-1.5">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <span
-            className={`h-1.5 w-1.5 shrink-0 transition-colors ${
-              isPlaying ? "bg-accent animate-pulse" : "bg-ink/30"
-            }`}
-            aria-hidden
-          />
-          <span className="font-mono text-[9px] uppercase tracking-widest text-accent font-semibold truncate">
-            Naija Vintage Radio
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => {
-              sound.playTap();
-              vintageRadio.toggleMinimized();
-            }}
-            aria-label="Minimize player"
-            title="Minimize to bar"
-            className="flex h-5 w-5 items-center justify-center text-ink/50 hover:text-ink transition-colors"
-          >
-            <CaretDown size={12} weight="bold" />
-          </button>
-          <button
-            type="button"
-            onClick={handleTurnOff}
-            aria-label="Turn off radio"
-            title="Turn off radio"
-            className="flex h-5 w-5 items-center justify-center text-ink/50 hover:text-accent transition-colors"
-          >
-            <X size={12} weight="bold" />
-          </button>
-        </div>
-      </div>
-
-      {/* Cassette Visualizer */}
-      <div className="border border-ink/10 bg-panel/60 dark:bg-ink/[0.1] p-2 flex flex-col gap-1.5">
-        <div className="flex items-center justify-between font-mono text-[8px] text-ink/40 border-b border-ink/5 pb-1">
-          <span>HIGH BIAS · C-90</span>
-          <span className="text-accent font-semibold tracking-wider">STEREO</span>
-        </div>
-
-        <div className="flex items-center justify-between px-3 py-1.5 bg-ink/[0.03] border border-ink/5">
-          <div
-            className={`flex h-6 w-6 items-center justify-center border border-ink/30 bg-cream dark:bg-panel ${
-              isPlaying ? "animate-[spin_4s_linear_infinite]" : ""
-            }`}
-            aria-hidden
-          >
-            <span className="h-1 w-1 bg-accent" />
-          </div>
-
-          <div className="flex flex-col items-center gap-0.5">
-            <div className="flex h-3 items-end gap-1" aria-hidden>
-              <span className={`w-0.5 bg-accent ${isPlaying ? "eq-bar-1" : "h-1 opacity-30"}`} />
-              <span className={`w-0.5 bg-accent ${isPlaying ? "eq-bar-2" : "h-1 opacity-30"}`} />
-              <span className={`w-0.5 bg-accent ${isPlaying ? "eq-bar-3" : "h-1 opacity-30"}`} />
-              <span className={`w-0.5 bg-accent ${isPlaying ? "eq-bar-4" : "h-1 opacity-30"}`} />
-              <span className={`w-0.5 bg-accent ${isPlaying ? "eq-bar-5" : "h-1 opacity-30"}`} />
-            </div>
-            <span className="font-mono text-[7px] uppercase tracking-widest text-ink/40">
-              {isPlaying ? "PLAYING" : "STANDBY"}
-            </span>
-          </div>
-
-          <div
-            className={`flex h-6 w-6 items-center justify-center border border-ink/30 bg-cream dark:bg-panel ${
-              isPlaying ? "animate-[spin_4s_linear_infinite]" : ""
-            }`}
-            aria-hidden
-          >
-            <span className="h-1 w-1 bg-accent" />
-          </div>
-        </div>
-      </div>
-
-      {/* Track info */}
-      <div className="flex flex-col gap-0.5">
-        <div className="flex items-baseline justify-between gap-1">
-          <span className="font-display text-[13px] font-medium text-ink truncate">
-            {currentTrack.title}
-          </span>
-          <span className="font-mono text-[9px] border border-accent/20 bg-accent/5 px-1 text-accent shrink-0">
-            {currentTrack.year}
-          </span>
-        </div>
-        <p className="font-sans text-[11px] text-ink/70 truncate">
-          {currentTrack.artist}
-        </p>
-        <div className="mt-1.5">
-          <TrackCitation track={currentTrack} />
-        </div>
-      </div>
-
-      {/* Transport Controls */}
-      <div className="flex items-center justify-between pt-1">
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={handlePrev}
-            aria-label="Previous track"
-            title="Previous track"
-            className="flex h-7 w-7 items-center justify-center border border-ink/10 bg-ink/[0.03] text-ink transition-colors hover:border-accent hover:bg-accent hover:text-cream active:scale-95"
-          >
-            <SkipBack size={13} weight="fill" />
-          </button>
-
-          <button
-            type="button"
-            onClick={handleTogglePlay}
-            aria-label={isPlaying ? "Pause music" : "Play music"}
-            title={isPlaying ? "Pause" : "Play"}
-            className="flex h-7 w-7 items-center justify-center bg-ink text-cream transition-colors hover:bg-accent active:scale-95"
-          >
-            {isPlaying ? <Pause size={13} weight="fill" /> : <Play size={13} weight="fill" />}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleNext}
-            aria-label="Next track"
-            title="Next track"
-            className="flex h-7 w-7 items-center justify-center border border-ink/10 bg-ink/[0.03] text-ink transition-colors hover:border-accent hover:bg-accent hover:text-cream active:scale-95"
-          >
-            <SkipForward size={13} weight="fill" />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              sound.playTap();
-              vintageRadio.nextTrack(true);
-              track("vintage_radio_shuffled");
-            }}
-            aria-label="Shuffle track"
-            title="Shuffle track"
-            className="flex h-7 w-7 items-center justify-center border border-ink/10 bg-ink/[0.03] text-ink/50 transition-colors hover:border-accent hover:text-accent active:scale-95"
-          >
-            <Shuffle size={13} weight="bold" />
-          </button>
-        </div>
-
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={handleToggleMute}
-            aria-label={isMuted ? "Unmute" : "Mute"}
-            title={isMuted ? "Unmute (Shift+M)" : "Mute (Shift+M)"}
-            className="flex h-6 w-6 items-center justify-center text-ink/50 transition-colors hover:text-ink"
-          >
-            {isMuted || volume === 0 ? (
-              <SpeakerSimpleSlash size={13} className="text-accent" />
-            ) : volume < 0.4 ? (
-              <SpeakerSimpleLow size={13} />
-            ) : (
-              <SpeakerSimpleHigh size={13} />
-            )}
-          </button>
-          <input
-            type="range"
-            min="0"
-            max="0.80"
-            step="0.01"
-            value={isMuted ? 0 : volume}
-            onChange={handleVolumeChange}
-            aria-label="Volume"
-            className="h-1 w-14 cursor-pointer appearance-none bg-ink/15 accent-accent"
-          />
-        </div>
-      </div>
-    </div>
+      label="Naija Vintage Radio"
+      CollapseIcon={CaretDown}
+      collapseTitle="Minimize to bar"
+    />
   );
 }
