@@ -48,3 +48,6 @@ supabase/.temp
 
 # files
 assets
+
+# Local knowledge graph — regenerate with `graphify update .`
+graphify-out/
