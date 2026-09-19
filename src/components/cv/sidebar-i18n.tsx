@@ -12,7 +12,7 @@ export function ProjectsShippedLabel({ count }: { count: number }) {
   return <>{t.sidebar.projectsShipped.replace("{count}", String(count))}</>;
 }
 
-export function DownloadCvLabel() {
+export function OpenCvLabel() {
   const { t } = useLanguage();
-  return <>{t.actions.downloadCv}</>;
+  return <>{t.actions.openCv}</>;
 }

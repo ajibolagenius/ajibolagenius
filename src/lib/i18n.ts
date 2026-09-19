@@ -41,7 +41,7 @@ export const TRANSLATIONS = {
       flourish: "Software Engineer & Instructor",
     },
     actions: {
-      downloadCv: "Download CV",
+      openCv: "Open CV",
       sendMessage: "Send Message",
       sending: "Sending…",
       backToSite: "Back to site",
@@ -141,7 +141,7 @@ export const TRANSLATIONS = {
       flourish: "Onímọ̀-ẹ̀rọ Kọ̀ǹpútà & Olùkọ́",
     },
     actions: {
-      downloadCv: "Gba CV Sílẹ̀",
+      openCv: "Ṣí CV",
       sendMessage: "Fi Ìfiranṣẹ́ Ranṣẹ́",
       sending: "Ó ń lọ…",
       backToSite: "Padà sí ojúlé",

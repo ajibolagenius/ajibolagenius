@@ -2,7 +2,7 @@ import Image from "next/image";
 import {
     Briefcase,
     Buildings,
-    DownloadSimple,
+    ArrowUpRight,
     Envelope,
     LinkedinLogo,
     MapPin,
@@ -17,7 +17,7 @@ import { getSidebarStats } from "@/lib/sidebar-stats";
 import {
     CompaniesLabel,
     ProjectsShippedLabel,
-    DownloadCvLabel,
+    OpenCvLabel,
 } from "@/components/cv/sidebar-i18n";
 import { SidebarVintageRadio } from "@/components/vintage-radio";
 
@@ -140,8 +140,8 @@ export async function Sidebar({ info }: { info: PersonalInfo | null }) {
                     href="/cv"
                     className="flex flex-1 items-center justify-center gap-2 bg-ink px-4 py-2.5 text-body-s font-medium text-cream transition-colors hover:bg-accent"
                 >
-                    <DownloadSimple weight="duotone" size={16} />
-                    <DownloadCvLabel />
+                    <ArrowUpRight weight="duotone" size={16} />
+                    <OpenCvLabel />
                 </a>
                 <a
                     href={`mailto:${info.email}`}
