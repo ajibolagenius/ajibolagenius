@@ -158,7 +158,28 @@ export function AiAssistant() {
   const panelRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  const close = useCallback(() => setIsOpen(false), []);
+  const open = useCallback(
+    (source: string) => {
+      sound.playDrawer();
+      track("ai_assistant_opened", { source, page_path: pathname ?? "/" });
+      setIsOpen(true);
+    },
+    [pathname],
+  );
+
+  // Every dismissal path routes through here so a close is always recorded.
+  // Without a close event a real dismissal failure cannot be told apart from a
+  // visitor who simply never closed the panel.
+  const close = useCallback(
+    (source: string) => {
+      sound.playDrawer();
+      track("ai_assistant_closed", { source, page_path: pathname ?? "/" });
+      setIsOpen(false);
+    },
+    [pathname],
+  );
+
+  const handleEscape = useCallback(() => close("escape"), [close]);
 
   const transport = useMemo(
     () =>
@@ -175,17 +196,13 @@ export function AiAssistant() {
     transport,
   });
 
-  useFocusTrap(panelRef, isOpen, close);
+  useFocusTrap(panelRef, isOpen, handleEscape);
 
   useEffect(() => {
-    const handleOpen = () => {
-      sound.playDrawer();
-      track("ai_assistant_opened", { source: "command_palette" });
-      setIsOpen(true);
-    };
+    const handleOpen = () => open("command_palette");
     window.addEventListener("open-ai-assistant", handleOpen);
     return () => window.removeEventListener("open-ai-assistant", handleOpen);
-  }, []);
+  }, [open]);
 
   const prevStatusRef = useRef(status);
   const askedAtRef = useRef<number | null>(null);
@@ -266,6 +283,18 @@ export function AiAssistant() {
 
   return (
     <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3 print:hidden">
+      {/* Click-outside backdrop. The panel sets aria-modal, so an overlay is
+          the honest exit: a click anywhere off the panel closes it. */}
+      {isOpen && (
+        <button
+          type="button"
+          data-attr="ai-assistant-backdrop"
+          aria-label="Close chat"
+          onClick={() => close("backdrop")}
+          className="fixed inset-0 -z-10 cursor-default bg-ink/10 backdrop-blur-[1px]"
+        />
+      )}
+
       {isOpen && (
         <div
           ref={panelRef}
@@ -303,18 +332,19 @@ export function AiAssistant() {
                   onClick={() => setMessages([])}
                   aria-label="Reset conversation"
                   title="Clear conversation"
-                  className="p-1 text-ink/40 transition-colors hover:bg-ink/5 hover:text-ink"
+                  className="p-1.5 text-ink/40 transition-colors hover:bg-ink/5 hover:text-ink"
                 >
-                  <ArrowClockwise size={15} />
+                  <ArrowClockwise size={16} />
                 </button>
               )}
               <button
                 type="button"
-                onClick={close}
+                data-attr="ai-assistant-close"
+                onClick={() => close("header_button")}
                 aria-label="Close chat"
-                className="p-1 text-ink/40 transition-colors hover:bg-ink/5 hover:text-ink"
+                className="p-1.5 text-ink/40 transition-colors hover:bg-ink/5 hover:text-ink"
               >
-                <X size={16} weight="bold" />
+                <X size={18} weight="bold" />
               </button>
             </div>
           </div>
@@ -762,17 +792,9 @@ export function AiAssistant() {
       {/* Floating Toggle Button */}
       <button
         type="button"
+        data-attr="ai-assistant-toggle"
         onClick={() =>
-          setIsOpen((v) => {
-            if (!v) {
-              sound.playDrawer();
-              track("ai_assistant_opened", {
-                source: "floating_button",
-                page_path: pathname ?? "/",
-              });
-            }
-            return !v;
-          })
+          isOpen ? close("floating_button") : open("floating_button")
         }
         aria-label={isOpen ? "Close chat" : "Ask about my work"}
         className="flex items-center gap-2 border border-ink/10 bg-ink px-4 py-2.5 text-body-s font-medium text-cream shadow-xl transition-all hover:bg-accent hover:shadow-accent/20 active:scale-95"
