@@ -68,6 +68,13 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Ajibola",
   },
+  // iOS Safari otherwise wraps phone numbers, emails and addresses in links
+  // before hydration, which React reports as a mismatch (#418).
+  formatDetection: {
+    telephone: false,
+    email: false,
+    address: false,
+  },
 };
 
 export const viewport: Viewport = {

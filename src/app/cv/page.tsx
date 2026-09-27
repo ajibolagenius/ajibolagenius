@@ -101,7 +101,9 @@ export default async function CvPage() {
   // first, styled second.
   const contactItems: ContactItem[] = [
     info.location ? { icon: MapPin, label: info.location } : null,
-    info.phone ? { icon: Phone, label: info.phone } : null,
+    info.phone
+      ? { icon: Phone, label: info.phone, href: `tel:${info.phone.replace(/[^\d+]/g, "")}` }
+      : null,
     info.email ? { icon: Envelope, label: info.email, href: `mailto:${info.email}` } : null,
     info.social?.github
       ? {
@@ -166,7 +168,7 @@ export default async function CvPage() {
                     {item.href ? (
                       <a
                         href={item.href}
-                        target={item.href.startsWith("mailto:") ? undefined : "_blank"}
+                        target={/^(mailto|tel):/.test(item.href) ? undefined : "_blank"}
                         rel="noopener noreferrer"
                         className="transition-colors hover:text-accent"
                       >
