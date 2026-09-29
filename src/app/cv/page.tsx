@@ -12,7 +12,7 @@ import {
 import { getCvData } from "@/lib/cv-data";
 import { createClient } from "@/lib/supabase/server";
 import { CvDownloadButton } from "@/components/cv-download-button";
-import { experienceLabel } from "@/lib/experience-span";
+import { experienceLabel, parseCvDate } from "@/lib/experience-span";
 import { LISTED_KINDS } from "@/lib/project-kind";
 import { siteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
@@ -221,7 +221,13 @@ export default async function CvPage() {
                     <div className="flex flex-wrap items-baseline justify-between gap-x-4">
                       <h3 className="text-body-l font-medium">{entry.company}</h3>
                       <span className="whitespace-nowrap text-body-s text-ink/55">
-                        {entry.start_date} &ndash; {entry.end_date}
+                        {parseCvDate(entry.start_date)?.year ?? entry.start_date}
+                        {entry.end_date.toLowerCase() === "present" && (
+                          <>
+                            <span aria-hidden className="ml-0.5 text-accent">•</span>
+                            <span className="sr-only"> &ndash; Present</span>
+                          </>
+                        )}
                       </span>
                     </div>
                     <div className="flex flex-wrap items-baseline justify-between gap-x-4">
