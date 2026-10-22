@@ -2,8 +2,9 @@
 --
 -- In progress since October 2026. Foundations and the customer booking slice
 -- are built; the courier side, live tracking, wallet and push are still to
--- come. No public build yet, so live_url is the "#" placeholder and screenshots
--- stay empty.
+-- come. No public build yet, so live_url is the "#" placeholder. Screenshots
+-- are 1440x900 WebP files in the project-screenshots bucket, three iPhone
+-- screens each, captured from the iOS dev build in the simulator.
 insert into public.projects (
   slug,
   name,
@@ -44,7 +45,11 @@ insert into public.projects (
   'Ongoing',
   '2026',
   '[{"name":"Expo"},{"name":"React Native"},{"name":"TypeScript"},{"name":"Expo Router"},{"name":"NativeWind"},{"name":"Reanimated"},{"name":"MapLibre"},{"name":"Supabase"},{"name":"PostgreSQL"},{"name":"TanStack Query"},{"name":"Zustand"},{"name":"Zod"},{"name":"i18next"},{"name":"Jest"},{"name":"GitHub Actions"}]'::jsonb,
-  '[]'::jsonb,
+  '[
+    "https://peincqeqcufbkoccyneo.supabase.co/storage/v1/object/public/project-screenshots/ee656c8e-1d5b-42b8-8169-db5ce99eb08d.webp",
+    "https://peincqeqcufbkoccyneo.supabase.co/storage/v1/object/public/project-screenshots/dc8e2c4f-baba-4a2f-b2d5-9e78ef7f015d.webp",
+    "https://peincqeqcufbkoccyneo.supabase.co/storage/v1/object/public/project-screenshots/7ad3b39f-c234-4c72-8d67-f67aefd2ec4e.webp"
+  ]'::jsonb,
   null
 ) on conflict (slug) do update set
   name = excluded.name,
