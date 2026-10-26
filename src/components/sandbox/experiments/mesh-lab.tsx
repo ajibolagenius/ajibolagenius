@@ -178,7 +178,9 @@ export function MeshLabExperiment() {
       alpha: true,
       powerPreference: "high-performance",
     });
-    renderer.setSize(width, height);
+    // Update the drawing buffer only. CSS controls the display size, so
+    // three.js must not write inline canvas styles.
+    renderer.setSize(width, height, false);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     rendererRef.current = renderer;
@@ -235,16 +237,23 @@ export function MeshLabExperiment() {
 
     animationFrameRef.current = requestAnimationFrame(animate);
 
-    // Resize observer
+    // Resize observer. It updates the drawing buffer only. It never writes
+    // canvas styles, so it cannot resize the observed container and start a
+    // resize loop.
+    let lastWidth = width;
+    let lastHeight = height;
     const resizeObserver = new ResizeObserver((entries) => {
       const entry = entries[0];
       if (!entry) return;
       const newWidth = entry.contentRect.width;
       const newHeight = Math.max(340, Math.min(newWidth * 0.65, 480));
+      if (newWidth === lastWidth && newHeight === lastHeight) return;
+      lastWidth = newWidth;
+      lastHeight = newHeight;
 
       camera.aspect = newWidth / newHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(newWidth, newHeight);
+      renderer.setSize(newWidth, newHeight, false);
     });
 
     resizeObserver.observe(container);
@@ -333,7 +342,7 @@ export function MeshLabExperiment() {
       {/* 3D Canvas Area */}
       <div
         ref={containerRef}
-        className="relative flex w-full items-center justify-center overflow-hidden bg-cream select-none cursor-grab active:cursor-grabbing"
+        className="relative flex aspect-[20/13] max-h-[480px] min-h-[340px] w-full items-center justify-center overflow-hidden bg-cream select-none cursor-grab active:cursor-grabbing"
       >
         <canvas
           ref={canvasRef}
@@ -341,7 +350,7 @@ export function MeshLabExperiment() {
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
-          className="touch-none"
+          className="block h-full w-full touch-none"
         />
 
         {/* Ambient watermark prompt */}
