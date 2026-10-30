@@ -34,6 +34,7 @@ function projectInputFromForm(formData: FormData): ProjectInput {
     github_url: String(formData.get("github_url") ?? "#").trim(),
     problem: String(formData.get("problem") ?? "").trim(),
     solution: String(formData.get("solution") ?? "").trim(),
+    outcome: String(formData.get("outcome") ?? "").trim(),
     role_title: String(formData.get("role_title") ?? "").trim(),
     duration: String(formData.get("duration") ?? "").trim(),
     year: String(formData.get("year") ?? "").trim(),

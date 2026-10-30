@@ -11,7 +11,6 @@ import { siteUrl } from "@/lib/site-url";
 import { kindMeta, LISTED_KINDS } from "@/lib/project-kind";
 import { JsonLd } from "@/components/json-ld";
 import { TopNav } from "@/components/cv/top-nav";
-import { Sidebar } from "@/components/cv/sidebar";
 import { SiteFooter } from "@/components/cv/site-footer";
 import { ScreenshotGallery } from "@/components/screenshot-gallery";
 import { ShareButtons } from "@/components/cv/share-buttons";
@@ -132,13 +131,12 @@ export default async function ProjectDetailPage({
         }}
       />
       <TopNav visibleSections={visibleSections} />
-      <Sidebar info={personalInfo} />
       <main
         id="main-content"
         tabIndex={-1}
-        className="page-enter flex-1 lg:ml-80 focus:outline-none"
+        className="page-enter flex-1 focus:outline-none"
       >
-        <div className="mx-auto flex w-full min-w-0 max-w-3xl xl:max-w-5xl 2xl:max-w-6xl flex-col gap-10 px-6 py-10">
+        <div className="mx-auto flex w-full min-w-0 max-w-5xl flex-col gap-10 px-6 py-10">
           <ProjectBackLink href={backHref} />
 
           <header
@@ -252,6 +250,13 @@ export default async function ProjectDetailPage({
             </div>
           )}
 
+          {p.outcome && (
+            <section className="reveal flex flex-col gap-2 border-l-2 border-accent/40 pl-5">
+              <h2 className="text-h3 font-normal">Result</h2>
+              <p className="whitespace-pre-wrap text-body-m text-ink/70">{p.outcome}</p>
+            </section>
+          )}
+
           {p.tech_details?.length > 0 && (
             <section className="reveal flex flex-col gap-3">
               <h2 className="text-h3 font-normal">Tech stack</h2>
@@ -284,7 +289,10 @@ export default async function ProjectDetailPage({
           />
         </div>
       </main>
-      <SiteFooter name={personalInfo?.name ?? ""} />
+      <SiteFooter
+        name={personalInfo?.name ?? ""}
+        availability={personalInfo?.availability}
+      />
     </>
   );
 }

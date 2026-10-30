@@ -1,116 +1,77 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
-import { SectionHeading } from "./section-heading";
-import { CompanyIcon } from "@/components/company-icon";
-import { assignCompanyIcons, type CompanyIconStyle } from "@/lib/company-icon";
+import { HomeSection } from "@/components/cv/home-section";
+import { careerStart, parseCvDate } from "@/lib/experience-span";
 import { useLanguage } from "@/lib/i18n";
 import type { ExperienceEntry } from "@/types/cv";
 
-/** Roles shown on the homepage; the rest live on /cv. */
-const VISIBLE_ROLES = 3;
+/** Roles shown on the homepage; the full history lives on /cv. */
+const VISIBLE_ROLES = 6;
 
-/** Icon column width; the timeline rule is centred under it. */
-const ICON_SIZE = 32;
-
-function JobCard({
-  entry,
-  iconStyle,
-}: {
-  entry: ExperienceEntry;
-  iconStyle?: CompanyIconStyle;
-}) {
-  return (
-    <div className="group relative flex gap-4 break-inside-avoid">
-      {/* Opaque background so the rule reads as passing behind each node. */}
-      <span className="relative z-10 shrink-0 bg-cream py-1">
-        <CompanyIcon seed={entry.company} size={ICON_SIZE} style={iconStyle} />
-      </span>
-
-      <div className="flex flex-1 flex-col gap-1 pb-2">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-          <h3 className="text-body-l font-medium transition-colors duration-[var(--dur-2)] group-hover:text-accent">
-            {entry.role_title}
-          </h3>
-          <span className="font-mono text-body-xs tabular-nums text-ink/50">
-            {entry.start_date} &ndash; {entry.end_date}
-          </span>
-        </div>
-
-        <p className="text-body-s text-ink/60">
-          {entry.company} &middot; {entry.employment_type}
-        </p>
-
-        {entry.body && (
-          <p className="mt-1 text-body-s text-ink/70">{entry.body}</p>
-        )}
-
-        {entry.bullets?.length > 0 && (
-          <ul className="mt-1 flex list-disc flex-col gap-1 pl-4 text-body-s text-ink/70">
-            {entry.bullets.map((bullet) => (
-              <li key={bullet}>{bullet}</li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </div>
-  );
-}
-
+/**
+ * One line per role — start year, title, company — that opens to a short
+ * description. Bullets stay on /cv: the homepage is the summary, not the
+ * record. Native <details>, so it works without JS and with find-in-page.
+ */
 export function Experience({ entries }: { entries: ExperienceEntry[] }) {
   const { t } = useLanguage();
   if (entries.length === 0) return null;
 
-  const iconStyles = assignCompanyIcons(entries.map((e) => e.company));
-  const visible = entries.slice(0, VISIBLE_ROLES);
-  const hasMore = entries.length > VISIBLE_ROLES;
+  const since = careerStart(entries)?.year;
 
   return (
-    <section className="reveal flex flex-col gap-6 border-t border-ink/10 py-10">
-      <SectionHeading id="experience">Experience</SectionHeading>
-
-      <div className="relative flex flex-col gap-7">
-        {/* Static hairline track — always full height, so the timeline reads
-            correctly even where the animated overlay never runs. */}
-        <span
-          aria-hidden
-          className="absolute bottom-0 top-0 w-px -translate-x-1/2 bg-ink/10 print:hidden"
-          style={{ left: ICON_SIZE / 2 }}
-        />
-        <span
-          aria-hidden
-          className="timeline-progress absolute bottom-0 top-0 w-px -translate-x-1/2 bg-accent/40 print:hidden"
-          style={{ left: ICON_SIZE / 2 }}
-        />
-
-        {visible.map((entry) => (
-          <JobCard
+    <HomeSection
+      id="experience"
+      label={t.labels.experience}
+      sub={since ? t.labels.since.replace("{year}", String(since)) : undefined}
+    >
+      <div className="border-t border-ink/10">
+        {entries.slice(0, VISIBLE_ROLES).map((entry) => (
+          // Hover tints the row, nudges the role 2px and turns the year and
+          // "+" accent; an open row keeps the tint so it reads as selected.
+          <details
             key={entry.id}
-            entry={entry}
-            iconStyle={iconStyles.get(entry.company)}
-          />
+            className="group border-b border-ink/10 transition-colors duration-[var(--dur-2)] open:bg-ink/[0.04]"
+          >
+            <summary className="group/row grid cursor-pointer list-none grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-5 gap-y-0.5 px-3 py-4 transition-colors duration-[var(--dur-2)] hover:bg-ink/[0.04] sm:grid-cols-[4rem_minmax(0,1fr)_auto] [&::-webkit-details-marker]:hidden">
+              <span className="col-span-full font-mono text-body-xs tabular-nums text-ink/50 transition-colors duration-[var(--dur-2)] group-hover/row:text-accent sm:col-span-1">
+                {parseCvDate(entry.start_date)?.year ?? entry.start_date}
+              </span>
+              <span className="font-medium transition-transform duration-[var(--dur-2)] ease-out-quart group-hover/row:translate-x-0.5">
+                {entry.role_title}{" "}
+                <span className="font-normal text-ink/55">· {entry.company}</span>
+              </span>
+              <span
+                aria-hidden
+                className="font-mono text-ink/50 transition duration-[var(--dur-3)] ease-out-quart group-hover/row:text-accent group-open:rotate-45 group-open:text-accent"
+              >
+                +
+              </span>
+            </summary>
+            <div className="flex max-w-[62ch] flex-col gap-2 px-3 pb-5 text-body-s text-ink/65 sm:ml-[5.25rem]">
+              {entry.body && <p>{entry.body}</p>}
+              {entry.company_url && (
+                <a
+                  href={entry.company_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-fit font-mono text-body-xs text-ink underline decoration-ink/20 underline-offset-4 hover:decoration-accent"
+                >
+                  {entry.company} ↗
+                </a>
+              )}
+            </div>
+          </details>
         ))}
       </div>
 
-      {hasMore && (
-        // A real navigation to /cv, which lists every role. This replaced a
-        // modal that had no focus trap, no Escape handler and no focus
-        // restoration — and whose contents were unreachable by Cmd+F or print.
-        <Link
-          href="/cv"
-          className="group inline-flex w-fit items-center gap-2 bg-ink/5 px-4 py-2 text-body-s font-medium text-ink transition-colors duration-[var(--dur-2)] hover:bg-ink/10"
-        >
-          {/* Single interpolated child: three children would make React emit
-              <!-- --> separators between the text and the count. */}
-          {t.experience.viewAllRoles.replace("{count}", String(entries.length))}
-          <ArrowRight
-            weight="duotone"
-            size={16}
-            className="transition-transform duration-[var(--dur-2)] group-hover:translate-x-0.5"
-          />
-        </Link>
-      )}
-    </section>
+      <Link
+        href="/cv"
+        className="mt-10 inline-block text-body-s underline decoration-ink/20 underline-offset-4 transition-colors hover:decoration-accent"
+      >
+        {t.experience.fullHistory} →
+      </Link>
+    </HomeSection>
   );
 }

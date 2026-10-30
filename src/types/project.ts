@@ -23,6 +23,8 @@ export interface Project {
   github_url: string;
   problem: string;
   solution: string;
+  /** Added by 20261030000000. Verified result; empty until there is one. */
+  outcome: string;
   role_title: string;
   duration: string;
   year: string;

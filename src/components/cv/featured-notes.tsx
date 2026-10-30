@@ -1,42 +1,52 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
-import { NoteCard } from "@/components/note-card";
-import { SectionHeading } from "@/components/cv/section-heading";
+import { HomeSection } from "@/components/cv/home-section";
 import { useLanguage } from "@/lib/i18n";
 import type { Note } from "@/types/note";
+
+// `date` is a calendar date ("2026-05-20"); formatting in UTC keeps it from
+// sliding to the previous day west of Greenwich.
+const monthYear = new Intl.DateTimeFormat("en-GB", {
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+function formatDate(date: string) {
+  const parsed = new Date(date);
+  return Number.isNaN(parsed.getTime()) ? date : monthYear.format(parsed);
+}
 
 export function FeaturedNotes({ notes }: { notes: Note[] }) {
   const { t } = useLanguage();
   if (!notes || notes.length === 0) return null;
 
   return (
-    <section className="reveal flex flex-col gap-6 border-t border-ink/10 pt-12 pb-6 print:hidden">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <div>
-          <SectionHeading id="notes">Recent Notes</SectionHeading>
-          <p className="mt-1 text-body-s text-ink/60">
-            Case studies and engineering reflections on building resilient software.
-          </p>
-        </div>
-        <Link
-          href="/notes"
-          className="group inline-flex items-center gap-1.5 font-mono text-body-xs font-medium text-ink transition-colors hover:text-accent"
-        >
-          {t.actions.allNotes}
-          <ArrowRight
-            size={13}
-            className="transition-transform group-hover:translate-x-0.5"
-          />
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {notes.slice(0, 2).map((note) => (
-          <NoteCard key={note.id} note={note} />
+    <HomeSection id="notes" label={t.labels.writing} sub={t.labels.writingSub}>
+      <div className="border-t border-ink/10">
+        {notes.map((note) => (
+          <Link
+            key={note.id}
+            href={`/notes/${note.slug}`}
+            className="group grid gap-x-6 gap-y-1 border-b border-ink/10 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-baseline"
+          >
+            <span className="font-display text-[1.3125rem] leading-snug transition-colors duration-[var(--dur-2)] group-hover:text-accent">
+              {note.title}
+            </span>
+            <span className="font-mono text-body-xs text-ink/50">
+              {[formatDate(note.date), note.read_time].filter(Boolean).join(" · ")}
+            </span>
+          </Link>
         ))}
       </div>
-    </section>
+
+      <Link
+        href="/notes"
+        className="mt-10 inline-block text-body-s underline decoration-ink/20 underline-offset-4 transition-colors hover:decoration-accent"
+      >
+        {t.actions.allNotes} →
+      </Link>
+    </HomeSection>
   );
 }

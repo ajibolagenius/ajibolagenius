@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { getCvData } from "@/lib/cv-data";
 import { TopNav } from "@/components/cv/top-nav";
-import { Sidebar } from "@/components/cv/sidebar";
 import { SiteFooter } from "@/components/cv/site-footer";
 import { ProjectsGrid, ProjectsGridFallback } from "@/components/projects-grid";
 import { SandboxPromoCard } from "@/components/sandbox-promo-card";
@@ -57,13 +56,12 @@ export default async function ProjectsPage() {
   return (
     <>
       <TopNav visibleSections={visibleSections} />
-      <Sidebar info={personalInfo} />
       <main
         id="main-content"
         tabIndex={-1}
-        className="page-enter flex-1 lg:ml-80 focus:outline-none"
+        className="page-enter flex-1 focus:outline-none"
       >
-        <div className="mx-auto w-full min-w-0 max-w-3xl xl:max-w-5xl 2xl:max-w-6xl px-6 py-10">
+        <div className="mx-auto w-full min-w-0 max-w-5xl px-6 py-10">
           <div>
             <h1 className="text-h1 font-normal">Projects</h1>
             <p className="mt-2 text-body-m text-ink/60">{description}</p>
@@ -90,7 +88,10 @@ export default async function ProjectsPage() {
           )}
         </div>
       </main>
-      <SiteFooter name={personalInfo?.name ?? ""} />
+      <SiteFooter
+        name={personalInfo?.name ?? ""}
+        availability={personalInfo?.availability}
+      />
     </>
   );
 }

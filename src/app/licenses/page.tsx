@@ -11,7 +11,6 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { getCvData } from "@/lib/cv-data";
 import { TopNav } from "@/components/cv/top-nav";
-import { Sidebar } from "@/components/cv/sidebar";
 import { SiteFooter } from "@/components/cv/site-footer";
 import { LicensesHeading } from "@/components/licenses-heading";
 
@@ -92,15 +91,12 @@ export default async function LicensesPage() {
   return (
     <>
       <TopNav visibleSections={visibleSections} />
-      <div className="hidden lg:block">
-        <Sidebar info={personalInfo} />
-      </div>
       <main
         id="main-content"
         tabIndex={-1}
-        className="page-enter flex-1 lg:ml-80 focus:outline-none"
+        className="page-enter flex-1 focus:outline-none"
       >
-        <div className="mx-auto w-full max-w-3xl xl:max-w-5xl 2xl:max-w-6xl px-6 py-10">
+        <div className="mx-auto w-full max-w-5xl px-6 py-10">
           <div className="text-center">
             <LicensesHeading />
             <p className="mx-auto mt-3 max-w-md text-body-m text-ink/60">
@@ -133,7 +129,10 @@ export default async function LicensesPage() {
           </div>
         </div>
       </main>
-      <SiteFooter name={personalInfo?.name ?? ""} />
+      <SiteFooter
+        name={personalInfo?.name ?? ""}
+        availability={personalInfo?.availability}
+      />
     </>
   );
 }

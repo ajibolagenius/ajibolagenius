@@ -61,7 +61,7 @@ export const ADMIN_RESOURCES: Record<string, ResourceConfig> = {
         name: "social.github",
         label: "GitHub URL",
         type: "text",
-        help: "Full profile URL (https://github.com/<user>). Also drives the homepage contribution graph — clear it to hide the graph.",
+        help: "Full profile URL (https://github.com/<user>). Also drives the homepage's last-commit line — clear it to hide that line.",
       },
       { name: "social.linkedin", label: "LinkedIn URL", type: "text" },
       { name: "social.twitter", label: "X / Twitter URL", type: "text" },
@@ -93,12 +93,18 @@ export const ADMIN_RESOURCES: Record<string, ResourceConfig> = {
     fields: [
       { name: "role_title", label: "Role title", type: "text" },
       { name: "company", label: "Company", type: "text" },
+      {
+        name: "company_url",
+        label: "Company website",
+        type: "text",
+        help: "Optional. The company name links here on the homepage.",
+      },
       { name: "employment_type", label: "Employment type", type: "text" },
       {
         name: "start_date",
         label: "Start date",
         type: "text",
-        help: 'Must contain a year ("2019", "Jan 2020"). The sidebar\'s years-of-experience row is derived from the earliest one and is omitted entirely if none parse.',
+        help: 'Must contain a year ("2019", "Jan 2020"). The homepage\'s years-of-experience figure is derived from the earliest one and is omitted entirely if none parse.',
       },
       { name: "end_date", label: "End date", type: "text" },
       { name: "body", label: "Description", type: "textarea" },

@@ -526,7 +526,7 @@ export function CommandPalette() {
         icon: UserCircle,
         badge: "Section",
         keywords: ["about", "bio", "background", "story"],
-        onSelect: () => handleNavigate("/#about"),
+        onSelect: () => handleNavigate("/cv"),
       },
       {
         id: "nav-experience",
@@ -546,7 +546,7 @@ export function CommandPalette() {
         icon: Certificate,
         badge: "Section",
         keywords: ["education", "degree", "university", "academic"],
-        onSelect: () => handleNavigate("/#education"),
+        onSelect: () => handleNavigate("/cv"),
       },
       {
         id: "nav-skills",
@@ -556,7 +556,7 @@ export function CommandPalette() {
         icon: Stack,
         badge: "Section",
         keywords: ["skills", "stack", "tools", "technologies", "react", "nextjs", "typescript", "node", "tailwind"],
-        onSelect: () => handleNavigate("/#skills"),
+        onSelect: () => handleNavigate("/cv"),
       },
       {
         id: "nav-connect",

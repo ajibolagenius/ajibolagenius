@@ -63,7 +63,7 @@ export function ContactForm() {
 
   if (status === "sent") {
     return (
-      <div className="w-full max-w-md bg-ink/5 px-4 py-6 text-center text-body-s text-ink/70">
+      <div className="w-full bg-ink/5 px-4 py-6 text-center text-body-s text-ink/70">
         {t.contact.successDesc}
       </div>
     );
@@ -74,7 +74,7 @@ export function ContactForm() {
       ref={formRef}
       onSubmit={handleSubmit}
       data-ph-mask
-      className="flex w-full max-w-md flex-col gap-3 text-left"
+      className="flex w-full flex-col gap-3 text-left"
     >
       {/* Honeypot: hidden from real users, bots that fill every field trip it. */}
       <input
@@ -85,29 +85,33 @@ export function ContactForm() {
         aria-hidden="true"
         className="hidden"
       />
-      <input
-        name="name"
-        placeholder={t.contact.namePlaceholder}
-        required
-        suppressHydrationWarning
-        className="w-full border border-ink/10 bg-ink/5 px-4 py-3 text-body-s outline-none focus:border-accent"
-      />
-      <input
-        name="email"
-        type="email"
-        placeholder={t.contact.emailPlaceholder}
-        required
-        suppressHydrationWarning
-        className="w-full border border-ink/10 bg-ink/5 px-4 py-3 text-body-s outline-none focus:border-accent"
-      />
-      <textarea
-        name="message"
-        placeholder={t.contact.messagePlaceholder}
-        required
-        rows={4}
-        suppressHydrationWarning
-        className="w-full resize-none border border-ink/10 bg-ink/5 px-4 py-3 text-body-s outline-none focus:border-accent"
-      />
+      {(
+        [
+          ["name", "text", t.contact.namePlaceholder],
+          ["email", "email", t.contact.emailPlaceholder],
+        ] as const
+      ).map(([name, type, label]) => (
+        <label key={name} className="flex flex-col gap-1.5 font-mono text-body-xs text-ink/55">
+          {label}
+          <input
+            name={name}
+            type={type}
+            required
+            suppressHydrationWarning
+            className="w-full border border-ink/10 bg-ink/5 px-4 py-3 font-sans text-body-s text-ink outline-none focus:border-accent"
+          />
+        </label>
+      ))}
+      <label className="flex flex-col gap-1.5 font-mono text-body-xs text-ink/55">
+        {t.contact.messagePlaceholder}
+        <textarea
+          name="message"
+          required
+          rows={4}
+          suppressHydrationWarning
+          className="w-full resize-none border border-ink/10 bg-ink/5 px-4 py-3 font-sans text-body-s text-ink outline-none focus:border-accent"
+        />
+      </label>
       <button
         type="submit"
         disabled={status === "sending"}

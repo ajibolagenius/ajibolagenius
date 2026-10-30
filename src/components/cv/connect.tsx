@@ -1,99 +1,99 @@
 "use client";
 
-import Image from "next/image";
-import {
-  Envelope,
-  Phone,
-  LinkedinLogo,
-  XLogo,
-  GithubLogo,
-} from "@phosphor-icons/react/dist/ssr";
-import type { PersonalInfo } from "@/types/cv";
+import { useState } from "react";
 import { ContactForm } from "@/components/cv/contact-form";
-import { SectionHeading } from "@/components/cv/section-heading";
+import { HomeSection } from "@/components/cv/home-section";
 import { useLanguage } from "@/lib/i18n";
+import type { PersonalInfo } from "@/types/cv";
+
+const link =
+  "underline decoration-accent/40 underline-offset-[0.2em] transition-colors hover:decoration-accent";
 
 export function Connect({ info }: { info: PersonalInfo | null }) {
   const { t } = useLanguage();
+  const [copied, setCopied] = useState(false);
   if (!info) return null;
 
+  const socials = [
+    ["GitHub", info.social?.github],
+    ["LinkedIn", info.social?.linkedin],
+    ["X", info.social?.twitter],
+  ].filter((s): s is [string, string] => Boolean(s[1]));
+
+  const copy = () => {
+    navigator.clipboard
+      .writeText(info.email)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1600);
+      })
+      // Clipboard refused: the address is `select-all`, one click selects it.
+      .catch(() => {});
+  };
+
   return (
-    <section className="flex flex-col items-center gap-8 border-t border-ink/10 py-16 text-center">
-      <div>
-        <SectionHeading id="connect">Let&apos;s Connect</SectionHeading>
-        <p className="mt-2 text-body-m text-ink/60">{t.connect.availability}</p>
-      </div>
+    <HomeSection
+      id="connect"
+      label={t.labels.contact}
+      sub={
+        <span className="inline-flex items-center gap-2 text-ink">
+          <span aria-hidden className="size-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
+          {t.labels.available}
+        </span>
+      }
+    >
+      {/* Desktop: the invitation on the left, the form beside it. */}
+      <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-14">
+        <div>
+          <p className="max-w-[24ch] font-display text-[clamp(1.625rem,3.2vw,2.25rem)] leading-[1.3] text-pretty">
+            {t.connect.writeTo}{" "}
+            <a href={`mailto:${info.email}`} className={link}>
+              {t.connect.myEmail}
+            </a>
+            {socials.length > 0 && (
+              <>
+                , {t.connect.findMe}{" "}
+                {socials.map(([label, href], i) => (
+                  <span key={label}>
+                    {i > 0 && (i === socials.length - 1 ? ` ${t.connect.and} ` : ", ")}
+                    <a href={href} target="_blank" rel="noopener noreferrer" className={link}>
+                      {label}
+                    </a>
+                  </span>
+                ))}
+              </>
+            )}
+            .
+          </p>
 
-      <div className="flex w-full max-w-md flex-col gap-3 sm:flex-row">
-        <a
-          href={`mailto:${info.email}`}
-          className="flex flex-1 items-center gap-3  bg-ink/5 px-4 py-3 text-left"
-        >
-          <Envelope weight="duotone" size={18} />
-          <div>
-            <p className="text-body-s font-medium">{t.connect.emailMe}</p>
-            <p className="text-body-xs text-ink/60">{info.email}</p>
+          <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2.5 font-mono text-body-xs">
+            <span className="select-all">{info.email}</span>
+            <button
+              type="button"
+              onClick={copy}
+              className="border border-ink/15 px-2.5 py-1.5 transition-colors duration-[var(--dur-2)] hover:border-accent hover:text-accent"
+            >
+              {copied ? t.connect.copied : t.connect.copy}
+            </button>
+            {info.social?.whatsapp && (
+              <a
+                href={info.social.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-ink/55 underline decoration-ink/20 underline-offset-4 hover:decoration-accent"
+              >
+                {t.connect.orWhatsApp}
+                {info.phone ? ` ${info.phone}` : ""}
+              </a>
+            )}
           </div>
-        </a>
-        {info.social?.whatsapp && (
-          <a
-            href={info.social.whatsapp}
-            className="flex flex-1 items-center gap-3  bg-ink/5 px-4 py-3 text-left"
-          >
-            <Phone weight="duotone" size={18} />
-            <div>
-              <p className="text-body-s font-medium">{t.connect.callMe}</p>
-              <p className="text-body-xs text-ink/60">WhatsApp</p>
-            </div>
-          </a>
-        )}
-      </div>
+        </div>
 
-      <ContactForm />
-
-      <div>
-        <p className="text-body-s text-ink/60">{t.connect.joinNetwork}</p>
-        <div className="mt-2 flex items-center justify-center gap-3">
-          {info.social?.linkedin && (
-            <a
-              href={info.social.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-ink/60 hover:text-ink"
-            >
-              <LinkedinLogo weight="duotone" size={18} />
-            </a>
-          )}
-          {info.social?.twitter && (
-            <a
-              href={info.social.twitter}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-ink/60 hover:text-ink"
-            >
-              <XLogo weight="duotone" size={18} />
-            </a>
-          )}
-          {info.social?.github && (
-            <a
-              href={info.social.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-ink/60 hover:text-ink"
-            >
-              <GithubLogo weight="duotone" size={18} />
-            </a>
-          )}
+        <div className="flex flex-col gap-4">
+          <p className="font-mono text-body-xs text-ink/50">{t.connect.orMessage}</p>
+          <ContactForm />
         </div>
       </div>
-
-      <Image
-        src="/illustration-connect.svg"
-        alt=""
-        width={160}
-        height={160}
-        className="opacity-90"
-      />
-    </section>
+    </HomeSection>
   );
 }

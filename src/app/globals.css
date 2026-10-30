@@ -58,7 +58,7 @@
  *   object (card, image, tilt)   --dur-3            transform only
  *   reveal / enter               --dur-4            opacity + translateY
  *   transition (view trans.)     --dur-3 / --dur-5  pseudo transform/opacity
- *   ambient (marquee, float)     seconds, linear    transform
+ *   timer (work slider fill)     seconds, linear    transform
  *
  * Stagger is --stagger for <=6 items, 40ms beyond. Never stagger past 8 —
  * the tail reads as lag, not rhythm.
@@ -273,51 +273,6 @@ body {
   }
 }
 
-.rule-draw {
-  transform-origin: 0 50%;
-}
-
-@media screen and (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .rule-draw {
-      animation: rule-draw linear both;
-      animation-timeline: view();
-      animation-range: entry 20% cover 25%;
-    }
-  }
-}
-
-/* ── Vertical timeline rule ────────────────────────────────────────────── */
-@keyframes rule-draw-y {
-  from {
-    transform: scaleY(0);
-  }
-  to {
-    transform: scaleY(1);
-  }
-}
-
-/* The accent overlay is display:none by default and only turned on where
-   scroll-driven animation genuinely works. That way a browser without view()
-   support falls back to the plain hairline track rather than to a static
-   accent bar it could never "fill" — the same fail-open invariant as .reveal,
-   where the hidden state lives strictly inside the @supports block. */
-.timeline-progress {
-  display: none;
-}
-
-@media screen and (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .timeline-progress {
-      display: block;
-      transform-origin: 50% 0;
-      animation: rule-draw-y linear both;
-      animation-timeline: view();
-      animation-range: entry 10% cover 65%;
-    }
-  }
-}
-
 /* ── Scroll progress — pure CSS, no listener ───────────────────────────── */
 .scroll-progress {
   transform: scaleX(0);
@@ -497,79 +452,6 @@ body {
   border-right: 1px solid;
 }
 
-/* ── Ambient float ─────────────────────────────────────────────────────── */
-@keyframes float-y {
-  from {
-    transform: translate3d(0, -3px, 0);
-  }
-  to {
-    transform: translate3d(0, 3px, 0);
-  }
-}
-
-.animate-float {
-  animation: float-y 6s var(--ease-in-out-quart) infinite alternate;
-}
-
-@keyframes marquee-y {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(-50%);
-  }
-}
-
-.animate-marquee-y {
-  animation: marquee-y 50s linear infinite;
-}
-
-@keyframes marquee-x {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-marquee-x {
-  animation: marquee-x 35s linear infinite;
-}
-
-@keyframes featured-marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes featured-marquee-reverse {
-  from {
-    transform: translateX(-50%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-.animate-featured-marquee {
-  animation: featured-marquee 40s linear infinite;
-  will-change: transform;
-}
-
-.animate-featured-marquee-reverse {
-  animation: featured-marquee-reverse 40s linear infinite;
-  will-change: transform;
-}
-
-.featured-marquee-host.is-paused .animate-featured-marquee,
-.featured-marquee-host.is-paused .animate-featured-marquee-reverse {
-  animation-play-state: paused;
-}
-
 /* ── Same-document view transitions ────────────────────────────────────────
  * Every ::view-transition-* rule is scoped under html[data-vt="<kind>"], set
  * by useViewTransition, so the three use cases (theme, filter, lightbox) can
@@ -707,12 +589,8 @@ html[data-vt="project-route"] .page-enter {
  * Deliberately blanket rather than an allowlist: a hand-maintained list
  * drifts the moment someone adds a hover effect.
  *
- * This replaces the previous rule, which paused only the four marquee
- * classes. The marquees now snap to their end state (translate -50%) instead
- * of freezing mid-scroll — safe here, because MarqueeTrack and EdgeMarquee
- * both render two identical halves, so -50% is a seam and is pixel-identical
- * to 0. On desktop it is moot anyway: featured-work already swaps the marquee
- * for a static grid when reduced motion is set.
+ * The one exception is .work-fill (below): it is the slider's timer, and a
+ * 1ms run would fire animationend at once and spin through the slides.
  *
  * Note CSS scroll-behavior does NOT govern scrollTo({behavior:"smooth"}) —
  * JS scroll call sites consult usePrefersReducedMotion directly.
@@ -917,7 +795,6 @@ html[data-vt="project-route"] .page-enter {
   .reveal-stagger > *,
   .enter,
   .page-enter,
-  .rule-draw,
   .hero-settle {
     opacity: 1 !important;
     transform: none !important;
@@ -947,4 +824,55 @@ html[data-vt="project-route"] .page-enter {
     widows: 3;
   }
 
+}
+
+/* ── Featured work slider ──────────────────────────────────────────────────
+ * Slides share one grid cell; only the active one is visible. visibility is
+ * delayed on the way out so the outgoing slide fades instead of vanishing.
+ *
+ * .work-fill is the timer: FeaturedWork advances on its animationend. Hover
+ * or focus inside the slides, or the pause button, pauses it.
+ * ------------------------------------------------------------------------ */
+.work-slide {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--dur-4) var(--ease-out-quart),
+    visibility 0s linear var(--dur-4);
+}
+
+.work-slide[data-active="true"] {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity var(--dur-4) var(--ease-out-quart),
+    visibility 0s;
+}
+
+@keyframes work-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.work-fill {
+  animation: work-fill 7s linear both;
+}
+
+.work-slides:hover ~ .work-ctrl .work-fill,
+.work-slides:focus-within ~ .work-ctrl .work-fill,
+.work-slider[data-paused="true"] .work-fill {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No timer at all: slides change only when the visitor asks. */
+  .work-fill {
+    animation: none !important;
+    transform: none;
+  }
 }

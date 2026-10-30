@@ -7,40 +7,15 @@ import {
   useSyncExternalStore,
   type CSSProperties,
 } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  ChatCircle,
-  List,
-  MagnifyingGlass,
-  UserCircle,
-  X,
-} from "@phosphor-icons/react/dist/ssr";
+import { List, MagnifyingGlass, X } from "@phosphor-icons/react/dist/ssr";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageToggle } from "@/components/language-toggle";
 import { SoundToggle } from "@/components/sound-toggle";
 import { useLanguage } from "@/lib/i18n";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
-import { useIndicator } from "@/hooks/use-indicator";
-import { useScrollSpy } from "@/hooks/use-scroll-spy";
-
-type NavLink = {
-  href: string;
-  label: string;
-  /** Homepage section key. Route links omit it and always render. */
-  section?: string;
-};
-
-// Streamlined to 4 core destinations to keep the header airy and spacious.
-// Granular resume sections (education, skills, etc.) remain in page flow,
-// printable CV (/cv), and instantly searchable via the Command Palette (⌘K).
-const LINKS: NavLink[] = [
-  { href: "/projects", label: "Projects" },
-  { href: "/notes", label: "Notes" },
-  { href: "/#experience", section: "experience", label: "Experience" },
-  { href: "/#about", section: "about", label: "About" },
-  { href: "/sandbox", label: "Sandbox" },
-];
 
 function subscribeEmpty() {
   return () => {};
@@ -57,10 +32,15 @@ function getIsMacServerSnapshot() {
   return true;
 }
 
+/**
+ * Three destinations and the CV. The CV is the one filled button: it is the
+ * thing a recruiter came for. Everything else (sandbox, sections, the radio)
+ * is a ⌘K away.
+ */
 export function TopNav({
   visibleSections,
 }: {
-  /** Visible homepage section keys; links to hidden sections are omitted. */
+  /** Visible homepage section keys; the contact link follows "connect". */
   visibleSections?: string[];
 }) {
   const { t } = useLanguage();
@@ -73,128 +53,89 @@ export function TopNav({
     getIsMacServerSnapshot,
   );
 
-  const getNavLabel = (link: NavLink) => {
-    if (link.section === "about") return t.nav.about;
-    if (link.section === "experience") return t.nav.experience;
-    if (link.href === "/projects") return t.nav.projects;
-    if (link.href === "/notes") return t.nav.notes;
-    if (link.href === "/sandbox") return t.nav.sandbox;
-    return link.label;
-  };
-
   const close = useCallback(() => setOpen(false), []);
   useFocusTrap(sheetRef, open, close);
 
-  const links = visibleSections
-    ? LINKS.filter((link) => !link.section || visibleSections.includes(link.section))
-    : LINKS;
-  const showContact = visibleSections
-    ? visibleSections.includes("connect")
-    : true;
+  const showContact = visibleSections ? visibleSections.includes("connect") : true;
+  const links = [
+    { href: "/projects", label: t.nav.work },
+    { href: "/notes", label: t.nav.writing },
+    ...(showContact ? [{ href: "/#connect", label: t.nav.contact }] : []),
+  ];
+  const isActive = (href: string) => !href.includes("#") && pathname.startsWith(href);
 
-  // Hash links only resolve on the homepage, so only spy there.
-  const onHome = pathname === "/";
-  const spySections = onHome
-    ? links.flatMap((link) => (link.section ? [link.section] : []))
-    : [];
-  const activeSection = useScrollSpy(spySections);
+  const openPalette = () =>
+    window.dispatchEvent(new CustomEvent("open-command-palette"));
 
-  const activeKey = onHome
-    ? (activeSection ?? null)
-    : (links.find((l) => !l.section && pathname.startsWith(l.href))?.href ??
-      null);
-
-  const isActive = (link: NavLink) =>
-    link.section ? onHome && activeSection === link.section : activeKey === link.href;
-
-  const { containerRef, box } = useIndicator<HTMLUListElement>(activeKey);
+  const cvButton =
+    "flex items-center bg-ink px-3 py-1.5 font-mono text-body-xs text-cream whitespace-nowrap transition-colors duration-[var(--dur-2)] hover:bg-accent active:scale-[0.98]";
 
   return (
-    <div className="sticky top-0 z-40 bg-cream/90 backdrop-blur lg:ml-80">
-      <nav className="relative mx-auto flex max-w-3xl xl:max-w-5xl 2xl:max-w-6xl items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-6 sm:gap-7">
-          <Link
-            href="/"
-            className="text-ink transition-opacity hover:opacity-80 shrink-0"
-            aria-label={t.nav.home}
-          >
-            <UserCircle weight="duotone" size={24} className="text-accent" />
-          </Link>
+    <div className="sticky top-0 z-40 bg-cream/90 backdrop-blur">
+      <nav className="relative mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-4">
+        <Link
+          href="/"
+          aria-label={t.nav.home}
+          className="flex shrink-0 items-center gap-2.5 font-display text-[1.25rem] text-ink"
+        >
+          <Image
+            src="/avatar_3d.png"
+            alt=""
+            width={34}
+            height={34}
+            priority
+            className="size-[34px]"
+          />
+          <span>
+            ajibola<span className="text-accent">.</span>
+          </span>
+        </Link>
 
-          <ul
-            ref={containerRef}
-            className="relative hidden items-center gap-5 md:gap-6 text-body-s text-ink/70 sm:flex"
-          >
-            <span
-              aria-hidden
-              data-ready={box ? "true" : undefined}
-              className="indicator -bottom-1 top-auto bg-accent"
-              style={
-                box
-                  ? ({
-                      "--ix": `${box.x}px`,
-                      "--iy": `${box.y + box.h + 4}px`,
-                      "--iw": `${box.w}px`,
-                      "--ih": "1px",
-                    } as CSSProperties)
-                  : undefined
-              }
-            />
+        <div className="flex items-center gap-4 sm:gap-5">
+          <ul className="hidden items-center gap-5 font-mono text-body-xs sm:flex">
             {links.map((link) => (
-              <li key={link.href} data-active={isActive(link)}>
+              <li key={link.href}>
                 <Link
                   href={link.href}
-                  aria-current={isActive(link) ? "page" : undefined}
-                  className="whitespace-nowrap transition-colors duration-[var(--dur-2)] hover:text-ink"
+                  aria-current={isActive(link.href) ? "page" : undefined}
+                  className="whitespace-nowrap lowercase text-ink/60 transition-colors duration-[var(--dur-2)] hover:text-ink aria-[current=page]:text-ink aria-[current=page]:underline aria-[current=page]:decoration-accent aria-[current=page]:underline-offset-4"
                 >
-                  {getNavLabel(link)}
+                  {link.label}
                 </Link>
               </li>
             ))}
           </ul>
-        </div>
 
-        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-          <button
-            type="button"
-            onClick={() =>
-              window.dispatchEvent(new CustomEvent("open-command-palette"))
-            }
-            aria-label={`${t.nav.searchCommands} (⌘K)`}
-            className="group flex items-center gap-1.5 border border-ink/10 bg-ink/[0.04] px-2.5 py-1.5 text-body-xs text-ink/65 transition-colors duration-[var(--dur-2)] hover:border-accent hover:text-ink whitespace-nowrap"
-          >
-            <MagnifyingGlass
-              weight="bold"
-              size={14}
-              className="text-accent transition-transform duration-[var(--dur-2)] group-hover:scale-110"
-            />
-            <kbd className="hidden font-mono text-[10px] text-ink/40 sm:inline-block">
-              {isMac ? "⌘K" : "Ctrl+K"}
-            </kbd>
-          </button>
-          <LanguageToggle className="flex" />
-          <ThemeToggle className="flex text-ink/60 transition-colors duration-[var(--dur-2)] hover:text-ink" />
-          <SoundToggle className="flex text-ink/60 transition-colors duration-[var(--dur-2)] hover:text-ink" />
-          {showContact && (
-            <Link
-              href="/#connect"
-              className="hidden items-center gap-2 bg-ink px-4 py-2 text-body-s font-medium text-cream whitespace-nowrap shrink-0 transition-colors duration-[var(--dur-2)] hover:bg-accent active:scale-[0.98] sm:flex"
+          <Link href="/cv" className={cvButton}>
+            {t.nav.cv} ↗
+          </Link>
+
+          <div className="flex items-center gap-2.5 sm:border-l sm:border-ink/10 sm:pl-4">
+            <button
+              type="button"
+              onClick={openPalette}
+              aria-label={`${t.nav.searchCommands} (⌘K)`}
+              className="group hidden items-center gap-1.5 text-ink/60 transition-colors duration-[var(--dur-2)] hover:text-ink sm:flex"
             >
-              <ChatCircle weight="duotone" size={16} />
-              {t.nav.contactMe}
-            </Link>
-          )}
-
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            className="text-ink sm:hidden"
-            aria-label={t.nav.toggleMenu}
-            aria-expanded={open}
-            aria-controls="mobile-menu"
-          >
-            {open ? <X size={22} /> : <List size={22} />}
-          </button>
+              <MagnifyingGlass weight="bold" size={14} className="text-accent" />
+              <kbd className="font-mono text-[10px] text-ink/40">
+                {isMac ? "⌘K" : "Ctrl+K"}
+              </kbd>
+            </button>
+            <LanguageToggle className="flex" />
+            <ThemeToggle className="flex text-ink/60 transition-colors duration-[var(--dur-2)] hover:text-ink" />
+            <SoundToggle className="hidden text-ink/60 transition-colors duration-[var(--dur-2)] hover:text-ink sm:flex" />
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              className="text-ink sm:hidden"
+              aria-label={t.nav.toggleMenu}
+              aria-expanded={open}
+              aria-controls="mobile-menu"
+            >
+              {open ? <X size={22} /> : <List size={22} />}
+            </button>
+          </div>
         </div>
 
         <span
@@ -203,12 +144,9 @@ export function TopNav({
         />
       </nav>
 
-      {/* Kept mounted so the exit animates, but positioned OUT OF FLOW.
-          visibility:hidden stops painting, not layout — in flow the closed
-          sheet still grew the sticky container, which then painted its
-          bg-cream/90 backdrop-blur over the page beneath it.
-          `inert` while closed is essential — otherwise the links stay
-          tabbable behind a hidden panel. */}
+      {/* Kept mounted so the exit animates, but out of flow and `inert` while
+          closed — in flow, the closed sheet grew the sticky bar's backdrop over
+          the page, and without inert its links stayed tabbable. */}
       <div
         id="mobile-menu"
         ref={sheetRef}
@@ -228,44 +166,27 @@ export function TopNav({
                 onClick={close}
                 className="whitespace-nowrap transition-colors duration-[var(--dur-2)] hover:text-ink"
               >
-                {getNavLabel(link)}
+                {link.label}
               </Link>
             </li>
           ))}
-          <li
-            data-menu-item
-            style={{ "--enter-i": links.length } as CSSProperties}
-          >
-            <Link
-              href="/cv"
-              onClick={close}
-              className="whitespace-nowrap transition-colors duration-[var(--dur-2)] hover:text-ink"
-            >
-              {t.nav.cv}
-            </Link>
-          </li>
         </ul>
-        {showContact && (
-          <Link
-            href="/#connect"
-            onClick={close}
-            data-menu-item
-            style={{ "--enter-i": links.length } as CSSProperties}
-            className="mt-4 flex items-center justify-center gap-2 bg-ink px-4 py-2.5 text-body-s font-medium text-cream transition-colors duration-[var(--dur-2)] hover:bg-accent"
-          >
-            <ChatCircle weight="duotone" size={16} />
-            {t.nav.contactMe}
-          </Link>
-        )}
+        <div
+          data-menu-item
+          style={{ "--enter-i": links.length } as CSSProperties}
+          className="mt-6 flex items-center justify-center gap-5"
+        >
+          <SoundToggle className="flex text-ink/60 transition-colors duration-[var(--dur-2)] hover:text-ink" />
+        </div>
         <button
           type="button"
           onClick={() => {
             close();
-            window.dispatchEvent(new CustomEvent("open-command-palette"));
+            openPalette();
           }}
           data-menu-item
           style={{ "--enter-i": links.length + 1 } as CSSProperties}
-          className="mt-2.5 flex w-full items-center justify-center gap-2 border border-ink/15 bg-ink/5 px-4 py-2.5 text-body-s font-medium text-ink/75 transition-colors duration-[var(--dur-2)] hover:border-accent hover:text-ink"
+          className="mt-4 flex w-full items-center justify-center gap-2 border border-ink/15 bg-ink/5 px-4 py-2.5 text-body-s font-medium text-ink/75 transition-colors duration-[var(--dur-2)] hover:border-accent hover:text-ink"
         >
           <MagnifyingGlass weight="bold" size={16} className="text-accent" />
           {t.nav.searchCommands} (⌘K)

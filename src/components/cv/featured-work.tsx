@@ -1,358 +1,255 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Pause, Play } from "@phosphor-icons/react/dist/ssr";
-import { SectionHeading } from "./section-heading";
-import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
-import { useRouteTransition } from "@/hooks/use-route-transition";
-import { kindMeta, projectHref } from "@/lib/project-kind";
+import { HomeSection } from "@/components/cv/home-section";
+import { projectHref } from "@/lib/project-kind";
 import { useLanguage } from "@/lib/i18n";
 import type { Project } from "@/types/project";
 
-function FeaturedCard({
-  project,
-  href,
-  className,
-  sizes,
-  priority = false,
-}: {
-  project: Project;
-  href: string;
-  className?: string;
-  sizes: string;
-  priority?: boolean;
-}) {
-  const navigate = useRouteTransition();
-  const { t } = useLanguage();
-
-  return (
-    <Link
-      href={href}
-      onClick={(e) => {
-        if (
-          e.metaKey ||
-          e.ctrlKey ||
-          e.shiftKey ||
-          e.altKey ||
-          e.button !== 0
-        ) {
-          return;
-        }
-        e.preventDefault();
-        navigate(href);
-      }}
-      style={{ viewTransitionName: `project-${project.slug}` } as CSSProperties}
-      className={`group/card flex shrink-0 flex-col overflow-hidden border border-ink/10 bg-cream transition hover:border-ink/30 ${className ?? ""}`}
-    >
-      <div className="relative aspect-16/10 w-full overflow-hidden bg-ink/5">
-        {project.screenshots?.[0] ? (
-          <Image
-            src={project.screenshots[0]}
-            alt={`${project.name} screenshot`}
-            fill
-            sizes={sizes}
-            priority={priority}
-            className="object-cover object-top transition-transform duration-500 group-hover/card:scale-[1.04]"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-body-xs text-ink/30">
-            {t.work.noPreview}
-          </div>
-        )}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-cream/80 to-transparent opacity-0 transition-opacity duration-300 group-hover/card:opacity-100" />
-      </div>
-      <div className="flex items-center justify-between gap-2 px-3 py-2.5">
-        <div className="min-w-0">
-          <div className="flex items-center gap-1.5">
-            {/* The reel is unified now, so each card states its own type. */}
-            <span
-              data-kind={project.kind}
-              className="shrink-0 px-1.5 py-0.5 font-mono text-body-xs text-ink/60 data-[kind=side]:bg-accent/10 data-[kind=side]:text-accent bg-ink/5"
-            >
-              {kindMeta(project.kind).label}
-            </span>
-            <p className="truncate text-body-xs uppercase tracking-wide text-ink/60">
-              {project.category}
-            </p>
-          </div>
-          <h3 className="truncate text-body-s font-medium">{project.name}</h3>
-        </div>
-        <ArrowUpRight
-          size={16}
-          weight="duotone"
-          className="shrink-0 text-ink/60 transition group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5 group-hover/card:text-ink"
-        />
-      </div>
-    </Link>
-  );
-}
-
-function buildMarqueeBase(projects: Project[]) {
-  // Need ≥3 cards in one half so three stay on-screen while the track loops.
-  let base = [...projects];
-  while (base.length > 0 && base.length < 3) {
-    base = [...base, ...projects];
+/** Hostname for the frame's address bar, or null for "#" and other non-URLs. */
+function hostOf(url?: string | null) {
+  try {
+    const { protocol, hostname } = new URL(url ?? "");
+    return protocol.startsWith("http") ? hostname.replace(/^www\./, "") : null;
+  } catch {
+    return null;
   }
-  return base;
 }
 
-function MarqueeTrack({
-  projects,
-  reverse,
-}: {
-  projects: Project[];
-  reverse: boolean;
-}) {
-  const base = buildMarqueeBase(projects);
-  // Keep perceived speed steady as the featured set grows
-  const durationSec = Math.max(28, base.length * 10);
-
-  return (
-    <div
-      className={`flex w-max ${
-        reverse
-          ? "animate-featured-marquee-reverse"
-          : "animate-featured-marquee"
-      }`}
-      style={{ animationDuration: `${durationSec}s` }}
-    >
-      {/* Two identical halves; pr-3 matches gap so -50% lands on a seam */}
-      {[0, 1].map((copy) => (
-        <div
-          key={copy}
-          className="flex gap-3 pr-3"
-          {...(copy === 1 ? { "aria-hidden": true, inert: true } : {})}
-        >
-          {base.map((project, i) => (
-            <FeaturedCard
-              key={`${copy}-${project.id}-${i}`}
-              project={project}
-              href={projectHref(project)}
-              className="w-[calc((100cqi-1.5rem)/3)]"
-              sizes="(max-width: 640px) 85vw, 240px"
-              // Leading card is the LCP on `/`. Its preload also covers the
-              // mobile carousel, which picks the same candidate at ≤640px.
-              priority={copy === 0 && i === 0}
-            />
-          ))}
-        </div>
-      ))}
-    </div>
-  );
+/** The slide shows the opening sentence; the case-study page has the rest. */
+function firstSentence(text?: string | null) {
+  if (!text) return "";
+  return text.match(/^[\s\S]*?[.!?](?=\s|$)/)?.[0] ?? text;
 }
 
-function MobileCarousel({ projects }: { projects: Project[] }) {
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const reduceMotion = usePrefersReducedMotion();
-  const { t } = useLanguage();
+const pad = (n: number) => String(n).padStart(2, "0");
 
-  useEffect(() => {
-    const el = scrollerRef.current;
-    if (!el) return;
-
-    const onScroll = () => {
-      const cards = Array.from(el.children) as HTMLElement[];
-      if (cards.length === 0) return;
-      const mid = el.scrollLeft + el.clientWidth / 2;
-      let best = 0;
-      let bestDist = Infinity;
-      cards.forEach((card, i) => {
-        const center = card.offsetLeft + card.offsetWidth / 2;
-        const dist = Math.abs(center - mid);
-        if (dist < bestDist) {
-          bestDist = dist;
-          best = i;
-        }
-      });
-      setActive(best);
-    };
-
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
-  }, [projects]);
-
-  // CSS `scroll-behavior: auto` under prefers-reduced-motion does not affect
-  // scrollTo({behavior:"smooth"}) — the JS call has to opt out itself.
-  const scrollToIndex = (
-    index: number,
-    behavior: ScrollBehavior = reduceMotion ? "auto" : "smooth",
-  ) => {
-    const el = scrollerRef.current;
-    const card = el?.children[index] as HTMLElement | undefined;
-    if (!el || !card) return;
-    const left = card.offsetLeft - (el.clientWidth - card.offsetWidth) / 2;
-    el.scrollTo({ left, behavior });
-  };
-
-  useEffect(() => {
-    if (reduceMotion || paused || projects.length <= 1) return;
-
-    const id = window.setInterval(() => {
-      scrollToIndex((active + 1) % projects.length);
-    }, 3200);
-
-    return () => window.clearInterval(id);
-  }, [active, paused, projects.length, reduceMotion]);
-
-  return (
-    <div
-      className="relative sm:hidden"
-      onPointerDown={() => setPaused(true)}
-      onPointerUp={() => setPaused(false)}
-      onPointerLeave={() => setPaused(false)}
-    >
-      <div
-        ref={scrollerRef}
-        className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {projects.map((project) => (
-          <FeaturedCard
-            key={project.id}
-            project={project}
-            href={projectHref(project)}
-            className="w-[min(85%,20rem)] snap-center"
-            sizes="85vw"
-          />
-        ))}
-      </div>
-
-      {projects.length > 1 && (
-        <div className="mt-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-1.5">
-            {projects.map((project, i) => (
-              <button
-                key={project.id}
-                type="button"
-                aria-label={`${t.work.goTo} ${project.name}`}
-                onClick={() => scrollToIndex(i)}
-                className={`h-1.5 transition-all ${
-                  i === active
-                    ? "w-5 bg-accent"
-                    : "w-1.5 bg-ink/20 hover:bg-ink/40"
-                }`}
-              />
-            ))}
-          </div>
-          <p className="font-mono text-body-xs tabular-nums text-ink/40">
-            {String(active + 1).padStart(2, "0")}
-            <span className="text-ink/20"> / </span>
-            {String(projects.length).padStart(2, "0")}
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}
-
+/**
+ * One case study at a time, crossfading every 7s.
+ *
+ * The timer is the active dot's CSS fill animation: when it ends, the next
+ * slide shows. Hovering or focusing a slide pauses it (CSS, see globals.css),
+ * as does the pause button, and prefers-reduced-motion removes the animation
+ * — so the slides only ever change when the visitor asks.
+ *
+ * Slides share one grid cell, so the section is as tall as its tallest slide
+ * and the page never jumps on a change. Hidden slides are `inert`.
+ */
 export function FeaturedWork({
   projects,
-  sideProjects = [],
+  total,
 }: {
   projects: Project[];
-  sideProjects?: Project[];
+  total: number | null;
 }) {
-  const [hovered, setHovered] = useState(false);
-  const reduceMotion = usePrefersReducedMotion();
   const { t } = useLanguage();
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
 
-  // One unified reel now that /work and /side-projects have merged. Client
-  // work leads, side projects follow; each card carries its own type pill.
-  const currentProjects = [...projects, ...sideProjects];
+  const count = projects.length;
+  if (count === 0) return null;
 
-  if (currentProjects.length === 0) return null;
-
-  const canMarquee = !reduceMotion && currentProjects.length > 0;
+  const go = (n: number) => setIndex((n + count) % count);
 
   return (
-    <section className="flex flex-col gap-6 border-t border-ink/10 py-10">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-center gap-4">
-          <SectionHeading id="work">Featured work</SectionHeading>
+    <HomeSection
+      id="featured-work"
+      label={t.labels.work}
+      sub={
+        total
+          ? t.labels.shownOf
+              .replace("{shown}", String(count))
+              .replace("{total}", String(total))
+          : undefined
+      }
+    >
+      <div
+        className="work-slider"
+        data-paused={paused}
+        role="region"
+        aria-roledescription="carousel"
+        aria-label={t.labels.work}
+      >
+        <div className="work-slides grid grid-cols-1">
+          {projects.map((project, k) => {
+            const host = hostOf(project.live_url);
+            const github = hostOf(project.github_url) ? project.github_url : null;
+            const status = t.work.status[project.status];
+            const facts = [
+              [t.work.problem, firstSentence(project.problem || project.description)],
+              [t.work.decision, firstSentence(project.solution)],
+              [t.work.result, project.outcome],
+            ].filter(([, value]) => value);
+
+            return (
+              <article
+                key={project.id}
+                data-active={k === index}
+                inert={k !== index}
+                aria-roledescription="slide"
+                aria-label={`${k + 1} / ${count}`}
+                className="work-slide grid gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:gap-8"
+              >
+                <figure className="m-0 self-start border border-ink/10 bg-panel">
+                  <div className="flex items-center gap-1.5 border-b border-ink/10 px-3 py-2 font-mono text-[11px] text-ink/50">
+                    <span className="size-[7px] rounded-full bg-ink/15" />
+                    <span className="size-[7px] rounded-full bg-ink/15" />
+                    <span className="size-[7px] rounded-full bg-ink/15" />
+                    <span className="mx-auto truncate">{host ?? project.category}</span>
+                  </div>
+                  <div className="relative aspect-16/10 overflow-hidden">
+                    {project.screenshots?.[0] ? (
+                      <Image
+                        src={project.screenshots[0]}
+                        alt={`${project.name} screenshot`}
+                        fill
+                        sizes="(min-width: 1024px) 460px, 100vw"
+                        priority={k === 0}
+                        className="object-cover object-top"
+                      />
+                    ) : (
+                      <div className="grid h-full place-items-center text-body-xs text-ink/30">
+                        {t.work.noPreview}
+                      </div>
+                    )}
+                  </div>
+                </figure>
+
+                <div className="flex min-w-0 flex-col gap-4">
+                  <div className="flex flex-col gap-2">
+                    <h3 className="font-display text-[clamp(1.625rem,3.2vw,2.125rem)] font-normal leading-tight text-balance">
+                      <Link
+                        href={projectHref(project)}
+                        className="transition-colors duration-[var(--dur-2)] hover:text-accent"
+                      >
+                        {project.name}
+                      </Link>
+                    </h3>
+                    <p className="flex flex-wrap gap-x-3.5 gap-y-1 font-mono text-body-xs text-ink/55">
+                      {project.role_title && <span>{project.role_title}</span>}
+                      {(project.duration || project.year) && (
+                        <span>
+                          {[project.duration, project.year].filter(Boolean).join(" · ")}
+                        </span>
+                      )}
+                      {status && <span className="text-accent">{status}</span>}
+                    </p>
+                  </div>
+
+                  {facts.length > 0 && (
+                    <dl className="border-t border-ink/10">
+                      {facts.map(([term, value]) => (
+                        <div key={term} className="grid gap-0.5 border-b border-ink/10 py-3">
+                          <dt className="font-mono text-body-xs text-ink/50">{term}</dt>
+                          <dd className="text-body-s leading-relaxed">{value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
+
+                  <p className="flex flex-wrap gap-x-4 gap-y-1 font-mono text-body-xs">
+                    <Link
+                      href={projectHref(project)}
+                      className="text-accent underline decoration-accent/30 underline-offset-4 hover:decoration-accent"
+                    >
+                      {t.work.caseStudy} →
+                    </Link>
+                    {host && (
+                      <a
+                        href={project.live_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline decoration-ink/20 underline-offset-4 hover:decoration-accent"
+                      >
+                        {host} ↗
+                      </a>
+                    )}
+                    {github && (
+                      <a
+                        href={github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline decoration-ink/20 underline-offset-4 hover:decoration-accent"
+                      >
+                        GitHub ↗
+                      </a>
+                    )}
+                  </p>
+                </div>
+              </article>
+            );
+          })}
         </div>
 
-        <Link
-          href="/projects"
-          className="group inline-flex shrink-0 items-center gap-1 text-body-s font-medium text-ink/60 transition-colors duration-[var(--dur-2)] hover:text-accent"
-        >
-          {t.work.viewAllProjects}
-          <ArrowUpRight
-            size={16}
-            weight="duotone"
-            className="transition duration-[var(--dur-2)] ease-out-quart group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-          />
-        </Link>
-      </div>
+        {count > 1 && (
+          <div className="work-ctrl mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 font-mono text-body-xs">
+            <div className="flex gap-2">
+              {(
+                [
+                  [t.work.previous, "←", -1],
+                  [t.work.next, "→", 1],
+                ] as const
+              ).map(([label, glyph, step]) => (
+                <button
+                  key={label}
+                  type="button"
+                  aria-label={label}
+                  onClick={() => go(index + step)}
+                  className="grid size-8 place-items-center border border-ink/15 transition-colors duration-[var(--dur-2)] hover:border-accent hover:text-accent"
+                >
+                  {glyph}
+                </button>
+              ))}
+            </div>
 
-      {/* Desktop / tablet: infinite 3-up marquee, clipped to content column */}
-      {canMarquee ? (
-        <div
-          className="@container relative hidden overflow-hidden sm:block"
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-          onFocusCapture={() => setHovered(true)}
-          onBlurCapture={(e) => {
-            if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
-              setHovered(false);
-            }
-          }}
-        >
-          {/* Soft edge masks — keeps motion inside the red-line width */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-linear-to-r from-cream to-transparent"
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-linear-to-l from-cream to-transparent"
-          />
+            <ol className="flex gap-1.5">
+              {projects.map((project, k) => (
+                <li key={project.id}>
+                  <button
+                    type="button"
+                    aria-label={`${t.work.goTo} ${project.name}`}
+                    aria-current={k === index}
+                    onClick={() => go(k)}
+                    className="relative block h-5 w-10"
+                  >
+                    <span className="absolute inset-x-0 top-[9px] h-0.5 bg-ink/15" />
+                    {k === index && (
+                      <span
+                        onAnimationEnd={() => go(index + 1)}
+                        className="work-fill absolute inset-x-0 top-[9px] h-0.5 origin-left bg-accent"
+                      />
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ol>
 
-          <div
-            className={`featured-marquee-host ${hovered ? "is-paused" : ""}`}
-          >
-            <MarqueeTrack projects={currentProjects} reverse={false} />
-          </div>
+            <button
+              type="button"
+              aria-pressed={paused}
+              onClick={() => setPaused((p) => !p)}
+              className="text-ink/55 transition-colors hover:text-ink motion-reduce:hidden"
+            >
+              {paused ? t.work.play : t.work.pause}
+            </button>
 
-          <div className="mt-3 flex items-center justify-between gap-3">
-            <p className="font-mono text-body-xs uppercase tracking-[0.18em] text-ink/35">
-              {t.work.featuredReel}
-              <span className="mx-2 text-ink/15">·</span>
-              {currentProjects.length} featured
-            </p>
-            <span className="inline-flex items-center gap-1.5 font-mono text-body-xs text-ink/35">
-              {hovered ? (
-                <>
-                  <Pause size={12} weight="fill" className="text-accent" />
-                  {t.work.paused}
-                </>
-              ) : (
-                <>
-                  <Play size={12} weight="fill" className="text-ink/30" />
-                  {t.work.auto}
-                </>
-              )}
+            <span className="ml-auto tabular-nums text-ink/50">
+              {pad(index + 1)} / {pad(count)}
             </span>
           </div>
-        </div>
-      ) : (
-        <div className="hidden gap-3 sm:grid sm:grid-cols-3">
-          {currentProjects.slice(0, 3).map((project, i) => (
-            <FeaturedCard
-              key={project.id}
-              project={project}
-              href={projectHref(project)}
-              sizes="(max-width: 640px) 100vw, 33vw"
-              priority={i === 0}
-            />
-          ))}
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Mobile: peek snap strip — one focus card + next peek */}
-      <MobileCarousel projects={currentProjects} />
-    </section>
+      {total ? (
+        <Link
+          href="/projects"
+          className="mt-12 inline-block text-body-s underline decoration-ink/20 underline-offset-4 transition-colors hover:decoration-accent"
+        >
+          {t.work.allProjects.replace("{count}", String(total))} →
+        </Link>
+      ) : null}
+    </HomeSection>
   );
 }

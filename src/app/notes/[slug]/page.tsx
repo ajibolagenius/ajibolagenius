@@ -10,7 +10,6 @@ import {
 } from "@/lib/notes";
 import { siteUrl } from "@/lib/site-url";
 import { TopNav } from "@/components/cv/top-nav";
-import { Sidebar } from "@/components/cv/sidebar";
 import { SiteFooter } from "@/components/cv/site-footer";
 import { ProjectBackLink } from "@/components/project-back-link";
 import { ProjectNavigation } from "@/components/project-navigation";
@@ -104,11 +103,10 @@ export default async function NoteDetailPage({
         }}
       />
       <TopNav visibleSections={visibleSections} />
-      <Sidebar info={personalInfo} />
       <main
         id="main-content"
         tabIndex={-1}
-        className="page-enter flex-1 lg:ml-80 focus:outline-none"
+        className="page-enter flex-1 focus:outline-none"
       >
         <article className="mx-auto w-full min-w-0 max-w-3xl xl:max-w-4xl 2xl:max-w-5xl px-6 py-10">
           <ProjectBackLink href="/notes" />
@@ -211,7 +209,10 @@ export default async function NoteDetailPage({
           </div>
         </article>
       </main>
-      <SiteFooter name={personalInfo?.name ?? ""} />
+      <SiteFooter
+        name={personalInfo?.name ?? ""}
+        availability={personalInfo?.availability}
+      />
     </>
   );
 }

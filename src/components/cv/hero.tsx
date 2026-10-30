@@ -1,67 +1,46 @@
-import { Suspense, type CSSProperties } from "react";
-import Image from "next/image";
-import {
-  NowWidget,
-  NowWidgetFallback,
-} from "@/components/cv/now-widget";
+import { Suspense } from "react";
+import { getLatestGitHubActivity } from "@/lib/github-activity";
+import { HeroIntro } from "@/components/cv/hero-intro";
+import { HeroStatusLine } from "@/components/cv/hero-status-line";
+import type { SidebarStats } from "@/lib/sidebar-stats";
 import type { ExperienceEntry, PersonalInfo } from "@/types/cv";
 
+async function HeroStatus({ github }: { github?: string | null }) {
+  const activity = await getLatestGitHubActivity(github);
+  return <HeroStatusLine initialActivity={activity} />;
+}
+
 /**
- * Above-the-fold, so every animation here is mount-time.
+ * Above the fold, so nothing here uses `.reveal` (Chrome can paint the 0%
+ * state of a scroll-driven animation on load) — only the time-based `.enter`
+ * stagger inside HeroIntro.
  *
- * `.reveal` (and anything else on an `animation-timeline: view()`) is
- * deliberately not used in this component: Chrome can paint the 0% state of a
- * scroll-driven animation on load, which would flash an empty hero. The
- * `.enter` / `--enter-i` stagger is time-based and safe.
- *
- * Kept deliberately spare — one statement, nothing competing with it. Identity
- * and the derived proof stats both live in the Sidebar, which is on screen at
- * the same time on desktop and stacked directly above this on mobile.
+ * The status line is streamed behind a boundary so the GitHub request can
+ * never delay the name and statement. Its fallback is the same line without
+ * the commit, so nothing shifts when it resolves.
  */
 export function Hero({
   info,
-  currentExperience,
+  current,
+  stats,
 }: {
   info: PersonalInfo | null;
-  currentExperience?: ExperienceEntry | null;
+  /** Roles whose end date is "Present", in display order. */
+  current: ExperienceEntry[];
+  stats: SidebarStats;
 }) {
   if (!info) return null;
 
   return (
-    <section className="flex flex-col items-center gap-6 py-16 text-center">
-      <Image
-        src="/illustration-hero.svg"
-        alt=""
-        width={120}
-        height={96}
-        className="enter animate-float opacity-90"
-      />
-      {/* Staggered by token rather than the previous magic 80/140/200ms. */}
-      <h2
-        className="enter text-h1 font-normal"
-        style={{ "--enter-i": 1 } as CSSProperties}
-      >
-        {info.tagline}
-      </h2>
-      <span aria-hidden className="rule-draw h-px w-16 bg-accent/40" />
-      <p
-        className="enter max-w-md text-body-m text-ink/60"
-        style={{ "--enter-i": 2 } as CSSProperties}
-      >
-        {info.tagline_suffix}
-      </p>
-
-      {/* Streamed in behind a boundary so a third-party request can never
-          delay the hero's first paint. Live activity widget extends the
-          contribution graph with real-time teaching status and latest shipping. */}
-      <Suspense fallback={<NowWidgetFallback />}>
-        <NowWidget
-          github={info.social?.github}
-          currentRole={currentExperience?.role_title}
-          currentCompany={currentExperience?.company}
-          availability={info.availability}
-        />
-      </Suspense>
-    </section>
+    <HeroIntro
+      info={info}
+      current={current}
+      stats={stats}
+      status={
+        <Suspense fallback={<HeroStatusLine initialActivity={null} />}>
+          <HeroStatus github={info.social?.github} />
+        </Suspense>
+      }
+    />
   );
 }

@@ -1,19 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { GitCommit, ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import type { GitHubActivity } from "@/lib/github-activity";
 import { formatRelativeTime } from "@/lib/github-activity";
-
-interface NowLiveCommitProps {
-  initialActivity: GitHubActivity | null;
-  availability?: string | null;
-}
+import { useLanguage } from "@/lib/i18n";
 
 export function NowLiveCommit({
   initialActivity,
-  availability,
-}: NowLiveCommitProps) {
+}: {
+  initialActivity: GitHubActivity | null;
+}) {
+  const { t } = useLanguage();
   const [activity, setActivity] = useState<GitHubActivity | null>(initialActivity);
   const [relativeTime, setRelativeTime] = useState<string>(
     initialActivity ? initialActivity.relativeTime : "",
@@ -108,45 +105,25 @@ export function NowLiveCommit({
     };
   }, []);
 
-  if (!activity) {
-    return (
-      <div className="flex items-center gap-1.5 text-ink/50">
-        <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent/60" />
-        <span className="truncate">
-          {availability || "Available for select advisory & builds"}
-        </span>
-      </div>
-    );
-  }
+  if (!activity) return null;
 
+  // "last commit 58m ago on EduPoint" — a heartbeat, not a changelog, so the
+  // commit message stays in the link title rather than on the page.
   return (
-    <div className="flex min-w-0 max-w-[260px] sm:max-w-[320px] items-center gap-1.5 truncate">
-      <GitCommit
-        size={14}
-        weight="bold"
-        className="shrink-0 text-accent"
-        aria-hidden
-      />
+    <span className="inline-flex min-w-0 items-center gap-1">
+      {t.hero.lastCommit.replace(
+        "{time}",
+        relativeTime || activity.relativeTime,
+      )}
       <a
         href={activity.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="group inline-flex min-w-0 items-center gap-1 truncate text-ink/70 transition-colors hover:text-accent"
         title={`${activity.repo}: ${activity.message}`}
+        className="truncate text-ink underline decoration-ink/20 underline-offset-4 transition-colors hover:decoration-accent"
       >
-        <span className="font-medium text-ink group-hover:text-accent">
-          {activity.repoShort}
-        </span>
-        <span className="text-ink/40">:</span>
-        <span className="truncate">{activity.message}</span>
-        <ArrowUpRight
-          size={11}
-          className="shrink-0 text-ink/40 opacity-70 group-hover:text-accent"
-        />
+        {activity.repoShort}
       </a>
-      <span className="shrink-0 text-[10px] text-ink/40">
-        ({relativeTime || activity.relativeTime})
-      </span>
-    </div>
+    </span>
   );
 }

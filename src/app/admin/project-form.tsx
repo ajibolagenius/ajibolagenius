@@ -345,6 +345,16 @@ export function ProjectForm({
       </label>
 
       <label className={labelClass}>
+        Outcome (verified result, shown as the case study&apos;s Result)
+        <textarea
+          name="outcome"
+          rows={2}
+          defaultValue={draftField(draft, "outcome", project?.outcome)}
+          className={inputClass}
+        />
+      </label>
+
+      <label className={labelClass}>
         Tags (comma separated)
         <TagInput
           name="tags"

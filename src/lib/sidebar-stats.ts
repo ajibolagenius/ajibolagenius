@@ -4,16 +4,13 @@ import { experienceLabel } from "@/lib/experience-span";
 import { LISTED_KINDS } from "@/lib/project-kind";
 
 /**
- * The derived "proof" figures in the sidebar's meta list.
+ * The derived "proof" figures (years, companies, projects). Named for the
+ * sidebar that first showed them; the homepage hero and work section read
+ * them now.
  *
- * These were originally threaded in as props from `app/page.tsx`, which meant
- * the four other pages rendering `<Sidebar>` (/projects, /projects/[slug],
- * /licenses, not-found) silently dropped every row — the sidebar disagreed
- * with itself depending on which page you were on. Fetching here instead makes
- * the component self-sufficient, so a new page can never forget the props.
- *
- * `cache()` dedupes within a request, so a page that also needs these numbers
- * pays for one round trip, not two.
+ * Each figure is derived, and one that can't be computed is null/0 so the
+ * caller omits it — never a hardcoded fallback. `cache()` dedupes within a
+ * request.
  */
 
 export type SidebarStats = {

@@ -1,9 +1,13 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 /**
- * The radio streams curated audio tracks from public/audio/tracks/.
- * This guards that warming the next track fires as the current track plays.
+ * The radio streams curated audio tracks from public/audio/tracks/. On the
+ * homepage its control is the play button in the hero status line, labelled
+ * "Play <title> by <artist>" / "Pause <title>".
  */
+const radioButton = (page: Page) =>
+  page.getByRole("button", { name: /^(Play .+ by |Pause )/ }).first();
+
 test("warms the next track while the current one plays", async ({ page }) => {
   const servedUrls = new Set<string>();
   page.on("response", (r) => {
@@ -13,37 +17,27 @@ test("warms the next track while the current one plays", async ({ page }) => {
   });
 
   await page.goto("/", { waitUntil: "domcontentloaded" });
+  const radio = radioButton(page);
 
-  const play = page.locator('button[aria-label="Play music"]').first();
-  await play.waitFor({ state: "visible" });
-
-  // Ensure hydration is complete and click transitions to playing
+  // Retry until hydration has attached the handler.
   await expect(async () => {
-    if (await page.locator('button[aria-label="Pause music"]').first().isHidden()) {
-      await play.click();
-    }
-    await expect(page.locator('button[aria-label="Pause music"]').first()).toBeVisible();
+    if ((await radio.getAttribute("aria-pressed")) !== "true") await radio.click();
+    await expect(radio).toHaveAttribute("aria-pressed", "true");
   }).toPass({ timeout: 10_000 });
 
   // One clip served for the track now playing, one for the track queued behind it.
   await expect.poll(() => servedUrls.size, { timeout: 15_000 }).toBeGreaterThanOrEqual(2);
 });
 
-test("initializes at 8% volume and enables continuous playback", async ({ page }) => {
+test("never plays until the visitor presses play", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
+  const radio = radioButton(page);
+  await expect(radio).toBeVisible();
 
-  // Volume slider is set to 8% (0.08) low background level
-  const volumeSlider = page.locator('input[type="range"][aria-label="Volume"]').first();
-  await expect(volumeSlider).toHaveValue("0.08");
-
-  // Player transitions to playing automatically or on initial interaction
-  const pauseBtn = page.locator('button[aria-label="Pause music"]').first();
-  await expect(async () => {
-    if (await pauseBtn.isHidden()) {
-      await page.mouse.wheel(0, 50);
-      await page.locator("body").click({ position: { x: 100, y: 100 } });
-    }
-    await expect(pauseBtn).toBeVisible();
-  }).toPass({ timeout: 10_000 });
+  // Scrolling and clicking elsewhere used to start playback. It must not.
+  await page.mouse.wheel(0, 400);
+  await page.locator("body").click({ position: { x: 5, y: 400 } });
+  await page.keyboard.press("ArrowDown");
+  await page.waitForTimeout(1500);
+  await expect(radio).toHaveAttribute("aria-pressed", "false");
 });
-

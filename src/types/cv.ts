@@ -32,6 +32,8 @@ export interface ExperienceEntry {
   id: string;
   role_title: string;
   company: string;
+  /** Added by 20261030000000. Null when the company has no public site. */
+  company_url: string | null;
   employment_type: string;
   start_date: string;
   end_date: string;

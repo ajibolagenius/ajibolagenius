@@ -190,7 +190,7 @@ export async function buildAssistantContext(currentPath?: string): Promise<strin
   // 9. Navigation Reference
   sections.push(
     `# Internal Site Navigation Links
-- Homepage sections: [Featured Work](/#featured-work), [About](/#about), [Experience](/#experience), [Skills](/#skills), [Contact Form](/#connect)
+- Homepage sections: [Featured Work](/#featured-work), [Experience](/#experience), [Notes](/#notes), [Contact Form](/#connect). About, education, skills and languages are on the [CV](/cv)
 - Projects: Browse all at [/projects](/projects), or individual case studies at /projects/[slug] (e.g. [/projects/zora-market](/projects/zora-market), [/projects/anc](/projects/anc), [/projects/nego-empire](/projects/nego-empire), [/projects/vibe-secure-me](/projects/vibe-secure-me))
 - Technical Writing: Browse all at [/notes](/notes), or individual articles at /notes/[slug] (e.g. [/notes/nego-empire-build-story](/notes/nego-empire-build-story), [/notes/how-this-portfolio-was-built](/notes/how-this-portfolio-was-built))
 - Standalone Printable CV: [/cv](/cv)

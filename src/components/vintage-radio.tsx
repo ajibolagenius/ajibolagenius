@@ -22,15 +22,6 @@ import type { VintageTrack } from "@/lib/vintage-radio-tracks";
 import { sound } from "@/lib/sound";
 import { track } from "@/lib/analytics";
 
-/** Determines whether the current page already renders the desktop sidebar. */
-function routeHasSidebar(pathname: string | null): boolean {
-  if (!pathname) return true;
-  if (pathname.startsWith("/sandbox")) return false;
-  if (pathname.startsWith("/cv")) return false;
-  if (pathname.startsWith("/admin")) return false;
-  return true;
-}
-
 /**
  * Source + attribution row. The cultural note gets a citation, and Apple's
  * terms require the store link wherever one of their previews plays.
@@ -68,15 +59,9 @@ function TrackCitation({ track }: { track: VintageTrack }) {
 type RadioControls = ReturnType<typeof useRadioControls>;
 
 /**
- * The expanded cassette deck — the only part of the two variants that was
- * genuinely the same UI. Both copies had drifted apart on about a dozen
- * cosmetic values (text-ink/40 vs /50, size 11 vs 12, bg-ink/[0.02] vs
- * [0.03], "SIDE A" vs "STEREO"); those are normalised here to one set.
- *
- * What actually differs between the two mounts is the four props below: the
- * sidebar is a block in the rail that collapses upward, the floating player
- * is fixed to the viewport and collapses down into a bar, and only the
- * sidebar has the width to carry the cultural note.
+ * The expanded cassette deck. It once served both the sidebar rail and the
+ * floating player; the sidebar is gone, so the floating player is its only
+ * mount.
  */
 function ExpandedDeck({
   className,
@@ -306,7 +291,7 @@ function ExpandedDeck({
  * byte-identical copies of these seven — the only thing that ever differed
  * between them is the markup.
  */
-function useRadioControls() {
+export function useRadioControls() {
   const state = useVintageRadio();
   const { currentTrack, isPlaying, isMuted } = state;
 
@@ -381,169 +366,9 @@ function useRadioControls() {
 }
 
 /**
- * Embedded Vintage Radio component for the desktop sidebar rail.
- * Adheres strictly to the sharp-corner Swiss-grid aesthetic.
- */
-export function SidebarVintageRadio() {
-  const controls = useRadioControls();
-  const {
-    currentTrack,
-    isPlaying,
-    isMuted,
-    volume,
-    isMinimized,
-    isEnabled,
-    handleTogglePlay,
-    handleToggleMute,
-    handleTurnOn,
-  } = controls;
-
-  useEffect(() => {
-    vintageRadio.startAutoplay();
-    return () => vintageRadio.cancelAutoplay();
-  }, []);
-
-  if (!isEnabled) {
-    return (
-      <button
-        type="button"
-        onClick={handleTurnOn}
-        aria-label="Turn on Vintage Nigerian Radio"
-        title="Turn on Vintage Nigerian Radio (Background Music)"
-        className="group flex w-full items-center justify-between border border-ink/10 bg-ink/[0.02] px-3 py-2 text-left font-mono text-[11px] text-ink/75 transition-colors hover:border-accent hover:bg-accent/5 hover:text-ink active:scale-[0.99]"
-      >
-        <div className="flex items-center gap-2">
-          <Radio size={14} weight="duotone" className="text-accent" />
-          <span className="font-mono text-[10px] uppercase tracking-wider font-medium">
-            Naija Radio (Off)
-          </span>
-        </div>
-        <span className="font-mono text-[9px] uppercase tracking-widest text-accent">
-          Turn On →
-        </span>
-      </button>
-    );
-  }
-
-  // Minimized / Docked State inside Sidebar
-  if (isMinimized) {
-    return (
-      <div
-        role="region"
-        aria-label="Vintage Nigerian Radio (Sidebar Docked)"
-      onMouseEnter={() => vintageRadio.warmCurrent()}
-      onFocus={() => vintageRadio.warmCurrent()}
-        className="flex w-full flex-col gap-2 border border-ink/10 bg-ink/[0.02] p-2.5 transition-all"
-      >
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <span
-              className={`h-1.5 w-1.5 shrink-0 transition-colors ${
-                isPlaying ? "bg-accent animate-pulse" : "bg-ink/30"
-              }`}
-              aria-hidden
-            />
-            <span className="font-mono text-[9px] uppercase tracking-widest text-accent font-semibold truncate">
-              Vintage Radio
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1 shrink-0">
-            <button
-              type="button"
-              onClick={handleTogglePlay}
-              aria-label={isPlaying ? "Pause music" : "Play music"}
-              title={isPlaying ? "Pause (Space)" : "Play (Space)"}
-              className="flex h-6 w-6 items-center justify-center border border-ink/10 bg-ink/[0.03] text-ink transition-colors hover:border-accent hover:bg-accent hover:text-cream"
-            >
-              {isPlaying ? <Pause size={11} weight="fill" /> : <Play size={11} weight="fill" />}
-            </button>
-
-            <button
-              type="button"
-              onClick={handleToggleMute}
-              aria-label={isMuted ? "Unmute audio" : "Mute audio"}
-              title={isMuted ? "Unmute (Shift+M)" : "Mute (Shift+M)"}
-              className="flex h-6 w-6 items-center justify-center border border-ink/10 bg-ink/[0.03] text-ink transition-colors hover:border-accent hover:bg-accent hover:text-cream"
-            >
-              {isMuted || volume === 0 ? (
-                <SpeakerSimpleSlash size={11} className="text-accent" />
-              ) : (
-                <SpeakerSimpleHigh size={11} />
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                sound.playTap();
-                vintageRadio.toggleMinimized();
-              }}
-              aria-label="Expand radio deck"
-              title="Expand Cassette Deck"
-              className="flex h-6 w-6 items-center justify-center border border-ink/10 bg-ink/[0.03] text-ink/60 transition-colors hover:border-ink/30 hover:text-ink"
-            >
-              <CaretDown size={11} weight="bold" />
-            </button>
-          </div>
-        </div>
-
-        {/* Track Title + Equalizer */}
-        <div
-          className="flex items-center justify-between gap-2 cursor-pointer pt-0.5"
-          onClick={() => {
-            sound.playTap();
-            vintageRadio.toggleMinimized();
-          }}
-          title="Click to expand deck"
-        >
-          <span className="font-display text-[12px] font-medium text-ink truncate">
-            {currentTrack.title}
-          </span>
-          <div className="flex h-3 items-end gap-0.5 shrink-0" aria-hidden>
-            <span
-              className={`w-0.5 bg-accent transition-all ${
-                isPlaying ? "eq-bar-1" : "h-1 opacity-30"
-              }`}
-            />
-            <span
-              className={`w-0.5 bg-accent transition-all ${
-                isPlaying ? "eq-bar-2" : "h-1 opacity-30"
-              }`}
-            />
-            <span
-              className={`w-0.5 bg-accent transition-all ${
-                isPlaying ? "eq-bar-3" : "h-1 opacity-30"
-              }`}
-            />
-            <span
-              className={`w-0.5 bg-accent transition-all ${
-                isPlaying ? "eq-bar-4" : "h-1 opacity-30"
-              }`}
-            />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Expanded State inside Sidebar Rail
-  return (
-    <ExpandedDeck
-      controls={controls}
-      className="flex w-full flex-col gap-2.5 border border-ink/10 bg-ink/[0.02] p-3 transition-all"
-      label="Tape Deck · Stereo"
-      CollapseIcon={CaretUp}
-      collapseTitle="Dock player"
-      showCulturalNote
-    />
-  );
-}
-
-/**
  * Floating Vintage Radio component:
- * - Renders on mobile screens (< lg) across all pages.
- * - On desktop (lg+), only renders on pages that DO NOT have a sidebar (e.g. /sandbox, /cv).
+ * - Hidden on the homepage, where the hero status line is the control.
+ * - Elsewhere, appears only after the visitor has started playback.
  * - Adheres strictly to the sharp-corner Swiss-grid aesthetic.
  */
 export function VintageRadio() {
@@ -556,12 +381,11 @@ export function VintageRadio() {
     volume,
     isMinimized,
     isEnabled,
+    hasStarted,
     handleTogglePlay,
     handleToggleMute,
     handleTurnOn,
   } = controls;
-
-  const hasSidebar = routeHasSidebar(pathname);
 
   // Keyboard shortcut listener: Shift+M to toggle playback, or global space when focused
   useEffect(() => {
@@ -586,23 +410,17 @@ export function VintageRadio() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleToggleMute, pathname]);
 
-  useEffect(() => {
-    if (pathname?.startsWith("/admin")) return;
-    vintageRadio.startAutoplay();
-    // Navigating away (notably into /admin) disarms any pending autoplay, so a
-    // click there cannot start the radio.
-    return () => vintageRadio.cancelAutoplay();
-  }, [pathname]);
-
-  if (pathname?.startsWith("/admin")) return null;
-
-  // Visibility classes: On mobile always show; on desktop only show if page has no sidebar
-  const visibilityClass = hasSidebar ? "lg:hidden" : "block";
+  // Nothing plays until the visitor presses play — on the homepage that is the
+  // hero's status line, which is also the control there, so the floating
+  // player only appears elsewhere and only once playback has started.
+  if (pathname?.startsWith("/admin") || pathname === "/" || !hasStarted) {
+    return null;
+  }
 
   // Turned Off State
   if (!isEnabled) {
     return (
-      <div className={`fixed bottom-4 left-4 z-40 print:hidden ${visibilityClass}`}>
+      <div className="fixed bottom-4 left-4 z-40 print:hidden">
         <button
           type="button"
           onClick={handleTurnOn}
@@ -622,7 +440,7 @@ export function VintageRadio() {
   // Minimized / Docked Pill on Mobile / Non-sidebar pages
   if (isMinimized) {
     return (
-      <div className={`fixed bottom-4 left-4 z-40 print:hidden ${visibilityClass}`}>
+      <div className="fixed bottom-4 left-4 z-40 print:hidden">
         <div
           role="region"
           aria-label="Vintage Nigerian Radio (Minimized)"
@@ -723,14 +541,15 @@ export function VintageRadio() {
     );
   }
 
-  // Expanded Floating Player on Mobile / Non-sidebar pages
+  // Expanded floating player
   return (
     <ExpandedDeck
       controls={controls}
-      className={`fixed bottom-4 left-4 z-40 w-[300px] max-w-[calc(100vw-2rem)] border border-ink/15 bg-cream/95 p-3 shadow-2xl backdrop-blur-md dark:bg-panel/95 print:hidden transition-all flex flex-col gap-2.5 ${visibilityClass}`}
+      className="fixed bottom-4 left-4 z-40 w-[300px] max-w-[calc(100vw-2rem)] border border-ink/15 bg-cream/95 p-3 shadow-2xl backdrop-blur-md dark:bg-panel/95 print:hidden transition-all flex flex-col gap-2.5"
       label="Naija Vintage Radio"
       CollapseIcon={CaretDown}
       collapseTitle="Minimize to bar"
+      showCulturalNote
     />
   );
 }

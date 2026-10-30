@@ -2,20 +2,16 @@ import { createClient } from "@/lib/supabase/server";
 import { getCvData } from "@/lib/cv-data";
 import { JsonLd } from "@/components/json-ld";
 import { TopNav } from "@/components/cv/top-nav";
-import { Sidebar } from "@/components/cv/sidebar";
 import { Hero } from "@/components/cv/hero";
 import { FeaturedWork } from "@/components/cv/featured-work";
-import { About } from "@/components/cv/about";
 import { Experience } from "@/components/cv/experience";
-import { Education } from "@/components/cv/education";
-import { Certifications } from "@/components/cv/certifications";
-import { Skills } from "@/components/cv/skills";
-import { Languages } from "@/components/cv/languages";
 import { Recommendations } from "@/components/cv/recommendations";
 import { Connect } from "@/components/cv/connect";
+import { Owe } from "@/components/cv/owe";
 import { SiteFooter } from "@/components/cv/site-footer";
 import { FeaturedNotes } from "@/components/cv/featured-notes";
 import { getFeaturedNotes } from "@/lib/notes";
+import { getSidebarStats } from "@/lib/sidebar-stats";
 import { siteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
 import type { Project } from "@/types/project";
@@ -75,38 +71,40 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+/**
+ * One editorial column: who, what he has built, who vouches for it, where he
+ * has worked, what he writes, how to reach him. Education, certifications,
+ * skills and languages live on /cv — the homepage is the argument, the CV is
+ * the record.
+ *
+ * Section order is fixed by the design; `site_sections.visible` still decides
+ * whether each one renders (and whether the nav offers Contact).
+ */
 export default async function HomePage() {
   const supabase = await createClient();
   const [
-    {
-      personalInfo,
-      skills,
-      experience,
-      education,
-      certifications,
-      languages,
-      recommendations,
-      visibleSections,
-    },
-    { data: featuredProjects },
-    { data: featuredSideProjects },
+    { personalInfo, experience, recommendations, visibleSections },
+    { data: featured },
     featuredNotes,
+    stats,
   ] = await Promise.all([
     getCvData(),
+    // Client work leads, side projects follow — the order the old reel used.
     supabase
       .from("projects")
       .select("*")
-      .eq("kind", "client")
+      .in("kind", ["client", "side"])
       .eq("featured", true)
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("projects")
-      .select("*")
-      .eq("kind", "side")
-      .eq("featured", true)
+      .order("kind", { ascending: true })
       .order("created_at", { ascending: false }),
     getFeaturedNotes(2),
+    getSidebarStats(),
   ]);
+
+  const show = (key: string) => visibleSections.includes(key);
+  const current = experience.filter(
+    (e) => e.end_date.toLowerCase() === "present",
+  );
 
   return (
     <>
@@ -126,58 +124,32 @@ export default async function HomePage() {
         />
       )}
       <TopNav visibleSections={visibleSections} />
-      <Sidebar info={personalInfo} />
       <main
         id="main-content"
         tabIndex={-1}
-        className="page-enter flex-1 lg:ml-80 focus:outline-none"
+        className="page-enter flex-1 focus:outline-none"
       >
-        <div className="mx-auto w-full min-w-0 max-w-3xl xl:max-w-5xl 2xl:max-w-6xl px-6 py-10">
-          <Hero
-            info={personalInfo}
-            currentExperience={
-              experience.find((e) => e.end_date.toLowerCase() === "present") ||
-              experience[0] ||
-              null
-            }
-          />
-          {visibleSections.map((key) => {
-            switch (key) {
-              case "featured-work":
-                return (
-                  <div key={key} className="flex flex-col gap-6">
-                    <FeaturedWork
-                      projects={(featuredProjects as Project[] | null) ?? []}
-                      sideProjects={
-                        (featuredSideProjects as Project[] | null) ?? []
-                      }
-                    />
-                    <FeaturedNotes notes={featuredNotes} />
-                  </div>
-                );
-              case "about":
-                return <About key={key} info={personalInfo} skills={skills} />;
-              case "experience":
-                return <Experience key={key} entries={experience} />;
-              case "education":
-                return <Education key={key} entries={education} />;
-              case "certifications":
-                return <Certifications key={key} entries={certifications} />;
-              case "skills":
-                return <Skills key={key} skills={skills} />;
-              case "languages":
-                return <Languages key={key} languages={languages} />;
-              case "recommendations":
-                return <Recommendations key={key} items={recommendations} />;
-              case "connect":
-                return <Connect key={key} info={personalInfo} />;
-              default:
-                return null;
-            }
-          })}
+        <div className="mx-auto w-full min-w-0 max-w-5xl px-6">
+          <Hero info={personalInfo} current={current} stats={stats} />
+          {show("featured-work") && (
+            <FeaturedWork
+              projects={(featured as Project[] | null) ?? []}
+              total={stats.projectCount}
+            />
+          )}
+          {show("recommendations") && (
+            <Recommendations items={recommendations} />
+          )}
+          {show("experience") && <Experience entries={experience} />}
+          {show("featured-work") && <FeaturedNotes notes={featuredNotes} />}
+          {show("connect") && <Connect info={personalInfo} />}
+          <Owe />
         </div>
       </main>
-      <SiteFooter name={personalInfo?.name ?? ""} />
+      <SiteFooter
+        name={personalInfo?.name ?? ""}
+        availability={personalInfo?.availability}
+      />
     </>
   );
 }

@@ -17,6 +17,7 @@ export interface VintageRadioState {
   volume: number;
   isMinimized: boolean;
   isEnabled: boolean;
+  hasStarted: boolean;
 }
 
 class VintageRadioManager {
@@ -27,10 +28,8 @@ class VintageRadioManager {
   private volume: number = 0.08; // Default low ambient background level (8%)
   private isMinimized: boolean = false;
   private isEnabled: boolean = true;
-  private userPaused: boolean = false;
-  private autoplayAttempted: boolean = false;
-  /** Removes the armed first-interaction listeners; null when none are armed. */
-  private cancelPendingAutoplay: (() => void) | null = null;
+  /** True once playback has started this session; the floating player waits for it. */
+  private hasStarted: boolean = false;
   /** Silent element that warms the next track's buffer while this one plays. */
   private prefetch: HTMLAudioElement | null = null;
   private nextTrackIndex: number = -1;
@@ -202,6 +201,7 @@ class VintageRadioManager {
       volume: this.volume,
       isMinimized: this.isMinimized,
       isEnabled: this.isEnabled,
+      hasStarted: this.hasStarted,
     };
     return this.cachedState;
   }
@@ -215,7 +215,6 @@ class VintageRadioManager {
 
   public async play(): Promise<boolean> {
     if (!this.isEnabled) return false;
-    this.userPaused = false;
     this.syncAudioSource();
     const audio = this.initAudio();
     if (!audio) return false;
@@ -225,21 +224,19 @@ class VintageRadioManager {
     try {
       await audio.play();
       this.isPlaying = true;
+      this.hasStarted = true;
       this.notify();
       this.prebufferNext();
       return true;
     } catch {
-      // Browser autoplay restriction or interruption
+      // Blocked or interrupted (e.g. the source failed to load)
       this.isPlaying = false;
       this.notify();
       return false;
     }
   }
 
-  public pause(userInitiated: boolean = true) {
-    if (userInitiated) {
-      this.userPaused = true;
-    }
+  public pause() {
     if (this.audio) {
       this.audio.pause();
     }
@@ -327,63 +324,12 @@ class VintageRadioManager {
   public setEnabled(enabled: boolean) {
     this.isEnabled = enabled;
     if (!enabled) {
-      this.userPaused = true;
-      this.pause(true);
+      this.pause();
     }
     try {
       localStorage.setItem(STORAGE_KEYS.ENABLED, enabled ? "true" : "false");
     } catch {}
     this.notify();
-  }
-
-  /**
-   * Starts playback on page load at low background volume (8%).
-   * If browser autoplay policy prevents immediate unmuted audio, it arms a
-   * one-time listener on the first user interaction (scroll, click, touch, keydown)
-   * so audio begins seamlessly and continues uninterrupted.
-   */
-  public async startAutoplay() {
-    if (typeof window === "undefined") return;
-    if (this.autoplayAttempted || this.isPlaying || this.userPaused || !this.isEnabled) return;
-    this.autoplayAttempted = true;
-
-    const started = await this.play();
-    if (started) return;
-
-    // Autoplay was restricted by browser policy; start on first user interaction anywhere on the page
-    const onFirstInteraction = async () => {
-      this.disarmAutoplay();
-      if (!this.isPlaying && !this.userPaused && this.isEnabled) {
-        await this.play();
-      }
-    };
-
-    const events = ["pointerdown", "keydown", "touchstart", "scroll", "click"] as const;
-    for (const type of events) {
-      window.addEventListener(type, onFirstInteraction, { once: true, passive: true });
-    }
-
-    this.cancelPendingAutoplay = () => {
-      for (const type of events) {
-        window.removeEventListener(type, onFirstInteraction);
-      }
-    };
-  }
-
-  /**
-   * Disarms the pending first-interaction listeners, so a later click cannot
-   * start playback somewhere the radio has no business playing (e.g. /admin).
-   */
-  public cancelAutoplay() {
-    if (!this.cancelPendingAutoplay) return;
-    this.disarmAutoplay();
-    // Let a later mount on a normal route arm autoplay again.
-    this.autoplayAttempted = false;
-  }
-
-  private disarmAutoplay() {
-    this.cancelPendingAutoplay?.();
-    this.cancelPendingAutoplay = null;
   }
 }
 
