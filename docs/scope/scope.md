@@ -19,7 +19,7 @@ Spec: [0001](../specs/0001-commonground-redesign/index.md)
 
 - [x] Design it (spec)
 - [ ] Build it: /develop commonground redesign
-  - [ ] Foundation on `main`: additive migration and temporary `/work` redirects (AC-4, AC-5, AC-7)
+  - [x] Foundation on `main`: additive migration and temporary `/work` redirects (AC-4, AC-5, AC-7)
   - [ ] Branch, design system, shell, admin and contact changes (AC-1, AC-2, AC-3, AC-5, AC-7, AC-10, AC-12, AC-13)
   - [ ] Tracer slice: `/work` on real data, routes, redirects, smoke suite on preview (AC-4, AC-6, AC-14)
   - [ ] Removals and the shared OG card (AC-9, AC-11)

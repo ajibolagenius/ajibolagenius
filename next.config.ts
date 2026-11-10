@@ -111,7 +111,9 @@ const nextConfig: NextConfig = {
       // Exact listing pages FIRST. `:path*` below matches zero segments too,
       // so it would otherwise swallow a bare /side-projects and drop the
       // ?type=side that makes the redirect land on the right filter.
-      { source: "/work", destination: "/projects", statusCode: 301 },
+      // Temporary 307 on /work while the CommonGround redesign is in flight
+      // so no new visitors cache the old /projects target.
+      { source: "/work", destination: "/projects", statusCode: 307 },
       {
         source: "/side-projects",
         destination: "/projects?type=side",
@@ -124,7 +126,7 @@ const nextConfig: NextConfig = {
       {
         source: "/work/:path*",
         destination: "/projects/:path*",
-        statusCode: 301,
+        statusCode: 307,
       },
       {
         source: "/side-projects/:path*",
