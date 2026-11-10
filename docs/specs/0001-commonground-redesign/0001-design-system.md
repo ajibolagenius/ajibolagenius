@@ -33,7 +33,9 @@ Colors were sampled from the frames.
 | `--color-accent` | `#FF4A26` | CTA links, timeline cursor, status dot, selected thumbnail outline, focus ring | 6.3:1 (AA) |
 | `--color-invert-bg` / `--color-invert-fg` | `#FFFFFF` / `#000000` | index row hover and focus | 21:1 |
 
-Remove every light palette variable, the `.dark` and `[data-theme]` selectors, and `theme-script.tsx`. Set `color-scheme: dark` on `:root`.
+Inside an inverted (white) row, every accent element (status dot, accent text, chevron) switches to `--color-invert-fg`. Accent on white is about 3.3:1, which fails AA.
+
+Remove every light palette variable, the `.dark` and `[data-theme]` selectors, `theme-script.tsx`, `theme-toggle.tsx`, and every `ThemeToggle` import (`top-nav.tsx`, `sandbox-nav.tsx`, `admin-shell.tsx`, admin `login` and `reset-password`). Set `color-scheme: dark` on `:root`. The manifest and viewport colors change too (see [0002](0002-data-and-routes.md#routes-and-redirects)).
 
 **Type**
 
@@ -61,7 +63,7 @@ Load both fonts with `next/font/google` (`BBH_Bogle`, `Geist_Mono`) in `src/app/
 
 | Component | Source frame | Behavior |
 |---|---|---|
-| `SiteHeader` | Navigation | Props: `variant: "home" \| "inner"`. Home shows `display-xl` wordmark; inner shows `display-logo`. Nav items are muted at rest and `fg` on hover and when current (`aria-current="page"`). |
+| `SiteHeader` | Navigation | Props: `variant: "home" \| "inner"`. Home shows the `WORDMARK` constant (`src/lib/site.ts`) at `display-xl`; inner shows it at `display-logo`. Nav items are muted at rest and `fg` on hover and when current (`aria-current="page"`). |
 | `MobileMenu` | Navigation | `=` button toggles a full screen black overlay with centered nav items and the utilities row; `✕` closes. Focus trap via the existing `use-focus-trap` hook, Escape closes, body scroll locked while open. |
 | `SiteFooter` | Navigation (footer) | `© YEAR AJIBOLA AKELEBE` left; PRIVACY POLICY, LICENSES right; utilities row above them. Stacks at 360. |
 | `UtilityButton` | new, mono text button | Uppercase mono, muted, `fg` on hover. Used for SEARCH, ASK AI, EN / YO, SOUND. |
@@ -92,7 +94,11 @@ Load both fonts with `next/font/google` (`BBH_Bogle`, `Geist_Mono`) in `src/app/
 
 ## OG card
 
-One `ogCard()` in `src/lib/og-template.tsx` replaces the current light and dark variants. 1200×630, black, `display-xl` wordmark top left, the year (from the newest listed project's `date`) top right in muted mono, and up to five project thumbnails in the staggered two row layout of `Open Graph.png`, each with name, MM/YY, and service. Per route overrides: the title replaces the wordmark (for example WORK, a project name, a note title), and project routes show that project's own cover. BBH Bogle and Geist Mono font files are read for `ImageResponse` the same way the current template reads its fonts.
+One `ogCard()` in `src/lib/og-template.tsx` replaces the current light and dark variants. 1200×630, black, the `WORDMARK` constant in display type top left, `getWorkStats().lastYear` top right in muted mono, and the five newest Work projects with a cover, in the staggered two row layout of `Open Graph.png`, each with name, MM/YY, and service (sources in [0002](0002-data-and-routes.md#value-sourcing)). Per route overrides: the page title replaces the wordmark (for example WORK, a project name, a note title), and `/work/[slug]` shows that project's own cover large instead of the five.
+
+**Fonts for OG.** The current template loads no font files (it uses `fontFamily: "sans-serif"`). Add `BBHBogle-Regular.ttf` and `GeistMono-Regular.ttf` (TTF or OTF from Google Fonts; the OG renderer can't read woff2) in `src/assets/fonts/`. Load them once per module with `readFile(join(process.cwd(), "src/assets/fonts/<file>"))`, and pass them to `ImageResponse` `fonts`. Make sure the files ship with the route (Next traces `readFile` with a static path; if not, add them to `outputFileTracingIncludes`).
+
+**OG routes (one `opengraph-image.tsx` each):** `/`, `/work`, `/work/[slug]`, `/notes`, `/notes/[slug]`, `/about`, `/contact`, `/privacy`, `/licenses`. Delete the ones under `projects`, `sandbox`, and `cv` with their folders. The redirects send old OG URLs to these.
 
 ## Critical test scenarios
 
